@@ -21,17 +21,17 @@ public abstract class AbstractSignatureHelper
     private final String consumerKey = "LiMccelygYuyueOKZLaVk9N1R";
     private final String consumerSecret = "xxx";
     private final String accessToken = "92073489-N6BLM48cIKk3X5ya5RiXNPYlShFF1Z1vYRug6rRiv";
-    private String secretToken = "xxx";
+    private final String secretToken = "xxx";
     private final String version = "1.0";
     private final String algorithm = "HmacSHA1";
     private final String signatureMethod = "HMAC-SHA1";
-    public static final String OAUTH_TOKEN = "oauth_token";
-    public static final String OAUTH_CONSUMER_KEY = "oauth_consumer_key";
-    public static final String OAUTH_SIGNATURE = "oauth_signature";
-    public static final String OAUTH_NONCE = "oauth_nonce";
-    public static final String OAUTH_TIMESTAMP = "oauth_timestamp";
-    public static final String OAUTH_SIGNATURE_METHOD = "oauth_signature_method";
-    public static final String OAUTH_VERSION = "oauth_version";
+    private final String OAUTH_TOKEN = "oauth_token";
+    private final String OAUTH_CONSUMER_KEY = "oauth_consumer_key";
+    private final String OAUTH_SIGNATURE = "oauth_signature";
+    private final String OAUTH_NONCE = "oauth_nonce";
+    private final String OAUTH_TIMESTAMP = "oauth_timestamp";
+    private final String OAUTH_SIGNATURE_METHOD = "oauth_signature_method";
+    private final String OAUTH_VERSION = "oauth_version";
     private final String ENC = "UTF-8";
     private Base64 base64 = new Base64();
 

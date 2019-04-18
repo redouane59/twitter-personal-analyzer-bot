@@ -61,8 +61,8 @@ public class ApplicationTest {
         String url = "https://api.twitter.com/1.1/followers/ids.json?user_id=952253106";
         String expectedSignature = "%2FicEKfNmyFexYL0lsDiLALRs2NM%3D";
         Application application = new Application();
-        String result = application.getSignatureHelper().getSignature(url, method,
-                application.getSignatureHelper().getStringParametersToEncrypt(nonce, timestamp));
+        String parametersToEnccrypt = application.getSignatureHelper().getStringParametersToEncrypt(nonce, timestamp);
+        String result = application.getSignatureHelper().getSignature(url, method, parametersToEnccrypt);
         Assert.assertEquals(expectedSignature, result);
     }
 

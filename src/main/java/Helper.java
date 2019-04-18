@@ -1,15 +1,17 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+@Data
 public class Helper {
-    private final String consumerKey = "LiMccelygYuyueOKZLaVk9N1R";
-    private final String accessToken = "92073489-N6BLM48cIKk3X5ya5RiXNPYlShFF1Z1vYRug6rRiv";
     private final String rootUrl = "https://api.twitter.com/1.1";
     private final String idJsonPath = "/ids.json?";
     private final String retweetersPath = "/retweeters";
@@ -18,19 +20,19 @@ public class Helper {
     private final String statusesPath = "/statuses";
 
     private HttpClient client = HttpClient.newHttpClient();
+    private AbstractSignatureHelper signatureHelper = new SignatureHelperImpl();
 
-    List<Long> executeRequest(Action action, Long relatedId) throws IOException, InterruptedException {
+    List<Long> executeRequest(Action action, Long relatedId) throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeyException {
         String url = this.getUrl(action, relatedId);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("Authorization",this.getAuthorizationHeader())
+                .headers("Authorization",this.getAuthorizationHeader("GET", url))
                 .build();
 
-        HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        ObjectMapper mapper = new ObjectMapper();
-        TwitterJsonResponse jsonResponse = mapper.readValue(response.body(), TwitterJsonResponse.class);
+        TwitterJsonResponse jsonResponse = new ObjectMapper().readValue(response.body(), TwitterJsonResponse.class);
 
         return jsonResponse.getIds();
     }
@@ -48,11 +50,11 @@ public class Helper {
         }
     }
 
-    int getNbFollowers(Long userId) throws IOException, InterruptedException {
+    int getNbFollowers(Long userId) throws IOException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException {
         return this.executeRequest(Action.FOLLOWERS, userId).size();
     }
 
-    int getNbFollowings(Long userId) throws IOException, InterruptedException {
+    int getNbFollowings(Long userId) throws IOException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException {
         return this.executeRequest(Action.FOLLOWING, userId).size();
     }
 
@@ -75,7 +77,9 @@ public class Helper {
     String getFollowingsListUrl(Long userId){
         return new StringBuilder(rootUrl)
                 .append(followingsPath)
-                .append(idJsonPath).toString();
+                .append(idJsonPath)
+                .append("user_id=")
+                .append(userId).toString();
     }
 
     String getLastTweetListUrl(){
@@ -84,14 +88,18 @@ public class Helper {
                 .append("/user_timeline.json?").toString();
     }
 
-    private String getAuthorizationHeader(){
+    private String getAuthorizationHeader(String method, String url) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+
         return "OAuth oauth_consumer_key" +
-                "=\""+ consumerKey + "\"" +
-                ",oauth_token=\""+accessToken+"\"" +
+                "=\""+ this.getSignatureHelper().getConsumerKey() + "\"" +
+                ",oauth_token=\""+this.getSignatureHelper().getAccessToken()+"\"" +
                 ",oauth_signature_method=\"HMAC-SHA1\"" +
-                ",oauth_timestamp=\"1555580250\"" +
-                ",oauth_nonce=\"XgzhSJrv3GH\"" +
+                ",oauth_timestamp=\"1555592471\"" +
+                ",oauth_nonce=\"RWMNirgMX6i\"" +
                 ",oauth_version=\"1.0\"" +
-                ",oauth_signature=\"xrnEdleX9w4nwG9hLFsRazzIL7E%3D\"";
+                ",oauth_signature=\"" + this.getSignatureHelper().getSignature(url, method, this.getSignatureHelper().getStringParametersToEncrypt()) + "\"";
     }
+
+
+
 }

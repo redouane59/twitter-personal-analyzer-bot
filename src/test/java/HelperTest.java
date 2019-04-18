@@ -37,4 +37,11 @@ public class HelperTest {
         List<Long> followers = helper.executeRequest(Action.FOLLOWERS, 952253106L);
         Assert.assertTrue(followers.size()>100);
     }
+
+    @Test
+    public void testGetFollowings() throws IOException, InterruptedException {
+        Helper helper = new Helper();
+        List<Long> followers = helper.executeRequest(Action.FOLLOWING, 952253106L);
+        Assert.assertTrue(followers.size()>1);
+    }
 }

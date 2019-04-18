@@ -1,9 +1,12 @@
+package twitter.helpers;
+
 import lombok.Data;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -16,7 +19,6 @@ import java.util.List;
 @Data
 public abstract class AbstractSignatureHelper
 {
-
     private final String consumerKey = "LiMccelygYuyueOKZLaVk9N1R";
     private final String consumerSecret = "xxx";
     private final String accessToken = "92073489-N6BLM48cIKk3X5ya5RiXNPYlShFF1Z1vYRug6rRiv";
@@ -34,6 +36,12 @@ public abstract class AbstractSignatureHelper
 
     public abstract String getSignature(String url, String method, String params)
             throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+
+    public abstract String getBaseSignature(String url, String method, String params);
+
+    public String getSigningKey(){
+        return this.consumerSecret + "&" + this.secretToken;
+    }
 
     public List<NameValuePair> getParametersToEncrypt(){
         return this.getParametersToEncrypt(this.getNonce(), this.getTimestamp());
@@ -72,7 +80,52 @@ public abstract class AbstractSignatureHelper
         for (int i = 0; i < 15; i++) {
             stringBuilder.append(secureRandom.nextInt(10));
         }
-        String randomNumber = stringBuilder.toString();
-        return randomNumber;
+        return stringBuilder.toString();
     }
+
+
+    /**
+     * percentage encoding
+     *
+     * @return A encoded string
+     */
+    public String encode(String value) {
+        String encoded = "";
+        try {
+            encoded = URLEncoder.encode(value, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String sb = "";
+        char focus;
+        for (int i = 0; i < encoded.length(); i++) {
+            focus = encoded.charAt(i);
+            if (focus == '*') {
+                sb += "%2A";
+            } else if (focus == '+') {
+                sb += "%20";
+            } else if (focus == '%' && i + 1 < encoded.length()
+                    && encoded.charAt(i + 1) == '7' && encoded.charAt(i + 2) == 'E') {
+                sb += '~';
+                i += 2;
+            } else {
+                sb += focus;
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getAuthorizationHeader(String method, String url) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+
+        return "OAuth oauth_consumer_key" +
+                "=\""+ this.getConsumerKey() + "\"" +
+                "," + OAUTH_TOKEN + "=\""+this.getAccessToken()+"\"" +
+                ","+ OAUTH_SIGNATURE_METHOD + "=\"HMAC-SHA1\"" +
+                "," + OAUTH_TIMESTAMP + "=\"1555592471\"" +
+                "," + OAUTH_NONCE + "=\"RWMNirgMX6i\"" +
+                "," + OAUTH_VERSION + "=\"1.0\"" +
+                "," + OAUTH_SIGNATURE + "=\"" + this.getSignature(url, method, this.getStringParametersToEncrypt()) + "\"";
+    }
+
+
 }

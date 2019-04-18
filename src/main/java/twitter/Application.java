@@ -21,12 +21,12 @@ public class Application implements IApplication {
     private AbstractSignatureHelper signatureHelper = new SignatureHelperImpl();
     private URLHelper urlHelper = new URLHelper();
 
-    List<Long> executeRequest(Action action, Long relatedId) throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeyException {
+    List<Long> executeRequest(Action action, Long relatedId, String nonce, String timestamp) throws IOException, InterruptedException, NoSuchAlgorithmException, InvalidKeyException {
         String url = this.urlHelper.getUrl(action, relatedId);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("Authorization",this.signatureHelper.getAuthorizationHeader("GET", url))
+                .headers("Authorization",this.signatureHelper.getAuthorizationHeader("GET", url, nonce, timestamp))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -38,17 +38,17 @@ public class Application implements IApplication {
 
     @Override
     public int getNbFollowers(Long userId) throws IOException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException {
-        return this.executeRequest(Action.FOLLOWERS, userId).size();
+        return this.executeRequest(Action.FOLLOWERS, userId, "", "").size();
     }
 
     @Override
     public int getNbFollowings(Long userId) throws IOException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException {
-        return this.executeRequest(Action.FOLLOWING, userId).size();
+        return this.executeRequest(Action.FOLLOWING, userId, "","").size();
     }
 
     @Override
     public int getRetweeters(Long tweetId) throws IOException, InterruptedException, InvalidKeyException, NoSuchAlgorithmException {
-        return this.executeRequest(Action.RETWEETERS, tweetId).size();
+        return this.executeRequest(Action.RETWEETERS, tweetId,"","").size();
     }
 
 

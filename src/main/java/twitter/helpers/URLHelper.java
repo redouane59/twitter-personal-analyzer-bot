@@ -27,7 +27,10 @@ public class URLHelper {
         return new StringBuilder(rootUrl)
                 .append(statusesPath)
                 .append(retweetersPath)
-                .append(idJsonPath).toString();
+                .append(idJsonPath)
+                .append("id=")
+                .append(tweetId)
+                .toString();
     }
 
     public String getFollowersListUrl(Long userId){

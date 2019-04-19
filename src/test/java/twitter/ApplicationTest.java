@@ -1,7 +1,6 @@
 package twitter;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class ApplicationTest {
     @Test
     public void testFollowersUrlByName(){
         Application application = new Application();
-        Assert.assertEquals("https://api.twitter.com/1.1/followers/list.json?screen_name=RedTheOne",
+        Assert.assertEquals("https://api.twitter.com/1.1/followers/list.json?screen_name=RedTheOne&count=200",
                 application.getUrlHelper().getFollowersListUrl("RedTheOne"));
     }
 
@@ -38,7 +37,7 @@ public class ApplicationTest {
     @Test
     public void testFollowingsUrlByName(){
         Application application = new Application();
-        Assert.assertEquals("https://api.twitter.com/1.1/friends/list.json?screen_name=RedTheOne",
+        Assert.assertEquals("https://api.twitter.com/1.1/friends/list.json?screen_name=RedTheOne&count=200",
                 application.getUrlHelper().getFollowingsListUrl("RedTheOne"));
     }
 
@@ -64,9 +63,23 @@ public class ApplicationTest {
     }
 
     @Test
+    public void testFollowUrlByName(){
+        Application application = new Application();
+        Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?screen_name=RedTheOne&follow=true",
+                application.getUrlHelper().getFollowUrl("RedTheOne"));
+    }
+
+    @Test
+    public void testFollowUrlById(){
+        Application application = new Application();
+        Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?user_id=12345&follow=true",
+                application.getUrlHelper().getFollowUrl(12345L));
+    }
+
+    @Test
     public void testGetFollowingsById() throws IllegalAccessException {
         Application application = new Application();
-        List<Long> followings = application.getFollowingsList(952253106L);
+        List<Long> followings = application.getFollowingsList(92073489L);
         Assert.assertTrue(followings.size()>1);
     }
 
@@ -94,7 +107,7 @@ public class ApplicationTest {
     @Test
     public void testGetFollowersById() throws IllegalAccessException {
         Application application = new Application();
-        String url = application.getUrlHelper().getUrl(Action.FOLLOWERS, 952253106L);
+        String url = application.getUrlHelper().getUrl(Action.GET_FOLLOWERS, 952253106L);
         List<Long> followers = application.getFollowersList(952253106L);
         Assert.assertTrue(followers.size()>1);
     }
@@ -146,12 +159,11 @@ public class ApplicationTest {
     }
 
     @Test
-    @Ignore
-    public void testPotentials(){
+    public void testFollowNew(){
         Application application = new Application();
-        List<Long> potentialFollowers = application.getPotentialFollowersFromRetweet(1100473425443860481L);
-        Assert.assertTrue(potentialFollowers.size()>1);
+        String userName = "SaraFreeGaza";
+        boolean result = application.follow(userName);
+        Assert.assertTrue(result);
     }
-
 
 }

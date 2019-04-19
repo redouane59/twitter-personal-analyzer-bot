@@ -2,6 +2,7 @@ package twitter;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import lombok.Data;
 import org.json.JSONArray;
@@ -32,28 +33,16 @@ public class Application implements IApplication {
 
     JSONObject executeRequest(String url, String nonce, String timestamp) throws IllegalAccessException {
 
-        Oauth1SigningInterceptor oauth1 = new Oauth1SigningInterceptor.Builder()
-                .consumerKey(SignatureConstants.consumerKey)
-                .consumerSecret(SignatureConstants.consumerSecret)
-                .accessToken(SignatureConstants.accessToken)
-                .accessSecret(SignatureConstants.secretToken)
-                .oauthNonce(nonce)
-                .oauthTimeStamp(timestamp)
-                .build();
-
         Request request = new Request.Builder()
                 .url(url)
                 .get()
                 .build();
 
         try {
-            Request signed = oauth1.signRequest(request);
             OkHttpClient client = new OkHttpClient();
-
-            Response response = client.newCall(signed).execute();
-
+            Response response = client.newCall(this.getSignedRequest(request, nonce, timestamp)).execute();
+            System.out.println("executing 1 request " + url);
             JSONObject jsonResponse = new JSONObject(response.body().string());
-
             if(response.code()==200){
                 return jsonResponse;
             } else{
@@ -67,35 +56,41 @@ public class Application implements IApplication {
 
     @Override
     public List<Long> getFollowersList(Long userId) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWERS, userId);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWERS, userId);
         JSONObject response = this.executeRequest(url);
         return this.jsonLongArrayToList(response.get(IDS));
     }
 
     @Override
     public List<String> getFollowersList(String userName) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWERS, userName);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWERS, userName);
         JSONObject response = this.executeRequest(url);
         return this.jsonStringArrayToList(response.get(USERS));
     }
 
+    public List<User> getFollowersUserList(String userName) throws IllegalAccessException {
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWERS, userName);
+        JSONObject response = this.executeRequest(url);
+        return this.jsonUserArrayToList(response.get(USERS));
+    }
+
     @Override
     public List<Long> getFollowingsList(Long userId) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWING, userId);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWING, userId);
         JSONObject response = this.executeRequest(url);
         return this.jsonLongArrayToList(response.get(IDS));
     }
 
     @Override
     public List<String> getFollowingsList(String name) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWING, name);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWING, name);
         JSONObject response = this.executeRequest(url);
         return this.jsonStringArrayToList(response.get(USERS));
     }
 
     @Override
     public Boolean areFriends(Long userId1, Long userId2) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FRIENDSHIP, userId1, userId2);
+        String url = this.urlHelper.getUrl(Action.GET_FRIENDSHIP, userId1, userId2);
         JSONObject response = this.executeRequest(url);
         JSONObject relationship = (JSONObject)response.get("relationship");
         JSONObject sourceResult = (JSONObject)relationship.get("source");
@@ -104,43 +99,59 @@ public class Application implements IApplication {
         return (followedBy & following);
     }
 
+    public Boolean userFollowsOther(Long userId1, Long userId2) throws IllegalAccessException {
+        String url = this.urlHelper.getUrl(Action.GET_FRIENDSHIP, userId1, userId2);
+        JSONObject response = this.executeRequest(url);
+        JSONObject relationship = (JSONObject)response.get("relationship");
+        JSONObject sourceResult = (JSONObject)relationship.get("source");
+        return (Boolean)sourceResult.get("following");
+    }
+
+    public Boolean userIsFollowed (Long userId1, Long userId2) throws IllegalAccessException {
+        String url = this.urlHelper.getUrl(Action.GET_FRIENDSHIP, userId1, userId2);
+        JSONObject response = this.executeRequest(url);
+        JSONObject relationship = (JSONObject)response.get("relationship");
+        JSONObject sourceResult = (JSONObject)relationship.get("source");
+        return (Boolean)sourceResult.get("followed_by");
+    }
+
     @Override
     public int getNbFollowers(Long userId) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWERS, userId);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWERS, userId);
         JSONObject response = this.executeRequest(url);
         return this.jsonLongArrayToList(response.get(IDS)).size();
     }
 
     @Override
     public int getNbFollowings(Long userId) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWING, userId);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWING, userId);
         JSONObject response = this.executeRequest(url);
         return this.jsonLongArrayToList(response.get(IDS)).size();
     }
 
     @Override
     public int getNbFollowers(String userName) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWERS, userName);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWERS, userName);
         JSONObject response = this.executeRequest(url);
         return this.jsonStringArrayToList(response.get(USERS)).size();    }
 
     @Override
     public int getNbFollowings(String userName) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.FOLLOWING, userName);
+        String url = this.urlHelper.getUrl(Action.GET_FOLLOWING, userName);
         JSONObject response = this.executeRequest(url);
         return this.jsonStringArrayToList(response.get(USERS)).size();
     }
 
     @Override
     public List<Long> getRetweetersId(Long tweetId) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.RETWEETERS, tweetId);
+        String url = this.urlHelper.getUrl(Action.GET_RETWEETERS, tweetId);
         JSONObject response = this.executeRequest(url);
         return this.jsonLongArrayToList(response.get(IDS));
     }
 
     @Override
     public List<String> getRetweetersNames(Long tweetId) throws IllegalAccessException {
-        String url = this.urlHelper.getUrl(Action.RETWEETERS, tweetId);
+        String url = this.urlHelper.getUrl(Action.GET_RETWEETERS, tweetId);
         JSONObject response = this.executeRequest(url);
         return this.jsonStringArrayToList(response.get(IDS));
     }
@@ -152,10 +163,16 @@ public class Application implements IApplication {
     }
 
     public boolean shouldFollow(Long userId) throws IllegalAccessException {
-        double followersRatio = this.getFollowersFollowingRatio(userId);
+        int minNbFollowers = 100;
         int minRatio = 1;
         int maxRatio = 3;
 
+        int nbFollowers = this.getNbFollowers(userId);
+        if(nbFollowers<minNbFollowers){
+            return false;
+        }
+        int nbFollowings = this.getNbFollowings(userId);
+        double followersRatio = (double)nbFollowers/(double)nbFollowings;
         if(followersRatio>minRatio && followersRatio<maxRatio){
             return true;
         } else{
@@ -163,22 +180,65 @@ public class Application implements IApplication {
         }
     }
 
-    public List<Long> getPotentialFollowersFromRetweet(Long tweetId) {
+    public List<Long> getPotentialFollowersFromRetweet(Long tweetId, Long userId) {
 
         List<Long> potentialFollowers = new ArrayList<>();
-        try{
+        try {
             List<Long> retweeters = this.getRetweetersId(tweetId);
-            for(Long userId : retweeters){
-                if(this.shouldFollow(userId)){
-                    potentialFollowers.add(userId);
+            for (Long retweeterId : retweeters) {
+                if (!this.userFollowsOther(userId, retweeterId)
+                        && !this.userIsFollowed(userId, retweeterId)
+                        && this.shouldFollow(retweeterId)) {
+                    potentialFollowers.add(retweeterId);
                 }
             }
             return potentialFollowers;
-        } catch(Exception e){
+        } catch (Exception e) {
             return potentialFollowers;
         }
     }
 
+    public List<String> getPotentialFollowersFromUserFollowers(List<String> otherUserNames, Long userId) throws IllegalAccessException{
+        List<String> results = new ArrayList<>();
+        for(String name : otherUserNames){
+            results.addAll(this.getPotentialFollowersFromUserFollowers(name, userId));
+        }
+        return results;
+    }
+
+    public List<String> getPotentialFollowersFromUserFollowers(String otherUserName, Long userId) throws IllegalAccessException {
+        List<String> potentialFollowers = new ArrayList<>();
+        List<User> followers = this.getFollowersUserList(otherUserName);
+
+        for (User follower : followers) {
+            boolean alreadyFollowed = true;
+            try{
+                alreadyFollowed = this.userIsFollowed(userId, follower.getId());
+            }
+            catch(Exception e){}
+            if (!alreadyFollowed && follower.shouldBeFollowed()) {
+                potentialFollowers.add(follower.getScreen_name());
+            }
+        }
+        return potentialFollowers;
+    }
+
+    public List<User> followCommonFollowers(String userName) throws IllegalAccessException {
+        List<String> someFollowers = this.getFollowersList(userName);
+        List<User> followedUsers = new ArrayList<>();
+        for(String followerName : someFollowers){
+            List<User> followers = this.getFollowersUserList(followerName);
+            for (User follower : followers) {
+                if (follower.shouldBeFollowed()) {
+                    boolean foolowed = this.follow(follower.getScreen_name());
+                    if(foolowed){
+                        followedUsers.add(follower);
+                    }
+                }
+            }
+        }
+        return followedUsers;
+    }
 
     public List<Long> getUsersNotFollowingBack(Long userId) throws IllegalAccessException {
         List<Long> notFollowingsBackUsers = new ArrayList<>();
@@ -190,11 +250,37 @@ public class Application implements IApplication {
         return notFollowingsBackUsers;
     }
 
-    public void unfollow(Long userId, Long userToUnfollowId){
-        return;
+
+
+    public boolean follow(String userName){
+     //   curl --request POST
+     //   --url 'https://api.twitter.com/1.1/friendships/create.json?user_id=2244994945&follow=true'
+     //           --header 'authorization: OAuth oauth_consumer_key="YOUR_CONSUMER_KEY", oauth_nonce="AUTO_GENERATED_NONCE", oauth_signature="AUTO_GENERATED_SIGNATURE", oauth_signature_method="HMAC-SHA1", oauth_timestamp="AUTO_GENERATED_TIMESTAMP", oauth_token="USERS_ACCESS_TOKEN", oauth_version="1.0"'
+     //           --header 'content-type: application/json'
+        String url = this.urlHelper.getUrl(Action.FOLLOW, userName);
+        RequestBody reqbody = RequestBody.create(null, new byte[0]);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(reqbody)
+                .build();
+
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
+            System.out.println("executing 1 request " + url);
+            JSONObject jsonResponse = new JSONObject(response.body().string());
+            if(response.code()==200){
+                return true;
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
-    public void follow(Long userId, Long userToUnfollowId){
+    public void unfollow(Long userId, Long userToUnfollowId){
         return;
     }
 
@@ -213,7 +299,7 @@ public class Application implements IApplication {
 
     public List<Long> jsonLongArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<Long> listdata = new ArrayList<Long>();
+        ArrayList<Long> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 listdata.add(jArray.getLong(i));
@@ -224,7 +310,7 @@ public class Application implements IApplication {
 
     public List<String> jsonStringArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<String> listdata = new ArrayList<String>();
+        ArrayList<String> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 listdata.add(jArray.getJSONObject(i).get(SCREEN_NAME).toString());
@@ -233,5 +319,32 @@ public class Application implements IApplication {
         return listdata;
     }
 
+    public List<User> jsonUserArrayToList(Object jsonObject){
+        JSONArray jArray = (JSONArray)jsonObject;
+        ArrayList<User> listdata = new ArrayList<>();
+        if (jArray != null) {
+            for (int i=0;i<jArray.length();i++){
+                Long id = Long.valueOf(jArray.getJSONObject(i).get("id").toString());
+                String screenName = jArray.getJSONObject(i).get(SCREEN_NAME).toString();
+                int followersCount = (int)jArray.getJSONObject(i).get("followers_count");
+                int friendsCount = (int)jArray.getJSONObject(i).get("friends_count");
+                User user = new User(id, screenName, followersCount, friendsCount);
+                listdata.add(user);
+            }
+        }
+        return listdata;
+    }
 
+    public Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
+        Oauth1SigningInterceptor oauth = new Oauth1SigningInterceptor.Builder()
+                .consumerKey(SignatureConstants.consumerKey)
+                .consumerSecret(SignatureConstants.consumerSecret)
+                .accessToken(SignatureConstants.accessToken)
+                .accessSecret(SignatureConstants.secretToken)
+                .oauthNonce(nonce)
+                .oauthTimeStamp(timestamp)
+                .build();
+
+        return oauth.signRequest(request);
+    }
 }

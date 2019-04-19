@@ -1,8 +1,10 @@
 package twitter;
 
 public enum Action {
-    RETWEETERS,
-    FOLLOWERS,
-    FOLLOWING,
-    FRIENDSHIP;
+    GET_RETWEETERS,
+    GET_FOLLOWERS,
+    GET_FOLLOWING,
+    GET_FRIENDSHIP,
+    FOLLOW,
+    UNFOLLOW;
 }

@@ -9,6 +9,10 @@ import java.util.List;
 public class JsonHelper {
 
     private final String SCREEN_NAME = "screen_name";
+    private final String FOLLOWER_COUNT = "followers_count";
+    private final String FRIENDS_COUNT = "friends_count";
+    private final String ID = "id";
+    private final String LANG = "lang";
 
     public List<Long> jsonLongArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
@@ -32,17 +36,20 @@ public class JsonHelper {
         return listdata;
     }
 
-    public List<User> jsonUserArrayToList(Object jsonObject){
+    public List<User> jsonUserArrayToList(Object jsonObject, String exceptedLanguage){
         JSONArray jArray = (JSONArray)jsonObject;
         ArrayList<User> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
-                Long id = Long.valueOf(jArray.getJSONObject(i).get("id").toString());
+                Long id = Long.valueOf(jArray.getJSONObject(i).get(ID).toString());
                 String screenName = jArray.getJSONObject(i).get(SCREEN_NAME).toString();
-                int followersCount = (int)jArray.getJSONObject(i).get("followers_count");
-                int friendsCount = (int)jArray.getJSONObject(i).get("friends_count");
-                User user = new User(id, screenName, followersCount, friendsCount);
-                listdata.add(user);
+                int followersCount = (int)jArray.getJSONObject(i).get(FOLLOWER_COUNT);
+                int friendsCount = (int)jArray.getJSONObject(i).get(FRIENDS_COUNT);
+                String lang = jArray.getJSONObject(i).get(LANG).toString();
+                if(lang.equals(exceptedLanguage)){
+                    User user = new User(id, screenName, followersCount, friendsCount, lang);
+                    listdata.add(user);
+                }
             }
         }
         return listdata;

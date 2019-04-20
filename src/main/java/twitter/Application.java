@@ -9,7 +9,9 @@ import twitter.helpers.URLHelper;
 
 import java.net.http.HttpClient;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Data
 public class Application implements IApplication {
@@ -20,6 +22,7 @@ public class Application implements IApplication {
     private JsonHelper jsonHelper = new JsonHelper();
     private final String IDS = "ids";
     private final String USERS = "users";
+    private final String expectedLanguage = "fr";
 
     @Override
     public List<Long> getFollowersList(Long userId) throws IllegalAccessException {
@@ -40,7 +43,7 @@ public class Application implements IApplication {
         String url = this.urlHelper.getUrl(Action.GET_FOLLOWERS, userName);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
-            return this.getJsonHelper().jsonUserArrayToList(response.get(USERS));
+            return this.getJsonHelper().jsonUserArrayToList(response.get(USERS), expectedLanguage);
         } else{
             return new ArrayList<>();
         }
@@ -65,7 +68,7 @@ public class Application implements IApplication {
         String url = this.urlHelper.getUrl(Action.GET_FOLLOWING, userName);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
-            return this.getJsonHelper().jsonUserArrayToList(response.get(USERS));
+            return this.getJsonHelper().jsonUserArrayToList(response.get(USERS), expectedLanguage);
         } else{
             return new ArrayList<>();
         }
@@ -158,69 +161,92 @@ public class Application implements IApplication {
         return this.getJsonHelper().jsonStringArrayToList(response.get(IDS));
     }
 
-    private List<String> getPotentialFollowersFromUserFollowers(List<User> users, String userName) throws IllegalAccessException{
+    private List<String> getPotentialFollowersFromUserList(List<User> users, String userName, RelationType relationType) throws IllegalAccessException{
         List<String> results = new ArrayList<>();
-        for(User user : users){
-            if(this.getUrlHelper().canCall()) {
-                results.addAll(this.getPotentialFollowersFromUserFollowers(user.getScreen_name(), userName));
-            }
+        int i=0;
+        User user;
+        while(i<users.size() && results.size()<URLHelper.FOLLOW_MAX_CALLS){
+            user = users.get(i);
+            results.addAll(this.getPotentialFollowersFromUser(user.getScreen_name(), userName, relationType));
+            i++;
         }
         return results;
     }
 
 
-    private List<String> getPotentialFollowersFromUserFollowers(String otherUserName, String userName) throws IllegalAccessException {
+    private List<String> getPotentialFollowersFromUser(String otherUserName, String userName, RelationType relationType) throws IllegalAccessException {
         List<String> potentialFollowers = new ArrayList<>();
-        List<User> followers = this.getFollowersUserList(otherUserName);
-
-        for (User follower : followers) {
-            boolean canMakeCall = this.getUrlHelper().canCall();
-            if(canMakeCall){
-                boolean alreadyFollowed = true;
-                try{
-                    alreadyFollowed = this.userIsFollowed(userName, follower.getScreen_name());
-                }
-                catch(Exception e){}
-                if (!alreadyFollowed && follower.shouldBeFollowed()) {
-                    potentialFollowers.add(follower.getScreen_name());
-                }
+        List<User> baseUsers = new ArrayList<>();
+        if(relationType == RelationType.FOLLOWER){
+            if(this.getUrlHelper().canCallGetFollowers()){
+                baseUsers = this.getFollowersUserList(otherUserName);
+            } else{
+                return new ArrayList<>();
+            }
+        } else if(relationType == RelationType.FOLLOWING){
+            if(this.getUrlHelper().canCallGetFollowings()){
+                baseUsers = this.getFollowingsUserList(otherUserName);
+            } else{
+                return new ArrayList<>();
             }
         }
+
+        int i = 0;
+        while(i<baseUsers.size() && potentialFollowers.size()<(URLHelper.FOLLOW_MAX_CALLS-40)){ // @TODO 2e condition to remove
+            User potentialFollower = baseUsers.get(i);
+            if(this.getUrlHelper().canCallFriendship()){
+                if(potentialFollower.shouldBeFollowed()
+                        &&!this.userIsFollowed(userName, potentialFollower.getScreen_name())) {
+                    potentialFollowers.add(potentialFollower.getScreen_name());
+                }
+            } else{
+                try {
+                    TimeUnit.MINUTES.sleep(15);
+                    this.getUrlHelper().resetQuarterCounters();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            i++;
+        }
+
         return potentialFollowers;
     }
 
-
-    public List<String> followAllPotentialFollowersFromCommon(String userName){
-        String tweetName = "RedTheOne";
-        List<String> followed = new ArrayList<>();
+    public List<String> getPotentialFollowers(String tweetName, RelationType relationLevel1, RelationType relationLevel2){
         List<String> potentialFollowers = new ArrayList<>();
         try {
-            List<User> followers = this.getFollowersUserList(tweetName);
-            List<User> followings = this.getFollowingsUserList(tweetName);
-            List<User> allUsers = new ArrayList<>();
-            allUsers.addAll(followers);
-            allUsers.addAll(followings);
-            potentialFollowers = this.getPotentialFollowersFromUserFollowers(allUsers, tweetName);
+            List<User> baseUsers = new ArrayList<>();
+            if(relationLevel1 == RelationType.FOLLOWER){
+                baseUsers = this.getFollowersUserList(tweetName);
+            } else if (relationLevel1 == RelationType.FOLLOWING){
+                baseUsers = this.getFollowingsUserList(tweetName);
+            }
+            Collections.shuffle(baseUsers);
+            potentialFollowers = this.getPotentialFollowersFromUserList(baseUsers, tweetName, relationLevel2);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        for(String name : potentialFollowers){
+
+        return potentialFollowers;
+    }
+
+    public List<String> follow(List<String> userNames){
+        List<String> followed = new ArrayList<>();
+        for(String name : userNames){
             boolean result = this.follow(name);
             if(result){
                 followed.add(name);
             }
         }
-
         return followed;
     }
 
     public List<String> getUsersNotFollowingBack(String userName) throws IllegalAccessException {
         List<String> notFollowingsBackUsers = new ArrayList<>();
         List<User> followings = this.getFollowingsUserList(userName);
-        boolean canCall = true;
         for(User following : followings){
-            canCall = this.getUrlHelper().canCall();
-            if(canCall && !this.areFriends(userName, following.getScreen_name()) && following.shouldBeFollowed()){
+            if(this.getUrlHelper().canCallFriendship() && !this.areFriends(userName, following.getScreen_name()) && following.shouldBeFollowed()){
                 notFollowingsBackUsers.add(following.getScreen_name());
             };
         }
@@ -242,7 +268,7 @@ public class Application implements IApplication {
 
 
 
-        @Override
+    @Override
     public boolean follow(String userName){
         String url = this.urlHelper.getUrl(Action.FOLLOW, userName);
 

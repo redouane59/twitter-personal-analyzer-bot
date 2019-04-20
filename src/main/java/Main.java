@@ -1,4 +1,5 @@
 import twitter.Application;
+import twitter.RelationType;
 
 import java.util.List;
 
@@ -8,11 +9,10 @@ public class Main {
 
         Application application = new Application();
         String tweetName = "RedTheOne";
-        // List<String> result = application.followAllPotentialFollowersFromCommon(tweetName);
-
-        List<String> result = application.getUsersNotFollowingBack(tweetName);
-
-        System.out.println(result.size() + " results : " + result.toArray());
+        List<String> potentialFollowersFromFollowerFollowers = application.getPotentialFollowers(tweetName, RelationType.FOLLOWER, RelationType.FOLLOWER);
+        List<String> result = application.follow(potentialFollowersFromFollowerFollowers);
+      //  List<String> result = application.getUsersNotFollowingBack(tweetName);
+        System.out.println(result.size() + " results | " + result);
 
     }
 

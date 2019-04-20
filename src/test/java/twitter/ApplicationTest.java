@@ -91,6 +91,13 @@ public class ApplicationTest {
     }
 
     @Test
+    public void testGetFollowingsUserByName() throws IllegalAccessException {
+        Application application = new Application();
+        List<User> followings = application.getFollowingsUserList("davidguetta");
+        Assert.assertTrue(followings.size()>1);
+    }
+
+    @Test
     public void testGetNbFollowingsById() throws IllegalAccessException {
         Application application = new Application();
         int result = application.getNbFollowings(919925977777606659L);

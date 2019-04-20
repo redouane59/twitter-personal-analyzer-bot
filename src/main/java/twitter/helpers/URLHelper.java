@@ -22,11 +22,11 @@ public class URLHelper {
     private int followingCount = 0;
     private int friendshipCount = 0;
     private int followCount = 0;
-    private int retweeterMaxCalls = 15;
-    private int followersMaxCalls = 15;
-    private int followingMaxCalls = 15;
-    private int friendshipMaxCalls = 180;
-    private int followMaxCalls = 400;
+    public static int RETWEETER_MAX_CALLS = 15;
+    public static int FOLLOWER_MAX_CALLS = 15;
+    public static int FOLLOWING_MAX_CALLS = 15;
+    public static int FRIENDSHIP_MAX_CALLS = 180;
+    public static int FOLLOW_MAX_CALLS = 400;
 
     public String getUrl(Action action, Long relatedId){
         return this.getUrl(action, relatedId, null);
@@ -222,14 +222,45 @@ public class URLHelper {
     }
 
     public boolean canCall(){
-        if(this.retweeterCount>=this.retweeterMaxCalls
-            || this.followCount >= this.followMaxCalls
-            || this.followingCount >= this.followingMaxCalls
-            || this.followersCount >= this.followersMaxCalls
-            || this.friendshipCount >= this.friendshipMaxCalls){
+        if(this.retweeterCount>=RETWEETER_MAX_CALLS
+            || this.followCount >= FOLLOW_MAX_CALLS
+            || this.followingCount >= FOLLOWING_MAX_CALLS
+            || this.followersCount >= FOLLOWER_MAX_CALLS
+            || this.friendshipCount >= FRIENDSHIP_MAX_CALLS){
             return false;
         } else{
             return true;
         }
+    }
+
+    public boolean canCallFriendship(){
+        if(this.friendshipCount < FRIENDSHIP_MAX_CALLS){
+            return true;
+        }
+        System.out.println("max calls getFriendship reached");
+        return false;
+    }
+
+    public boolean canCallGetFollowers(){
+        if(this.followersCount < FOLLOWER_MAX_CALLS){
+            return true;
+        }
+        System.out.println("max calls getFollowers reached");
+        return false;
+    }
+
+    public boolean canCallGetFollowings(){
+        if(this.followingCount < FOLLOWING_MAX_CALLS){
+            return true;
+        }
+        System.out.println("max calls getFollowings reached");
+        return false;
+    }
+
+    public void resetQuarterCounters() {
+        this.retweeterCount = 0;
+        this.followersCount = 0;
+        this.followingCount = 0;
+        this.friendshipCount = 0;
     }
 }

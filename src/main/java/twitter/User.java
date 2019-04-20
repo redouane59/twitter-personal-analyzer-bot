@@ -13,6 +13,7 @@ public class User {
     private String screen_name;
     private int followers_count;
     private int friends_count;
+    private String lang;
 
 
     public double getFollowersRatio(){
@@ -24,11 +25,13 @@ public class User {
         int maxNbFollowers = 30000;
         int minRatio = 1;
         int maxRatio = 3;
+        String french = "fr";
 
         if(this.followers_count>minNbFollowers
                 && this.followers_count<maxNbFollowers
                 && this.getFollowersRatio()>minRatio
-                && this.getFollowersRatio()<maxRatio){
+                && this.getFollowersRatio()<maxRatio
+                && this.lang.equals(french)){
             return true;
         } else{
             return false;

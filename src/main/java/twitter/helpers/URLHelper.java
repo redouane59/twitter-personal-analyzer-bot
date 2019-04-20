@@ -17,6 +17,16 @@ public class URLHelper {
     private final String FRIENDSHIPS = "/friendships";
     private final String USER_ID = "user_id";
     private final int maxCount = 200;
+    private int retweeterCount = 0;
+    private int followersCount = 0;
+    private int followingCount = 0;
+    private int friendshipCount = 0;
+    private int followCount = 0;
+    private int retweeterMaxCalls = 15;
+    private int followersMaxCalls = 15;
+    private int followingMaxCalls = 15;
+    private int friendshipMaxCalls = 180;
+    private int followMaxCalls = 400;
 
     public String getUrl(Action action, Long relatedId){
         return this.getUrl(action, relatedId, null);
@@ -27,37 +37,60 @@ public class URLHelper {
     }
 
     public String getUrl(Action action, Long relatedId, Long relatedId2){
+        String resultUrl = null;
         switch (action){
             case GET_RETWEETERS:
-                return this.getRetweetersListUrl(relatedId);
+                this.retweeterCount++;
+                resultUrl = this.getRetweetersListUrl(relatedId);
+                break;
             case GET_FOLLOWERS:
-                return this.getFollowersListUrl(relatedId);
+                this.followersCount++;
+                resultUrl = this.getFollowersListUrl(relatedId);
+                break;
             case GET_FOLLOWING:
-                return this.getFollowingsListUrl(relatedId);
+                this.followingCount++;
+                resultUrl = this.getFollowingsListUrl(relatedId);
+                break;
             case GET_FRIENDSHIP:
-                return this.getFriendshipUrl(relatedId, relatedId2);
+                this.friendshipCount++;
+                resultUrl = this.getFriendshipUrl(relatedId, relatedId2);
+                break;
             case FOLLOW:
-                return this.getFollowUrl(relatedId);
-            default:
-                return null;
-        }
+                this.followCount++;
+                resultUrl = this.getFollowUrl(relatedId);
+                break;
+            }
+
+        this.displayRateLimits();
+        return resultUrl;
+
     }
 
     public String getUrl(Action action, String relatedName1, String relatedName2){
+        String resultUrl = null;
         switch (action){
             case GET_RETWEETERS:
-                return this.getRetweetersListUrl(relatedName1);
+                this.retweeterCount++;
+                resultUrl =  this.getRetweetersListUrl(relatedName1);
+                break;
             case GET_FOLLOWERS:
-                return this.getFollowersListUrl(relatedName1);
+                this.followersCount++;
+                resultUrl =  this.getFollowersListUrl(relatedName1);
+                break;
             case GET_FOLLOWING:
-                return this.getFollowingsListUrl(relatedName1);
+                this.followingCount++;
+                resultUrl =  this.getFollowingsListUrl(relatedName1);
+                break;
             case GET_FRIENDSHIP:
-                return this.getFriendshipUrl(relatedName1, relatedName2);
+                this.friendshipCount++;
+                resultUrl =  this.getFriendshipUrl(relatedName1, relatedName2);
+                break;
             case FOLLOW:
-                return this.getFollowUrl(relatedName1);
-            default:
-                return null;
+                this.followCount++;
+                resultUrl =  this.getFollowUrl(relatedName1);
         }
+        this.displayRateLimits();
+        return resultUrl;
     }
 
     public String getFollowUrl(String relatedName) {
@@ -167,5 +200,36 @@ public class URLHelper {
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append("/user_timeline.json?").toString();
+    }
+
+    public void displayRateLimits(){
+        StringBuilder s = new StringBuilder();
+        s.append("retweeters : ")
+                .append(retweeterCount)
+                .append(" | ")
+                .append("followers : ")
+                .append(followersCount)
+                .append(" | ")
+                .append("following : ")
+                .append(followingCount)
+                .append(" | ")
+                .append("friendship : ")
+                .append(friendshipCount)
+                .append(" | ")
+                .append("follow : ")
+                .append(followCount);
+        System.out.println("current rates : " + s);
+    }
+
+    public boolean canCall(){
+        if(this.retweeterCount>=this.retweeterMaxCalls
+            || this.followCount >= this.followMaxCalls
+            || this.followingCount >= this.followingMaxCalls
+            || this.followersCount >= this.followersMaxCalls
+            || this.friendshipCount >= this.friendshipMaxCalls){
+            return false;
+        } else{
+            return true;
+        }
     }
 }

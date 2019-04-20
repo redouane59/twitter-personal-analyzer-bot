@@ -86,21 +86,21 @@ public class ApplicationTest {
     @Test
     public void testGetFollowingsByName() throws IllegalAccessException {
         Application application = new Application();
-        List<String> followings = application.getFollowingsList("RedTheOne");
+        List<String> followings = application.getFollowingsList("kanyewest");
         Assert.assertTrue(followings.size()>1);
     }
 
     @Test
     public void testGetNbFollowingsById() throws IllegalAccessException {
         Application application = new Application();
-        int result = application.getNbFollowings(952253106L);
-        Assert.assertTrue(result>1);
+        int result = application.getNbFollowings(919925977777606659L);
+        Assert.assertTrue(result>1 && result<500);
     }
 
     @Test
     public void testGetNbFollowingsByName() throws IllegalAccessException {
         Application application = new Application();
-        int result = application.getNbFollowings("RedTheOne");
+        int result = application.getNbFollowings("kanyewest");
         Assert.assertTrue(result>1);
     }
 
@@ -115,15 +115,22 @@ public class ApplicationTest {
     @Test
     public void testGetFollowersByName() throws IllegalAccessException {
         Application application = new Application();
-        List<String> followers = application.getFollowersList("RedTheOne");
+        List<String> followers = application.getFollowersList("kanyewest");
         Assert.assertTrue(followers.size()>1);
+    }
+
+    @Test
+    public void testGetNbFollowersByName() throws IllegalAccessException {
+        Application application = new Application();
+        int result = application.getNbFollowers("kanyewest");
+        Assert.assertTrue(result>1);
     }
 
     @Test
     public void testGetNbFollowersById() throws IllegalAccessException {
         Application application = new Application();
-        int result = application.getNbFollowers(952253106L);
-        Assert.assertTrue(result>1);
+        int result = application.getNbFollowers(919925977777606659L);
+        Assert.assertTrue(result>4999);
     }
 
     @Test
@@ -131,13 +138,6 @@ public class ApplicationTest {
         Application application = new Application();
         List<Long> retweeters = application.getRetweetersId( 1100473425443860481L);
         Assert.assertTrue(retweeters.size()>1);
-    }
-
-    @Test
-    public void testGetRatioFollowersFollowing() throws IllegalAccessException {
-        Application application = new Application();
-        double ratio = application.getFollowersFollowingRatio( 92073489L);
-        Assert.assertTrue(ratio>1);
     }
 
     @Test

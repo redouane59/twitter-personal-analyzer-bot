@@ -1,4 +1,4 @@
-package twitter;
+package com.twitter;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class TwitterUser{
 
     private long id;
     private String screen_name;

@@ -1,4 +1,4 @@
-package twitter.helpers;
+package com.twitter.helpers;
 
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;

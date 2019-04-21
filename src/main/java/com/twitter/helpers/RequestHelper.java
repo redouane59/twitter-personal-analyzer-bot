@@ -1,4 +1,4 @@
-package twitter.helpers;
+package com.twitter.helpers;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -38,7 +38,7 @@ public class RequestHelper {
         try {
             OkHttpClient client = new OkHttpClient();
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            System.out.println("executing 1 request " + url);
+            System.out.println("executing request on " + url);
             JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
                 return jsonResponse;
@@ -65,7 +65,7 @@ public class RequestHelper {
         try {
             OkHttpClient client = new OkHttpClient();
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            System.out.println("executing 1 request " + url);
+            System.out.println("executing request on " + url);
             return new JSONObject(response.body().string());
 
         } catch(IOException e){

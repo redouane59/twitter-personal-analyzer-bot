@@ -1,7 +1,8 @@
-package twitter.helpers;
+package com.twitter.helpers;
 
+import com.twitter.TwitterUser;
 import org.json.JSONArray;
-import twitter.User;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +37,9 @@ public class JsonHelper {
         return listdata;
     }
 
-    public List<User> jsonUserArrayToList(Object jsonObject, String exceptedLanguage){
+    public List<TwitterUser> jsonUserArrayToList(Object jsonObject, String exceptedLanguage){
         JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<User> listdata = new ArrayList<>();
+        ArrayList<TwitterUser> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 Long id = Long.valueOf(jArray.getJSONObject(i).get(ID).toString());
@@ -47,12 +48,21 @@ public class JsonHelper {
                 int friendsCount = (int)jArray.getJSONObject(i).get(FRIENDS_COUNT);
                 String lang = jArray.getJSONObject(i).get(LANG).toString();
                 if(lang.equals(exceptedLanguage)){
-                    User user = new User(id, screenName, followersCount, friendsCount, lang);
-                    listdata.add(user);
+                    TwitterUser twitterUser = new TwitterUser(id, screenName, followersCount, friendsCount, lang);
+                    listdata.add(twitterUser);
                 }
             }
         }
         return listdata;
+    }
+
+    public TwitterUser jsonResponseToUser(JSONObject jsonObject){
+        Long id = Long.valueOf(jsonObject.get(ID).toString());
+        String screenName = jsonObject.get(SCREEN_NAME).toString();
+        int followersCount = (int)jsonObject.get(FOLLOWER_COUNT);
+        int friendsCount = (int)jsonObject.get(FRIENDS_COUNT);
+        String lang = jsonObject.get(LANG).toString();
+        return new TwitterUser(id, screenName, followersCount, friendsCount, lang);
     }
 
 }

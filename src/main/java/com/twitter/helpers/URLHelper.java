@@ -1,6 +1,4 @@
-package twitter.helpers;
-
-import twitter.Action;
+package com.twitter.helpers;
 
 public class URLHelper {
     private final String ROOT_URL = "https://api.twitter.com/1.1";
@@ -15,6 +13,7 @@ public class URLHelper {
     private final String FRIENDS = "/friends";
     private final String STATUSES = "/statuses";
     private final String FRIENDSHIPS = "/friendships";
+    private final String USERS = "/users";
     private final String USER_ID = "user_id";
     private final int maxCount = 200;
     private int retweeterCount = 0;
@@ -22,78 +21,20 @@ public class URLHelper {
     private int followingCount = 0;
     private int friendshipCount = 0;
     private int followCount = 0;
+    private int userCount = 0;
+    private int tweetInfoCount = 0;
     public static int RETWEETER_MAX_CALLS = 15;
     public static int FOLLOWER_MAX_CALLS = 15;
     public static int FOLLOWING_MAX_CALLS = 15;
     public static int FRIENDSHIP_MAX_CALLS = 180;
-    public static int FOLLOW_MAX_CALLS = 400;
-
-    public String getUrl(Action action, Long relatedId){
-        return this.getUrl(action, relatedId, null);
-    }
-
-    public String getUrl(Action action, String relatedName){
-        return this.getUrl(action, relatedName, null);
-    }
-
-    public String getUrl(Action action, Long relatedId, Long relatedId2){
-        String resultUrl = null;
-        switch (action){
-            case GET_RETWEETERS:
-                this.retweeterCount++;
-                resultUrl = this.getRetweetersListUrl(relatedId);
-                break;
-            case GET_FOLLOWERS:
-                this.followersCount++;
-                resultUrl = this.getFollowersListUrl(relatedId);
-                break;
-            case GET_FOLLOWING:
-                this.followingCount++;
-                resultUrl = this.getFollowingsListUrl(relatedId);
-                break;
-            case GET_FRIENDSHIP:
-                this.friendshipCount++;
-                resultUrl = this.getFriendshipUrl(relatedId, relatedId2);
-                break;
-            case FOLLOW:
-                this.followCount++;
-                resultUrl = this.getFollowUrl(relatedId);
-                break;
-            }
-
-        this.displayRateLimits();
-        return resultUrl;
-
-    }
-
-    public String getUrl(Action action, String relatedName1, String relatedName2){
-        String resultUrl = null;
-        switch (action){
-            case GET_RETWEETERS:
-                this.retweeterCount++;
-                resultUrl =  this.getRetweetersListUrl(relatedName1);
-                break;
-            case GET_FOLLOWERS:
-                this.followersCount++;
-                resultUrl =  this.getFollowersListUrl(relatedName1);
-                break;
-            case GET_FOLLOWING:
-                this.followingCount++;
-                resultUrl =  this.getFollowingsListUrl(relatedName1);
-                break;
-            case GET_FRIENDSHIP:
-                this.friendshipCount++;
-                resultUrl =  this.getFriendshipUrl(relatedName1, relatedName2);
-                break;
-            case FOLLOW:
-                this.followCount++;
-                resultUrl =  this.getFollowUrl(relatedName1);
-        }
-        this.displayRateLimits();
-        return resultUrl;
-    }
+    public static int FOLLOW_MAX_CALLS = 350;
+    public static int USER_MAX_CALLS = 900;
+    public static int RETWEET_MAX_COUNT = 100;
+    private static final int TWEET_INFO_MAX_CALLS = 900;
 
     public String getFollowUrl(String relatedName) {
+        this.followCount++;
+        System.out.println("follows : " + followCount + " / " + FOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
@@ -104,6 +45,8 @@ public class URLHelper {
     }
 
     public String getFollowUrl(Long relatedId) {
+        this.followCount++;
+        System.out.println("follows : " + followCount + " / " + FOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
@@ -114,6 +57,8 @@ public class URLHelper {
     }
 
     public String getFriendshipUrl(Long sourceId, Long targetId) {
+        this.friendshipCount++;
+        System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(SHOW_JSON)
@@ -125,6 +70,8 @@ public class URLHelper {
     }
 
     public String getFriendshipUrl(String sourceScreenName, String targetScreenName) {
+        this.friendshipCount++;
+        System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(SHOW_JSON)
@@ -135,17 +82,37 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getRetweetersListUrl(Long tweetId){
+    public String getRetweetersUrl(Long tweetId){
+        this.retweeterCount++;
+        System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(RETWEETERS)
                 .append(IDS_JSON)
                 .append(ID +"=")
                 .append(tweetId)
+                .append("&count=100")
                 .toString();
     }
 
-    public String getRetweetersListUrl(String screenName){
+    public String getRetweetersUrl(Long tweetId, int cursor){
+        this.retweeterCount++;
+        System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(STATUSES)
+                .append(RETWEETERS)
+                .append(IDS_JSON)
+                .append(ID +"=")
+                .append(tweetId)
+                .append("&count=100")
+                .append("&cursor=")
+                .append(cursor)
+                .toString();
+    }
+
+    public String getRetweetersUrl(String screenName){
+        this.retweeterCount++;
+        System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(RETWEETERS)
@@ -157,7 +124,9 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowersListUrl(Long userId){
+    public String getFollowersUrl(Long userId){
+        this.followersCount++;
+        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
                 .append(IDS_JSON)
@@ -166,7 +135,9 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowersListUrl(String screenName){
+    public String getFollowersUrl(String screenName){
+        this.followersCount++;
+        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
                 .append(LIST_JSON)
@@ -177,7 +148,9 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowingsListUrl(Long userId){
+    public String getFollowingsUrl(Long userId){
+        this.followingCount++;
+        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDS)
                 .append(IDS_JSON)
@@ -185,7 +158,9 @@ public class URLHelper {
                 .append(userId).toString();
     }
 
-    public String getFollowingsListUrl(String screenName){
+    public String getFollowingsUrl(String screenName){
+        this.followingCount++;
+        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDS)
                 .append(LIST_JSON)
@@ -200,6 +175,28 @@ public class URLHelper {
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append("/user_timeline.json?").toString();
+    }
+
+    public String getTweetInfoUrl(Long tweetId) {
+        this.tweetInfoCount++;
+        System.out.println("Users : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(STATUSES)
+                .append(SHOW_JSON)
+                .append(ID+"=")
+                .append(tweetId)
+                .toString();
+    }
+
+    public String getUserUrl(Long relatedId) {
+        this.userCount++;
+        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(USERS)
+                .append(SHOW_JSON)
+                .append(USER_ID+"=")
+                .append(relatedId)
+                .toString();
     }
 
     public void displayRateLimits(){
@@ -217,7 +214,10 @@ public class URLHelper {
                 .append(friendshipCount)
                 .append(" | ")
                 .append("follow : ")
-                .append(followCount);
+                .append(followCount)
+                .append(" | ")
+                .append("user : ")
+                .append(userCount);
         System.out.println("current rates : " + s);
     }
 
@@ -226,7 +226,8 @@ public class URLHelper {
             || this.followCount >= FOLLOW_MAX_CALLS
             || this.followingCount >= FOLLOWING_MAX_CALLS
             || this.followersCount >= FOLLOWER_MAX_CALLS
-            || this.friendshipCount >= FRIENDSHIP_MAX_CALLS){
+            || this.friendshipCount >= FRIENDSHIP_MAX_CALLS
+            || this.userCount >= USER_MAX_CALLS){
             return false;
         } else{
             return true;
@@ -257,10 +258,21 @@ public class URLHelper {
         return false;
     }
 
+    public boolean canCallGetUser(){
+        if(this.userCount < USER_MAX_CALLS){
+            return true;
+        }
+        System.out.println("max calls getUser reached");
+        return false;
+    }
+
     public void resetQuarterCounters() {
         this.retweeterCount = 0;
         this.followersCount = 0;
         this.followingCount = 0;
         this.friendshipCount = 0;
+        this.userCount = 0;
     }
+
+
 }

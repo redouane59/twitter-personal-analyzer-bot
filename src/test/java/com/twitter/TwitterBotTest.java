@@ -1,7 +1,6 @@
 package com.twitter;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public class TwitterBotTest {
 
     @Test
     public void testUrlRetweetrs(){
-        Assert.assertEquals("https://api.twitter.com/1.1/statuses/retweeters/ids.json?id=12345&count=100", twitterBot.getUrlHelper().getRetweetersUrl(12345L));
+        Assert.assertEquals("https://api.twitter.com/1.1/statuses/retweeters/ids.json?id=12345&count=90", twitterBot.getUrlHelper().getRetweetersUrl(12345L));
     }
 
     @Test
@@ -64,6 +63,12 @@ public class TwitterBotTest {
     }
 
     @Test
+    public void testUrlUnfollowByName(){
+        Assert.assertEquals("https://api.twitter.com/1.1/friendships/destroy.json?screen_name=RedTheOne",
+                twitterBot.getUrlHelper().getUnfollowUrl("RedTheOne"));
+    }
+
+    @Test
     public void testUrlFollowById(){
         Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?user_id=12345&follow=true",
                 twitterBot.getUrlHelper().getFollowUrl(12345L));
@@ -82,68 +87,68 @@ public class TwitterBotTest {
     }
 
     @Test
-    public void testGetFollowingsById() throws IllegalAccessException {
+    public void testGetFollowingsById() {
         List<Long> followings = twitterBot.getFollowingsIds(92073489L);
         Assert.assertTrue(followings.size()>1);
     }
 
     @Test
-    public void testGetFollowingsByName() throws IllegalAccessException {
+    public void testGetFollowingsByName() {
         List<String> followings = twitterBot.getFollowingNames("kanyewest");
         Assert.assertTrue(followings.size()>1);
     }
 
     @Test
-    public void testGetFollowingsUserByName() throws IllegalAccessException {
-        List<TwitterUser> followings = twitterBot.getFollowingsUserList("davidguetta");
+    public void testGetFollowingsUserByName() {
+        List<User> followings = twitterBot.getFollowingsUserList("davidguetta");
         Assert.assertTrue(followings.size()>1);
     }
 
     @Test
-    public void testGetNbFollowingsById() throws IllegalAccessException {
+    public void testGetNbFollowingsById() {
         int result = twitterBot.getNbFollowingsById(919925977777606659L);
         Assert.assertTrue(result>1 && result<500);
     }
 
     @Test
-    public void testGetNbFollowingsByName() throws IllegalAccessException {
+    public void testGetNbFollowingsByName() {
         int result = twitterBot.getNbFollowings("kanyewest");
         Assert.assertTrue(result>1);
     }
 
     @Test
-    public void testGetFollowersById() throws IllegalAccessException {
+    public void testGetFollowersById() {
         String url = twitterBot.getUrlHelper().getFollowersUrl(952253106L);
         List<Long> followers = twitterBot.getFollowersIds(952253106L);
         Assert.assertTrue(followers.size()>1);
     }
 
     @Test
-    public void testGetFollowersByName() throws IllegalAccessException {
+    public void testGetFollowersByName() {
         List<String> followers = twitterBot.getFollowerNames("kanyewest");
         Assert.assertTrue(followers.size()>1);
     }
 
     @Test
-    public void testGetNbFollowersByName() throws IllegalAccessException {
+    public void testGetNbFollowersByName() {
         int result = twitterBot.getNbFollowers("kanyewest");
         Assert.assertTrue(result>1);
     }
 
     @Test
-    public void testGetNbFollowersById() throws IllegalAccessException {
+    public void testGetNbFollowersById() {
         int result = twitterBot.getNbFollowersById(919925977777606659L);
         Assert.assertTrue(result>4999);
     }
 
     @Test
-    public void testGetRetweetersId() throws IllegalAccessException {
+    public void testGetRetweetersId() {
         List<Long> retweeters = twitterBot.getRetweetersId( 1100473425443860481L);
         Assert.assertTrue(retweeters.size()>1);
     }
 
     @Test
-    public void testFriendshipByIdYes() throws IllegalAccessException {
+    public void testFriendshipByIdYes() {
         Long userId1 = 92073489L;
         Long userId2 = 723996356L;
         boolean result = twitterBot.areFriends(userId1, userId2);
@@ -151,7 +156,7 @@ public class TwitterBotTest {
     }
 
     @Test
-    public void testFriendshipByIdNo() throws IllegalAccessException {
+    public void testFriendshipByIdNo() {
         Long userId1 = 92073489L;
         Long userId2 = 1976143068L;
         boolean result = twitterBot.areFriends(userId1, userId2);
@@ -159,22 +164,21 @@ public class TwitterBotTest {
     }
 
     @Test
-    @Ignore
     public void testFollowNew(){
-        String userName = "SaraFreeGaza";
+        String userName = "RedouaneBali";
         boolean result = twitterBot.follow(userName);
         Assert.assertTrue(result);
     }
 
     @Test
-    public void testGetUserInfo() throws IllegalAccessException {
+    public void testGetUserInfo() {
         Long userId = 92073489L;
-        TwitterUser user = twitterBot.getUserInfoFromUserId(userId);
+        User user = twitterBot.getUserInfoFromUserId(userId);
         Assert.assertEquals("RedTheOne", user.getScreen_name());
     }
 
     @Test
-    public void testGetNbRT() throws IllegalAccessException {
+    public void testGetNbRT() {
         Long tweetId = 925804518662705153L;
         int nbRT = twitterBot.getNbRT(tweetId);
         Assert.assertTrue(nbRT>1000);

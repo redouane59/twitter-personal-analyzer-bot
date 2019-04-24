@@ -11,24 +11,30 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 @Data
 @NoArgsConstructor
 public class RequestHelper {
 
-    public JSONObject executeRequest(String url, RequestMethod method) throws IllegalAccessException {
-        switch (method){
-            case GET:
-                return executeGetRequest(url);
-            case POST:
-                return executePostRequest(url);
-            default:
-                return null;
+    public JSONObject executeRequest(String url, RequestMethod method) {
+        try {
+            switch (method) {
+                case GET:
+                    return executeGetRequest(url);
+                case POST:
+                    return executePostRequest(url);
+                default:
+                    return null;
+            }
+        } catch(Exception e){
+            return null;
         }
     }
 
 
-    private JSONObject executeGetRequest(String url) throws IllegalAccessException {
+    private JSONObject executeGetRequest(String url) {
 
         Request request = new Request.Builder()
                 .url(url)
@@ -37,14 +43,16 @@ public class RequestHelper {
 
         try {
             OkHttpClient client = new OkHttpClient();
+            client.setConnectTimeout(60, TimeUnit.SECONDS); // connect timeout
+            client.setReadTimeout(60, TimeUnit.SECONDS);    // socket timeout
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            System.out.println("executing request on " + url);
+            LocalDateTime now = LocalDateTime.now();
+         //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
             JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
                 return jsonResponse;
-            } else if (response.code() == 429){
-                throw new IllegalAccessException("error " + response.code());
-            }else{
+            } else{
+                System.out.println("RESPONSE NULL : " + response.message()); // do a wait and return this function recursively
                 return null;
             }
         } catch(IOException e){
@@ -53,7 +61,7 @@ public class RequestHelper {
         }
     }
 
-    private JSONObject executePostRequest(String url) throws IllegalAccessException {
+    private JSONObject executePostRequest(String url) {
 
         RequestBody reqbody = RequestBody.create(null, new byte[0]);
 
@@ -65,7 +73,8 @@ public class RequestHelper {
         try {
             OkHttpClient client = new OkHttpClient();
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            System.out.println("executing request on " + url);
+            LocalDateTime now = LocalDateTime.now();
+      //      System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
             return new JSONObject(response.body().string());
 
         } catch(IOException e){

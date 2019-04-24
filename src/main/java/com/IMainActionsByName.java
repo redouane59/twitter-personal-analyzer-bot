@@ -1,5 +1,7 @@
 package com;
 
+import com.twitter.User;
+
 import java.util.List;
 
 public interface IMainActionsByName {

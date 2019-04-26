@@ -4,6 +4,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.twitter.config.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
@@ -51,8 +52,16 @@ public class RequestHelper {
             JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
                 return jsonResponse;
+            } else if (response.code()==429){
+                System.out.println(response.message() +" at "
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
+                try {
+                    TimeUnit.MINUTES.sleep(4);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return this.executeGetRequest(url);
             } else{
-                System.out.println("RESPONSE NULL : " + response.message()); // do a wait and return this function recursively
                 return null;
             }
         } catch(IOException e){

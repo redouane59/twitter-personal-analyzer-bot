@@ -10,9 +10,7 @@ import lombok.Data;
 import org.json.JSONObject;
 
 import java.net.http.HttpClient;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @Data
 public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMainActionsById {
@@ -115,6 +113,20 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
         } else{
             return null;
         }
+    }
+
+    public LinkedHashMap<String, Boolean> areFriends(String userName1, List<String> otherUsers){
+        LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
+        for(String otherUserName : otherUsers){
+            Boolean areFriends = this.areFriends(userName1, otherUserName);
+            if(areFriends==null){
+                System.out.println("areFriends was null for " + otherUserName + "! -> false");
+                areFriends = false;
+            }
+            result.put(otherUserName, areFriends);
+
+        }
+        return result;
     }
 
     @Override
@@ -229,6 +241,7 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
         String url = this.urlHelper.getFollowUrl(userName);
         JSONObject jsonResponse = this.requestHelper.executeRequest(url, RequestMethod.POST);
         if(jsonResponse!=null) {
+            System.out.println(userName + " followed ! ");
             return true;
         }
         return false;
@@ -237,18 +250,7 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
     public List<User> follow(List<User> users) {
         List<User> followed = new ArrayList<>();
         for (User user : users) {
-            Boolean result = false;
-            while (!result) {
-                result = this.follow(user.getScreen_name());
-                if (!result) {
-                    try {
-                        TimeUnit.MINUTES.sleep(1);
-                        this.getUrlHelper().resetQuarterCounters();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+            this.follow(user.getScreen_name());
             followed.add(user);
         }
         return followed;

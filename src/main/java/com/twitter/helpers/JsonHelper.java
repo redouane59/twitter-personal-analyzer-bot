@@ -62,7 +62,8 @@ public class JsonHelper {
             String lang = jsonObject.get(LANG).toString();
             int statuses_count = (int)jsonObject.get(STATUSES_COUNT);
             String created_at = jsonObject.get(CREATED_AT).toString();
-            return new User(id, screenName, followersCount, friendsCount, lang, statuses_count, created_at, 1);
+            return new User(id, screenName, followersCount, friendsCount, lang,
+                    statuses_count, created_at, 1, "");
         } else{
             return null;
         }

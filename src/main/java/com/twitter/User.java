@@ -1,11 +1,12 @@
 package com.twitter;
 
+import com.twitter.config.FollowParameters;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class User {
+public class User{
 
     private long id;
     private String screen_name;
@@ -15,6 +16,7 @@ public class User {
     private int statuses_count;
     private String created_at;
     private int commonFollowers; // nb of occurrences in followers search
+    private String hourOfFollow;
 
 
     public double getFollowersRatio(){
@@ -22,17 +24,12 @@ public class User {
     }
 
     public boolean shouldBeFollowed(){
-        int minNbFollowers = 300;
-        int maxNbFollowers = 30000;
-        int minRatio = 1;
-        int maxRatio = 3;
-        String french = "fr";
 
-        if(this.followers_count>minNbFollowers
-                && this.followers_count<maxNbFollowers
-                && this.getFollowersRatio()>minRatio
-                && this.getFollowersRatio()<maxRatio
-                && this.lang.equals(french)){
+        if(this.followers_count> FollowParameters.MIN_NB_FOLLOWERS
+                && this.followers_count<FollowParameters.MAX_NB_FOLLOWERS
+                && this.getFollowersRatio()>FollowParameters.MIN_RATIO
+                && this.getFollowersRatio()<FollowParameters.MAX_RATIO
+                && this.lang.equals(FollowParameters.LANGUAGE)){
             return true;
         } else{
             return false;

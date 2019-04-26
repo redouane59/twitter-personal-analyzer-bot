@@ -1,7 +1,5 @@
 package com.twitter.helpers;
 
-import java.time.LocalDateTime;
-
 public class URLHelper {
     private final String ROOT_URL = "https://api.twitter.com/1.1";
     private final String IDS_JSON = "/ids.json?";
@@ -75,7 +73,9 @@ public class URLHelper {
 
     public String getFriendshipUrl(Long sourceId, Long targetId) {
         this.friendshipCount++;
-        System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
+        if(friendshipCount%10==0){
+            System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(SHOW_JSON)
@@ -88,7 +88,9 @@ public class URLHelper {
 
     public String getFriendshipUrl(String sourceScreenName, String targetScreenName) {
         this.friendshipCount++;
-        System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
+        if(friendshipCount%10==0){
+            System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(SHOW_JSON)
@@ -198,7 +200,7 @@ public class URLHelper {
 
     public String getTweetInfoUrl(Long tweetId) {
         this.tweetInfoCount++;
-        System.out.println("Users : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(SHOW_JSON)
@@ -209,7 +211,9 @@ public class URLHelper {
 
     public String getUserUrl(Long relatedId) {
         this.userCount++;
-        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        if(userCount%10 == 0) {
+            System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(USERS)
                 .append(SHOW_JSON)
@@ -220,7 +224,9 @@ public class URLHelper {
 
     public String getUserUrl(String name) {
         this.userCount++;
-        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        if(userCount%10 == 0) {
+            System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(USERS)
                 .append(SHOW_JSON)
@@ -250,62 +256,4 @@ public class URLHelper {
                 .append(userCount);
         System.out.println("current rates : " + s);
     }
-
-    public boolean canCall(){
-        if(this.retweeterCount>=RETWEETER_MAX_CALLS
-            || this.followCount >= FOLLOW_MAX_CALLS
-            || this.followingCount >= FOLLOWING_MAX_CALLS
-            || this.followersCount >= FOLLOWER_MAX_CALLS
-            || this.friendshipCount >= FRIENDSHIP_MAX_CALLS
-            || this.userCount >= USER_MAX_CALLS){
-            return false;
-        } else{
-            return true;
-        }
-    }
-
-    public boolean canCallFriendship(){
-        if(this.friendshipCount < FRIENDSHIP_MAX_CALLS){
-            return true;
-        }
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println("max calls getFriendship reached at " + now.getHour() + ":" + now.getMinute());
-        return false;
-    }
-
-    public boolean canCallGetFollowers(){
-        if(this.followersCount < FOLLOWER_MAX_CALLS){
-            return true;
-        }
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println("max calls getFollowers reached at " + now.getHour() + ":" + now.getMinute());
-        return false;
-    }
-
-    public boolean canCallGetFollowings(){
-        if(this.followingCount < FOLLOWING_MAX_CALLS){
-            return true;
-        }
-        System.out.println("max calls getFollowings reached");
-        return false;
-    }
-
-    public boolean canCallGetUser(){
-        if(this.userCount < USER_MAX_CALLS){
-            return true;
-        }
-        System.out.println("max calls getUser reached");
-        return false;
-    }
-
-    public void resetQuarterCounters() {
-        this.retweeterCount = 0;
-        this.followersCount = 0;
-        this.followingCount = 0;
-        this.friendshipCount = 0;
-        this.userCount = 0;
-    }
-
-
-
 }

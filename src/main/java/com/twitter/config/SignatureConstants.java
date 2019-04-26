@@ -1,4 +1,4 @@
-package com.twitter.helpers;
+package com.twitter.config;
 
 import lombok.Data;
 

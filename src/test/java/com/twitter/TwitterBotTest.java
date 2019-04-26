@@ -1,6 +1,7 @@
 package com.twitter;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -164,6 +165,7 @@ public class TwitterBotTest {
     }
 
     @Test
+    @Ignore
     public void testFollowNew(){
         String userName = "RedouaneBali";
         boolean result = twitterBot.follow(userName);

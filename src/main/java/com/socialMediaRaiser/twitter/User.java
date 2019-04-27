@@ -1,6 +1,6 @@
-package com.twitter;
+package com.socialMediaRaiser.twitter;
 
-import com.twitter.config.FollowParameters;
+import com.socialMediaRaiser.twitter.config.FollowParameters;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,8 +16,7 @@ public class User{
     private int statuses_count;
     private String created_at;
     private int commonFollowers; // nb of occurrences in followers search
-    private String hourOfFollow;
-
+    private String dateOfFollow;
 
     public double getFollowersRatio(){
         return (double)this.followers_count/(double)this.friends_count;

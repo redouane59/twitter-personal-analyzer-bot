@@ -1,4 +1,4 @@
-package com.twitter.helpers;
+package com.socialMediaRaiser.twitter.helpers;
 
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;

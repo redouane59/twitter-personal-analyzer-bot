@@ -1,4 +1,4 @@
-package com.twitter.config;
+package com.socialMediaRaiser.twitter.config;
 
 public class FollowParameters {
     public static int MIN_NB_FOLLOWERS = 100;

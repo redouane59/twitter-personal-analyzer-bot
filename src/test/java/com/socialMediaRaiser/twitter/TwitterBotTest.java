@@ -1,4 +1,4 @@
-package com.twitter;
+package com.socialMediaRaiser.twitter;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -88,9 +88,15 @@ public class TwitterBotTest {
     }
 
     @Test
-    public void testGetFollowingsById() {
-        List<Long> followings = twitterBot.getFollowingsIds(92073489L);
-        Assert.assertTrue(followings.size()>1);
+    public void testGetFollowingIdsById() {
+        List<Long> followings = twitterBot.getFollowingIds(92073489L);
+        Assert.assertTrue(followings.size()>1000);
+    }
+
+    @Test
+    public void testGetFollowingIdsByName() {
+        List<Long> followings = twitterBot.getFollowingIdsByName("RedTheOne");
+        Assert.assertTrue(followings.size()>1000);
     }
 
     @Test
@@ -113,26 +119,31 @@ public class TwitterBotTest {
 
     @Test
     public void testGetNbFollowingsByName() {
-        int result = twitterBot.getNbFollowings("kanyewest");
+        int result = twitterBot.getNbFollowingsByName("kanyewest");
         Assert.assertTrue(result>1);
     }
 
     @Test
-    public void testGetFollowersById() {
-        String url = twitterBot.getUrlHelper().getFollowersUrl(952253106L);
-        List<Long> followers = twitterBot.getFollowersIds(952253106L);
-        Assert.assertTrue(followers.size()>1);
+    public void testGetFollowersIdsById() {
+        List<Long> followers = twitterBot.getFollowerIds(92073489L);
+        Assert.assertTrue(followers.size()>1000);
     }
 
     @Test
-    public void testGetFollowersByName() {
-        List<String> followers = twitterBot.getFollowerNames("kanyewest");
-        Assert.assertTrue(followers.size()>1);
+    public void testGetFollowersNamesByName() {
+        List<String> followers = twitterBot.getFollowerNames("RedTheOne");
+        Assert.assertTrue(followers.size()>1000);
+    }
+
+    @Test
+    public void testGetFollowersUsersByName() {
+        List<User> followers = twitterBot.getFollowerUsers("RedTheOne");
+        Assert.assertTrue(followers.size()>1000);
     }
 
     @Test
     public void testGetNbFollowersByName() {
-        int result = twitterBot.getNbFollowers("kanyewest");
+        int result = twitterBot.getNbFollowersByName("kanyewest");
         Assert.assertTrue(result>1);
     }
 

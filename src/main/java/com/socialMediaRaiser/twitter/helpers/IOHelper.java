@@ -1,6 +1,6 @@
-package com.twitter.helpers;
+package com.socialMediaRaiser.twitter.helpers;
 
-import com.twitter.User;
+import com.socialMediaRaiser.twitter.User;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -28,7 +28,7 @@ public class IOHelper {
                     + user.getStatuses_count()  + ";"
                     + user.getCreated_at()  + ";"
                     + user.getCommonFollowers()  + ";"
-                    + now.getDayOfMonth() + "/"+now.getMonthValue() + " " + now.getHour() + ":"+now.getMinute()+";" // @TODO TO CHANGE
+                    + user.getDateOfFollow()
                     + "\n");
         }
 

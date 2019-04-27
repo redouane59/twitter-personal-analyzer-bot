@@ -1,4 +1,4 @@
-package com.twitter;
+package com.socialMediaRaiser.twitter;
 
 public enum Action {
     GET_RETWEETERS,

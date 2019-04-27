@@ -1,4 +1,4 @@
-package com.twitter.helpers;
+package com.socialMediaRaiser.twitter.helpers;
 
 public class URLHelper {
     private final String ROOT_URL = "https://api.twitter.com/1.1";
@@ -211,9 +211,7 @@ public class URLHelper {
 
     public String getUserUrl(Long relatedId) {
         this.userCount++;
-        if(userCount%10 == 0) {
-            System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
-        }
+        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(USERS)
                 .append(SHOW_JSON)
@@ -224,9 +222,7 @@ public class URLHelper {
 
     public String getUserUrl(String name) {
         this.userCount++;
-        if(userCount%10 == 0) {
-            System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
-        }
+        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(USERS)
                 .append(SHOW_JSON)

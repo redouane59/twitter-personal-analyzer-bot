@@ -1,11 +1,11 @@
-package com.twitter;
+package com.socialMediaRaiser.twitter;
 
-import com.IMainActionsById;
-import com.IMainActionsByName;
-import com.twitter.helpers.JsonHelper;
-import com.twitter.helpers.RequestHelper;
-import com.twitter.helpers.RequestMethod;
-import com.twitter.helpers.URLHelper;
+import com.socialMediaRaiser.IMainActionsById;
+import com.socialMediaRaiser.IMainActionsByName;
+import com.socialMediaRaiser.twitter.helpers.JsonHelper;
+import com.socialMediaRaiser.twitter.helpers.RequestHelper;
+import com.socialMediaRaiser.twitter.helpers.RequestMethod;
+import com.socialMediaRaiser.twitter.helpers.URLHelper;
 import lombok.Data;
 import org.json.JSONObject;
 
@@ -23,49 +23,104 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
     private final String USERS = "users";
     private final String expectedLanguage = "fr";
     private final String RETWEET_COUNT = "retweet_count";
+    private final int MAX_GET_FOLLOWERS_CALLS = 3;
 
     @Override
-    public List<Long> getFollowersIds(Long userId)  {
+    public List<Long> getFollowerIds(Long userId)  {
+        Long cursor = -1L;
+        List<Long> result = new ArrayList<>();
         String url = this.urlHelper.getFollowersUrl(userId);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null){
-            return this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
-        } else{
-            return new ArrayList<>();
+        int nbCalls = 1;
+        do {
+            System.out.println("looking for following with cursor = " + cursor);
+            String url_with_cursor = url + "&cursor=" + cursor;
+            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            result.addAll(this.getJsonHelper().jsonLongArrayToList(response.get(IDS)));
+            cursor = this.getJsonHelper().getLongFromCursorObject(response);
+            nbCalls++;
         }
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        System.out.println(result.size() + " followers found for " + userId);
+        return result;
     }
 
     @Override
     public List<String> getFollowerNames(String userName) {
+        Long cursor = -1L;
+        List<String> result = new ArrayList<>();
         String url = this.urlHelper.getFollowersUrl(userName);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null) {
-            return this.getJsonHelper().jsonStringArrayToList(response.get(USERS));
-        } else{
-            return new ArrayList<>();
+        int nbCalls = 1;
+        do {
+            System.out.println("looking for following with cursor = " + cursor);
+            String url_with_cursor = url + "&cursor=" + cursor;
+            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            result.addAll(this.getJsonHelper().jsonStringArrayToList(response.get(USERS)));
+            cursor = this.getJsonHelper().getLongFromCursorObject(response);
+            nbCalls++;
         }
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        System.out.println(result.size() + " followers found for " + userName);
+        return result;
     }
 
     @Override
-    public List<User> getFollowersUsers(String userName) {
+    public List<User> getFollowerUsers(String userName) {
+        Long cursor = -1L;
+        List<User> result = new ArrayList<>();
         String url = this.urlHelper.getFollowersUrl(userName);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null){
-            return this.getJsonHelper().jsonUserArrayToList(response.get(USERS), expectedLanguage);
-        } else{
-            return new ArrayList<>();
+        int nbCalls = 1;
+        do {
+            System.out.println("looking for following with cursor = " + cursor);
+            String url_with_cursor = url + "&cursor=" + cursor;
+            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            if(response==null){
+                break;
+            }
+            result.addAll(this.getJsonHelper().jsonUserArrayToList(response.get(USERS), expectedLanguage));
+            cursor = this.getJsonHelper().getLongFromCursorObject(response);
+            nbCalls++;
         }
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        System.out.println(result.size() + " followers found for " + userName);
+        return result;
     }
 
     @Override
-    public List<Long> getFollowingsIds(Long userId) {
+    public List<Long> getFollowingIds(Long userId) {
+        Long cursor = -1L;
+        List<Long> result = new ArrayList<>();
         String url = this.urlHelper.getFollowingsUrl(userId);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null) {
-            return this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
-        } else{
-            return new ArrayList<>();
+        int nbCalls = 1;
+        do {
+            System.out.println("looking for following with cursor = " + cursor);
+            String url_with_cursor = url + "&cursor=" + cursor;
+            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            result.addAll(this.getJsonHelper().jsonLongArrayToList(response.get(IDS)));
+            cursor = this.getJsonHelper().getLongFromCursorObject(response);
+            nbCalls++;
         }
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        System.out.println(result.size() + " followings found for " + userId);
+        return result;
+    }
+
+    @Override
+    public List<Long> getFollowingIdsByName(String userName) {
+        Long cursor = -1L;
+        List<Long> result = new ArrayList<>();
+        String url = this.urlHelper.getFollowingsUrl(userName);
+        int nbCalls = 1;
+        do {
+            System.out.println("looking for following with cursor = " + cursor);
+            String url_with_cursor = url + "&cursor=" + cursor;
+            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            result.addAll(this.getJsonHelper().jsonLongArrayToList(response.get("users")));
+            cursor = this.getJsonHelper().getLongFromCursorObject(response);
+            nbCalls++;
+        }
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        System.out.println(result.size() + " followings found for " + userName);
+        return result;
     }
 
     @Override
@@ -156,7 +211,7 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
     }
 
     @Override
-    public int getNbFollowers(String userName) {
+    public int getNbFollowersByName(String userName) {
         String url = this.urlHelper.getFollowersUrl(userName);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
@@ -167,7 +222,7 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
     }
 
     @Override
-    public int getNbFollowings(String userName) {
+    public int getNbFollowingsByName(String userName) {
         String url = this.urlHelper.getFollowingsUrl(userName);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null) {
@@ -215,7 +270,7 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
         List<Long> retweetersIds = this.getRetweetersId(tweetId);
         List<User> result = new ArrayList<>();
         int i = 0;
-        while(i<retweetersIds.size() && this.getUrlHelper().canCallGetUser()){
+        while(i<retweetersIds.size()){
             Long retweeterId = retweetersIds.get(i);
             User user = this.getUserInfoFromUserId(retweeterId);
             result.add(user);

@@ -1,6 +1,6 @@
-package com.twitter.helpers;
+package com.socialMediaRaiser.twitter.helpers;
 
-import com.twitter.User;
+import com.socialMediaRaiser.twitter.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,13 +16,22 @@ public class JsonHelper {
     private final String FRIENDS_COUNT = "friends_count";
     private final String ID = "id";
     private final String LANG = "lang";
+    private final String NEXT_CURSOR = "next_cursor";
 
     public List<Long> jsonLongArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
         ArrayList<Long> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
-                listdata.add(jArray.getLong(i));
+                if(jArray.get(i) instanceof Long){
+                    listdata.add(jArray.getLong(i));
+                } else if(jArray.get(i) instanceof Integer){
+                    listdata.add(Long.valueOf(jArray.getInt(i)));
+                } else if (((JSONObject)jArray.get(i)).get(ID) instanceof Long){
+                    listdata.add((Long)((JSONObject)jArray.get(i)).get(ID));
+                } else if (((JSONObject)jArray.get(i)).get(ID) instanceof Integer){
+                    listdata.add((long) (Integer) ((JSONObject) jArray.get(i)).get(ID));
+                }
             }
         }
         return listdata;
@@ -65,6 +74,17 @@ public class JsonHelper {
             return new User(id, screenName, followersCount, friendsCount, lang,
                     statuses_count, created_at, 1, "");
         } else{
+            return null;
+        }
+    }
+
+    public Long getLongFromCursorObject(JSONObject response){
+        if(response.get(NEXT_CURSOR) instanceof Long){
+            return (Long)response.get(NEXT_CURSOR);
+        } else if(response.get(NEXT_CURSOR) instanceof Integer) {
+            return Long.valueOf((Integer) response.get(NEXT_CURSOR));
+        }  else{
+            System.out.println("format problem");
             return null;
         }
     }

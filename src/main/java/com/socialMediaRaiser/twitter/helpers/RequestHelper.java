@@ -1,10 +1,10 @@
-package com.twitter.helpers;
+package com.socialMediaRaiser.twitter.helpers;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import com.twitter.config.SignatureConstants;
+import com.socialMediaRaiser.twitter.config.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
@@ -56,12 +56,13 @@ public class RequestHelper {
                 System.out.println(response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
                 try {
-                    TimeUnit.MINUTES.sleep(4);
+                    TimeUnit.MINUTES.sleep(15);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 return this.executeGetRequest(url);
             } else{
+                System.out.println("RETURN NULL " + response.message() + " - " + response.code());
                 return null;
             }
         } catch(IOException e){

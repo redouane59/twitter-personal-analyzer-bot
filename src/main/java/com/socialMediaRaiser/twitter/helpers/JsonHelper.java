@@ -48,15 +48,13 @@ public class JsonHelper {
         return listdata;
     }
 
-    public List<User> jsonUserArrayToList(Object jsonObject, String exceptedLanguage){
+    public List<User> jsonUserArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
         ArrayList<User> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 String lang = jArray.getJSONObject(i).get(LANG).toString();
-                if(lang.equals(exceptedLanguage)){
                     listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
-                }
             }
         }
         return listdata;

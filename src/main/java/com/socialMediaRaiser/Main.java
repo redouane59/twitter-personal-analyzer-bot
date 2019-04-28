@@ -15,30 +15,27 @@ public class Main {
     private static String tweetName = "RedTheOne";
     public static void main(String[] args) throws IOException {
 
-        checkNotFollowBack();
+        searchNoFollowBackUsersFromFile(true);
 
-      //  savePotentialFollowers(false);
+     //   savePotentialFollowers(350,true);
 
-        //getNoFollowBackUsersAndUnfollowThem();
+        //searchNoFollowBackUsers();
         /*
         new IOHelper().writeFollowed(result); */
-        //  List<String> notFollowingBackUsers = twitterBot.getUsersNotFollowingBack(tweetName);
-        // List<String> result = twitterBot.unfollow(notFollowingBackUsers);
-        //  List<String> result = twitterBot.follow(potentialFollowersFromFollowerFollowers);
-        //    System.out.println(result.size() + " results | " + result);
+
     }
 
-    public static void savePotentialFollowers(boolean follow) throws IOException {
-        List<User> potentialFollowersFromFollowerFollowers = twitterBot.searchPotentialFollowersFromFollowerFollowers(tweetName, 1000, follow);
+    public static void savePotentialFollowers(int count, boolean follow) throws IOException {
+        List<User> potentialFollowersFromFollowerFollowers = twitterBot.searchPotentialFollowersFromFollowerFollowers(tweetName, count, follow);
         new IOHelper().write(potentialFollowersFromFollowerFollowers);
     }
 
-    public static void getNoFollowBackUsersAndUnfollowThem() {
-        List<String> result = twitterBot.getUsersNotFollowingBack(tweetName, false);
+    public static void searchNoFollowBackUsers(boolean unfollow) {
+        List<String> result = twitterBot.getUsersNotFollowingBack(tweetName, unfollow);
         twitterBot.unfollow(result);
     }
 
-    public static void checkNotFollowBack() throws IOException {
+    public static void checkNotFollowBack(boolean unfollow) throws IOException {
         List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\followed20194271118.csv");
         List<String> followed = new ArrayList<>();
         for(String[] s : file){
@@ -47,6 +44,20 @@ public class Main {
         System.out.println(followed);
         Map<String, Boolean> result = twitterBot.areFriends(tweetName, followed);
         new IOHelper().writeFollowed(result);
+    }
+
+    public static void searchNoFollowBackUsersFromFile(boolean unfollow) throws IOException {
+        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\to_funwollow.csv");
+        List<String> unfollowed = new ArrayList<>();
+        for(String[] s : file){
+            if(unfollow && !s[0].equals("")){
+                boolean result = twitterBot.unfollow(s[0]);
+                if(result){
+                    unfollowed.add(s[0]);
+                }
+            }
+        }
+        System.out.println(unfollowed);
     }
 
 }

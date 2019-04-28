@@ -89,68 +89,56 @@ public class TwitterBotTest {
 
     @Test
     public void testGetFollowingIdsById() {
-        List<Long> followings = twitterBot.getFollowingIds(92073489L);
-        Assert.assertTrue(followings.size()>1000);
+        List<Long> followings = twitterBot.getFollowingIds(882266619115864066L);
+        Assert.assertTrue(followings.size()>360);
     }
 
     @Test
     public void testGetFollowingIdsByName() {
-        List<Long> followings = twitterBot.getFollowingIdsByName("RedTheOne");
-        Assert.assertTrue(followings.size()>1000);
+        List<Long> followings = twitterBot.getFollowingIdsByName("LaGhostquitweet");
+        Assert.assertTrue(followings.size()>360);
     }
 
     @Test
-    public void testGetFollowingsByName() {
-        List<String> followings = twitterBot.getFollowingNames("kanyewest");
-        Assert.assertTrue(followings.size()>1);
+    public void testGetFollowingsNamesByName() {
+        List<String> followings = twitterBot.getFollowingNames("LaGhostquitweet");
+        Assert.assertTrue(followings.size()>360);
     }
 
     @Test
     public void testGetFollowingsUserByName() {
-        List<User> followings = twitterBot.getFollowingsUserList("davidguetta");
-        Assert.assertTrue(followings.size()>1);
+        List<User> followings = twitterBot.getFollowingsUserList("LaGhostquitweet");
+        Assert.assertTrue(followings.size()>360);
     }
 
-    @Test
+  /*  @Test
     public void testGetNbFollowingsById() {
         int result = twitterBot.getNbFollowingsById(919925977777606659L);
         Assert.assertTrue(result>1 && result<500);
-    }
+    } */
 
-    @Test
+   /* @Test
     public void testGetNbFollowingsByName() {
         int result = twitterBot.getNbFollowingsByName("kanyewest");
         Assert.assertTrue(result>1);
-    }
+    } */
 
     @Test
     public void testGetFollowersIdsById() {
-        List<Long> followers = twitterBot.getFollowerIds(92073489L);
-        Assert.assertTrue(followers.size()>1000);
+        List<Long> followers = twitterBot.getFollowerIds(882266619115864066L);
+        Assert.assertTrue(followers.size()>420);
     }
 
     @Test
     public void testGetFollowersNamesByName() {
-        List<String> followers = twitterBot.getFollowerNames("RedTheOne");
-        Assert.assertTrue(followers.size()>1000);
+        List<String> followers = twitterBot.getFollowerNames("LaGhostquitweet");
+        Assert.assertTrue(followers.size()>420);
     }
 
     @Test
     public void testGetFollowersUsersByName() {
-        List<User> followers = twitterBot.getFollowerUsers("RedTheOne");
-        Assert.assertTrue(followers.size()>1000);
-    }
-
-    @Test
-    public void testGetNbFollowersByName() {
-        int result = twitterBot.getNbFollowersByName("kanyewest");
-        Assert.assertTrue(result>1);
-    }
-
-    @Test
-    public void testGetNbFollowersById() {
-        int result = twitterBot.getNbFollowersById(919925977777606659L);
-        Assert.assertTrue(result>4999);
+        List<User> followers = twitterBot.getFollowerUsers("LaGhostquitweet");
+        Assert.assertTrue(followers.size()>420);
     }
 
     @Test

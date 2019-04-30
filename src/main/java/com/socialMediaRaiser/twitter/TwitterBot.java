@@ -11,75 +11,77 @@ import java.util.List;
 @Data
 public class TwitterBot extends AbstractTwitterBot{
 
-    // @TODO find something to manage count correctly
-    public List<User> searchPotentialFollowersFromFollowerFollowers(String ownerName, int count, boolean follow){
-        List<User> potentialFollowers = new ArrayList<>();
-        List<User> ownerFollowers = this.getFollowerUsers(ownerName);
-        List<Long> ownerFollowingIds = this.getFollowingIdsByName(ownerName);
+    private List<User> potentialFollowers = new ArrayList<>();
+
+    public List<User> searchPotentialFollowersFromFollowerFollowers(String userName, int count, boolean follow){
+        User user = this.getUserFromUserName(userName);
+        return this.searchPotentialFollowersFromFollowerFollowers(user.getId(), count, follow);
+    }
+
+    public List<User> searchPotentialFollowersFromFollowerFollowers(Long ownerId, int count, boolean follow){
+        List<User> ownerFollowers = this.getFollowerUsers(ownerId); // @Todo criticity here (15/15min)
+        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         Collections.shuffle(ownerFollowers);
 
         int i=0;
         User user;
         while(i< ownerFollowers.size() && potentialFollowers.size()<count){
-            long startWorkingTime = System.currentTimeMillis();
             user = ownerFollowers.get(i);
-            System.out.println("----- Watching followers of " + user.getScreen_name() + " -----");
-            List<User> usersToFollow = this.searchPotentialFollowersFromUserFollowers(ownerName, ownerFollowingIds, user.getScreen_name(), count, follow);
-            for(User followerFollower : usersToFollow){
-                int indexOf = potentialFollowers.indexOf(followerFollower);
-                if(indexOf==-1){
-                    potentialFollowers.add(followerFollower);
-                } else{
-                    potentialFollowers.get(indexOf).incrementCommonFollowers();
-                }
+            if(user.shouldBeTakenForItsFollowers()){
+                this.addPotentialFollowersFromUserFollowers(user.getScreen_name(), ownerFollowingIds, count, follow);
             }
-            long stopWorkingTime = System.currentTimeMillis();
-
-            System.out.println("***********************************");
-            System.out.println(usersToFollow.size() + " users found from "
-                    + user.getScreen_name() + " followers in " + (stopWorkingTime-startWorkingTime)/(float)1000 + " s");
-            System.out.println("Total = " + potentialFollowers.size());
-            System.out.println("***********************************");
             i++;
         }
         potentialFollowers.sort(Comparator.comparing(User::getCommonFollowers).reversed());
         return potentialFollowers;
     }
 
-    private List<User> searchPotentialFollowersFromUserFollowers(String ownerName, List<Long> ownerFollowingIds, String userName, int count, boolean follow) {
-
-        List<User> potentialFollowers = new ArrayList<>();
-        List<User> followerFollowers = this.getFollowerUsers(userName); // each 15min
-
+    private void addPotentialFollowersFromUserFollowers(String userName, List<Long> ownerFollowingIds, int count, boolean follow) {
+        long startWorkingTime = System.currentTimeMillis();
+        List<User> followerFollowers = this.getFollowerUsers(userName, potentialFollowers.size()); //@TODO criticity here (15/15min)
+        System.out.println("----- Watching followers of " + userName + "(" + followerFollowers.size() + ") -----");
+        int nbUsersAdded = 0;
         int i = 0;
-        while (i < followerFollowers.size()) {
+        while (i < followerFollowers.size() && potentialFollowers.size()<count) {
             User potentialFollower = followerFollowers.get(i);
-            if (potentialFollower.shouldBeFollowed()) {
-                if (ownerFollowingIds.indexOf(potentialFollower.getId())==-1) {
-                    potentialFollowers.add(potentialFollower);
-                    if(follow){ // @TODO add condition not already followed
-                        LocalDateTime now = LocalDateTime.now();
-                        potentialFollower.setDateOfFollow(
-                                now.getDayOfMonth()+"/"+now.getMonthValue()
-                                +" "+now.getHour()+":"+now.getMinute());
-                        this.follow(potentialFollower.getScreen_name());
+            if (potentialFollower.shouldBeFollowed()
+            && ownerFollowingIds.indexOf(potentialFollower.getId())==-1) { // user not already followed
+                    int indexInPotentialFollowersList = potentialFollowers.indexOf(potentialFollower);
+                    if(indexInPotentialFollowersList==-1){ // not already found
+                        potentialFollowers.add(potentialFollower);
+                        nbUsersAdded++;
+                        if(follow){
+                            LocalDateTime now = LocalDateTime.now();
+                            potentialFollower.setDateOfFollow(now.getDayOfMonth()+"/"+now.getMonthValue()
+                                            +" "+now.getHour()+":"+now.getMinute());
+                            this.follow(potentialFollower.getScreen_name());
+                        } else{
+                            System.out.println("potentialFollowers.add : " + potentialFollower.getScreen_name());
+                        }
+                    } else{
+                        potentialFollowers.get(indexInPotentialFollowersList).incrementCommonFollowers();
                     }
-                }
             }
             i++;
         }
-        return potentialFollowers;
+
+        long stopWorkingTime = System.currentTimeMillis();
+        System.out.println("***********************************");
+        System.out.println(nbUsersAdded + " users added from "
+                + userName + " followers in " + (stopWorkingTime-startWorkingTime)/(float)1000 + " s");
+        System.out.println("Total = " + potentialFollowers.size());
+        System.out.println("***********************************");
     }
 
     public List<String> getUsersNotFollowingBack(String userName, Boolean unfollow) {
         List<String> notFollowingsBackUsers = new ArrayList<>();
-        User user = this.getUserInfoFromUserName(userName);
+        User user = this.getUserFromUserName(userName);
         List<Long> followingsId = this.getFollowingIds(user.getId());
         int i=0;
 
         while(i<followingsId.size()){
             Long followingId = followingsId.get(i);
-            User following = this.getUserInfoFromUserId(followingId);
+            User following = this.getUserFromUserId(followingId);
             if(following.shouldBeFollowed()){
                 Boolean areFriend = this.areFriends(userName, following.getScreen_name());
                 if(areFriend!=null && !areFriend) {

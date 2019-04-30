@@ -4,11 +4,16 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TwitterBotTest {
 
     private TwitterBot twitterBot = new TwitterBot();
+
+    /* ******************** */
+    /* ***** URL tests **** */
+    /* ******************** */
 
     @Test
     public void testUrlRetweetrs(){
@@ -18,25 +23,25 @@ public class TwitterBotTest {
     @Test
     public void testUrlFollowersById(){
         Assert.assertEquals("https://api.twitter.com/1.1/followers/ids.json?user_id=952253106",
-                twitterBot.getUrlHelper().getFollowersUrl(952253106L));
+                twitterBot.getUrlHelper().getFollowerIdsUrl(952253106L));
     }
 
     @Test
     public void testUrlFollowersByName(){
         Assert.assertEquals("https://api.twitter.com/1.1/followers/list.json?screen_name=RedTheOne&count=200",
-                twitterBot.getUrlHelper().getFollowersUrl("RedTheOne"));
+                twitterBot.getUrlHelper().getFollowerUsersUrl("RedTheOne"));
     }
 
     @Test
     public void testUrlFollowingsById(){
         Assert.assertEquals("https://api.twitter.com/1.1/friends/ids.json?user_id=952253106",
-                twitterBot.getUrlHelper().getFollowingsUrl(952253106L));
+                twitterBot.getUrlHelper().getFollowingIdsUrl(952253106L));
     }
 
     @Test
     public void testUrlFollowingsByName(){
         Assert.assertEquals("https://api.twitter.com/1.1/friends/list.json?screen_name=RedTheOne&count=200",
-                twitterBot.getUrlHelper().getFollowingsUrl("RedTheOne"));
+                twitterBot.getUrlHelper().getFollowingUsersUrl("RedTheOne"));
     }
 
     @Test
@@ -82,10 +87,34 @@ public class TwitterBotTest {
     }
 
     @Test
+    public void testUrlGetUsersByNames(){
+        List<String> names = new ArrayList<>();
+        names.add("RedTheOne");
+        names.add("Ronaldo");
+        names.add("Zidane");
+        Assert.assertEquals("https://api.twitter.com/1.1/users/lookup.json?screen_name=RedTheOne,Ronaldo,Zidane",
+                twitterBot.getUrlHelper().getUsersUrlbyNames(names));
+    }
+
+    @Test
+    public void testUrlGetUsersByIds(){
+        List<Long> ids = new ArrayList<>();
+        ids.add(12345L);
+        ids.add(23456L);
+        ids.add(34567L);
+        Assert.assertEquals("https://api.twitter.com/1.1/users/lookup.json?user_id=12345,23456,34567",
+                twitterBot.getUrlHelper().getUsersUrlbyIds(ids));
+    }
+
+    @Test
     public void testUrlGetTweetInfoById(){
         Assert.assertEquals("https://api.twitter.com/1.1/statuses/show.json?id=12345",
                 twitterBot.getUrlHelper().getTweetInfoUrl(12345L));
     }
+
+    /* ******************** */
+    /* ** Function tests ** */
+    /* ******************* */
 
     @Test
     public void testGetFollowingIdsById() {
@@ -95,7 +124,7 @@ public class TwitterBotTest {
 
     @Test
     public void testGetFollowingIdsByName() {
-        List<Long> followings = twitterBot.getFollowingIdsByName("LaGhostquitweet");
+        List<Long> followings = twitterBot.getFollowingIds("LaGhostquitweet");
         Assert.assertTrue(followings.size()>360);
     }
 
@@ -174,7 +203,7 @@ public class TwitterBotTest {
     @Test
     public void testGetUserInfo() {
         Long userId = 92073489L;
-        User user = twitterBot.getUserInfoFromUserId(userId);
+        User user = twitterBot.getUserFromUserId(userId);
         Assert.assertEquals("RedTheOne", user.getScreen_name());
     }
 
@@ -183,6 +212,16 @@ public class TwitterBotTest {
         Long tweetId = 925804518662705153L;
         int nbRT = twitterBot.getNbRT(tweetId);
         Assert.assertTrue(nbRT>1000);
+    }
+
+    @Test
+    public void testGetUsersFromUserIds(){
+        List<Long> ids = new ArrayList<>();
+        ids.add(92073489L); // RedTheOne
+        ids.add(22848599L); // Soltana
+        List<User> result = twitterBot.getUsersFromUserIds(ids);
+        Assert.assertEquals("RedTheOne",result.get(0).getScreen_name());
+        Assert.assertEquals("Soltana",result.get(1).getScreen_name());
     }
 
 }

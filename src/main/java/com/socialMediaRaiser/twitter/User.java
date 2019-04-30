@@ -35,6 +35,17 @@ public class User{
         }
     }
 
+    public boolean shouldBeTakenForItsFollowers(){
+
+        if(this.followers_count> FollowParameters.MIN_NB_FOLLOWERS
+                && this.getFollowersRatio()>FollowParameters.MIN_RATIO
+                && this.lang.equals(FollowParameters.LANGUAGE)){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
     public void incrementCommonFollowers(){
         this.commonFollowers++;
     }

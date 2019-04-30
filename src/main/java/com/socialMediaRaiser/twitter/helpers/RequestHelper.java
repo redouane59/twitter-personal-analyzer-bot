@@ -7,6 +7,7 @@ import com.squareup.okhttp.Response;
 import com.socialMediaRaiser.twitter.config.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class RequestHelper {
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             LocalDateTime now = LocalDateTime.now();
          //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
-            JSONObject jsonResponse = new JSONObject(response.body().string());
+            JSONObject jsonResponse = new JSONObject(response.body().string()); // @TODO gérer jSONArray
             if(response.code()==200){
                 return jsonResponse;
             } else if (response.code()==429){
@@ -92,6 +93,45 @@ public class RequestHelper {
             return null;
         }
     }
+
+    // @TODO clear
+    public JSONArray executeGetRequestReturningArray(String url) {
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        Response response = null;
+        try {
+            OkHttpClient client = new OkHttpClient();
+            client.setConnectTimeout(60, TimeUnit.SECONDS); // connect timeout
+            client.setReadTimeout(60, TimeUnit.SECONDS);    // socket timeout
+            response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
+            LocalDateTime now = LocalDateTime.now();
+            //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
+            JSONArray jsonResponse = new JSONArray(response.body().string()); // @TODO gérer jSONArray
+            if(response.code()==200){
+                return jsonResponse;
+            } else if (response.code()==429){
+                System.out.println(response.message() +" at "
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
+                try {
+                    TimeUnit.MINUTES.sleep(15);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return this.executeGetRequestReturningArray(url);
+            } else{
+                System.out.println("RETURN NULL " + response.message() + " - " + response.code());
+                return null;
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     private String getNonce(){
         SecureRandom secureRandom = new SecureRandom();

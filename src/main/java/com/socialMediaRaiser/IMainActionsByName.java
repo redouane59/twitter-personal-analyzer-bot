@@ -11,6 +11,6 @@ public interface IMainActionsByName {
   //  int getNbFollowingsByName(String userName);
     List<String> getFollowerNames(String userName);
     List<String> getFollowingNames(String userName);
-    List<Long> getFollowingIdsByName(String userName);
+    List<Long> getFollowingIds(String userName);
 
 }

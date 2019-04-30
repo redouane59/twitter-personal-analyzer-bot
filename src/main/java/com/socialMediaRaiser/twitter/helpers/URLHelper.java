@@ -1,5 +1,10 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import lombok.Data;
+
+import java.util.List;
+
+@Data
 public class URLHelper {
     private final String ROOT_URL = "https://api.twitter.com/1.1";
     private final String IDS_JSON = "/ids.json?";
@@ -16,6 +21,7 @@ public class URLHelper {
     private final String FRIENDSHIPS = "/friendships";
     private final String USERS = "/users";
     private final String USER_ID = "user_id";
+    private final String LOOKUP_JSON = "/lookup.json?";
     private final int maxCount = 200;
     private int retweeterCount = 0;
     private int followersCount = 0;
@@ -34,16 +40,17 @@ public class URLHelper {
     public static int USER_MAX_CALLS = 900;
     public static int RETWEET_MAX_COUNT = 90;
     private static final int TWEET_INFO_MAX_CALLS = 900;
+    private final int MAX_LOOKUP = 100;
 
     public String getFollowUrl(String relatedName) {
         this.followCount++;
-        System.out.println("follows : " + followCount + " / " + FOLLOW_MAX_CALLS);
+        System.out.println("follows : " + followCount);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
                 .append(SCREEN_NAME+"=")
                 .append(relatedName)
-                .append("&follow=true")
+            //    .append("&follow=true")
                 .toString();
     }
 
@@ -55,7 +62,7 @@ public class URLHelper {
                 .append(CREATE_JSON)
                 .append(USER_ID+"=")
                 .append(relatedId)
-                .append("&follow=true")
+          //      .append("&follow=true")
                 .toString();
     }
 
@@ -145,7 +152,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowersUrl(Long userId){
+    public String getFollowerIdsUrl(Long userId){
         this.followersCount++;
         System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -156,7 +163,18 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowersUrl(String screenName){
+    public String getFollowerIdsUrl(String screenName){
+        this.followersCount++;
+        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(FOLLOWERS)
+                .append(IDS_JSON)
+                .append(SCREEN_NAME+"=")
+                .append(screenName)
+                .toString();
+    }
+
+    public String getFollowerUsersUrl(String screenName){
         this.followersCount++;
         System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -169,7 +187,20 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowingsUrl(Long userId){
+    public String getFollowerUsersUrl(Long userId){
+        this.followersCount++;
+        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(FOLLOWERS)
+                .append(LIST_JSON)
+                .append(USER_ID + "=")
+                .append(userId)
+                .append("&count=")
+                .append(maxCount)
+                .toString();
+    }
+
+    public String getFollowingIdsUrl(Long userId){
         this.followingCount++;
         System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -179,7 +210,18 @@ public class URLHelper {
                 .append(userId).toString();
     }
 
-    public String getFollowingsUrl(String screenName){
+    public String getFollowingIdsUrl(String screenName){
+        this.followingCount++;
+        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(FRIENDS)
+                .append(IDS_JSON)
+                .append(SCREEN_NAME+"=")
+                .append(screenName)
+                .toString();
+    }
+
+    public String getFollowingUsersUrl(String screenName){
         this.followingCount++;
         System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -187,6 +229,19 @@ public class URLHelper {
                 .append(LIST_JSON)
                 .append(SCREEN_NAME+"=")
                 .append(screenName)
+                .append("&count=")
+                .append(maxCount)
+                .toString();
+    }
+
+    public String getFollowingUsersUrl(Long userId){
+        this.followingCount++;
+        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(FRIENDS)
+                .append(LIST_JSON)
+                .append(USER_ID + "=")
+                .append(userId)
                 .append("&count=")
                 .append(maxCount)
                 .toString();
@@ -229,6 +284,56 @@ public class URLHelper {
                 .append(SCREEN_NAME+"=")
                 .append(name)
                 .toString();
+    }
+
+    public String getUsersUrlbyNames(List<String> names) {
+        this.userCount++;
+        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        StringBuilder result = new StringBuilder(ROOT_URL)
+                .append(USERS)
+                .append(LOOKUP_JSON)
+                .append(SCREEN_NAME+"=");
+        int i=0;
+        while(i<names.size() && i<MAX_LOOKUP){
+            String name = names.get(i);
+            result.append(name);
+            result.append(",");
+            i++;
+        }
+        result.delete(result.length()-1,result.length());
+        return result.toString();
+    }
+
+    public String getUsersUrlbyIds(List<Long> ids) {
+        this.userCount++;
+        System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+        StringBuilder result = new StringBuilder(ROOT_URL)
+                .append(USERS)
+                .append(LOOKUP_JSON)
+                .append(USER_ID+"=");
+        int i=0;
+        while(i<ids.size() && i<MAX_LOOKUP){
+            Long id = ids.get(i);
+            result.append(id);
+            result.append(",");
+            i++;
+        }
+        result.delete(result.length()-1,result.length());
+        return result.toString();
+    }
+
+    public boolean canCallGetFollowers(){
+        if(this.followersCount<FOLLOWER_MAX_CALLS){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean canCallUserInfo(){
+        if(this.userCount<USER_MAX_CALLS){
+            return true;
+        }
+        return false;
     }
 
     public void displayRateLimits(){

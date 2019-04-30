@@ -17,6 +17,7 @@ public class JsonHelper {
     private final String ID = "id";
     private final String LANG = "lang";
     private final String NEXT_CURSOR = "next_cursor";
+    public static final String FOLLOWING = "following";
 
     public List<Long> jsonLongArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
@@ -53,8 +54,7 @@ public class JsonHelper {
         ArrayList<User> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
-                String lang = jArray.getJSONObject(i).get(LANG).toString();
-                    listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
+                listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
             }
         }
         return listdata;

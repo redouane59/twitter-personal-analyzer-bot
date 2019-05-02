@@ -31,6 +31,7 @@ public class RequestHelper {
                     return null;
             }
         } catch(Exception e){
+            System.out.println(e);
             return null;
         }
     }
@@ -50,7 +51,7 @@ public class RequestHelper {
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             LocalDateTime now = LocalDateTime.now();
          //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
-            JSONObject jsonResponse = new JSONObject(response.body().string()); // @TODO gérer jSONArray
+            JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
                 return jsonResponse;
             } else if (response.code()==429){
@@ -63,7 +64,7 @@ public class RequestHelper {
                 }
                 return this.executeGetRequest(url);
             } else{
-                System.out.println("RETURN NULL " + response.message() + " - " + response.code());
+                System.out.println("(GET) not 200 return null " + response.message() + " - " + response.code());
                 return null;
             }
         } catch(IOException e){
@@ -86,6 +87,9 @@ public class RequestHelper {
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             LocalDateTime now = LocalDateTime.now();
       //      System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
+            if(response.code()!=200){
+                System.out.println("(POST) ! not 200 " + response.message() + " - " + response.code());
+            }
             return new JSONObject(response.body().string());
 
         } catch(IOException e){
@@ -123,10 +127,11 @@ public class RequestHelper {
                 }
                 return this.executeGetRequestReturningArray(url);
             } else{
-                System.out.println("RETURN NULL " + response.message() + " - " + response.code());
+                System.out.println("not 200 (return null)" + response.message() + " - " + response.code());
                 return null;
             }
         } catch(Exception e){
+            System.out.println("exception return null " + response.message() + " - " + response.code());
             e.printStackTrace();
             return null;
         }

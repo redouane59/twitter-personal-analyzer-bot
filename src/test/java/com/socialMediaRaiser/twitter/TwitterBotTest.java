@@ -112,6 +112,12 @@ public class TwitterBotTest {
                 twitterBot.getUrlHelper().getTweetInfoUrl(12345L));
     }
 
+    @Test
+    public void testUrlGetRateLimitStatus(){
+        Assert.assertEquals("https://api.twitter.com/1.1/application/rate_limit_status.json",
+                twitterBot.getUrlHelper().getRateLimitUrl());
+    }
+
     /* ******************** */
     /* ** Function tests ** */
     /* ******************* */
@@ -224,4 +230,8 @@ public class TwitterBotTest {
         Assert.assertEquals("Soltana",result.get(1).getScreen_name());
     }
 
+    @Test
+    public void testGetRateLimitStatus(){
+       Assert.assertNotEquals(null,twitterBot.getRateLimitStatus() );
+    }
 }

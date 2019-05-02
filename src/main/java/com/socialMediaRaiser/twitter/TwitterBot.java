@@ -39,6 +39,7 @@ public class TwitterBot extends AbstractTwitterBot{
     private void addPotentialFollowersFromUserFollowers(String userName, List<Long> ownerFollowingIds, int count, boolean follow) {
         long startWorkingTime = System.currentTimeMillis();
         List<User> followerFollowers = this.getFollowerUsers(userName, potentialFollowers.size()); //@TODO criticity here (15/15min)
+        // @TODO count how many common followers ?
         System.out.println("----- Watching followers of " + userName + "(" + followerFollowers.size() + ") -----");
         int nbUsersAdded = 0;
         int i = 0;
@@ -48,15 +49,18 @@ public class TwitterBot extends AbstractTwitterBot{
             && ownerFollowingIds.indexOf(potentialFollower.getId())==-1) { // user not already followed
                     int indexInPotentialFollowersList = potentialFollowers.indexOf(potentialFollower);
                     if(indexInPotentialFollowersList==-1){ // not already found
-                        potentialFollowers.add(potentialFollower);
                         nbUsersAdded++;
                         if(follow){
                             LocalDateTime now = LocalDateTime.now();
                             potentialFollower.setDateOfFollow(now.getDayOfMonth()+"/"+now.getMonthValue()
                                             +" "+now.getHour()+":"+now.getMinute());
-                            this.follow(potentialFollower.getScreen_name());
+                            boolean result = this.follow(potentialFollower.getScreen_name());
+                            if(result){
+                                potentialFollowers.add(potentialFollower);
+                            }
                         } else{
                             System.out.println("potentialFollowers.add : " + potentialFollower.getScreen_name());
+                            potentialFollowers.add(potentialFollower);
                         }
                     } else{
                         potentialFollowers.get(indexInPotentialFollowersList).incrementCommonFollowers();

@@ -15,11 +15,10 @@ public class Main {
     private static String tweetName = "RedTheOne";
     public static void main(String[] args) throws IOException {
 
-     //   searchNoFollowBackUsersFromFile(true);
 
-        savePotentialFollowers(350,true);
+        savePotentialFollowers(300,true);
 
-      //  checkNotFollowBack();
+    //    checkNotFollowBack();
 
         //searchNoFollowBackUsers();
         /*
@@ -38,7 +37,7 @@ public class Main {
     }
 
     public static void checkNotFollowBack() throws IOException {
-        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\followed2019428144.csv");
+        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\followed201951234.csv");
         List<String> followed = new ArrayList<>();
         for(String[] s : file){
             followed.add(s[0]);

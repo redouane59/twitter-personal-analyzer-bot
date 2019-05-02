@@ -44,7 +44,7 @@ public class URLHelper {
 
     public String getFollowUrl(String relatedName) {
         this.followCount++;
-        System.out.println("follows : " + followCount);
+       // System.out.println("follows : " + followCount);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
@@ -56,7 +56,7 @@ public class URLHelper {
 
     public String getFollowUrl(Long relatedId) {
         this.followCount++;
-        System.out.println("follows : " + followCount + " / " + FOLLOW_MAX_CALLS);
+     //   System.out.println("follows : " + followCount + " / " + FOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
@@ -320,6 +320,14 @@ public class URLHelper {
         }
         result.delete(result.length()-1,result.length());
         return result.toString();
+    }
+
+    public String getRateLimitUrl(){
+        // https://api.twitter.com/1.1/application/rate_limit_status.json
+        return new StringBuilder(ROOT_URL)
+                .append("/application")
+                .append("/rate_limit_status.json")
+                .toString();
     }
 
     public boolean canCallGetFollowers(){

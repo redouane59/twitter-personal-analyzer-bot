@@ -12,7 +12,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.http.HttpClient;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Data
 public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMainActionsById {
@@ -359,14 +362,16 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
         String url = this.urlHelper.getFollowUrl(userName);
         JSONObject jsonResponse = this.requestHelper.executeRequest(url, RequestMethod.POST);
         if(jsonResponse!=null) {
-            System.out.println(userName + " followed ! ");
-            try {
-                if (jsonResponse.get(JsonHelper.FOLLOWING).equals(true)) {
-                    return true;
+            if (jsonResponse.has(JsonHelper.FOLLOWING) /*&& jsonResponse.get(JsonHelper.FOLLOWING).equals(true)*/) {
+                System.out.println(userName + " followed ! ");
+                return true;
+            } else{
+                System.out.println("following property not found :(  " + userName + " not followed !");
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch(Exception e){
-                System.out.println(e);
-                return false;
             }
         }
         return false;
@@ -429,6 +434,11 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
         } else{
             return null;
         }
+    }
+
+    public JSONObject getRateLimitStatus(){
+        String url = this.getUrlHelper().getRateLimitUrl();
+        return this.getRequestHelper().executeRequest(url, RequestMethod.GET);
     }
 
     public Boolean userFollowsOther(Long userId1, Long userId2)  {

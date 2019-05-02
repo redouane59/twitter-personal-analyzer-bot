@@ -6,9 +6,9 @@ import lombok.Data;
 public class SignatureConstants
 {
     public static final String consumerKey = "LiMccelygYuyueOKZLaVk9N1R";
-    public static final String consumerSecret = "yyy";
-    public static final String accessToken = "92073489-N6BLM48cIKk3X5ya5RiXNPYlShFF1Z1vYRug6rRiv";
-    public static final String secretToken = "yyy";
+    public static final String consumerSecret = "zzz";
+    public static final String accessToken = "92073489-RC4JLZUJOL09zagnwfkvOi3GL9wdz7XvWWwmV7ern";
+    public static final String secretToken = "zzz";
     public static final String version = "1.0";
     public static final String algorithm = "HmacSHA1";
     public static final String signatureMethod = "HMAC-SHA1";

@@ -18,6 +18,10 @@ public class User{
     private int commonFollowers; // nb of occurrences in followers search
     private String dateOfFollow;
 
+    public User(long id){
+        this.id = id;
+    }
+
     public double getFollowersRatio(){
         return (double)this.followers_count/(double)this.friends_count;
     }
@@ -40,6 +44,15 @@ public class User{
         if(this.followers_count> FollowParameters.MIN_NB_FOLLOWERS
                 && this.getFollowersRatio()>FollowParameters.MIN_RATIO
                 && this.lang.equals(FollowParameters.LANGUAGE)){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    // @TODO to develop
+    public boolean isInfluencer(){
+        if(this.getFollowersRatio()>2 && this.followers_count>5000 && this.lang.equals(FollowParameters.LANGUAGE)){
             return true;
         } else{
             return false;

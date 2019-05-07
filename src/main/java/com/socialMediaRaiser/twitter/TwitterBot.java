@@ -3,22 +3,95 @@ package com.socialMediaRaiser.twitter;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 public class TwitterBot extends AbstractTwitterBot{
 
     private List<User> potentialFollowers = new ArrayList<>();
 
-    public List<User> searchPotentialFollowersFromFollowerFollowers(String userName, int count, boolean follow){
+    public List<User> searchPotentialFollowersFromTargetedFollowerFollowers(String userName, int count, boolean follow){
         User user = this.getUserFromUserName(userName);
-        return this.searchPotentialFollowersFromFollowerFollowers(user.getId(), count, follow);
+        return this.searchPotentialFollowersFromTargetedFollowerFollowers(user.getId(), count, follow);
     }
 
-    public List<User> searchPotentialFollowersFromFollowerFollowers(Long ownerId, int count, boolean follow){
+    public List<User> searchPotentialFollowersFromTargetedFollowerFollowers(Long ownerId, int count, boolean follow){
+        List<User> ownerFollowers = this.getFollowerUsers(ownerId); // @Todo criticity here (15/15min)
+        List<User> followersInfluencers = new ArrayList<>();
+        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
+        int i=0;
+        User user;
+
+        // building influencers list
+        while(i< ownerFollowers.size()){
+            user = ownerFollowers.get(i);
+            if(user.isInfluencer()){
+                followersInfluencers.add(user);
+            }
+            i++;
+        }
+
+        Collections.shuffle(followersInfluencers);
+
+        int nbInfluencersToWatch = 20;
+        // building influencers followers list
+        List<Long> influencersFollowersIds = new ArrayList<>();
+        i=0;
+        while(i<followersInfluencers.size() && i<nbInfluencersToWatch){
+            user = followersInfluencers.get(i);
+            Set<Long> currentFollowersInfluencersFollowersId = new HashSet<Long>(this.getFollowerIds(user.getId()));
+            System.out.println(user.getScreen_name() + " (" + currentFollowersInfluencersFollowersId.size() + " followers)");
+            influencersFollowersIds.addAll(currentFollowersInfluencersFollowersId);
+            i++;
+        }
+
+
+        Map<Long, Long> sortedPotentialFollowersMap = influencersFollowersIds.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))// create a map with item, occurence
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .filter(x -> x.getValue()>1)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+
+        Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
+        while (it.hasNext() && potentialFollowers.size() < count) {
+            Map.Entry<Long, Long> entry = it.next();
+
+            User potentialFollower = this.getUserFromUserId(entry.getKey());
+            potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
+            if (potentialFollower.shouldBeFollowed()
+                    && ownerFollowingIds.indexOf(potentialFollower.getId())==-1) { // useless
+                if (follow) {
+                    LocalDateTime now = LocalDateTime.now();
+                    potentialFollower.setDateOfFollow(now.getDayOfMonth() + "/" + now.getMonthValue()
+                            + " " + now.getHour() + ":" + now.getMinute());
+                    boolean result = this.follow(potentialFollower.getScreen_name());
+                    if (result) {
+                        potentialFollowers.add(potentialFollower);
+                    }
+                } else {
+                    System.out.println("potentialFollowers added : " + potentialFollower.getScreen_name());
+                    potentialFollowers.add(potentialFollower);
+                }
+            }
+
+            i += entry.getKey() + entry.getValue();
+        }
+
+
+        return potentialFollowers;
+    }
+
+    public List<User> searchPotentialFollowersFromRandomFollowerFollowers(String userName, int count, boolean follow){
+        User user = this.getUserFromUserName(userName);
+        return this.searchPotentialFollowersFromRandomFollowerFollowers(user.getId(), count, follow);
+    }
+
+    public List<User> searchPotentialFollowersFromRandomFollowerFollowers(Long ownerId, int count, boolean follow){
         List<User> ownerFollowers = this.getFollowerUsers(ownerId); // @Todo criticity here (15/15min)
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         Collections.shuffle(ownerFollowers);

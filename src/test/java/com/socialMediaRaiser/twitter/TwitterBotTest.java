@@ -64,7 +64,7 @@ public class TwitterBotTest {
 
     @Test
     public void testUrlFollowByName(){
-        Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?screen_name=RedTheOne&follow=true",
+        Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?screen_name=RedTheOne",
                 twitterBot.getUrlHelper().getFollowUrl("RedTheOne"));
     }
 
@@ -76,7 +76,7 @@ public class TwitterBotTest {
 
     @Test
     public void testUrlFollowById(){
-        Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?user_id=12345&follow=true",
+        Assert.assertEquals("https://api.twitter.com/1.1/friendships/create.json?user_id=12345",
                 twitterBot.getUrlHelper().getFollowUrl(12345L));
     }
 
@@ -210,6 +210,15 @@ public class TwitterBotTest {
     public void testGetUserInfo() {
         Long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertEquals("RedTheOne", user.getScreen_name());
+    }
+
+    @Test
+    public void testGetUserWithCache() {
+        Long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertEquals("RedTheOne", user.getScreen_name());
+        user = twitterBot.getUserFromUserId(userId);
         Assert.assertEquals("RedTheOne", user.getScreen_name());
     }
 

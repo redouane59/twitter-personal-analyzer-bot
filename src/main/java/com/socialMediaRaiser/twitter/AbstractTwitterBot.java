@@ -27,7 +27,7 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
     private final String IDS = "ids";
     private final String USERS = "users";
     private final String RETWEET_COUNT = "retweet_count";
-    private final int MAX_GET_FOLLOWERS_CALLS = 1;
+    private final int MAX_GET_FOLLOWERS_CALLS = 10;
 
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
     public List<Long> getUserIdsByRelation(Long userId, RelationType relationType){
@@ -44,7 +44,10 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
             System.out.println("looking for " + relationType + "S of " + userId + " with cursor = " + cursor);
             String url_with_cursor = url + "&cursor=" + cursor;
             JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
-            result.addAll(this.getJsonHelper().jsonLongArrayToList(response.get(IDS)));
+            List<Long> ids = this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
+            if(ids!=null){
+                result.addAll(ids);
+            }
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
@@ -364,6 +367,11 @@ public class AbstractTwitterBot implements ITwitterBot, IMainActionsByName, IMai
         if(jsonResponse!=null) {
             if (jsonResponse.has(JsonHelper.FOLLOWING) /*&& jsonResponse.get(JsonHelper.FOLLOWING).equals(true)*/) {
                 System.out.println(userName + " followed ! ");
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 return true;
             } else{
                 System.out.println("following property not found :(  " + userName + " not followed !");

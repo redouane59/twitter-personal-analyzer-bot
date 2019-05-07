@@ -16,7 +16,7 @@ public class IOHelper {
         FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
                 + "Documents" + File.separatorChar
                 + "followed"
-                + now.getYear()+now.getMonthValue()+now.getDayOfMonth()+now.getHour()+now.getMinute()
+                + now.getYear()+now.getMonthValue()+now.getDayOfMonth()
                 +".csv");
 
         writer.write("name;followers;followings;nbTweets;creation;commonFollowers;followDate\n");
@@ -41,7 +41,7 @@ public class IOHelper {
         FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
                 + "Documents" + File.separatorChar
                 + "followback"
-                + now.getYear()+now.getMonthValue()+now.getDayOfMonth()+now.getHour()+now.getMinute()
+                + now.getYear()+now.getMonthValue()+now.getDayOfMonth()
                 +".csv");
 
         writer.write("name;followed\n");

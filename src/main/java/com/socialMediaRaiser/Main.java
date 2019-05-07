@@ -15,20 +15,24 @@ public class Main {
     private static String tweetName = "RedTheOne";
     public static void main(String[] args) throws IOException {
 
+        savePotentialFollowersFrominflluencers( 100, true);
 
-        savePotentialFollowers(300,true);
+  //    savePotentialFollowers(300,true);
 
-    //    checkNotFollowBack();
+  //      checkNotFollowBack();
 
-        //searchNoFollowBackUsers();
-        /*
-        new IOHelper().writeFollowed(result); */
+  //      searchNoFollowBackUsersFromFile(true);
 
     }
 
     public static void savePotentialFollowers(int count, boolean follow) throws IOException {
-        List<User> potentialFollowersFromFollowerFollowers = twitterBot.searchPotentialFollowersFromFollowerFollowers(tweetName, count, follow);
-        new IOHelper().write(potentialFollowersFromFollowerFollowers);
+        List<User> result = twitterBot.searchPotentialFollowersFromRandomFollowerFollowers(tweetName, count, follow);
+        new IOHelper().write(result);
+    }
+
+    public static void savePotentialFollowersFrominflluencers(int count, boolean follow) throws IOException {
+        List<User> result = twitterBot.searchPotentialFollowersFromTargetedFollowerFollowers(tweetName, count, follow);
+        new IOHelper().write(result);
     }
 
     public static void searchNoFollowBackUsers(boolean unfollow) {
@@ -37,7 +41,7 @@ public class Main {
     }
 
     public static void checkNotFollowBack() throws IOException {
-        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\followed201951234.csv");
+        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\followed201954237.csv");
         List<String> followed = new ArrayList<>();
         for(String[] s : file){
             followed.add(s[0]);
@@ -48,7 +52,7 @@ public class Main {
     }
 
     public static void searchNoFollowBackUsersFromFile(boolean unfollow) throws IOException {
-        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\to_funwollow.csv");
+        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\to_unfollow2.csv");
         List<String> unfollowed = new ArrayList<>();
         for(String[] s : file){
             if(unfollow && !s[0].equals("")){

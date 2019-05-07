@@ -2,8 +2,8 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
-import com.squareup.okhttp.*;
 import lombok.Data;
+import okhttp3.*;
 import okio.Buffer;
 import okio.ByteString;
 
@@ -46,7 +46,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         this.oauthTimestamp = oauthTimestamp;
     }
 
-    @Override public Response intercept(Chain chain) throws IOException {
+    @Override public Response intercept(Interceptor.Chain chain) throws IOException {
         return chain.proceed(signRequest(chain.request()));
     }
 
@@ -62,7 +62,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         parameters.put(OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD_VALUE);
         parameters.put(OAUTH_VERSION, OAUTH_VERSION_VALUE);
 
-        HttpUrl url = request.httpUrl();
+        HttpUrl url = request.url();
         for (int i = 0; i < url.querySize(); i++) {
             parameters.put(ESCAPER.escape(url.queryParameterName(i)),
                     ESCAPER.escape(url.queryParameterValue(i)));
@@ -91,7 +91,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         String method = request.method();
         base.writeUtf8(method);
         base.writeByte('&');
-        base.writeUtf8(ESCAPER.escape(request.httpUrl().newBuilder().query(null).build().toString()));
+        base.writeUtf8(ESCAPER.escape(request.url().newBuilder().query(null).build().toString()));
         base.writeByte('&');
 
         boolean first = true;

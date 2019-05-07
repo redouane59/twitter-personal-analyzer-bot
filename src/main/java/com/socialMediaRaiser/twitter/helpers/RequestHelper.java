@@ -1,15 +1,13 @@
 package com.socialMediaRaiser.twitter.helpers;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 import com.socialMediaRaiser.twitter.config.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -45,9 +43,15 @@ public class RequestHelper {
                 .build();
 
         try {
-            OkHttpClient client = new OkHttpClient();
-            client.setConnectTimeout(60, TimeUnit.SECONDS); // connect timeout
-            client.setReadTimeout(60, TimeUnit.SECONDS);    // socket timeout
+            int cacheSize = 10 * 1024 * 1024; // 10MB
+            File file = new File("C:\\okhttpCache");
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addNetworkInterceptor(new CacheInterceptor())
+                    .cache(new Cache(file, cacheSize))
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .build();
+
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             LocalDateTime now = LocalDateTime.now();
          //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
@@ -85,7 +89,7 @@ public class RequestHelper {
         try {
             OkHttpClient client = new OkHttpClient();
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            LocalDateTime now = LocalDateTime.now();
+        //    LocalDateTime now = LocalDateTime.now();
       //      System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
             if(response.code()!=200){
                 System.out.println("(POST) ! not 200 " + response.message() + " - " + response.code());
@@ -108,13 +112,13 @@ public class RequestHelper {
 
         Response response = null;
         try {
-            OkHttpClient client = new OkHttpClient();
-            client.setConnectTimeout(60, TimeUnit.SECONDS); // connect timeout
-            client.setReadTimeout(60, TimeUnit.SECONDS);    // socket timeout
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS).build();
             response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             LocalDateTime now = LocalDateTime.now();
             //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
-            JSONArray jsonResponse = new JSONArray(response.body().string()); // @TODO gérer jSONArray
+            JSONArray jsonResponse = new JSONArray(response.body().string());
             if(response.code()==200){
                 return jsonResponse;
             } else if (response.code()==429){

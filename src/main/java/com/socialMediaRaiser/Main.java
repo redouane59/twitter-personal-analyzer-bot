@@ -1,68 +1,61 @@
 package com.socialMediaRaiser;
 
-import com.socialMediaRaiser.twitter.TwitterBot;
-import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
+import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 
+import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
 
-    private static TwitterBot twitterBot = new TwitterBot();
+    private static TwitterBotByInfluencers twitterBot = new TwitterBotByInfluencers();
     private static String tweetName = "RedTheOne";
     public static void main(String[] args) throws IOException {
 
-        savePotentialFollowersFrominflluencers( 100, true);
+        savePotentialFollowersFromInflluencers( 380, true);
 
-  //    savePotentialFollowers(300,true);
 
-  //      checkNotFollowBack();
-
-  //      searchNoFollowBackUsersFromFile(true);
+      //  checkNotFollowBack(true);
 
     }
 
     public static void savePotentialFollowers(int count, boolean follow) throws IOException {
-        List<User> result = twitterBot.searchPotentialFollowersFromRandomFollowerFollowers(tweetName, count, follow);
+        List<? extends AbstractUser> result = twitterBot.getPotentialFollowers(tweetName, count, follow);
         new IOHelper().write(result);
     }
 
-    public static void savePotentialFollowersFrominflluencers(int count, boolean follow) throws IOException {
-        List<User> result = twitterBot.searchPotentialFollowersFromTargetedFollowerFollowers(tweetName, count, follow);
+    public static void savePotentialFollowersFromInflluencers(int count, boolean follow) throws IOException {
+        List<? extends AbstractUser> result = twitterBot.getPotentialFollowers(tweetName, count, follow);
         new IOHelper().write(result);
     }
 
-    public static void searchNoFollowBackUsers(boolean unfollow) {
-        List<String> result = twitterBot.getUsersNotFollowingBack(tweetName, unfollow);
-        twitterBot.unfollow(result);
-    }
+    public static void checkNotFollowBack(boolean unfollow) throws IOException {
+        LocalDateTime yesterday = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
+        String yesterdayPath = System.getProperty("user.home") + File.separatorChar
+                + "Documents" + File.separatorChar
+                + "followed"
+                + yesterday.getYear()+yesterday.getMonthValue()+yesterday.getDayOfMonth()
+                +".csv";
+        List<String[]> file = new IOHelper().readData(yesterdayPath);
 
-    public static void checkNotFollowBack() throws IOException {
-        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\followed201954237.csv");
         List<String> followed = new ArrayList<>();
         for(String[] s : file){
             followed.add(s[0]);
         }
-        System.out.println(followed);
         Map<String, Boolean> result = twitterBot.areFriends(tweetName, followed);
-        new IOHelper().writeFollowed(result);
-    }
-
-    public static void searchNoFollowBackUsersFromFile(boolean unfollow) throws IOException {
-        List<String[]> file = new IOHelper().readData("C:\\Users\\Perso\\Documents\\to_unfollow2.csv");
-        List<String> unfollowed = new ArrayList<>();
-        for(String[] s : file){
-            if(unfollow && !s[0].equals("")){
-                boolean result = twitterBot.unfollow(s[0]);
-                if(result){
-                    unfollowed.add(s[0]);
+        if(unfollow) {
+            for (Map.Entry<String, Boolean> entry : result.entrySet()) {
+                if(entry.getValue()==false){
+                    twitterBot.unfollow(entry.getKey());
                 }
             }
         }
-        System.out.println(unfollowed);
+        new IOHelper().writeFollowed(result);
     }
 
 }

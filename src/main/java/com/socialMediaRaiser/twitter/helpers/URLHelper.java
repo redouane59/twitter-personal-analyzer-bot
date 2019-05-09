@@ -54,15 +54,13 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowUrl(Long relatedId) {
+    public String getFollowUrl(Long userId) {
         this.followCount++;
-     //   System.out.println("follows : " + followCount + " / " + FOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
                 .append(USER_ID+"=")
-                .append(relatedId)
-          //      .append("&follow=true")
+                .append(userId)
                 .toString();
     }
 
@@ -75,7 +73,17 @@ public class URLHelper {
                 .append(SCREEN_NAME+"=")
                 .append(userName)
                 .toString();
+    }
 
+    public String getUnfollowUrl(Long userId) {
+        this.unfollowCount++;
+        System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(FRIENDSHIPS)
+                .append(DESTROY_JSON)
+                .append(USER_ID+"=")
+                .append(userId)
+                .toString();
     }
 
     public String getFriendshipUrl(Long sourceId, Long targetId) {
@@ -264,7 +272,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getUserUrl(Long relatedId) {
+    public String getUserUrl(Long userId) {
         this.userCount++;
         if(userCount%10==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
@@ -273,7 +281,7 @@ public class URLHelper {
                 .append(USERS)
                 .append(SHOW_JSON)
                 .append(USER_ID+"=")
-                .append(relatedId)
+                .append(userId)
                 .toString();
     }
 

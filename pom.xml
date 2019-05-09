@@ -17,8 +17,8 @@
         </plugin>
         </plugins>
     </build>
-    <groupId>ImproveMyTwitter</groupId>
-    <artifactId>ImproveMyTwitter</artifactId>
+    <groupId>social-media-raiser</groupId>
+    <artifactId>social-media-raiser</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>

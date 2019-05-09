@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
+import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -7,9 +8,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TwitterBotTest {
+public class AbstractTwitterBotTest {
 
-    private TwitterBot twitterBot = new TwitterBot();
+    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
 
     /* ******************** */
     /* ***** URL tests **** */
@@ -210,16 +211,16 @@ public class TwitterBotTest {
     public void testGetUserInfo() {
         Long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
-        Assert.assertEquals("RedTheOne", user.getScreen_name());
+        Assert.assertEquals("RedTheOne", user.getUserName());
     }
 
     @Test
     public void testGetUserWithCache() {
         Long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
-        Assert.assertEquals("RedTheOne", user.getScreen_name());
+        Assert.assertEquals("RedTheOne", user.getUserName());
         user = twitterBot.getUserFromUserId(userId);
-        Assert.assertEquals("RedTheOne", user.getScreen_name());
+        Assert.assertEquals("RedTheOne", user.getUserName());
     }
 
     @Test
@@ -235,12 +236,25 @@ public class TwitterBotTest {
         ids.add(92073489L); // RedTheOne
         ids.add(22848599L); // Soltana
         List<User> result = twitterBot.getUsersFromUserIds(ids);
-        Assert.assertEquals("RedTheOne",result.get(0).getScreen_name());
-        Assert.assertEquals("Soltana",result.get(1).getScreen_name());
+        Assert.assertEquals("RedTheOne",result.get(0).getUserName());
+        Assert.assertEquals("Soltana",result.get(1).getUserName());
     }
 
     @Test
     public void testGetRateLimitStatus(){
        Assert.assertNotEquals(null,twitterBot.getRateLimitStatus() );
+    }
+
+    @Test
+    public void testShouldBeFollowed(){
+        User user = new User();
+        user.setFollowersCount(1);
+        user.setFollowingCount(1000);
+        Assert.assertEquals(false, user.shouldBeFollowed());
+        User user2 = new User();
+        user2.setFollowersCount(1500);
+        user2.setFollowingCount(1000);
+        user2.setLang("fr");
+        Assert.assertEquals(true, user2.shouldBeFollowed());
     }
 }

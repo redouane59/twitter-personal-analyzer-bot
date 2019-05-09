@@ -43,10 +43,10 @@ public class RequestHelper {
                 .build();
 
         try {
-            int cacheSize = 10 * 1024 * 1024; // 10MB
+            int cacheSize = 50 * 1024 * 1024; // 50MB
             File file = new File("C:\\okhttpCache");
             OkHttpClient client = new OkHttpClient.Builder()
-                    .addNetworkInterceptor(new CacheInterceptor())
+                    .addNetworkInterceptor(new CacheInterceptor(this.getCacheTimeoutFromUrl(url)))
                     .cache(new Cache(file, cacheSize))
                     .readTimeout(60, TimeUnit.SECONDS)
                     .connectTimeout(60, TimeUnit.SECONDS)
@@ -166,5 +166,17 @@ public class RequestHelper {
                 .build();
 
         return oauth.signRequest(request);
+    }
+
+    private int getCacheTimeoutFromUrl(String url){
+        int defaultCache = 48;
+        if(url.contains("/friends")){
+            defaultCache = 2;
+        } else if (url.contains("/followers")){
+            defaultCache = 72;
+        } else if (url.contains("/users")){
+            defaultCache = 168;
+        }
+        return defaultCache;
     }
 }

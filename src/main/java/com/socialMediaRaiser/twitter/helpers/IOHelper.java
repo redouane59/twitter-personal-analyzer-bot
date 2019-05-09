@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.User;
 
 import java.io.*;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class IOHelper {
 
-    public void write(List<User> result) throws IOException {
+    public void write(List<? extends AbstractUser> result) throws IOException {
         LocalDateTime now = LocalDateTime.now();
 
         FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
@@ -19,14 +20,17 @@ public class IOHelper {
                 + now.getYear()+now.getMonthValue()+now.getDayOfMonth()
                 +".csv");
 
-        writer.write("name;followers;followings;nbTweets;creation;commonFollowers;followDate\n");
-
-        for(User user : result) {
-            writer.write(user.getScreen_name() + ";"
-                    + user.getFollowers_count() + ";"
-                    + user.getFriends_count()  + ";"
-                    + user.getStatuses_count()  + ";"
-                    + user.getCreated_at()  + ";"
+        for(AbstractUser absUser : result) {
+            User user = (User)absUser;
+            writer.write(user.getId() + ";"
+                    + user.getUserName() + ";"
+                    + user.getFollowersCount() + ";"
+                    + user.getFollowingCount()  + ";"
+                    + user.getStatusesCount()  + ";"
+                    + user.getFavouritesCount() + ";"
+                    + user.getDescription() + ";"
+                    + user.getLastUpdate() + ";"
+                    + user.getDateOfCreation()  + ";"
                     + user.getCommonFollowers()  + ";"
                     + user.getDateOfFollow()
                     + "\n");

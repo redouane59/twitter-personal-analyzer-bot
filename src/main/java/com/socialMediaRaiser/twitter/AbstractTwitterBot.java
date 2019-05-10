@@ -24,7 +24,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final String IDS = "ids";
     private final String USERS = "users";
     private final String RETWEET_COUNT = "retweet_count";
-    private final int MAX_GET_FOLLOWERS_CALLS = 15;
+    private final int MAX_GET_F_CALLS = 15;
 
     // @TODO find something to have only one function
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
@@ -49,7 +49,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " " + relationType + "S found for " + userId);
         return result;
     }
@@ -73,7 +73,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " " + relationType + "S found for " + userName);
         return result;
     }
@@ -97,7 +97,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " " + relationType +"S found for " + userName);
         return result;
     }
@@ -124,7 +124,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        while (cursor != 0 && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " " + relationType + "S found for " + userName);
         return result;
     }
@@ -150,7 +150,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        while (cursor != 0 && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " " + relationType + "S found for " + userId);
         return result;
     }
@@ -169,7 +169,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && nbCalls < MAX_GET_FOLLOWERS_CALLS);
+        while (cursor != 0 && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " followings found for " + userName);
         return result;
     }

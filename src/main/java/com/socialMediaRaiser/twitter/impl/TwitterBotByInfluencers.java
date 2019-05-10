@@ -15,6 +15,8 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow){
+        int nbFollowersMaxToWatch = 20;
+        int minOccurence = 2;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         List<Long> followedRecently = new ArrayList<>(); // @todo to implement
@@ -22,12 +24,12 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
-                this.getAllFollowerIdsFromUsersSortedByOccurence(influencerFollowers, 20, 2);
+                this.getAllFollowerIdsFromUsersSortedByOccurence(influencerFollowers, nbFollowersMaxToWatch, minOccurence);
 
         Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
         while (it.hasNext() && potentialFollowers.size() < count) {
             Map.Entry<Long, Long> entry = it.next();
-            if(entry.getKey()!=null){
+            if(entry.getKey()!=null && entry.getValue()!=null){
                 Long userId = entry.getKey();
                 if(ownerFollowingIds.indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1){
                     User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
@@ -47,6 +49,11 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 }
             }
         }
+        System.out.println("********************************");
+        System.out.println(potentialFollowers.size() + " followers followed / "
+        + sortedPotentialFollowersMap.size() + " users analyzed");
+        System.out.println("********************************");
+
         return potentialFollowers;
     }
 

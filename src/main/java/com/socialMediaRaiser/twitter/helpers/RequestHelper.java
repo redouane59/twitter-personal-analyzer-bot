@@ -172,6 +172,8 @@ public class RequestHelper {
         int defaultCache = 48;
         if(url.contains("/friends")){
             defaultCache = 2;
+        } else if (url.contains("/friendships")){
+            defaultCache = 4;
         } else if (url.contains("/followers")){
             defaultCache = 72;
         } else if (url.contains("/users")){

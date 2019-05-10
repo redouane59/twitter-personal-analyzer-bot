@@ -1,6 +1,5 @@
 package com.socialMediaRaiser;
 
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,8 +34,6 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         return unfollowed;
     }
 
-    // @TODO from arrayList of followings
-    // @TODO same with ids
     public LinkedHashMap<String, Boolean> areFriends(String userName1, List<String> otherUsers){
         LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
         for(String otherUserName : otherUsers){
@@ -46,7 +43,37 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
                 areFriends = false;
             }
             result.put(otherUserName, areFriends);
+        }
+        return result;
+    }
 
+    public LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds){
+        LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
+        for(Long otherId : otherIds){
+            Boolean areFriends = this.areFriends(userId, otherId);
+            if(areFriends==null){
+                System.out.println("areFriends was null for " + otherId + "! -> false");
+                areFriends = false;
+            }
+            result.put(otherId, areFriends);
+
+        }
+        return result;
+    }
+
+    public LinkedHashMap<AbstractUser, Boolean> areFriends(AbstractUser user, List<AbstractUser> otherUsers){
+        LinkedHashMap<AbstractUser, Boolean> result = new LinkedHashMap<>();
+        for(AbstractUser otherUser : otherUsers){
+            Boolean areFriends = this.areFriends(otherUser.getUserName(), user.getUserName());
+            if(areFriends==null){
+                areFriends = this.areFriends(otherUser.getId(), user.getId());
+                if(areFriends==null) {
+                    System.out.println("areFriends was null for " + otherUser.getUserName()
+                            + " (" + otherUser.getId()+") ! -> false");
+                    areFriends = false;
+                }
+            }
+            result.put(otherUser, areFriends);
         }
         return result;
     }

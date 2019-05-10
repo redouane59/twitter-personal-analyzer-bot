@@ -66,7 +66,7 @@ public class URLHelper {
 
     public String getUnfollowUrl(String userName) {
         this.unfollowCount++;
-        System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
+        //System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(DESTROY_JSON)
@@ -77,7 +77,7 @@ public class URLHelper {
 
     public String getUnfollowUrl(Long userId) {
         this.unfollowCount++;
-        System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
+       // System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(DESTROY_JSON)
@@ -88,7 +88,7 @@ public class URLHelper {
 
     public String getFriendshipUrl(Long sourceId, Long targetId) {
         this.friendshipCount++;
-        if(friendshipCount%10==0){
+        if(friendshipCount%50==0){
             System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -103,7 +103,7 @@ public class URLHelper {
 
     public String getFriendshipUrl(String sourceScreenName, String targetScreenName) {
         this.friendshipCount++;
-        if(friendshipCount%10==0){
+        if(friendshipCount%50==0){
             System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -274,7 +274,7 @@ public class URLHelper {
 
     public String getUserUrl(Long userId) {
         this.userCount++;
-        if(userCount%10==0) {
+        if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -287,7 +287,7 @@ public class URLHelper {
 
     public String getUserUrl(String name) {
         this.userCount++;
-        if(userCount%10==0) {
+        if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -300,7 +300,7 @@ public class URLHelper {
 
     public String getUsersUrlbyNames(List<String> names) {
         this.userCount++;
-        if(userCount%10==0) {
+        if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         StringBuilder result = new StringBuilder(ROOT_URL)
@@ -320,7 +320,7 @@ public class URLHelper {
 
     public String getUsersUrlbyIds(List<Long> ids) {
         this.userCount++;
-        if(userCount%10==0) {
+        if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         StringBuilder result = new StringBuilder(ROOT_URL)

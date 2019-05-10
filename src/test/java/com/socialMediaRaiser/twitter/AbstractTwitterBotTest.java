@@ -208,10 +208,61 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
-    public void testGetUserInfo() {
-        Long userId = 92073489L;
+    public void testGetUserInfoName() {
+        long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
         Assert.assertEquals("RedTheOne", user.getUserName());
+    }
+
+    @Test
+    public void testGetUserInfoId() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertEquals(userId, user.getId());
+    }
+
+    @Test
+    public void testGetUserInfoFavouritesCount() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertTrue(user.getFavouritesCount()>0);
+    }
+
+    @Test
+    public void testGetUserInfoFavouritesDateOfCreation() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertTrue(user.getDateOfCreation()!=null);
+    }
+
+    @Test
+    public void testGetUserInfoStatusesCount() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertTrue(user.getStatusesCount()>0);
+    }
+
+    @Test
+    public void testGetUserInfoLang() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertEquals("en",user.getLang());
+    }
+
+    @Test
+    public void testGetUserInfoLastUpdate() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertEquals(userId, user.getId());
+        Assert.assertTrue(user.getLastUpdate()!=null);
+    }
+
+    @Test
+    public void testGetUserInfoFollowingRatio() {
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Assert.assertEquals(userId, user.getId());
+        Assert.assertTrue(user.getFollowersRatio()>1);
     }
 
     @Test

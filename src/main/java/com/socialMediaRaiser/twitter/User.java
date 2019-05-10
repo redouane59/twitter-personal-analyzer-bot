@@ -4,36 +4,40 @@ import com.google.api.client.util.DateTime;
 import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.config.FollowParameters;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class User extends AbstractUser {
-
 
     private String lang;
     private int statusesCount;
-    private String dateOfCreation;
+    private Date dateOfCreation;
     private int commonFollowers; // nb of occurrences in followers search
-    private String dateOfFollow; // @todo change type
-    private DateTime lastUpdate; // @todo to add using GET statuses/user_timeline
-    private String description; // @todo to add
-    private int favouritesCount; // @todo to add
+    private Date dateOfFollow;
+    private String description;
+    private int favouritesCount;
+    private Date lastUpdate;
 
-    public User(){
-
-    }
-
-    public User(Long id, String user_name, int followers_count, int following_count, String lang,
-                int statusesCount, String dateOfCreation, int commonFollowers, String dateOfFollow){
-        super(id, user_name, followers_count, following_count);
+    @Builder
+    User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
+         Date dateOfFollow, String description, int favouritesCount, Date lastUpdate){
+        super(id,userName, followerCout, followingCount);
         this.lang = lang;
         this.statusesCount = statusesCount;
         this.dateOfCreation = dateOfCreation;
         this.commonFollowers = commonFollowers;
         this.dateOfFollow = dateOfFollow;
+        this.description = description;
+        this.favouritesCount = favouritesCount;
+        this.lastUpdate = lastUpdate;
     }
 
     @Override
@@ -43,7 +47,8 @@ public class User extends AbstractUser {
                 && this.getFollowersCount()<FollowParameters.MAX_NB_FOLLOWERS
                 && this.getFollowersRatio()>FollowParameters.MIN_RATIO
                 && this.getFollowersRatio()<FollowParameters.MAX_RATIO
-                && this.lang.equals(FollowParameters.LANGUAGE)){
+                && this.lang.equals(FollowParameters.LANGUAGE)
+                && this.lastUpdate!=null){
             return true;
         } else{
             return false;
@@ -81,9 +86,14 @@ public class User extends AbstractUser {
     }
 
     public void setDateOfFollowNow(){
-        LocalDateTime now = LocalDateTime.now();
-        this.setDateOfFollow(now.getDayOfMonth() + "/" + now.getMonthValue()
-                + " " + now.getHour() + ":" + now.getMinute());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        this.setDateOfFollow(new Date());
+    }
+
+    // @TODO why do I need to put it here too ?
+    @Override
+    public int hashCode() {
+        return Long.hashCode(this.getId());
     }
 
 }

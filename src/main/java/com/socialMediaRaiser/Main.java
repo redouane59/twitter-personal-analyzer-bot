@@ -1,5 +1,6 @@
 package com.socialMediaRaiser;
 
+import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 
@@ -17,10 +18,8 @@ public class Main {
     private static String tweetName = "RedTheOne";
     public static void main(String[] args) throws IOException {
 
-        savePotentialFollowersFromInflluencers( 380, true);
-
-
-      //  checkNotFollowBack(true);
+     //   savePotentialFollowersFromInflluencers( 300, true);
+     // checkNotFollowBack(true);
 
     }
 
@@ -30,7 +29,12 @@ public class Main {
     }
 
     public static void savePotentialFollowersFromInflluencers(int count, boolean follow) throws IOException {
-        List<? extends AbstractUser> result = twitterBot.getPotentialFollowers(tweetName, count, follow);
+        List<? extends AbstractUser> result = new ArrayList<>();
+        try{
+            result = twitterBot.getPotentialFollowers(tweetName, count, follow);
+        } catch(Exception e){
+            System.out.println(e);
+        }
         new IOHelper().write(result);
     }
 
@@ -43,19 +47,28 @@ public class Main {
                 +".csv";
         List<String[]> file = new IOHelper().readData(yesterdayPath);
 
-        List<String> followed = new ArrayList<>();
+        List<AbstractUser> followed = new ArrayList<>();
         for(String[] s : file){
-            followed.add(s[0]);
+            Long id = Long.valueOf(s[0]);
+            String userName = s[1];
+            User user = new User(); // @TODO user builder
+            user.setId(id);
+            user.setUserName(userName);
+            followed.add(user);
         }
-        Map<String, Boolean> result = twitterBot.areFriends(tweetName, followed);
+
+        User user = twitterBot.getUserFromUserName(tweetName);
+        Map<AbstractUser, Boolean> result = twitterBot.areFriends(user, followed);
+        new IOHelper().writeFollowedWithUser(result);
+
         if(unfollow) {
-            for (Map.Entry<String, Boolean> entry : result.entrySet()) {
+            for (Map.Entry<AbstractUser, Boolean> entry : result.entrySet()) {
                 if(entry.getValue()==false){
-                    twitterBot.unfollow(entry.getKey());
+                        System.out.print(entry.getKey().getUserName() + " ");
+                        twitterBot.unfollow(entry.getKey().getId());
                 }
             }
         }
-        new IOHelper().writeFollowed(result);
+        // @todo log final
     }
-
 }

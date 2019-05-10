@@ -1,11 +1,17 @@
 package com.socialMediaRaiser.twitter.helpers;
 
 import com.socialMediaRaiser.twitter.User;
+import com.socialMediaRaiser.twitter.User.UserBuilder;
+import lombok.Builder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class JsonHelper {
 
@@ -14,6 +20,9 @@ public class JsonHelper {
     private final String SCREEN_NAME = "screen_name";
     private final String FOLLOWER_COUNT = "followers_count";
     private final String FRIENDS_COUNT = "friends_count";
+    private final String FAVOURITES_COUNT = "favourites_count";
+    private final String DESCRIPTION = "description";
+    private final String STATUS = "status";
     private final String ID = "id";
     private final String LANG = "lang";
     private final String NEXT_CURSOR = "next_cursor";
@@ -69,8 +78,25 @@ public class JsonHelper {
             String lang = jsonObject.get(LANG).toString();
             int statuses_count = (int)jsonObject.get(STATUSES_COUNT);
             String created_at = jsonObject.get(CREATED_AT).toString();
-            return new User(id, screenName, followersCount, friendsCount, lang,
-                    statuses_count, created_at, 1, "");
+            String description = jsonObject.get(DESCRIPTION).toString();
+            int favourites_count = (int)jsonObject.get(FAVOURITES_COUNT);
+            String lastUpdate = null;
+            if(jsonObject.has(STATUS)){
+                lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
+            }
+            return User.builder()
+                    .id(id)
+                    .userName(screenName)
+                    .followerCout(followersCount)
+                    .followingCount(friendsCount)
+                    .lang(lang)
+                    .statusesCount(statuses_count)
+                    .dateOfCreation(getTwitterDate(created_at))
+                    .description(description)
+                    .favouritesCount(favourites_count)
+                    .dateOfFollow(null)
+                    .lastUpdate(getTwitterDate(lastUpdate))
+                    .build();
         } else{
             return null;
         }
@@ -83,6 +109,23 @@ public class JsonHelper {
             return Long.valueOf((Integer) response.get(NEXT_CURSOR));
         }  else{
             System.out.println("format problem");
+            return null;
+        }
+    }
+
+    public static Date getTwitterDate(String date)
+    {
+        if(date==null){
+            return null;
+        }
+
+        try {
+            final String TWITTER = "EEE MMM dd HH:mm:ss Z yyyy";
+            SimpleDateFormat sf = new SimpleDateFormat(TWITTER, Locale.ENGLISH);
+            sf.setLenient(true);
+            return sf.parse(date);
+        } catch(Exception e){
+            System.out.println(e);
             return null;
         }
     }

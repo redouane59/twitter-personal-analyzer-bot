@@ -328,7 +328,7 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
-    public void testWritingOnGoogleSheet() throws IOException, GeneralSecurityException {
+    public void testWritingOnGoogleSheet() {
         User user = twitterBot.getUserFromUserName("RedTheOne");
         GoogleSheetHelper helper = new GoogleSheetHelper();
         helper.addNewFollowerLine(user);

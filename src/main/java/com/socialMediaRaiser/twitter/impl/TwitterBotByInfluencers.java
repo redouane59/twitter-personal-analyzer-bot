@@ -17,16 +17,7 @@ import java.util.stream.Collectors;
 public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
-    private GoogleSheetHelper sheetHelper;
-    {
-        try {
-            sheetHelper = new GoogleSheetHelper();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-        }
-    }
+    private GoogleSheetHelper sheetHelper = new GoogleSheetHelper();
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow){

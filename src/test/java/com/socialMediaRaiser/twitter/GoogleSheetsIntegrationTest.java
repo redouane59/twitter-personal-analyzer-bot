@@ -26,13 +26,13 @@ public class GoogleSheetsIntegrationTest {
     }
 
     @Test
-    public void testReading() throws IOException, GeneralSecurityException {
+    public void testReading() throws IOException {
         helper = new GoogleSheetHelper();
         Assert.assertTrue(helper.getPreviouslyFollowedIds().size()>1);
     }
 
     @Test
-    public void testWriting() throws IOException, GeneralSecurityException {
+    public void testWriting() {
         helper = new GoogleSheetHelper();
         helper.addNewFollowerLine(User.builder()
                 .id(816708441477677056L).userName("Red").build());

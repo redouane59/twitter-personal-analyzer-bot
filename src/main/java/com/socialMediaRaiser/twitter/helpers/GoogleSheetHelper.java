@@ -15,12 +15,17 @@ import java.util.*;
 
 public class GoogleSheetHelper {
     private String SPREADSHEET_ID = "1rpTWqHvBFaxdHcbnHmry2quQTKhPVJ-dA2n_wep0hrs";
-    private Sheets sheetsService = SheetsServiceUtil.getSheetsService();
+    private Sheets sheetsService;
     private final String tabName = "Followed 2";
     private final String tabNameTest = "Test";
 
 
-    public GoogleSheetHelper() throws IOException, GeneralSecurityException {
+    public GoogleSheetHelper(){
+        try {
+            this.sheetsService = SheetsServiceUtil.getSheetsService();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     public List<Long> getPreviouslyFollowedIds() throws IOException {

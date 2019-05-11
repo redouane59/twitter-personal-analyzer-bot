@@ -2,3 +2,4 @@
 /.target
 *.iml
 *.class
+./src/main/resources/google-sheets-client-secret.json

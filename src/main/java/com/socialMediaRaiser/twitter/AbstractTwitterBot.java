@@ -26,7 +26,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final String RETWEET_COUNT = "retweet_count";
     private final int MAX_GET_F_CALLS = 15;
 
-    // @TODO find something to have only one function
+    protected abstract List<Long> getFollowedRecently();
+
+    // @TODO find something to have only one function -> demander à Vincent
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
     private List<Long> getUserIdsByRelation(Long userId, RelationType relationType){
         Long cursor = -1L;
@@ -154,6 +156,8 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         System.out.println(result.size() + " " + relationType + "S found for " + userId);
         return result;
     }
+
+    // fin refactor
 
     @Override
     public List<Long> getFollowingIds(String userName) {

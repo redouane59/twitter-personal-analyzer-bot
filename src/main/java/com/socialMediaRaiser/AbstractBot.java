@@ -99,4 +99,5 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
         return notFollowingsBackUsers;
     }
+
 }

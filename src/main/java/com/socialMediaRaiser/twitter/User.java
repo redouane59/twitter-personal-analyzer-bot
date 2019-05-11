@@ -3,17 +3,15 @@ package com.socialMediaRaiser.twitter;
 import com.google.api.client.util.DateTime;
 import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.config.FollowParameters;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class User extends AbstractUser {
 
@@ -86,14 +84,7 @@ public class User extends AbstractUser {
     }
 
     public void setDateOfFollowNow(){
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         this.setDateOfFollow(new Date());
-    }
-
-    // @TODO why do I need to put it here too ?
-    @Override
-    public int hashCode() {
-        return Long.hashCode(this.getId());
     }
 
 }

@@ -1,11 +1,15 @@
 package com.socialMediaRaiser.twitter;
 
+import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AbstractTwitterBotTest {
@@ -306,6 +310,27 @@ public class AbstractTwitterBotTest {
         user2.setFollowersCount(1500);
         user2.setFollowingCount(1000);
         user2.setLang("fr");
+        user2.setLastUpdate(new Date());
         Assert.assertEquals(true, user2.shouldBeFollowed());
+    }
+
+    @Test
+    public void testReadFollowedRecently(){
+        List<Long> result = twitterBot.getFollowedRecently();
+        Assert.assertTrue(result.size()>100);
+    }
+
+    @Test
+    public void testHashCode(){
+        User user = User.builder().id(12345L).build();
+        User user2 = User.builder().id(23456L).build();
+        Assert.assertNotEquals(user.hashCode(), user2.hashCode());
+    }
+
+    @Test
+    public void testWritingOnGoogleSheet() throws IOException, GeneralSecurityException {
+        User user = twitterBot.getUserFromUserName("RedTheOne");
+        GoogleSheetHelper helper = new GoogleSheetHelper();
+        helper.addNewFollowerLine(user);
     }
 }

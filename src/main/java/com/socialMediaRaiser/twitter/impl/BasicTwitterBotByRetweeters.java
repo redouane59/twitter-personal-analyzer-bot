@@ -37,4 +37,8 @@ public class BasicTwitterBotByRetweeters extends AbstractTwitterBot {
         return potentialFollowers;
     }
 
+    @Override
+    protected List<Long> getFollowedRecently() {
+        return null;
+    }
 }

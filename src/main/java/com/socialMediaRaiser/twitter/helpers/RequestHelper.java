@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 public class RequestHelper {
 
+    private int sleepTime = 15;
+
     public JSONObject executeRequest(String url, RequestMethod method) {
         try {
             switch (method) {
@@ -29,7 +31,7 @@ public class RequestHelper {
                     return null;
             }
         } catch(Exception e){
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -53,16 +55,16 @@ public class RequestHelper {
                     .build();
 
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            LocalDateTime now = LocalDateTime.now();
          //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
             JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
                 return jsonResponse;
             } else if (response.code()==429){
+                LocalDateTime now = LocalDateTime.now();
                 System.out.println(response.message() +" at "
-                        + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ...");
                 try {
-                    TimeUnit.MINUTES.sleep(15);
+                    TimeUnit.MINUTES.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -125,7 +127,7 @@ public class RequestHelper {
                 System.out.println(response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
                 try {
-                    TimeUnit.MINUTES.sleep(15);
+                    TimeUnit.MINUTES.sleep(sleepTime);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

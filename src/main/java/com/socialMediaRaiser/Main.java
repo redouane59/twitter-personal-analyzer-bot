@@ -11,6 +11,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
 
@@ -18,7 +22,7 @@ public class Main {
     private static String tweetName = "RedTheOne";
     public static void main(String[] args) throws IOException {
 
-     //   savePotentialFollowersFromInflluencers( 300, true);
+        savePotentialFollowersFromInflluencers( 50, false);
      // checkNotFollowBack(true);
 
     }
@@ -30,11 +34,7 @@ public class Main {
 
     public static void savePotentialFollowersFromInflluencers(int count, boolean follow) throws IOException {
         List<? extends AbstractUser> result = new ArrayList<>();
-        try{
-            result = twitterBot.getPotentialFollowers(tweetName, count, follow);
-        } catch(Exception e){
-            System.out.println(e);
-        }
+        result = twitterBot.getPotentialFollowers(tweetName, count, follow);
         new IOHelper().write(result);
     }
 
@@ -47,28 +47,29 @@ public class Main {
                 +".csv";
         List<String[]> file = new IOHelper().readData(yesterdayPath);
 
-        List<AbstractUser> followed = new ArrayList<>();
+        List<AbstractUser> followedPreviously = new ArrayList<>();
         for(String[] s : file){
             Long id = Long.valueOf(s[0]);
             String userName = s[1];
-            User user = new User(); // @TODO user builder
-            user.setId(id);
-            user.setUserName(userName);
-            followed.add(user);
+            User user = User.builder().id(id).userName(userName).build();
+            followedPreviously.add(user);
         }
 
         User user = twitterBot.getUserFromUserName(tweetName);
-        Map<AbstractUser, Boolean> result = twitterBot.areFriends(user, followed);
+        Map<AbstractUser, Boolean> result = twitterBot.areFriends(user, followedPreviously);
         new IOHelper().writeFollowedWithUser(result);
-
+        int nbUnfollows = 0;
         if(unfollow) {
             for (Map.Entry<AbstractUser, Boolean> entry : result.entrySet()) {
                 if(entry.getValue()==false){
                         System.out.print(entry.getKey().getUserName() + " ");
-                        twitterBot.unfollow(entry.getKey().getId());
+                        boolean ur = twitterBot.unfollow(entry.getKey().getId());
+                        if(ur){
+                            nbUnfollows++;
+                        }
                 }
             }
         }
-        // @todo log final
+        System.out.println(nbUnfollows + " users unfollowed / " + followedPreviously.size());
     }
 }

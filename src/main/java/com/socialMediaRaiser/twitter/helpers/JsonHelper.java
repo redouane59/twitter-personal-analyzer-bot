@@ -125,7 +125,7 @@ public class JsonHelper {
             sf.setLenient(true);
             return sf.parse(date);
         } catch(Exception e){
-            System.out.println(e);
+            e.printStackTrace();
             return null;
         }
     }

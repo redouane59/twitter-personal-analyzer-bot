@@ -33,6 +33,6 @@ public abstract class AbstractUser {
 
     @Override
     public int hashCode() {
-        return Long.hashCode(this.id);
+        return Long.hashCode(this.getId());
     }
 }

@@ -146,7 +146,7 @@ public class IOHelper {
                 content.add(line.split(";"));
             }
         } catch (FileNotFoundException e) {
-            System.out.println(e);
+            e.printStackTrace();
             //Some error logging
         }
         return content;

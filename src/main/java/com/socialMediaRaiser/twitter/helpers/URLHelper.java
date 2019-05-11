@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class URLHelper {
+
     private final String ROOT_URL = "https://api.twitter.com/1.1";
     private final String IDS_JSON = "/ids.json?";
     private final String SCREEN_NAME = "screen_name";
@@ -44,13 +45,13 @@ public class URLHelper {
 
     public String getFollowUrl(String relatedName) {
         this.followCount++;
-       // System.out.println("follows : " + followCount);
+        // System.out.println("follows : " + followCount);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
                 .append(SCREEN_NAME+"=")
                 .append(relatedName)
-            //    .append("&follow=true")
+                //    .append("&follow=true")
                 .toString();
     }
 
@@ -77,7 +78,7 @@ public class URLHelper {
 
     public String getUnfollowUrl(Long userId) {
         this.unfollowCount++;
-       // System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
+        // System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(DESTROY_JSON)
@@ -162,7 +163,9 @@ public class URLHelper {
 
     public String getFollowerIdsUrl(Long userId){
         this.followersCount++;
-        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        if(followersCount%10==0) {
+            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
                 .append(IDS_JSON)
@@ -173,7 +176,9 @@ public class URLHelper {
 
     public String getFollowerIdsUrl(String screenName){
         this.followersCount++;
-        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        if(followersCount%10==0) {
+            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
                 .append(IDS_JSON)
@@ -184,7 +189,9 @@ public class URLHelper {
 
     public String getFollowerUsersUrl(String screenName){
         this.followersCount++;
-        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        if(followersCount%10==0) {
+            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
                 .append(LIST_JSON)
@@ -197,7 +204,9 @@ public class URLHelper {
 
     public String getFollowerUsersUrl(Long userId){
         this.followersCount++;
-        System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        if(followersCount%10==0) {
+            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
                 .append(LIST_JSON)

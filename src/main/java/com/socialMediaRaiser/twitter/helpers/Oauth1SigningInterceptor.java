@@ -140,19 +140,19 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         private String oauthTimeStamp;
 
         public Builder consumerKey(String consumerKey) {
-            if (consumerKey == null) throw new NullPointerException("consumerKey = null");
+            if (consumerKey == null) throw new NullPointerException("CONSUMER_KEY = null");
             this.consumerKey = consumerKey;
             return this;
         }
 
         public Builder consumerSecret(String consumerSecret) {
-            if (consumerSecret == null) throw new NullPointerException("consumerSecret = null");
+            if (consumerSecret == null) throw new NullPointerException("CONSUMER_SECRET = null");
             this.consumerSecret = consumerSecret;
             return this;
         }
 
         public Builder accessToken(String accessToken) {
-            if (accessToken == null) throw new NullPointerException("accessToken == null");
+            if (accessToken == null) throw new NullPointerException("ACCESS_TOKEN == null");
             this.accessToken = accessToken;
             return this;
         }
@@ -176,9 +176,9 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         }
 
         public Oauth1SigningInterceptor build() {
-            if (consumerKey == null) throw new IllegalStateException("consumerKey not set");
-            if (consumerSecret == null) throw new IllegalStateException("consumerSecret not set");
-            if (accessToken == null) throw new IllegalStateException("accessToken not set");
+            if (consumerKey == null) throw new IllegalStateException("CONSUMER_KEY not set");
+            if (consumerSecret == null) throw new IllegalStateException("CONSUMER_SECRET not set");
+            if (accessToken == null) throw new IllegalStateException("ACCESS_TOKEN not set");
             if (accessSecret == null) throw new IllegalStateException("accessSecret not set");
             if (oauthNonce == null) throw new IllegalStateException("oauthNonce not set");
             if (oauthTimeStamp == null) throw new IllegalStateException("oauthTimeStamp not set");

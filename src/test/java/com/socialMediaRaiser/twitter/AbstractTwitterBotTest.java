@@ -1,6 +1,8 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
+import com.socialMediaRaiser.twitter.helpers.Oauth1SigningInterceptor;
+import com.socialMediaRaiser.twitter.helpers.RequestHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -327,9 +329,11 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
+    @Ignore
     public void testWritingOnGoogleSheet() {
         User user = twitterBot.getUserFromUserName("RedTheOne");
         GoogleSheetHelper helper = new GoogleSheetHelper();
         helper.addNewFollowerLine(user);
     }
+
 }

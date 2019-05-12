@@ -1,5 +1,7 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.config.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -157,12 +160,22 @@ public class RequestHelper {
         return String.valueOf(new Timestamp(System.currentTimeMillis()).getTime()).substring(0,10);
     }
 
-    private Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
+    //@todo set private
+    public Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        File from = new File(classLoader.getResource("twitter-client-secret.json").getFile());
+        TypeReference<HashMap<String,Object>> typeRef
+                = new TypeReference<>() {};
+
+        HashMap<String,Object> o = mapper.readValue(from, typeRef);
+
         Oauth1SigningInterceptor oauth = new Oauth1SigningInterceptor.Builder()
-                .consumerKey(SignatureConstants.consumerKey)
-                .consumerSecret(SignatureConstants.consumerSecret)
-                .accessToken(SignatureConstants.accessToken)
-                .accessSecret(SignatureConstants.secretToken)
+                .consumerKey(o.get(SignatureConstants.CONSUMER_KEY).toString())
+                .consumerSecret(o.get(SignatureConstants.CONSUMER_SECRET).toString())
+                .accessToken(o.get(SignatureConstants.ACCESS_TOKEN).toString())
+                .accessSecret(o.get(SignatureConstants.SECRET_TOKEN).toString())
                 .oauthNonce(nonce)
                 .oauthTimeStamp(timestamp)
                 .build();

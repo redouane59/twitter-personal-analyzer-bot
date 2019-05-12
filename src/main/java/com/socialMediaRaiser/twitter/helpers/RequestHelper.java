@@ -45,7 +45,7 @@ public class RequestHelper {
                 .build();
 
         try {
-            int cacheSize = 50 * 1024 * 1024; // 50MB
+            int cacheSize = 150 * 1024 * 1024; // 150MB
             File file = new File("C:\\okhttpCache");
             OkHttpClient client = new OkHttpClient.Builder()
                     .addNetworkInterceptor(new CacheInterceptor(this.getCacheTimeoutFromUrl(url)))
@@ -175,7 +175,7 @@ public class RequestHelper {
         if(url.contains("/friends")){
             defaultCache = 2;
         } else if (url.contains("/friendships")){
-            defaultCache = 4;
+            defaultCache = 2;
         } else if (url.contains("/followers")){
             defaultCache = 72;
         } else if (url.contains("/users")){

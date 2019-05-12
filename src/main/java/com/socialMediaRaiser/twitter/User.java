@@ -38,6 +38,7 @@ public class User extends AbstractUser {
         this.lastUpdate = lastUpdate;
     }
 
+    // @TODO create ranking
     @Override
     public boolean shouldBeFollowed(){
 

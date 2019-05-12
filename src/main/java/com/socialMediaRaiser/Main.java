@@ -1,6 +1,7 @@
 package com.socialMediaRaiser;
 
 import com.socialMediaRaiser.twitter.User;
+import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 
@@ -20,10 +21,12 @@ public class Main {
 
     private static TwitterBotByInfluencers twitterBot = new TwitterBotByInfluencers();
     private static String tweetName = "RedTheOne";
+    private static GoogleSheetHelper helper = new GoogleSheetHelper();
+
     public static void main(String[] args) throws IOException {
 
-        savePotentialFollowersFromInflluencers( 50, false);
-     // checkNotFollowBack(true);
+      //  savePotentialFollowersFromInflluencers( 200, true);
+      checkNotFollowBack(false);
 
     }
 
@@ -39,37 +42,29 @@ public class Main {
     }
 
     public static void checkNotFollowBack(boolean unfollow) throws IOException {
-        LocalDateTime yesterday = LocalDateTime.now().minus(1, ChronoUnit.DAYS);
-        String yesterdayPath = System.getProperty("user.home") + File.separatorChar
-                + "Documents" + File.separatorChar
-                + "followed"
-                + yesterday.getYear()+yesterday.getMonthValue()+yesterday.getDayOfMonth()
-                +".csv";
-        List<String[]> file = new IOHelper().readData(yesterdayPath);
-
-        List<AbstractUser> followedPreviously = new ArrayList<>();
-        for(String[] s : file){
-            Long id = Long.valueOf(s[0]);
-            String userName = s[1];
-            User user = User.builder().id(id).userName(userName).build();
-            followedPreviously.add(user);
+        List<Long> followedPreviously = helper.getPreviouslyFollowedIds(true, false);
+        int listSize = followedPreviously.size();
+        int nbNeededElements = 250;
+        if(listSize>nbNeededElements){
+            followedPreviously.subList(listSize-250,listSize);
         }
 
         User user = twitterBot.getUserFromUserName(tweetName);
-        Map<AbstractUser, Boolean> result = twitterBot.areFriends(user, followedPreviously);
-        new IOHelper().writeFollowedWithUser(result);
-        int nbUnfollows = 0;
+        Map<Long, Boolean> result = twitterBot.areFriends(user.getId(), followedPreviously);
+
+        helper.updateFollowBackInformation(result);
         if(unfollow) {
-            for (Map.Entry<AbstractUser, Boolean> entry : result.entrySet()) {
+            int nbUnfollows = 0;
+            for (Map.Entry<Long, Boolean> entry : result.entrySet()) {
                 if(entry.getValue()==false){
-                        System.out.print(entry.getKey().getUserName() + " ");
-                        boolean ur = twitterBot.unfollow(entry.getKey().getId());
+                        System.out.print(entry.getKey() + " ");
+                        boolean ur = twitterBot.unfollow(entry.getKey());
                         if(ur){
                             nbUnfollows++;
                         }
                 }
             }
+            System.out.println(nbUnfollows + " users unfollowed / " + followedPreviously.size());
         }
-        System.out.println(nbUnfollows + " users unfollowed / " + followedPreviously.size());
     }
 }

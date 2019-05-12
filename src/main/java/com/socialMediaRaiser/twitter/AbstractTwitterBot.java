@@ -24,7 +24,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final String IDS = "ids";
     private final String USERS = "users";
     private final String RETWEET_COUNT = "retweet_count";
-    private final int MAX_GET_F_CALLS = 15;
+    private final int MAX_GET_F_CALLS = 30;
 
     protected abstract List<Long> getFollowedRecently();
 

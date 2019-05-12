@@ -25,15 +25,20 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         int minOccurence = 2;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
-        List<Long> followedRecently = this.getFollowedRecently();
+        List<Long> followedRecently = this.sheetHelper.getPreviouslyFollowedIds();
         List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers);
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
                 this.getAllFollowerIdsFromUsersSortedByOccurence(influencerFollowers, nbFollowersMaxToWatch, minOccurence);
-
+        System.out.println(sortedPotentialFollowersMap.size() + " followers found from " + influencerFollowers + " influencers");
         Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
+        int iteration = 0;
         while (it.hasNext() && potentialFollowers.size() < count) {
+            if(iteration%100==0){
+                System.out.print("i: " + (float)iteration*100/(float)sortedPotentialFollowersMap.size() + "% "
+                        + "F:" + (float)potentialFollowers.size()*100/(float)count + "% | ");
+            }
             try{
                 Map.Entry<Long, Long> entry = it.next();
                 if(entry.getKey()!=null && entry.getValue()!=null){
@@ -42,9 +47,10 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                         User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                         potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                         if (potentialFollower.shouldBeFollowed()) {
+                            System.out.println("");
                             if (follow) {
+                                System.out.println("");
                                 potentialFollower.setDateOfFollowNow();
-                                System.out.print(potentialFollowers.size()+1 + "/"+count + " ");
                                 boolean result = this.follow(potentialFollower.getId());
                                 if (result) {
                                     potentialFollowers.add(potentialFollower);
@@ -61,10 +67,11 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
             catch (Exception e){
                 e.printStackTrace();// @todo understand why this happend
             }
+            iteration++;
         }
         System.out.println("********************************");
         System.out.println(potentialFollowers.size() + " followers followed / "
-        + sortedPotentialFollowersMap.size() + " users analyzed");
+        + iteration + " users analyzed");
         System.out.println("********************************");
 
         return potentialFollowers;

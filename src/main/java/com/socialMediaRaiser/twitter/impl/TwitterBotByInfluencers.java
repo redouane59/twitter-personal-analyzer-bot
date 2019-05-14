@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
-    private GoogleSheetHelper sheetHelper = new GoogleSheetHelper();
+    private boolean saveResults = true;
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow){
@@ -25,36 +25,43 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         int minOccurence = 2;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
-        List<Long> followedRecently = this.sheetHelper.getPreviouslyFollowedIds();
+        List<Long> followedRecently = this.getSheetHelper().getPreviouslyFollowedIds();
         List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers);
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
-                this.getAllFollowerIdsFromUsersSortedByOccurence(influencerFollowers, nbFollowersMaxToWatch, minOccurence);
-        System.out.println(sortedPotentialFollowersMap.size() + " followers found from " + influencerFollowers + " influencers");
+                this.getAllFollowerIdsFromUsersSortedByOccurence(ownerId, influencerFollowers, nbFollowersMaxToWatch, minOccurence);
+
         Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
         int iteration = 0;
+        long startWorkingTime = System.currentTimeMillis();
+        long stopWorkingTime;
         while (it.hasNext() && potentialFollowers.size() < count) {
-            if(iteration%100==0){
-                System.out.print("i: " + (float)iteration*100/(float)sortedPotentialFollowersMap.size() + "% "
-                        + "F:" + (float)potentialFollowers.size()*100/(float)count + "% | ");
+
+            if(iteration%50==0 && iteration>0){
+                stopWorkingTime = System.currentTimeMillis();
+                System.out.println("i: " + (int)(iteration*100/(float)sortedPotentialFollowersMap.size()) + "% "
+                        + "F: " + (float)potentialFollowers.size()*100/(float)count + "% "
+                        + "in "+ (stopWorkingTime-startWorkingTime)/(float)1000 + "s ");
+                startWorkingTime = System.currentTimeMillis();
             }
+
             try{
                 Map.Entry<Long, Long> entry = it.next();
                 if(entry.getKey()!=null && entry.getValue()!=null){
                     Long userId = entry.getKey();
-                    if(ownerFollowingIds.indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1){
-                        User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
+                    User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
+                    if(potentialFollower!=null){
                         potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                         if (potentialFollower.shouldBeFollowed()) {
-                            System.out.println("");
                             if (follow) {
-                                System.out.println("");
-                                potentialFollower.setDateOfFollowNow();
                                 boolean result = this.follow(potentialFollower.getId());
                                 if (result) {
+                                    potentialFollower.setDateOfFollowNow();
                                     potentialFollowers.add(potentialFollower);
-                                    sheetHelper.addNewFollowerLine(potentialFollower);
+                                    if(saveResults){
+                                        this.getSheetHelper().addNewFollowerLine(potentialFollower);
+                                    }
                                 }
                             } else {
                                 System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
@@ -71,7 +78,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
         System.out.println("********************************");
         System.out.println(potentialFollowers.size() + " followers followed / "
-        + iteration + " users analyzed");
+                + iteration + " users analyzed");
         System.out.println("********************************");
 
         return potentialFollowers;
@@ -94,7 +101,9 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
     }
 
     // id, occurencies
-    private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
+    private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(Long ownerId, List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
+        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
+        List<Long> followedRecently = this.getSheetHelper().getPreviouslyFollowedIds();
         // building influencers followers list
         List<Long> influencersFollowersIds = new ArrayList<>();
         User user;
@@ -102,7 +111,12 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         while(i<followers.size() && i<nbFollowersMaxtoWatch){
             user = followers.get(i);
             List<Long> currentFollowersInfluencersFollowersId = this.getFollowerIds(user.getId()); // criticity here -> cache
-            influencersFollowersIds.addAll(currentFollowersInfluencersFollowersId);
+            //  influencersFollowersIds.addAll(currentFollowersInfluencersFollowersId);
+            for(Long userId : currentFollowersInfluencersFollowersId){
+                if(ownerFollowingIds.indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1) {
+                    influencersFollowersIds.add(userId);
+                }
+            }
             System.out.println(user.getUserName() + " (" + currentFollowersInfluencersFollowersId.size() + " followers)");
             i++;
         }

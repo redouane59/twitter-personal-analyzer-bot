@@ -2,17 +2,16 @@ package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.RelationType;
-import com.socialMediaRaiser.twitter.helpers.JsonHelper;
-import com.socialMediaRaiser.twitter.helpers.RequestHelper;
-import com.socialMediaRaiser.twitter.helpers.RequestMethod;
-import com.socialMediaRaiser.twitter.helpers.URLHelper;
+import com.socialMediaRaiser.twitter.helpers.*;
 import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
@@ -21,6 +20,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
     private JsonHelper jsonHelper = new JsonHelper();
+    private GoogleSheetHelper sheetHelper = new GoogleSheetHelper();
     private final String IDS = "ids";
     private final String USERS = "users";
     private final String RETWEET_COUNT = "retweet_count";
@@ -28,7 +28,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     protected abstract List<Long> getFollowedRecently();
 
-    // @TODO find something to have only one function -> demander à Vincent
+    // @TODO find something to have only one function instead 5 -> demander à Vincent
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
     private List<Long> getUserIdsByRelation(Long userId, RelationType relationType){
         Long cursor = -1L;
@@ -381,6 +381,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         if(response!=null){
             return this.getJsonHelper().jsonResponseToUser(response);
         } else{
+            System.out.println("user " + userId + " + not found !!");
             return null;
         }
     }
@@ -433,5 +434,34 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
+    public void checkNotFollowBack(String tweetName, int nbNeededElements, boolean unfollow) throws IOException {
+        List<Long> followedPreviously = this.sheetHelper.getPreviouslyFollowedIds(true, false);
+        int listSize = followedPreviously.size();
+        List<Long> sublist = followedPreviously;
+        if(listSize>nbNeededElements){
+            sublist = followedPreviously.subList(listSize-250,listSize);
+        }
+
+        User user = this.getUserFromUserName(tweetName);
+        Map<Long, Boolean> result = this.areFriends(user.getId(), sublist);
+
+        this.sheetHelper.updateFollowBackInformation(result);
+
+        if(unfollow) {
+            int nbUnfollows = 0;
+            for (Map.Entry<Long, Boolean> entry : result.entrySet()) {
+                if(entry.getValue()==false){
+                    System.out.print(entry.getKey() + " ");
+                    boolean ur = this.unfollow(entry.getKey());
+                    if(ur){
+                        nbUnfollows++;
+                    }
+                }
+            }
+            System.out.println(nbUnfollows + " users unfollowed / " + followedPreviously.size());
+        }
+    }
+
+    // @todo function to follow from gsheet
 
 }

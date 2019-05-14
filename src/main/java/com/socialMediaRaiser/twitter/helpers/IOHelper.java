@@ -71,7 +71,6 @@ public class IOHelper {
         writer.close();
     }
 
-    // @TODO duplicate
     public void writeFollowedWithUserId(Map<Long, Boolean> result) throws IOException {
         LocalDateTime now = LocalDateTime.now();
 
@@ -92,7 +91,6 @@ public class IOHelper {
         writer.close();
     }
 
-    // @TODO duplicate
     public void writeFollowedWithUser(Map<AbstractUser, Boolean> result) throws IOException {
         LocalDateTime now = LocalDateTime.now();
 

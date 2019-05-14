@@ -160,8 +160,7 @@ public class RequestHelper {
         return String.valueOf(new Timestamp(System.currentTimeMillis()).getTime()).substring(0,10);
     }
 
-    //@todo set private
-    public Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
+    private Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();

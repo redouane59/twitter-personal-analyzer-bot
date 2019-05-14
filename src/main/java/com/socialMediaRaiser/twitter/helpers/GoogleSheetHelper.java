@@ -27,7 +27,6 @@ public class GoogleSheetHelper {
         return this.getPreviouslyFollowedIds(true, true);
     }
 
-    // @todo filter by date or by index ?
     public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue) {
         String startLine = "A2";
         String endLine = "M";
@@ -84,7 +83,7 @@ public class GoogleSheetHelper {
             Sheets.Spreadsheets.Values.Append request =
                     sheetsService.spreadsheets().values().append(SPREADSHEET_ID, tabName+"!A1", body);
             request.setValueInputOption("RAW");
-            AppendValuesResponse response = request.execute();
+            AppendValuesResponse response = request.execute(); // @TODO manage 429
             // System.out.println(response);
         } catch(Exception e){
             e.printStackTrace();
@@ -96,6 +95,7 @@ public class GoogleSheetHelper {
         for(Map.Entry<Long, Boolean> entry : result.entrySet()) {
             Long userId = entry.getKey();
             String followedBack = String.valueOf(entry.getValue()).toUpperCase();
+            System.out.println("updating " + userId + " -> " + followedBack + " ...");
             int row = getRowOfUser(userId);
 
             ValueRange requestBody = new ValueRange()
@@ -105,13 +105,10 @@ public class GoogleSheetHelper {
                 Sheets.Spreadsheets.Values.Update request = sheetsService.spreadsheets().values()
                         .update(SPREADSHEET_ID, followedBackColumn+row, requestBody);
                 request.setValueInputOption("RAW");
-                UpdateValuesResponse response = request.execute();
+                UpdateValuesResponse response = request.execute(); // @TODO manage 429
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
-
         }
     }
 

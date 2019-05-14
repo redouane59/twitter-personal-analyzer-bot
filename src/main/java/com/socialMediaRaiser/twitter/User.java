@@ -1,13 +1,12 @@
 package com.socialMediaRaiser.twitter;
 
-import com.google.api.client.util.DateTime;
 import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.config.FollowParameters;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter

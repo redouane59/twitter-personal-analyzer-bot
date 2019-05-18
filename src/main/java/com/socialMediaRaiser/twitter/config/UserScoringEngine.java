@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class UserAnalyser {
+public class UserScoringEngine {
 
     // @todo How to get the maximum amount of points given by all the scoring functions ?
     // @todo How to define common rules for these function (ex: result between 0 & 10) ?

@@ -1,7 +1,7 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.RelationType;
-import com.socialMediaRaiser.twitter.config.UserAnalyser;
+import com.socialMediaRaiser.twitter.config.UserScoringEngine;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.Assert;
@@ -324,7 +324,7 @@ public class AbstractTwitterBotTest {
         user.setFollowingCount(1000);
         user.setLastUpdate(new Date());
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertEquals(false, UserAnalyser.shouldBeFollowed(user));
+        Assert.assertEquals(false, UserScoringEngine.shouldBeFollowed(user));
     }
 
     public void testShouldBeFollowBadLastUpdate(){
@@ -343,7 +343,7 @@ public class AbstractTwitterBotTest {
         user.setLang("fr");
         user.setLastUpdate(new Date(2014,  1, 1));
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertEquals(false, UserAnalyser.shouldBeFollowed(user));
+        Assert.assertEquals(false, UserScoringEngine.shouldBeFollowed(user));
 
     }
 
@@ -354,7 +354,7 @@ public class AbstractTwitterBotTest {
         user.setLang("fr");
         user.setLastUpdate(new Date());
         Assert.assertEquals(true, user.shouldBeFollowed());
-        Assert.assertEquals(true, UserAnalyser.shouldBeFollowed(user));
+        Assert.assertEquals(true, UserScoringEngine.shouldBeFollowed(user));
 
     }
 

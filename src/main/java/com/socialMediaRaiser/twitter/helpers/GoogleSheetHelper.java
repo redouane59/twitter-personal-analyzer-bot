@@ -2,6 +2,7 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
+import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.User;
 
 import java.io.IOException;
@@ -10,10 +11,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class GoogleSheetHelper {
+public class GoogleSheetHelper extends AbstractIOHelper {
     private String SPREADSHEET_ID = "1rpTWqHvBFaxdHcbnHmry2quQTKhPVJ-dA2n_wep0hrs";
     private Sheets sheetsService;
     private final String tabName = "V2";
+    private String followedBackColumn = tabName+"!L";
 
     public GoogleSheetHelper(){
         try {
@@ -23,13 +25,9 @@ public class GoogleSheetHelper {
         }
     }
 
-    public List<Long> getPreviouslyFollowedIds() {
-        return this.getPreviouslyFollowedIds(true, true);
-    }
-
     public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue) {
         String startLine = "A2";
-        String endLine = "M";
+        String endLine = "L";
         int followBackResultIndex = 11;
         List<String> ranges = Arrays.asList(tabName+"!"+startLine+":"+endLine);
         try{
@@ -56,12 +54,14 @@ public class GoogleSheetHelper {
         return new ArrayList<Long>();
     }
 
-    public void addNewFollowerLine(User user){
+    public void addNewFollowerLine(AbstractUser u){
+        User user = (User)u;
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
         Date followDate = user.getDateOfFollow();
         if(followDate==null){
             followDate = new Date();
         }
+        // @todo add location
         ValueRange body = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(
                         String.valueOf(user.getId()),
@@ -83,19 +83,19 @@ public class GoogleSheetHelper {
             Sheets.Spreadsheets.Values.Append request =
                     sheetsService.spreadsheets().values().append(SPREADSHEET_ID, tabName+"!A1", body);
             request.setValueInputOption("RAW");
-            AppendValuesResponse response = request.execute(); // @TODO manage 429
-            // System.out.println(response);
+            request.execute();
         } catch(Exception e){
             e.printStackTrace();
         }
     }
 
+    // @todo add date
     public void updateFollowBackInformation(Map<Long, Boolean> result){
-        String followedBackColumn = tabName+"!L";
+        //String followedBackColumn = tabName+"!L";
         for(Map.Entry<Long, Boolean> entry : result.entrySet()) {
             Long userId = entry.getKey();
             String followedBack = String.valueOf(entry.getValue()).toUpperCase();
-            System.out.println("updating " + userId + " -> " + followedBack + " ...");
+            System.out.println("updating " + userId + " -> " + followedBack + " ..."); // @todo call other function
             int row = getRowOfUser(userId);
 
             ValueRange requestBody = new ValueRange()
@@ -104,12 +104,30 @@ public class GoogleSheetHelper {
             try {
                 Sheets.Spreadsheets.Values.Update request = sheetsService.spreadsheets().values()
                         .update(SPREADSHEET_ID, followedBackColumn+row, requestBody);
-                request.setValueInputOption("RAW");
-                UpdateValuesResponse response = request.execute(); // @TODO manage 429
+                request.setValueInputOption("USER_ENTERED"); // change to INPUT_VALUE_OPTION_UNSPECIFIED ?
+                request.execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void updateFollowBackInformation(Long userId, Boolean result) {
+        String followedBack = String.valueOf(result).toUpperCase();
+        System.out.println("updating " + userId + " -> " + followedBack + " ...");
+        int row = getRowOfUser(userId);
+
+        ValueRange requestBody = new ValueRange()
+                .setValues(Arrays.asList(Arrays.asList(followedBack)));
+        try {
+            Sheets.Spreadsheets.Values.Update request = sheetsService.spreadsheets().values()
+                    .update(SPREADSHEET_ID, followedBackColumn+row, requestBody);
+            request.setValueInputOption("USER_ENTERED");
+            request.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public int getRowOfUser(Long userId){

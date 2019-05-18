@@ -39,7 +39,7 @@ public class URLHelper {
     public static final int FOLLOW_MAX_CALLS = 350;
     private static final int UNFOLLOW_MAX_CALLS = 350;
     public static int USER_MAX_CALLS = 900;
-    public static int RETWEET_MAX_COUNT = 90;
+    public static int RETWEET_MAX_COUNT = 100;
     private static final int TWEET_INFO_MAX_CALLS = 900;
     private final int MAX_LOOKUP = 100;
 
@@ -131,21 +131,6 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getRetweetersUrl(Long tweetId, int cursor, int count){
-        this.retweeterCount++;
-        System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
-        return new StringBuilder(ROOT_URL)
-                .append(STATUSES)
-                .append(RETWEETERS)
-                .append(IDS_JSON)
-                .append(ID +"=")
-                .append(tweetId)
-                .append("&count=")
-                .append(count)
-                .append("&cursor=")
-                .append(cursor)
-                .toString();
-    }
 
     public String getRetweetersUrl(String screenName){
         this.retweeterCount++;

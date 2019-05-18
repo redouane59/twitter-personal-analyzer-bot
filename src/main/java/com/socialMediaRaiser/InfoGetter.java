@@ -7,13 +7,9 @@ public interface InfoGetter {
   Boolean areFriends(String userName1, String userName2);
   Boolean areFriends(Long userId1, Long userId2);
 
-  List<String> getFollowerNames(String userName);
-  List<String> getFollowerNames(Long userId);
   List<Long> getFollowerIds(String userName);
   List<Long> getFollowerIds(Long userId);
 
-  List<String> getFollowingNames(String userName);
-  List<String> getFollowingNames(Long userId);
   List<Long> getFollowingIds(String userName);
   List<Long> getFollowingIds(Long userId);
 

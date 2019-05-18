@@ -23,6 +23,7 @@ public class JsonHelper {
     private final String FAVOURITES_COUNT = "favourites_count";
     private final String DESCRIPTION = "description";
     private final String STATUS = "status";
+    private final String LOCATION = "location";
     private final String ID = "id";
     private final String LANG = "lang";
     private final String NEXT_CURSOR = "next_cursor";
@@ -80,6 +81,10 @@ public class JsonHelper {
             String created_at = jsonObject.get(CREATED_AT).toString();
             String description = jsonObject.get(DESCRIPTION).toString();
             int favourites_count = (int)jsonObject.get(FAVOURITES_COUNT);
+            String location = "";
+            if(jsonObject.has(LOCATION)){
+                location = jsonObject.get(LOCATION).toString();
+            }
             String lastUpdate = null;
             if(jsonObject.has(STATUS)){
                 lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
@@ -96,6 +101,7 @@ public class JsonHelper {
                     .favouritesCount(favourites_count)
                     .dateOfFollow(null)
                     .lastUpdate(getTwitterDate(lastUpdate))
+                    .location(location)
                     .build();
         } else{
             return null;
@@ -108,7 +114,7 @@ public class JsonHelper {
         } else if(response.get(NEXT_CURSOR) instanceof Integer) {
             return Long.valueOf((Integer) response.get(NEXT_CURSOR));
         }  else{
-            System.out.println("format problem");
+            System.err.println("format problem");
             return null;
         }
     }

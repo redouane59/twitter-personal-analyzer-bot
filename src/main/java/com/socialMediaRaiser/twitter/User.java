@@ -22,10 +22,11 @@ public class User extends AbstractUser {
     private String description;
     private int favouritesCount;
     private Date lastUpdate;
+    private String location;
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
-         Date dateOfFollow, String description, int favouritesCount, Date lastUpdate){
+         Date dateOfFollow, String description, int favouritesCount, Date lastUpdate, String location){
         super(id,userName, followerCout, followingCount);
         this.lang = lang;
         this.statusesCount = statusesCount;
@@ -35,22 +36,29 @@ public class User extends AbstractUser {
         this.description = description;
         this.favouritesCount = favouritesCount;
         this.lastUpdate = lastUpdate;
+        this.location = location;
     }
 
-    // @TODO create ranking
+    // @TODO create ranking and add description
     @Override
     public boolean shouldBeFollowed(){
-
         if(this.getFollowersCount()> FollowParameters.MIN_NB_FOLLOWERS
                 && this.getFollowersCount()<FollowParameters.MAX_NB_FOLLOWERS
                 && this.getFollowersRatio()>FollowParameters.MIN_RATIO
                 && this.getFollowersRatio()<FollowParameters.MAX_RATIO
                 && this.lang.equals(FollowParameters.LANGUAGE)
-                && this.lastUpdate!=null){
+                && this.lastUpdate!=null
+                && this.getNbDaysSinceLastTweet() < FollowParameters.MAX_DAYS_SINCE_LAST_TWEET){
             return true;
         } else{
             return false;
         }
+    }
+
+    private long getNbDaysSinceLastTweet(){
+        Date now = new Date();
+        Date lastUpdate = this.getLastUpdate();
+        return (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
     }
 
     @Override

@@ -25,8 +25,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-      //  twitterBot.checkNotFollowBack(tweetName, 350, true);
-        twitterBot.getPotentialFollowers(tweetName, 300, true);
+      //  twitterBot.checkNotFollowBack(tweetName, 290, false, true);
+        twitterBot.getPotentialFollowers(tweetName, 100, true);
     }
 
 }

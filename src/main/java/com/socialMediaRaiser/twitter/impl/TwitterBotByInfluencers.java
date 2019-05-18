@@ -17,15 +17,17 @@ import java.util.stream.Collectors;
 public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
-    private boolean saveResults = true;
+    private boolean saveResults = true; // @todo in arguments ?
+    private int maxFriendship = 390;
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow){
+        if(count>maxFriendship){
+            count = maxFriendship;
+        }
         int nbFollowersMaxToWatch = 20;
         int minOccurence = 2;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
-        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
-        List<Long> followedRecently = this.getSheetHelper().getPreviouslyFollowedIds();
         List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers);
         Collections.shuffle(influencerFollowers);
 
@@ -46,33 +48,28 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 startWorkingTime = System.currentTimeMillis();
             }
 
-            try{
-                Map.Entry<Long, Long> entry = it.next();
-                if(entry.getKey()!=null && entry.getValue()!=null){
-                    Long userId = entry.getKey();
-                    User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
-                    if(potentialFollower!=null){
-                        potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
-                        if (potentialFollower.shouldBeFollowed()) {
-                            if (follow) {
-                                boolean result = this.follow(potentialFollower.getId());
-                                if (result) {
-                                    potentialFollower.setDateOfFollowNow();
-                                    potentialFollowers.add(potentialFollower);
-                                    if(saveResults){
-                                        this.getSheetHelper().addNewFollowerLine(potentialFollower);
-                                    }
-                                }
-                            } else {
-                                System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+            Map.Entry<Long, Long> entry = it.next();
+            if(entry.getKey()!=null && entry.getValue()!=null){
+                Long userId = entry.getKey();
+                User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
+                if(potentialFollower!=null){
+                    potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
+                    if (potentialFollower.shouldBeFollowed()) {
+                        if (follow) {
+                            boolean result = this.follow(potentialFollower.getId());
+                            if (result) {
+                                potentialFollower.setDateOfFollowNow();
                                 potentialFollowers.add(potentialFollower);
+                                if(saveResults){
+                                    this.getIOHelper().addNewFollowerLine(potentialFollower);
+                                }
                             }
+                        } else {
+                            System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+                            potentialFollowers.add(potentialFollower);
                         }
                     }
                 }
-            }
-            catch (Exception e){
-                e.printStackTrace();// @todo understand why this happend
             }
             iteration++;
         }
@@ -103,7 +100,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
     // id, occurencies
     private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(Long ownerId, List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
-        List<Long> followedRecently = this.getSheetHelper().getPreviouslyFollowedIds();
+        List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
         // building influencers followers list
         List<Long> influencersFollowersIds = new ArrayList<>();
         User user;

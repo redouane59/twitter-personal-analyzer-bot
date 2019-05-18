@@ -1,15 +1,13 @@
 package com.socialMediaRaiser.twitter;
 
+import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
-import com.socialMediaRaiser.twitter.helpers.Oauth1SigningInterceptor;
-import com.socialMediaRaiser.twitter.helpers.RequestHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +22,7 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testUrlRetweetrs(){
-        Assert.assertEquals("https://api.twitter.com/1.1/statuses/retweeters/ids.json?id=12345&count=90", twitterBot.getUrlHelper().getRetweetersUrl(12345L));
+        Assert.assertEquals("https://api.twitter.com/1.1/statuses/retweeters/ids.json?id=12345&count=100", twitterBot.getUrlHelper().getRetweetersUrl(12345L));
     }
 
     @Test
@@ -141,15 +139,17 @@ public class AbstractTwitterBotTest {
         Assert.assertTrue(followings.size()>360);
     }
 
-    @Test
-    public void testGetFollowingsNamesByName() {
-        List<String> followings = twitterBot.getFollowingNames("LaGhostquitweet");
-        Assert.assertTrue(followings.size()>360);
-    }
+
 
     @Test
     public void testGetFollowingsUserByName() {
         List<User> followings = twitterBot.getFollowingsUserList("LaGhostquitweet");
+        Assert.assertTrue(followings.size()>360);
+    }
+
+    @Test
+    public void testGetFollersUserByName() {
+        List<User> followings = twitterBot.getFollowerUsers("LaGhostquitweet");
         Assert.assertTrue(followings.size()>360);
     }
 
@@ -172,8 +172,8 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
-    public void testGetFollowersNamesByName() {
-        List<String> followers = twitterBot.getFollowerNames("LaGhostquitweet");
+    public void testGetFollowersIdsByName() {
+        List<Long> followers = twitterBot.getFollowerIds("LaGhostquitweet");
         Assert.assertTrue(followers.size()>420);
     }
 
@@ -184,9 +184,9 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
-    public void testGetRetweetersId() {
-        List<Long> retweeters = twitterBot.getRetweetersId( 1100473425443860481L);
-        Assert.assertTrue(retweeters.size()>1);
+    public void testGetFollowersUsersById() {
+        List<User> followers = twitterBot.getFollowerUsers(882266619115864066L);
+        Assert.assertTrue(followers.size()>420);
     }
 
     @Test
@@ -195,6 +195,21 @@ public class AbstractTwitterBotTest {
         Long userId2 = 723996356L;
         boolean result = twitterBot.areFriends(userId1, userId2);
         Assert.assertTrue(result);
+    }
+
+    @Test
+    public void testFriendshipByNameYes() {
+        String userName1 = "RedTheOne";;
+        String username2 = "naiim75012";
+        boolean result = twitterBot.areFriends(userName1, username2);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void getUserByUserName(){
+        String userName = "RedTheOne";
+        User result = twitterBot.getUserFromUserName(userName);
+        Assert.assertEquals(result.getId(),92073489L);
     }
 
     @Test
@@ -303,17 +318,39 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
-    public void testShouldBeFollowed(){
+    public void testShouldBeFollowedBadRatio(){
         User user = new User();
         user.setFollowersCount(1);
         user.setFollowingCount(1000);
+        user.setLastUpdate(new Date());
         Assert.assertEquals(false, user.shouldBeFollowed());
-        User user2 = new User();
-        user2.setFollowersCount(1500);
-        user2.setFollowingCount(1000);
-        user2.setLang("fr");
-        user2.setLastUpdate(new Date());
-        Assert.assertEquals(true, user2.shouldBeFollowed());
+    }
+
+    public void testShouldBeFollowBadLastUpdate(){
+        User user = new User();
+        user.setFollowersCount(1500);
+        user.setFollowingCount(1000);
+        user.setLang("fr");
+        user.setLastUpdate(null);
+        Assert.assertEquals(false, user.shouldBeFollowed());
+    }
+
+    public void testShouldBeFollowBadLastUpdate2(){
+        User user = new User();
+        user.setFollowersCount(1500);
+        user.setFollowingCount(1000);
+        user.setLang("fr");
+        user.setLastUpdate(new Date(2014,  1, 1));
+        Assert.assertEquals(false, user.shouldBeFollowed());
+    }
+
+    public void testShouldBeFollowedOk(){
+        User user = new User();
+        user.setFollowersCount(1500);
+        user.setFollowingCount(1000);
+        user.setLang("fr");
+        user.setLastUpdate(new Date());
+        Assert.assertEquals(true, user.shouldBeFollowed());
     }
 
     public void testReadFollowedRecently(){
@@ -334,6 +371,55 @@ public class AbstractTwitterBotTest {
         User user = twitterBot.getUserFromUserName("RedTheOne");
         GoogleSheetHelper helper = new GoogleSheetHelper();
         helper.addNewFollowerLine(user);
+    }
+
+    @Test
+    public void testRelationBetweenUsersIdFriends(){
+        long userId1 = 92073489L;
+        long userId2 = 723996356L;
+        RelationType result = twitterBot.getRelationBetweenTwoUsers(userId1, userId2);
+        Assert.assertEquals(RelationType.FRIENDS, result);
+    }
+
+    @Test
+    public void testRelationBetweenUsersIdNone(){
+        long userId1 = 92073489L;
+        long userId2 = 1976143068L;
+        RelationType result = twitterBot.getRelationBetweenTwoUsers(userId1, userId2);
+        Assert.assertEquals(RelationType.NONE, result);
+    }
+
+    @Test
+    public void testRelationBetweenUsersIdFollowing(){
+        long userId1 = 92073489L;
+        long userId2 = 126267113L;
+        RelationType result = twitterBot.getRelationBetweenTwoUsers(userId1, userId2);
+        Assert.assertEquals(RelationType.FOLLOWING, result);
+    }
+
+    @Test
+    public void testRelationBetweenUsersIdFollower(){
+        long userId1 = 92073489L;
+        long userId2 = 1128737441945464832L;
+        RelationType result = twitterBot.getRelationBetweenTwoUsers(userId1, userId2);
+        Assert.assertEquals(RelationType.FOLLOWER, result);
+    }
+
+    @Test
+    @Ignore // API KO
+    public void testGetRetweetersId(){
+        Long tweetId = 1078358350000205824L;
+        Assert.assertTrue(twitterBot.getRetweetersId(tweetId).size()>400);
+    }
+
+    @Test
+    public void getLastUpdate(){
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        Date now = new Date();
+        Date lastUpdate = user.getLastUpdate();
+        long diffDays = (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
+        Assert.assertTrue(  diffDays < 15);
     }
 
 }

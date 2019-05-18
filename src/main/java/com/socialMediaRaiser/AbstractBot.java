@@ -1,10 +1,21 @@
 package com.socialMediaRaiser;
 
+import com.socialMediaRaiser.twitter.helpers.AbstractIOHelper;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
+
+    private AbstractIOHelper IOHelper;
 
     public abstract List<? extends AbstractUser> getPotentialFollowers(Long ownerId, int count, boolean follow);
 
@@ -47,17 +58,25 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         return result;
     }
 
-    public LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds){
+    public LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
+        int nbUnfollows = 0;
         for(Long otherId : otherIds){
             Boolean areFriends = this.areFriends(userId, otherId);
             if(areFriends==null){
                 System.out.println("areFriends was null for " + otherId + "! -> false");
                 areFriends = false;
             }
+            if(unfollow && !areFriends){ // @todo replace by following / follower function
+                this.unfollow(otherId);
+                nbUnfollows++;
+            }
+            if(writeOnSheet){
+                this.getIOHelper().updateFollowBackInformation(otherId, areFriends);
+            }
             result.put(otherId, areFriends);
-
         }
+        System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size());
         return result;
     }
 

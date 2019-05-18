@@ -1,18 +1,16 @@
 package com.socialMediaRaiser.twitter.config;
 
 import com.socialMediaRaiser.twitter.User;
-import lombok.Data;
 
 import java.util.Date;
 
-@Data
 public class UserScoringEngine {
 
     // @todo How to get the maximum amount of points given by all the scoring functions ?
-    // @todo How to define common rules for these function (ex: result between 0 & 10) ?
-    private static int limit = 7; // @todo this value should be dynamic
+    // @todo How to define common rules for these function (ex: return value between 0 & 10) ?
+    private static int limit = 7; // @todo how to make this value dynamic
 
-    public static boolean shouldBeFollowed(User user){
+    public static int getUserScore(User user){
         int score = 0;
         score+= getNbFollowersScore(user.getFollowersCount());
         score+= getNbFollowingsScore(user.getFollowingCount());
@@ -21,10 +19,11 @@ public class UserScoringEngine {
         score+= getLangScore(user.getLang());
         score+= getDescriptionScore(user.getDescription());
         score+= getLocationScore(user.getLocation());
-        if(score>=limit){
-            return true;
-        }
-        return false;
+        return score;
+    }
+
+    public static boolean shouldBeFollowed(User user){
+        return getUserScore(user) >= limit;
     }
 
     private static int getNbFollowersScore(int nbFollowers){

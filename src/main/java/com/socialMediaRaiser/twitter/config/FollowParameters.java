@@ -4,6 +4,8 @@ public class FollowParameters {
 
     public static int MIN_NB_FOLLOWERS = 100;
     public static int MAX_NB_FOLLOWERS = 10000;
+    public static int MIN_NB_FOLLOWINGS = 1;
+    public static int MAX_NB_FOLLOWINGS = 10000;
     public static int MIN_RATIO = 1;
     public static int MAX_RATIO = 4;
     public static String LANGUAGE = "fr";

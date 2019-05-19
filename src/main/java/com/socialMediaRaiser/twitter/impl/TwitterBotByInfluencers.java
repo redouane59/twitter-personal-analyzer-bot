@@ -17,11 +17,10 @@ import java.util.stream.Collectors;
 public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
-    private boolean saveResults = true; // @todo in arguments ?
     private int maxFriendship = 390;
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow){
+    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship){
             count = maxFriendship;
         }

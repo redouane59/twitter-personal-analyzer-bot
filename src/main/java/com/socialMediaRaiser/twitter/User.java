@@ -41,7 +41,6 @@ public class User extends AbstractUser {
         this.location = location;
     }
 
-    // @TODO create ranking and add description
     @Override
     public boolean shouldBeFollowed(){
         return this.scoringEngine.shouldBeFollowed(this);
@@ -62,7 +61,7 @@ public class User extends AbstractUser {
 
         if(this.getFollowersCount()> ScoringConstant.MIN_NB_FOLLOWERS
                 && this.getFollowersRatio()> ScoringConstant.MIN_RATIO
-                && this.lang.equals(ScoringConstant.LANGUAGE)){
+                && this.lang.equals(ScoringConstant.LANGUAGE1)){
             return true;
         } else{
             return false;
@@ -72,7 +71,7 @@ public class User extends AbstractUser {
     public boolean isInfluencer(){
         if(this.getFollowersRatio()> ScoringConstant.INFLUENCER_MIN_RATIO
                 && this.getFollowersCount()> ScoringConstant.INFLUENCER_MIN_NB_FOLLOWERS
-                && this.lang.equals(ScoringConstant.LANGUAGE)){
+                && this.lang.equals(ScoringConstant.LANGUAGE1)){
             return true;
         } else{
             return false;

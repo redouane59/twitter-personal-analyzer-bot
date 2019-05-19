@@ -4,8 +4,7 @@ import java.util.List;
 
 public interface InfoGetter {
 
-  Boolean areFriends(String userName1, String userName2);
-  Boolean areFriends(Long userId1, Long userId2);
+  RelationType getRelationType(Long userId1, Long userId2);
 
   List<Long> getFollowerIds(String userName);
   List<Long> getFollowerIds(Long userId);

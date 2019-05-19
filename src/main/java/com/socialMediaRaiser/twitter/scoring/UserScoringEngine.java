@@ -13,12 +13,12 @@ public class UserScoringEngine {
     private int limit;
     private List<ScoringParameter> parameters = new ArrayList<>();
 
-    public UserScoringEngine(int minimumMatch){
-        if(!(minimumMatch<=100 && minimumMatch>=0)){
-            System.err.println("minimumMatch should be between 0 & 100");
-            this.limit = 100;
+    public UserScoringEngine(int minimumPercentMatch){
+        if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
+            this.limit = Criterion.getTotalMaxPoints()*minimumPercentMatch/100;
         } else{
-            this.limit = Criterion.getTotalMaxPoints()*minimumMatch/100;
+            System.err.println("argument should be between 0 & 100");
+            this.limit = 100;
         }
     }
 
@@ -45,10 +45,11 @@ public class UserScoringEngine {
     private int computeScore(){
         int score = 0;
         for(ScoringParameter parameter : parameters){
-            if(parameter.getValue()!=null && parameter.getCriterion().isActive()) {
+            if(parameter.getCriterion().isActive() && parameter.getValue()!=null) {
+                // @todo argument casts dirty
                 switch (parameter.getCriterion()) {
                     case NB_FOLLOWERS:
-                        score += getNbFollowersScore((int) parameter.getValue()); // @todo dirty
+                        score += getNbFollowersScore((int) parameter.getValue());
                         break;
                     case NB_FOLLOWINGS:
                         score += getNbFollowingsScore((int) parameter.getValue());
@@ -115,10 +116,16 @@ public class UserScoringEngine {
 
     private int getLangScore(String lang){
         int maxPoints = Criterion.LANGUAGE.getMaxPoints();
-        if(lang!=null && lang.equals(ScoringConstant.LANGUAGE)){
-            return maxPoints;
+        switch (lang){
+            case ScoringConstant.LANGUAGE1:
+                return maxPoints;
+            case ScoringConstant.LANGUAGE2:
+                return maxPoints/4; // @todo in a config?
+            case ScoringConstant.LANGUAGE3:
+                return maxPoints/8;
+            default:
+                return 0;
         }
-        return 0;
     }
 
     // @todo

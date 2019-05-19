@@ -76,7 +76,6 @@ public class JsonHelper {
             String screenName = jsonObject.get(SCREEN_NAME).toString();
             int followersCount = (int)jsonObject.get(FOLLOWER_COUNT);
             int friendsCount = (int)jsonObject.get(FRIENDS_COUNT);
-            String lang = jsonObject.get(LANG).toString();
             int statuses_count = (int)jsonObject.get(STATUSES_COUNT);
             String created_at = jsonObject.get(CREATED_AT).toString();
             String description = jsonObject.get(DESCRIPTION).toString();
@@ -88,6 +87,10 @@ public class JsonHelper {
             String lastUpdate = null;
             if(jsonObject.has(STATUS)){
                 lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
+            }
+            String lang = jsonObject.get(LANG).toString(); // soon deprecated deprecated
+            if(lang==null && jsonObject.has(LANG)){
+                lang = ((JSONObject)jsonObject.get(STATUS)).get(LANG).toString();
             }
             return User.builder()
                     .id(id)

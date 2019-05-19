@@ -17,7 +17,7 @@ public class BasicTwitterBotByRetweeters extends AbstractTwitterBot {
 
 
     // @todo KO
-    public List<User> getPotentialFollowers(Long userId, int count, boolean follow) {
+    public List<User> getPotentialFollowers(Long userId, int count, boolean follow, boolean saveResults) {
         List<User> potentialFollowers = new ArrayList<>();
         List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
         List<Long> ownerFollowingIds = this.getFollowingIds(userId);

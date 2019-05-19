@@ -3,7 +3,6 @@ package com.socialMediaRaiser;
 import com.socialMediaRaiser.twitter.helpers.AbstractIOHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -17,11 +16,11 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
     private AbstractIOHelper IOHelper;
 
-    public abstract List<? extends AbstractUser> getPotentialFollowers(Long ownerId, int count, boolean follow);
+    public abstract List<? extends AbstractUser> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults);
 
-    public List<? extends AbstractUser> getPotentialFollowers(String userName, int count, boolean follow){
+    public List<? extends AbstractUser> getPotentialFollowers(String userName, int count, boolean follow, boolean saveResults){
         AbstractUser user = this.getUserFromUserName(userName);
-        return this.getPotentialFollowers(user.getId(), count, follow);
+        return this.getPotentialFollowers(user.getId(), count, follow, saveResults);
     }
 
     // @TODO same with String and ids
@@ -45,7 +44,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         return unfollowed;
     }
 
-    public LinkedHashMap<String, Boolean> areFriends(String userName1, List<String> otherUsers){
+   /* public LinkedHashMap<String, Boolean> areFriends(String userName1, List<String> otherUsers){
         LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
         for(String otherUserName : otherUsers){
             Boolean areFriends = this.areFriends(userName1, otherUserName);
@@ -56,32 +55,33 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
             result.put(otherUserName, areFriends);
         }
         return result;
-    }
+    } */
 
     public LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
         int nbUnfollows = 0;
         for(Long otherId : otherIds){
-            Boolean areFriends = this.areFriends(userId, otherId); // @todo replace by following / follower function
-            if(areFriends==null){
-                System.err.print("areFriends was null for " + otherId + "! -> false ");
-                areFriends = false;
+            //Boolean areFriends = this.areFriends(userId, otherId); // @todo replace by following / follower function
+            boolean userFollowsBack = false;
+            RelationType relation = this.getRelationType(userId, otherId);
+            if(relation == RelationType.FRIENDS || relation == RelationType.FOLLOWER){
+                userFollowsBack = true;
             }
-            if(unfollow && !areFriends){
+            if(unfollow && !userFollowsBack){
                 this.unfollow(otherId); // @TODO check if not false
                 nbUnfollows++;
             }
             if(writeOnSheet){
-                this.getIOHelper().updateFollowBackInformation(otherId, areFriends);
+                this.getIOHelper().updateFollowBackInformation(otherId, userFollowsBack);
             }
-            result.put(otherId, areFriends);
+            result.put(otherId, userFollowsBack);
             System.out.println();
         }
         System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size());
         return result;
     }
 
-    public LinkedHashMap<AbstractUser, Boolean> areFriends(AbstractUser user, List<AbstractUser> otherUsers){
+  /*  public LinkedHashMap<AbstractUser, Boolean> areFriends(AbstractUser user, List<AbstractUser> otherUsers){
         LinkedHashMap<AbstractUser, Boolean> result = new LinkedHashMap<>();
         for(AbstractUser otherUser : otherUsers){
             Boolean areFriends = this.areFriends(otherUser.getUserName(), user.getUserName());
@@ -96,9 +96,9 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
             result.put(otherUser, areFriends);
         }
         return result;
-    }
+    } */
 
-    public List<String> getUsersNotFollowingBack(String userName, Boolean unfollow) {
+   /* public List<String> getUsersNotFollowingBack(String userName, Boolean unfollow) {
         List<String> notFollowingsBackUsers = new ArrayList<>();
         AbstractUser user = this.getUserFromUserName(userName);
         List<Long> followingsId = this.getFollowingIds(user.getId());
@@ -118,6 +118,6 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         }
 
         return notFollowingsBackUsers;
-    }
+    } */
 
 }

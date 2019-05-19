@@ -327,7 +327,7 @@ public class AbstractTwitterBotTest {
         user.setLastUpdate(new Date());
         user.setLang("fr");
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertFalse( engine.getUserScore(user)>=engine.getLimit());
+        Assert.assertFalse( engine.shouldBeFollowed(user));
     }
 
     public void testShouldBeFollowBadLastUpdate(){
@@ -338,7 +338,7 @@ public class AbstractTwitterBotTest {
         user.setLang("fr");
         user.setLastUpdate(null);
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertFalse( engine.getUserScore(user)>=engine.getLimit());
+        Assert.assertFalse( engine.shouldBeFollowed(user));
     }
 
     public void testShouldBeFollowBadLastUpdate2(){
@@ -349,8 +349,7 @@ public class AbstractTwitterBotTest {
         user.setLang("fr");
         user.setLastUpdate(new Date(2014,  1, 1));
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertFalse( engine.getUserScore(user)>=engine.getLimit());
-
+        Assert.assertFalse( engine.shouldBeFollowed(user));
     }
 
     public void testShouldBeFollowedOk(){
@@ -361,7 +360,7 @@ public class AbstractTwitterBotTest {
         user.setLang("fr");
         user.setLastUpdate(new Date());
         Assert.assertEquals(true, user.shouldBeFollowed());
-        Assert.assertTrue( engine.getUserScore(user)>=engine.getLimit());
+        Assert.assertFalse( engine.shouldBeFollowed(user));
     }
 
 

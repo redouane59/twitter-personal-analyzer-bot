@@ -12,7 +12,7 @@ public class ScoringConstant {
     public static String LANGUAGE = "fr";
     public static int MAX_DAYS_SINCE_LAST_TWEET = 15; // be careful about 7 days cache !
     public static String[] DESCRIPTION; // @todo to implement
-    public static String LOCATION; // @todo to implement
+    public static String[] LOCATION; // @todo to implement
 
     public static int INFLUENCER_MIN_NB_FOLLOWERS = 2500;
     public static float INFLUENCER_MIN_RATIO = (float)2;

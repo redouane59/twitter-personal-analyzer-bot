@@ -8,5 +8,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class ScoringParameter {
     private Criterion criterion;
-    private Object value; // @todo dirty
+    private Object value; // @todo dirty (could be int, String, String[], double)
 }

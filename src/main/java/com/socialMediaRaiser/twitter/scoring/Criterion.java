@@ -10,8 +10,8 @@ public enum Criterion {
     RATIO(10, true),
     LANGUAGE(10, true),
     LAST_UPDATE(10, true),
-    DESCRIPTION(10, true),
-    LOCATION(10, true);
+    DESCRIPTION(10, false),
+    LOCATION(10, false);
 
     private int maxPoints;
     private boolean active;
@@ -24,7 +24,9 @@ public enum Criterion {
     public static int getTotalMaxPoints(){
         int sum = 0;
         for (Criterion p : Criterion.values()) {
-            sum += p.getMaxPoints();
+            if(p.isActive()){
+                sum += p.getMaxPoints();
+            }
         }
         return sum;
     }

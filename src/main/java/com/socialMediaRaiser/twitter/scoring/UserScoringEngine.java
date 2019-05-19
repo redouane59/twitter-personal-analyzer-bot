@@ -16,16 +16,23 @@ public class UserScoringEngine {
     public UserScoringEngine(int minimumMatch){
         if(!(minimumMatch<=100 && minimumMatch>=0)){
             System.err.println("minimumMatch should be between 0 & 100");
+            this.limit = 100;
+        } else{
+            this.limit = Criterion.getTotalMaxPoints()*minimumMatch/100;
         }
-        this.limit = Criterion.getTotalMaxPoints()*minimumMatch/100;
     }
 
-    public int getUserScore(User user){
+    public boolean shouldBeFollowed(User user){
+        return getUserScore(user) >= limit;
+    }
+
+    private int getUserScore(User user){
         this.buildScoringParameters(user);
         return this.computeScore();
     }
 
     private void buildScoringParameters(User user){
+        this.parameters = new ArrayList<>();
         this.parameters.add(new ScoringParameter(Criterion.NB_FOLLOWERS, user.getFollowersCount()));
         this.parameters.add(new ScoringParameter(Criterion.NB_FOLLOWINGS, user.getFollowingCount()));
         this.parameters.add(new ScoringParameter(Criterion.RATIO, user.getFollowersRatio()));
@@ -35,13 +42,13 @@ public class UserScoringEngine {
         this.parameters.add(new ScoringParameter(Criterion.LOCATION, user.getLocation()));
     }
 
-    public int computeScore(){
+    private int computeScore(){
         int score = 0;
         for(ScoringParameter parameter : parameters){
-            if(parameter.getValue()!=null) {
+            if(parameter.getValue()!=null && parameter.getCriterion().isActive()) {
                 switch (parameter.getCriterion()) {
                     case NB_FOLLOWERS:
-                        score += getNbFollowersScore((int) parameter.getValue());
+                        score += getNbFollowersScore((int) parameter.getValue()); // @todo dirty
                         break;
                     case NB_FOLLOWINGS:
                         score += getNbFollowingsScore((int) parameter.getValue());
@@ -65,10 +72,6 @@ public class UserScoringEngine {
             }
         }
         return score;
-    }
-
-    public boolean shouldBeFollowed(User user){
-        return getUserScore(user) >= limit;
     }
 
     private int getNbFollowersScore(int nbFollowers){
@@ -118,11 +121,13 @@ public class UserScoringEngine {
         return 0;
     }
 
+    // @todo
     private int getDescriptionScore(String description){
         int maxPoints = Criterion.DESCRIPTION.getMaxPoints();
         return maxPoints;
     }
 
+    // @todo
     private int getLocationScore(String location){
         int maxPoints = Criterion.LOCATION.getMaxPoints();
         return maxPoints;

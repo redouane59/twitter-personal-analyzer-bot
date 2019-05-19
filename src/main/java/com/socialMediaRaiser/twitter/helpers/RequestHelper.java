@@ -2,7 +2,7 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.socialMediaRaiser.twitter.config.SignatureConstants;
+import com.socialMediaRaiser.twitter.constants.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.*;

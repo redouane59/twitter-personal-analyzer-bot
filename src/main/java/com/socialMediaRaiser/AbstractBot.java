@@ -62,19 +62,20 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
         int nbUnfollows = 0;
         for(Long otherId : otherIds){
-            Boolean areFriends = this.areFriends(userId, otherId);
+            Boolean areFriends = this.areFriends(userId, otherId); // @todo replace by following / follower function
             if(areFriends==null){
-                System.out.println("areFriends was null for " + otherId + "! -> false");
+                System.err.print("areFriends was null for " + otherId + "! -> false ");
                 areFriends = false;
             }
-            if(unfollow && !areFriends){ // @todo replace by following / follower function
-                this.unfollow(otherId);
+            if(unfollow && !areFriends){
+                this.unfollow(otherId); // @TODO check if not false
                 nbUnfollows++;
             }
             if(writeOnSheet){
                 this.getIOHelper().updateFollowBackInformation(otherId, areFriends);
             }
             result.put(otherId, areFriends);
+            System.out.println();
         }
         System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size());
         return result;

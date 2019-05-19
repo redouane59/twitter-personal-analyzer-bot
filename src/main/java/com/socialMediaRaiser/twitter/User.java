@@ -1,7 +1,8 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.AbstractUser;
-import com.socialMediaRaiser.twitter.config.FollowParameters;
+import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
+import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class User extends AbstractUser {
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
+    private UserScoringEngine scoringEngine = new UserScoringEngine(100); // @todo parameter somewhere ?
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
@@ -42,17 +44,7 @@ public class User extends AbstractUser {
     // @TODO create ranking and add description
     @Override
     public boolean shouldBeFollowed(){
-        if(this.getFollowersCount()> FollowParameters.MIN_NB_FOLLOWERS
-                && this.getFollowersCount()<FollowParameters.MAX_NB_FOLLOWERS
-                && this.getFollowersRatio()>FollowParameters.MIN_RATIO
-                && this.getFollowersRatio()<FollowParameters.MAX_RATIO
-                && this.lang.equals(FollowParameters.LANGUAGE)
-                && this.lastUpdate!=null
-                && this.getNbDaysSinceLastTweet() < FollowParameters.MAX_DAYS_SINCE_LAST_TWEET){
-            return true;
-        } else{
-            return false;
-        }
+        return this.scoringEngine.shouldBeFollowed(this);
     }
 
     private long getNbDaysSinceLastTweet(){
@@ -68,9 +60,9 @@ public class User extends AbstractUser {
 
     public boolean shouldBeTakenForItsFollowers(){
 
-        if(this.getFollowersCount()> FollowParameters.MIN_NB_FOLLOWERS
-                && this.getFollowersRatio()>FollowParameters.MIN_RATIO
-                && this.lang.equals(FollowParameters.LANGUAGE)){
+        if(this.getFollowersCount()> ScoringConstant.MIN_NB_FOLLOWERS
+                && this.getFollowersRatio()> ScoringConstant.MIN_RATIO
+                && this.lang.equals(ScoringConstant.LANGUAGE)){
             return true;
         } else{
             return false;
@@ -78,9 +70,9 @@ public class User extends AbstractUser {
     }
 
     public boolean isInfluencer(){
-        if(this.getFollowersRatio()>FollowParameters.INFLUENCER_MIN_RATIO
-                && this.getFollowersCount()>FollowParameters.INFLUENCER_MIN_NB_FOLLOWERS
-                && this.lang.equals(FollowParameters.LANGUAGE)){
+        if(this.getFollowersRatio()> ScoringConstant.INFLUENCER_MIN_RATIO
+                && this.getFollowersCount()> ScoringConstant.INFLUENCER_MIN_NB_FOLLOWERS
+                && this.lang.equals(ScoringConstant.LANGUAGE)){
             return true;
         } else{
             return false;
@@ -95,4 +87,7 @@ public class User extends AbstractUser {
         this.setDateOfFollow(new Date());
     }
 
+    public long getDaysBetweenFollowAndLastUpdate(){
+        return (dateOfFollow.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
+    }
 }

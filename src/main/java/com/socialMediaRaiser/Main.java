@@ -9,9 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -25,8 +23,14 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-      //  twitterBot.checkNotFollowBack(tweetName, 290, false, true);
-        twitterBot.getPotentialFollowers(tweetName, 100, true);
+     //   twitterBot.checkNotFollowBack(tweetName, true, true, yesterday());
+        twitterBot.getPotentialFollowers(tweetName, 200, true);
+    }
+
+    private static Date yesterday() {
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        return cal.getTime();
     }
 
 }

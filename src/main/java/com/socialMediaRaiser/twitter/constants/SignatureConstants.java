@@ -1,17 +1,17 @@
-package com.socialMediaRaiser.twitter.config;
+package com.socialMediaRaiser.twitter.constants;
 
 import lombok.Data;
 
 @Data
 public class SignatureConstants
 {
-    public static final String consumerKey = "LiMccelygYuyueOKZLaVk9N1R";
-    public static final String consumerSecret = "zzz";
-    public static final String accessToken = "92073489-RC4JLZUJOL09zagnwfkvOi3GL9wdz7XvWWwmV7ern";
-    public static final String secretToken = "zzz";
-    public static final String version = "1.0";
-    public static final String algorithm = "HmacSHA1";
-    public static final String signatureMethod = "HMAC-SHA1";
+    public static final String CONSUMER_KEY = "consumerKey";
+    public static final String CONSUMER_SECRET = "consumerSecret";
+    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String SECRET_TOKEN = "secretToken";
+    public static final String VERSION = "1.0";
+    public static final String ALGORITHM = "HmacSHA1";
+    public static final String SIGNATURE_METHOD = "HMAC-SHA1";
     public static final String OAUTH_TOKEN = "oauth_token";
     public static final String OAUTH_CONSUMER_KEY = "oauth_consumer_key";
     public static final String OAUTH_SIGNATURE = "oauth_signature";

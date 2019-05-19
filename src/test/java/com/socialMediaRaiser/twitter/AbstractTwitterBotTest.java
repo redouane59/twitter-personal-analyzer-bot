@@ -1,7 +1,7 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.RelationType;
-import com.socialMediaRaiser.twitter.config.UserScoringEngine;
+import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.Assert;
@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -319,43 +320,48 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testShouldBeFollowedBadRatio(){
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1);
         user.setFollowingCount(1000);
         user.setLastUpdate(new Date());
+        user.setLang("fr");
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertEquals(false, UserScoringEngine.shouldBeFollowed(user));
+        Assert.assertFalse( engine.getUserScore(user)>=engine.getLimit());
     }
 
     public void testShouldBeFollowBadLastUpdate(){
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingCount(1000);
         user.setLang("fr");
         user.setLastUpdate(null);
         Assert.assertEquals(false, user.shouldBeFollowed());
+        Assert.assertFalse( engine.getUserScore(user)>=engine.getLimit());
     }
 
     public void testShouldBeFollowBadLastUpdate2(){
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingCount(1000);
         user.setLang("fr");
         user.setLastUpdate(new Date(2014,  1, 1));
         Assert.assertEquals(false, user.shouldBeFollowed());
-        Assert.assertEquals(false, UserScoringEngine.shouldBeFollowed(user));
+        Assert.assertFalse( engine.getUserScore(user)>=engine.getLimit());
 
     }
 
     public void testShouldBeFollowedOk(){
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingCount(1000);
         user.setLang("fr");
         user.setLastUpdate(new Date());
         Assert.assertEquals(true, user.shouldBeFollowed());
-        Assert.assertEquals(true, UserScoringEngine.shouldBeFollowed(user));
-
+        Assert.assertTrue( engine.getUserScore(user)>=engine.getLimit());
     }
 
 
@@ -429,4 +435,38 @@ public class AbstractTwitterBotTest {
         Assert.assertTrue(  diffDays < 15);
     }
 
+    @Test
+    public void testGetPreviouslyFollowedIdsAll(){
+        List<Long> result = twitterBot.getIOHelper().getPreviouslyFollowedIds();
+        Assert.assertTrue(result.size()>200);
+    }
+
+    @Test
+    public void testGetPreviouslyFollowedIdsByDate(){
+        Date date = new Date();
+        date.setDate(18);
+        date.setMonth(4);
+        List<Long> result = twitterBot.getIOHelper().getPreviouslyFollowedIds(true, true, date);
+        Assert.assertTrue(result.size()>250);
+    }
+
+    @Test
+    public void testuserDiffDate0(){
+        User user = User.builder()
+                .dateOfFollow(new Date())
+                .lastUpdate(new Date())
+                .build();
+        Assert.assertEquals(0, user.getDaysBetweenFollowAndLastUpdate());
+    }
+
+    @Test
+    public void testuserDiffDate7(){
+        final Calendar lastUpdate = Calendar.getInstance();
+        lastUpdate.add(Calendar.DATE, -7);
+        User user = User.builder()
+                .dateOfFollow(new Date())
+                .lastUpdate(lastUpdate.getTime())
+                .build();
+        Assert.assertEquals(7, user.getDaysBetweenFollowAndLastUpdate());
+    }
 }

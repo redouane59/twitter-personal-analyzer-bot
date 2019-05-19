@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 public class GoogleSheetHelper extends AbstractIOHelper {
@@ -25,10 +28,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue) {
+    public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date) {
         String startLine = "A2";
         String endLine = "L";
-        int followBackResultIndex = 11;
+        int followBackResultIndex = 11; // dirty ?
+        int dateOfFollowIndex = 10; // dirty ?
         List<String> ranges = Arrays.asList(tabName+"!"+startLine+":"+endLine);
         try{
             BatchGetValuesResponse readResult = sheetsService.spreadsheets().values()
@@ -42,8 +46,19 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         || valueArray.size()<=followBackResultIndex
                         || (valueArray.size()>followBackResultIndex && showFalse && String.valueOf(valueArray.get(followBackResultIndex)).toLowerCase().equals("false"))
                         || (valueArray.size()>followBackResultIndex && showTrue && String.valueOf(valueArray.get(followBackResultIndex)).toLowerCase().equals("true"))){
-                    String stringValue = String.valueOf(valueArray.get(0));
-                    ids.add(Long.valueOf(stringValue));
+
+                    DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                    Date followDate = formatter.parse( String.valueOf(valueArray.get(dateOfFollowIndex)));
+
+                    int diffInDays = -1;
+                    if(date!=null && valueArray.size() > dateOfFollowIndex && date.getDate() == followDate.getDate()){
+                        diffInDays = (int) ((followDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+                    }
+
+                    if (date==null || diffInDays==0) {
+                        String stringValue = String.valueOf(valueArray.get(0));
+                        ids.add(Long.valueOf(stringValue));
+                    }
                 }
             }
             return ids;
@@ -114,7 +129,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
 
     public void updateFollowBackInformation(Long userId, Boolean result) {
         String followedBack = String.valueOf(result).toUpperCase();
-        System.out.println("updating " + userId + " -> " + followedBack + " ...");
+        System.out.print("updating " + userId + " -> " + followedBack + " ...");
         int row = getRowOfUser(userId);
 
         ValueRange requestBody = new ValueRange()

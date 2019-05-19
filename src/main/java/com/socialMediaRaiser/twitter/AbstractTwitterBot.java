@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -367,17 +368,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
-    // @todo 2nd function with nbNeedElements between two index
-    public void checkNotFollowBack(String tweetName, int nbNeededElements, boolean unfollow, boolean writeInSheet) throws IOException {
-        List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true);
-        int listSize = followedPreviously.size();
-        List<Long> sublist = followedPreviously;
-        if(listSize>nbNeededElements){
-            sublist = followedPreviously.subList(listSize-nbNeededElements,listSize);
-        }
+    public void checkNotFollowBack(String tweetName, boolean unfollow, boolean writeInSheet, Date date) throws IOException {
+        List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
 
         User user = this.getUserFromUserName(tweetName);
-        Map<Long, Boolean> result = this.areFriends(user.getId(), sublist, unfollow, writeInSheet);
+        Map<Long, Boolean> result = this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
 
      /*   if(writeInSheet) {
             this.getIOHelper().updateFollowBackInformation(result); // @TODO update before instead of here

@@ -112,6 +112,10 @@ public class JsonHelper {
     }
 
     public Long getLongFromCursorObject(JSONObject response){
+        if(response==null){
+            System.err.println("result null");
+            return null;
+        }
         if(response.get(NEXT_CURSOR) instanceof Long){
             return (Long)response.get(NEXT_CURSOR);
         } else if(response.get(NEXT_CURSOR) instanceof Integer) {

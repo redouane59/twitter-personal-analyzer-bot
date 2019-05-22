@@ -67,7 +67,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
             if(relation == RelationType.FRIENDS || relation == RelationType.FOLLOWER){
                 userFollowsBack = true;
             }
-            if(unfollow && !userFollowsBack){
+            if(unfollow && !userFollowsBack){ // @TODO si not following
                 this.unfollow(otherId); // @TODO check if not false
                 nbUnfollows++;
             }
@@ -77,7 +77,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
             result.put(otherId, userFollowsBack);
             System.out.println();
         }
-        System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size());
+        System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size() + " ( " + nbUnfollows*100/otherIds.size() + "%)");
         return result;
     }
 

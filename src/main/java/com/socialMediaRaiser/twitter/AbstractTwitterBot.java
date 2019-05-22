@@ -76,7 +76,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && nbCalls < MAX_GET_F_CALLS);
+        while (cursor != 0 && cursor!=null && nbCalls < MAX_GET_F_CALLS);
         return result;
     }
 
@@ -141,7 +141,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && nbCalls < MAX_GET_F_CALLS);
+        while (cursor != 0 && cursor!=null && nbCalls < MAX_GET_F_CALLS);
         System.out.println(result.size() + " followings found for " + userName);
         return result;
     }

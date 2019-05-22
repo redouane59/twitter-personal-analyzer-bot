@@ -148,7 +148,7 @@ public class URLHelper {
 
     public String getFollowerIdsUrl(Long userId){
         this.followersCount++;
-        if(followersCount%10==0) {
+        if(followersCount%5==0) {
             System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -161,7 +161,7 @@ public class URLHelper {
 
     public String getFollowerIdsUrl(String screenName){
         this.followersCount++;
-        if(followersCount%10==0) {
+        if(followersCount%5==0) {
             System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -174,7 +174,7 @@ public class URLHelper {
 
     public String getFollowerUsersUrl(String screenName){
         this.followersCount++;
-        if(followersCount%10==0) {
+        if(followersCount%5==0) {
             System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
@@ -189,7 +189,7 @@ public class URLHelper {
 
     public String getFollowerUsersUrl(Long userId){
         this.followersCount++;
-        if(followersCount%10==0) {
+        if(followersCount%5==0) {
             System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)

@@ -31,7 +31,7 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testGetFollowingsUserByName() {
-        List<User> followings = twitterBot.getFollowingsUserList("LaGhostquitweet");
+        List<User> followings = twitterBot.getFollowingsUserList("LaGhostquitweet", false);
         Assert.assertTrue(followings.size()>360);
     }
 
@@ -73,7 +73,7 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testGetFollowersUsersById() {
-        List<User> followers = twitterBot.getFollowerUsers(882266619115864066L);
+        List<User> followers = twitterBot.getFollowerUsers(882266619115864066L, false);
         Assert.assertTrue(followers.size()>420);
     }
 

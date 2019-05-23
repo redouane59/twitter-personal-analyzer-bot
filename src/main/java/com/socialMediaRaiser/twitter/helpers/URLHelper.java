@@ -333,7 +333,9 @@ public class URLHelper {
 
     public String getTweetInfoUrl(Long tweetId) {
         this.tweetInfoCount++;
-        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        if(this.tweetInfoCount%10==0){
+            System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(SHOW_JSON)
@@ -344,7 +346,9 @@ public class URLHelper {
 
     public String getUserTweetsUrl(String userName, int count){
         this.tweetInfoCount++;
-        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        if(this.tweetInfoCount%10==0){
+            System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(USER_TIMELINE)
@@ -357,7 +361,9 @@ public class URLHelper {
 
     public String getUserTweetsUrl(Long userId, int count){
         this.tweetInfoCount++;
-        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        if(this.tweetInfoCount%10==0){
+            System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        }
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(USER_TIMELINE)

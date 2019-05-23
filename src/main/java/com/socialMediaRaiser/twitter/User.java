@@ -46,6 +46,11 @@ public class User extends AbstractUser {
         return this.scoringEngine.shouldBeFollowed(this);
     }
 
+    public boolean shouldBeStudied(){
+        return this.getFollowersRatio() > ScoringConstant.MIN_RATIO
+                && this.getFollowersRatio() < ScoringConstant.MAX_RATIO;
+    }
+
     private long getNbDaysSinceLastTweet(){
         Date now = new Date();
         Date lastUpdate = this.getLastUpdate();
@@ -71,7 +76,7 @@ public class User extends AbstractUser {
     public boolean isInfluencer(){
         if(this.getFollowersRatio()> ScoringConstant.INFLUENCER_MIN_RATIO
                 && this.getFollowersCount()> ScoringConstant.INFLUENCER_MIN_NB_FOLLOWERS
-                && this.lang.equals(ScoringConstant.LANGUAGE1)){
+                /*&& this.lang.equals(ScoringConstant.LANGUAGE1)*/){
             return true;
         } else{
             return false;
@@ -91,7 +96,9 @@ public class User extends AbstractUser {
     }
 
     public void addMissingInfoFromLastTweet(Tweet userLastTweet){
-        this.setLastUpdate(userLastTweet.getCreated_at());
-        this.setLang(userLastTweet.getLang());
+        if(userLastTweet!=null) {
+            this.setLastUpdate(userLastTweet.getCreated_at());
+            this.setLang(userLastTweet.getLang());
+        }
     }
 }

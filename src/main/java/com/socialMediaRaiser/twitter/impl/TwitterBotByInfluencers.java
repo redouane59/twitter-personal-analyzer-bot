@@ -4,6 +4,7 @@ import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
+import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
 import lombok.Data;
 
 import java.io.File;
@@ -26,8 +27,8 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
         int nbFollowersMaxToWatch = 20;
         int minOccurence = 2;
-        List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
-        List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers);
+        List<User> ownerFollowers = this.getFollowerUsers(ownerId, false);
+        List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers, 40);
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
@@ -80,15 +81,18 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         return potentialFollowers;
     }
 
-    private List<User> getInfluencersFromFollowers(List<User> followers){
+    private List<User> getInfluencersFromFollowers(List<User> followers, int count){
         List<User> followersInfluencers = new ArrayList<>();
         User user;
         int i=0;
         // building influencers list
-        while(i< followers.size()){
+        while(i< followers.size() && followersInfluencers.size() < count){
             user = followers.get(i);
             if(user.isInfluencer()){
-                followersInfluencers.add(user);
+                user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
+                if(user.getLang().equals(ScoringConstant.LANGUAGE1)){
+                    followersInfluencers.add(user);
+                }
             }
             i++;
         }

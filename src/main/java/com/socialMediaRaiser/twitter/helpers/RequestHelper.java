@@ -58,9 +58,9 @@ public class RequestHelper {
                     .build();
 
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-         //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
             JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
+                response.close();
                 return jsonResponse;
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
@@ -74,12 +74,11 @@ public class RequestHelper {
                 return this.executeGetRequest(url);
             } else{
                 System.err.println("(GET) not 200 return null " + response.message() + " - " + response.code());
-                return null;
             }
         } catch(IOException e){
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     private JSONObject executePostRequest(String url) {
@@ -94,12 +93,12 @@ public class RequestHelper {
         try {
             OkHttpClient client = new OkHttpClient();
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-        //    LocalDateTime now = LocalDateTime.now();
-      //      System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
             if(response.code()!=200){
                 System.err.println("(POST) ! not 200 " + response.message() + " - " + response.code());
             }
-            return new JSONObject(response.body().string());
+            String stringResposne = response.body().string();
+            response.close();
+            return new JSONObject(stringResposne);
 
         } catch(IOException e){
             e.printStackTrace();
@@ -119,8 +118,11 @@ public class RequestHelper {
                     .connectTimeout(60, TimeUnit.SECONDS).build();
             Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             if(response.code()==200){
-                return new JSONArray(response.body().string());
+                JSONArray resultArray = new JSONArray(response.body().string());
+                response.close();
+                return resultArray;
             } else if (response.code() == 401){
+                response.close();
                 System.out.println("user private, not authorized");
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
@@ -189,7 +191,7 @@ public class RequestHelper {
         } else if (url.contains("/users")){
             defaultCache = 168;
         } else if (url.contains("/user_timeline")){
-            defaultCache = 336;
+            defaultCache = 168;
         }
         return defaultCache;
     }

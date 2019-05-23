@@ -84,26 +84,26 @@ public class JsonHelper {
             if(jsonObject.has(LOCATION)){
                 location = jsonObject.get(LOCATION).toString();
             }
-            String lastUpdate = null;
+          /*  String lastUpdate = null;
             if(jsonObject.has(STATUS)){
                 lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
             }
             String lang = jsonObject.get(LANG).toString(); // soon deprecated deprecated
             if(lang==null && jsonObject.has(LANG)){
                 lang = ((JSONObject)jsonObject.get(STATUS)).get(LANG).toString();
-            }
+            }*/
             return User.builder()
                     .id(id)
                     .userName(screenName)
                     .followerCout(followersCount)
                     .followingCount(friendsCount)
-                    .lang(lang)
+                 //   .lang(lang)
                     .statusesCount(statuses_count)
                     .dateOfCreation(getTwitterDate(created_at))
                     .description(description)
                     .favouritesCount(favourites_count)
                     .dateOfFollow(null)
-                    .lastUpdate(getTwitterDate(lastUpdate))
+                 //   .lastUpdate(getTwitterDate(lastUpdate))
                     .location(location)
                     .build();
         } else{

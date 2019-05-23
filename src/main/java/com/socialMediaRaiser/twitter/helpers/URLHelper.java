@@ -11,6 +11,7 @@ public class URLHelper {
     private final String IDS_JSON = "/ids.json?";
     private final String SCREEN_NAME = "screen_name";
     private final String ID = "id";
+    private final String COUNT = "count";
     private final String LIST_JSON = "/list.json?";
     private final String SHOW_JSON = "/show.json?";
     private final String CREATE_JSON = "/create.json?";
@@ -23,6 +24,7 @@ public class URLHelper {
     private final String USERS = "/users";
     private final String USER_ID = "user_id";
     private final String LOOKUP_JSON = "/lookup.json?";
+    private final String USER_TIMELINE = "/user_timeline.json?";
     private final int maxCount = 200;
     private int retweeterCount = 0;
     private int followersCount = 0;
@@ -126,7 +128,7 @@ public class URLHelper {
                 .append(IDS_JSON)
                 .append(ID +"=")
                 .append(tweetId)
-                .append("&count=")
+                .append("&"+COUNT+"=")
                 .append(RETWEET_MAX_COUNT)
                 .toString();
     }
@@ -141,7 +143,7 @@ public class URLHelper {
                 .append(LIST_JSON)
                 .append(ID + "=")
                 .append(screenName)
-                .append("&count=")
+                .append("&"+COUNT+"=")
                 .append(maxCount)
                 .toString();
     }
@@ -182,7 +184,7 @@ public class URLHelper {
                 .append(LIST_JSON)
                 .append(SCREEN_NAME+"=")
                 .append(screenName)
-                .append("&count=")
+                .append("&"+COUNT+"=")
                 .append(maxCount)
                 .toString();
     }
@@ -197,7 +199,7 @@ public class URLHelper {
                 .append(LIST_JSON)
                 .append(USER_ID + "=")
                 .append(userId)
-                .append("&count=")
+                .append("&"+COUNT+"=")
                 .append(maxCount)
                 .toString();
     }
@@ -231,7 +233,7 @@ public class URLHelper {
                 .append(LIST_JSON)
                 .append(SCREEN_NAME+"=")
                 .append(screenName)
-                .append("&count=")
+                .append("&"+COUNT+"=")
                 .append(maxCount)
                 .toString();
     }
@@ -244,7 +246,7 @@ public class URLHelper {
                 .append(LIST_JSON)
                 .append(USER_ID + "=")
                 .append(userId)
-                .append("&count=")
+                .append("&"+COUNT+"=")
                 .append(maxCount)
                 .toString();
     }
@@ -253,17 +255,6 @@ public class URLHelper {
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append("/user_timeline.json?").toString();
-    }
-
-    public String getTweetInfoUrl(Long tweetId) {
-        this.tweetInfoCount++;
-        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
-        return new StringBuilder(ROOT_URL)
-                .append(STATUSES)
-                .append(SHOW_JSON)
-                .append(ID+"=")
-                .append(tweetId)
-                .toString();
     }
 
     public String getUserUrl(Long userId) {
@@ -339,6 +330,45 @@ public class URLHelper {
                 .append("/rate_limit_status.json")
                 .toString();
     }
+
+    public String getTweetInfoUrl(Long tweetId) {
+        this.tweetInfoCount++;
+        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(STATUSES)
+                .append(SHOW_JSON)
+                .append(ID+"=")
+                .append(tweetId)
+                .toString();
+    }
+
+    public String getUserTweetInfoUrl(String userName, int count){
+        this.tweetInfoCount++;
+        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(STATUSES)
+                .append(USER_TIMELINE)
+                .append(SCREEN_NAME+"=")
+                .append(userName)
+                .append("&"+COUNT+"=")
+                .append(count)
+                .toString();
+    }
+
+    public String getUserTweetInfoUrl(Long userId, int count){
+        this.tweetInfoCount++;
+        System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
+        return new StringBuilder(ROOT_URL)
+                .append(STATUSES)
+                .append(USER_TIMELINE)
+                .append(USER_ID+"=")
+                .append(userId)
+                .append("&"+COUNT+"=")
+                .append(count)
+                .toString();
+    }
+
+
 
     public boolean canCallGetFollowers(){
         if(this.followersCount<FOLLOWER_MAX_CALLS){

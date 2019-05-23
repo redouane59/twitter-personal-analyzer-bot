@@ -89,4 +89,9 @@ public class User extends AbstractUser {
     public long getDaysBetweenFollowAndLastUpdate(){
         return (dateOfFollow.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
     }
+
+    public void addMissingInfoFromLastTweet(Tweet userLastTweet){
+        this.setLastUpdate(userLastTweet.getCreated_at());
+        this.setLang(userLastTweet.getLang());
+    }
 }

@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.User.UserBuilder;
 import lombok.Builder;
@@ -21,7 +22,10 @@ public class JsonHelper {
     private final String FOLLOWER_COUNT = "followers_count";
     private final String FRIENDS_COUNT = "friends_count";
     private final String FAVOURITES_COUNT = "favourites_count";
+    private final String FAVORITE_COUNT = "favorite_count";
+    private final String RETWEET_COUNT = "retweet_count";
     private final String DESCRIPTION = "description";
+    private final String TEXT = "text";
     private final String STATUS = "status";
     private final String LOCATION = "location";
     private final String ID = "id";
@@ -143,4 +147,25 @@ public class JsonHelper {
         }
     }
 
+    public Tweet jsonResponseToTweet(JSONObject jsonObject) {
+
+        if(jsonObject!=null){
+            Long id = Long.valueOf(jsonObject.get(ID).toString());
+            int retweetsCount = (int)jsonObject.get(RETWEET_COUNT);
+            int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
+            String text = jsonObject.get(TEXT).toString();
+            String lang = jsonObject.get(LANG).toString();
+            String created_at = jsonObject.get(CREATED_AT).toString();
+            Tweet tweet = Tweet.builder()
+                    .id(id)
+                    .retweet_count(retweetsCount)
+                    .favorite_count(favourites_count)
+                    .text(text)
+                    .lang(lang)
+                    .created_at(getTwitterDate(created_at))
+                    .build();
+            return tweet;
+        }
+        return null;
+    }
 }

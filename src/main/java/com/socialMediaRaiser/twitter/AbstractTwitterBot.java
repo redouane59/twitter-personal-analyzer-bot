@@ -12,7 +12,6 @@ import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
@@ -77,6 +76,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             nbCalls++;
         }
         while (cursor != 0 && cursor!=null && nbCalls < MAX_GET_F_CALLS);
+        for(User user : result){
+            user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
+        }
         return result;
     }
 
@@ -192,37 +194,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getUsersInfoByRelation(userName, RelationType.FOLLOWING);
     }
 
- /*   @Override
-    public Boolean areFriends(Long userId1, Long userId2) {
-        String url = this.urlHelper.getFriendshipUrl(userId1, userId2);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null){
-            JSONObject relationship = (JSONObject)response.get(RELATIONSHIP);
-            JSONObject sourceResult = (JSONObject)relationship.get(SOURCE);
-            Boolean followedBy = (Boolean)sourceResult.get(FOLLOWED_BY);
-            Boolean following = (Boolean)sourceResult.get(FOLLOWING);
-            return (followedBy & following);
-        } else{
-            return null;
-        }
-    }  */
-
-    /* @Override
-    public Boolean areFriends(String userName1, String userName2) {
-        String url = this.urlHelper.getFriendshipUrl(userName1, userName2);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null) {
-            JSONObject relationship = (JSONObject) response.get(RELATIONSHIP);
-            JSONObject sourceResult = (JSONObject) relationship.get(SOURCE);
-            Boolean followedBy = (Boolean) sourceResult.get(FOLLOWED_BY);
-            Boolean following = (Boolean) sourceResult.get(FOLLOWING);
-            return (followedBy & following);
-        } else{
-            return null;
-        }
-    } */
-
-    @Override
+     @Override
     public RelationType getRelationType(Long userId1, Long userId2){
         String url = this.urlHelper.getFriendshipUrl(userId1, userId2);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
@@ -318,7 +290,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUserUrl(userId);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
-            return this.getJsonHelper().jsonResponseToUser(response);
+            User user = this.getJsonHelper().jsonResponseToUser(response);
+            user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
+            return user;
         } else{
             System.err.println("user " + userId + " not found !!");
             return null;
@@ -330,7 +304,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUserUrl(userName);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
-            return this.getJsonHelper().jsonResponseToUser(response);
+            User user = this.getJsonHelper().jsonResponseToUser(response);
+            user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
+            return user;
         } else{
             return null;
         }
@@ -340,7 +316,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUsersUrlbyNames(userNames);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
-            return this.getJsonHelper().jsonUserArrayToList(response);
+            List<User> users = this.getJsonHelper().jsonUserArrayToList(response);
+            for(User user : users){
+                user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
+            }
+            return users;
         } else{
             return null;
         }
@@ -350,7 +330,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUsersUrlbyIds(userIds);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
-            return this.getJsonHelper().jsonUserArrayToList(response);
+            List<User> users = this.getJsonHelper().jsonUserArrayToList(response);
+            for(User user : users){
+                user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
+            }
+            return users;
         } else{
             return null;
         }
@@ -365,6 +349,20 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
         User user = this.getUserFromUserName(tweetName);
         this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
+    }
+
+    public Tweet getUserLastTweet(Long userId){
+        String url = this.getUrlHelper().getUserTweetsUrl(userId, 1);
+        JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
+        JSONObject lastTweet = (JSONObject)response.get(0);
+        return this.getJsonHelper().jsonResponseToTweet(lastTweet);
+    }
+
+    public Tweet getUserLastTweet(String userName){
+        String url = this.getUrlHelper().getUserTweetsUrl(userName, 1);
+        JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
+        JSONObject lastTweet = (JSONObject)response.get(0);
+        return this.getJsonHelper().jsonResponseToTweet(lastTweet);
     }
 
     // @todo function to follow from gsheet

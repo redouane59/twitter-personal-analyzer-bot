@@ -342,7 +342,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getUserTweetInfoUrl(String userName, int count){
+    public String getUserTweetsUrl(String userName, int count){
         this.tweetInfoCount++;
         System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -355,7 +355,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getUserTweetInfoUrl(Long userId, int count){
+    public String getUserTweetsUrl(Long userId, int count){
         this.tweetInfoCount++;
         System.out.println("tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS);
         return new StringBuilder(ROOT_URL)

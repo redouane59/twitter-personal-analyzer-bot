@@ -117,13 +117,13 @@ public class UrlHelperTest {
     @Test
     public void testGetUserTweetUrlByName(){
         Assert.assertEquals("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=twitterdev&count=1",
-        twitterBot.getUrlHelper().getUserTweetInfoUrl("twitterdev",1));
+        twitterBot.getUrlHelper().getUserTweetsUrl("twitterdev",1));
     }
 
     @Test
     public void testGetUserTweetUrlById(){
         Assert.assertEquals("https://api.twitter.com/1.1/statuses/user_timeline.json?user_id=12345&count=1",
-                twitterBot.getUrlHelper().getUserTweetInfoUrl(12345L,1));
+                twitterBot.getUrlHelper().getUserTweetsUrl(12345L,1));
     }
 
 

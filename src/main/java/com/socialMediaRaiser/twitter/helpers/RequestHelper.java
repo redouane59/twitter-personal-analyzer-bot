@@ -109,24 +109,21 @@ public class RequestHelper {
 
     // @TODO clear
     public JSONArray executeGetRequestReturningArray(String url) {
-
         Request request = new Request.Builder()
                 .url(url)
                 .get()
                 .build();
-
-        Response response = null;
         try {
             OkHttpClient client = new OkHttpClient.Builder()
                     .readTimeout(60, TimeUnit.SECONDS)
                     .connectTimeout(60, TimeUnit.SECONDS).build();
-            response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
-            LocalDateTime now = LocalDateTime.now();
-            //   System.out.println(now.getHour() + ":" + now.getMinute() + " executing request on " + url);
-            JSONArray jsonResponse = new JSONArray(response.body().string());
+            Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
             if(response.code()==200){
-                return jsonResponse;
+                return new JSONArray(response.body().string());
+            } else if (response.code() == 401){
+                System.out.println("user private, not authorized");
             } else if (response.code()==429){
+                LocalDateTime now = LocalDateTime.now();
                 System.out.println(response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
                 try {
@@ -137,13 +134,12 @@ public class RequestHelper {
                 return this.executeGetRequestReturningArray(url);
             } else{
                 System.err.println("not 200 (return null)" + response.message() + " - " + response.code());
-                return null;
             }
         } catch(Exception e){
-            System.err.println("exception return null " + response.message() + " - " + response.code());
+            System.err.println("exception return null");
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
 
@@ -192,6 +188,8 @@ public class RequestHelper {
             defaultCache = 72;
         } else if (url.contains("/users")){
             defaultCache = 168;
+        } else if (url.contains("/user_timeline")){
+            defaultCache = 336;
         }
         return defaultCache;
     }

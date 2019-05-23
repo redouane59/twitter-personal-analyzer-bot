@@ -347,4 +347,18 @@ public class AbstractTwitterBotTest {
                 .build();
         Assert.assertEquals(7, user.getDaysBetweenFollowAndLastUpdate());
     }
+
+    @Test
+    public void testGetLastTweetByUserName(){
+        String userName = "RedTheOne";
+        Tweet response = twitterBot.getUserLastTweet(userName);
+        Assert.assertEquals(response.getLang(), "fr");
+    }
+
+    @Test
+    public void testGetLastTweetByUserId(){
+        Long userId = 92073489L;
+        Tweet response = twitterBot.getUserLastTweet(userId);
+        Assert.assertEquals(response.getLang(), "fr");
+    }
 }

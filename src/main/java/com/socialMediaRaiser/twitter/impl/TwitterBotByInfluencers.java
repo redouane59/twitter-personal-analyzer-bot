@@ -2,14 +2,12 @@ package com.socialMediaRaiser.twitter.impl;
 
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
 import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
 import lombok.Data;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,7 +25,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
         int nbFollowersMaxToWatch = 20;
         int minOccurence = 2;
-        List<User> ownerFollowers = this.getFollowerUsers(ownerId, false);
+        List<User> ownerFollowers = this.getFollowerUsers(ownerId);
         List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers, 40);
         Collections.shuffle(influencerFollowers);
 
@@ -54,19 +52,23 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
+                    potentialFollower.addLanguageFromLastTweet(this.getUserLastTweet(potentialFollower.getId()));
                     if (potentialFollower.shouldBeFollowed()) {
-                        if (follow) {
-                            boolean result = this.follow(potentialFollower.getId());
-                            if (result) {
-                                potentialFollower.setDateOfFollowNow();
-                                potentialFollowers.add(potentialFollower);
-                                if(saveResults){
-                                    this.getIOHelper().addNewFollowerLine(potentialFollower);
+                        potentialFollower.addLanguageFromLastTweet(this.getUserLastTweet(potentialFollower.getId())); // really slow
+                        if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(ScoringConstant.LANGUAGE1)){
+                            if (follow) {
+                                boolean result = this.follow(potentialFollower.getId());
+                                if (result) {
+                                    potentialFollower.setDateOfFollowNow();
+                                    potentialFollowers.add(potentialFollower);
+                                    if(saveResults){
+                                        this.getIOHelper().addNewFollowerLine(potentialFollower);
+                                    }
                                 }
+                            } else {
+                                System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+                                potentialFollowers.add(potentialFollower);
                             }
-                        } else {
-                            System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
-                            potentialFollowers.add(potentialFollower);
                         }
                     }
                 }
@@ -89,8 +91,8 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         while(i< followers.size() && followersInfluencers.size() < count){
             user = followers.get(i);
             if(user.isInfluencer()){
-                user.addMissingInfoFromLastTweet(this.getUserLastTweet(user.getId()));
-                if(user.getLang().equals(ScoringConstant.LANGUAGE1)){
+                user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
+                if(user.getLang()!=null && user.getLang().equals(ScoringConstant.LANGUAGE1)){
                     followersInfluencers.add(user);
                 }
             }

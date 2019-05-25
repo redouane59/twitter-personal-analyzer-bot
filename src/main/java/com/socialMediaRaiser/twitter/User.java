@@ -46,11 +46,6 @@ public class User extends AbstractUser {
         return this.scoringEngine.shouldBeFollowed(this);
     }
 
-    public boolean shouldBeStudied(){
-        return this.getFollowersRatio() > ScoringConstant.MIN_RATIO
-                && this.getFollowersRatio() < ScoringConstant.MAX_RATIO;
-    }
-
     private long getNbDaysSinceLastTweet(){
         Date now = new Date();
         Date lastUpdate = this.getLastUpdate();
@@ -95,9 +90,8 @@ public class User extends AbstractUser {
         return (dateOfFollow.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
     }
 
-    public void addMissingInfoFromLastTweet(Tweet userLastTweet){
+    public void addLanguageFromLastTweet(Tweet userLastTweet){
         if(userLastTweet!=null) {
-            this.setLastUpdate(userLastTweet.getCreated_at());
             this.setLang(userLastTweet.getLang());
         }
     }

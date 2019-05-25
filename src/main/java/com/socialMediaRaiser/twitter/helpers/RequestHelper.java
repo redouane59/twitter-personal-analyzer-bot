@@ -41,26 +41,11 @@ public class RequestHelper {
 
 
     private JSONObject executeGetRequest(String url) {
-
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
-
         try {
-            int cacheSize = 150 * 1024 * 1024; // 150MB
-            File file = new File("C:\\okhttpCache");
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .addNetworkInterceptor(new CacheInterceptor(this.getCacheTimeoutFromUrl(url)))
-                    .cache(new Cache(file, cacheSize))
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .connectTimeout(60, TimeUnit.SECONDS)
-                    .build();
-
-            Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
+            Response response = this.getHttpClient(url)
+                    .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
             JSONObject jsonResponse = new JSONObject(response.body().string());
             if(response.code()==200){
-                response.close();
                 return jsonResponse;
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
@@ -97,7 +82,6 @@ public class RequestHelper {
                 System.err.println("(POST) ! not 200 " + response.message() + " - " + response.code());
             }
             String stringResposne = response.body().string();
-            response.close();
             return new JSONObject(stringResposne);
 
         } catch(IOException e){
@@ -106,20 +90,13 @@ public class RequestHelper {
         }
     }
 
-    // @TODO clear
     public JSONArray executeGetRequestReturningArray(String url) {
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .connectTimeout(60, TimeUnit.SECONDS).build();
-            Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
+            Response response = this.getHttpClient(url)
+                    .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
             if(response.code()==200){
-                JSONArray resultArray = new JSONArray(response.body().string());
-                response.close();
+                String stringResult = response.body().string();
+                JSONArray resultArray = new JSONArray(stringResult);
                 return resultArray;
             } else if (response.code() == 401){
                 response.close();
@@ -178,6 +155,25 @@ public class RequestHelper {
                 .build();
 
         return oauth.signRequest(request);
+    }
+
+    private Request getRequest(String url){
+        return new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+    }
+
+    private OkHttpClient getHttpClient(String url){
+        int cacheSize = 150 * 1024 * 1024; // 150MB
+        String path = "C:\\okhttpCache";
+        File file = new File(path);
+        return new OkHttpClient.Builder()
+                .addNetworkInterceptor(new CacheInterceptor(this.getCacheTimeoutFromUrl(url)))
+                .cache(new Cache(file, cacheSize))
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .build();
     }
 
     private int getCacheTimeoutFromUrl(String url){

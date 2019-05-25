@@ -25,6 +25,8 @@ public class URLHelper {
     private final String USER_ID = "user_id";
     private final String LOOKUP_JSON = "/lookup.json?";
     private final String USER_TIMELINE = "/user_timeline.json?";
+    private final String TRIM_USER = "trim_user=true";
+    private final String EXCLUDE_RTS = "include_rts=false";
     private final int maxCount = 200;
     private int retweeterCount = 0;
     private int followersCount = 0;
@@ -356,6 +358,8 @@ public class URLHelper {
                 .append(userName)
                 .append("&"+COUNT+"=")
                 .append(count)
+                .append("&"+TRIM_USER)
+                .append("&"+EXCLUDE_RTS)
                 .toString();
     }
 
@@ -371,6 +375,8 @@ public class URLHelper {
                 .append(userId)
                 .append("&"+COUNT+"=")
                 .append(count)
+                .append("&"+TRIM_USER)
+                .append("&"+EXCLUDE_RTS)
                 .toString();
     }
 

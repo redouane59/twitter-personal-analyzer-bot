@@ -31,7 +31,7 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testGetFollowingsUserByName() {
-        List<User> followings = twitterBot.getFollowingsUserList("LaGhostquitweet", false);
+        List<User> followings = twitterBot.getFollowingsUserList("LaGhostquitweet");
         Assert.assertTrue(followings.size()>360);
     }
 
@@ -73,7 +73,7 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testGetFollowersUsersById() {
-        List<User> followers = twitterBot.getFollowerUsers(882266619115864066L, false);
+        List<User> followers = twitterBot.getFollowerUsers(882266619115864066L);
         Assert.assertTrue(followers.size()>420);
     }
 
@@ -147,7 +147,8 @@ public class AbstractTwitterBotTest {
     public void testGetUserInfoLang() {
         long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
-        Assert.assertEquals("en",user.getLang());
+        user.addLanguageFromLastTweet(twitterBot.getUserLastTweet(userId));
+        Assert.assertEquals("fr",user.getLang());
     }
 
     @Test

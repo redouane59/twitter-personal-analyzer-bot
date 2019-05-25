@@ -28,6 +28,7 @@ public class UserScoringEngine {
 
     private int getUserScore(User user){
         this.buildScoringParameters(user);
+        System.out.print(user.getUserName());
         return this.computeScore();
     }
 
@@ -36,7 +37,6 @@ public class UserScoringEngine {
         this.parameters.add(new ScoringParameter(Criterion.NB_FOLLOWERS, user.getFollowersCount()));
         this.parameters.add(new ScoringParameter(Criterion.NB_FOLLOWINGS, user.getFollowingCount()));
         this.parameters.add(new ScoringParameter(Criterion.RATIO, user.getFollowersRatio()));
-        this.parameters.add(new ScoringParameter(Criterion.LANGUAGE, user.getLang()));
         this.parameters.add(new ScoringParameter(Criterion.LAST_UPDATE, user.getLastUpdate()));
         this.parameters.add(new ScoringParameter(Criterion.DESCRIPTION, user.getDescription()));
         this.parameters.add(new ScoringParameter(Criterion.LOCATION, user.getLocation()));
@@ -57,9 +57,6 @@ public class UserScoringEngine {
                     case RATIO:
                         score += getRatioScore((double) parameter.getValue());
                         break;
-                    case LANGUAGE:
-                        score += getLangScore(parameter.getValue().toString());
-                        break;
                     case LAST_UPDATE:
                         score += getLastUpdateScore((Date) parameter.getValue());
                         break;
@@ -72,6 +69,7 @@ public class UserScoringEngine {
                 }
             }
         }
+        System.out.println(" : " + score +"/"+limit);
         return score;
     }
 
@@ -112,20 +110,6 @@ public class UserScoringEngine {
             }
         }
         return 0;
-    }
-
-    private int getLangScore(String lang){
-        int maxPoints = Criterion.LANGUAGE.getMaxPoints();
-        switch (lang){
-            case ScoringConstant.LANGUAGE1:
-                return maxPoints;
-            case ScoringConstant.LANGUAGE2:
-                return maxPoints/4; // @todo in a config?
-            case ScoringConstant.LANGUAGE3:
-                return maxPoints/8;
-            default:
-                return 0;
-        }
     }
 
     // @todo

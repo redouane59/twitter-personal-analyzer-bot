@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.scoring;
 
+// @todo external Json ?
 public class ScoringConstant {
 
     public static final int MIN_NB_FOLLOWERS = 100;

@@ -19,12 +19,11 @@ public class Main {
 
     private static TwitterBotByInfluencers twitterBot = new TwitterBotByInfluencers();
     private static String tweetName = "RedTheOne";
-    private static GoogleSheetHelper helper = new GoogleSheetHelper();
 
     public static void main(String[] args) throws IOException {
 
-   //     twitterBot.checkNotFollowBack(tweetName, true, true, yesterday());
-        twitterBot.getPotentialFollowers(tweetName, 350, true, true);
+        twitterBot.checkNotFollowBack(tweetName, true, true, yesterday());
+    //    twitterBot.getPotentialFollowers(tweetName, 350, true, true);
     }
 
     private static Date yesterday() {

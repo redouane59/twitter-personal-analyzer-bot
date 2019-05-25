@@ -17,7 +17,7 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResult){
-        List<User> ownerFollowers = this.getFollowerUsers(ownerId, false); // criticity here (15/15min)
+        List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         Collections.shuffle(ownerFollowers);
 

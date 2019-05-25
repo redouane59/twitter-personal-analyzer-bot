@@ -17,6 +17,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
+    private String language = new ScoringConstant().getLanguage();
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
@@ -52,10 +53,10 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
-                    potentialFollower.addLanguageFromLastTweet(this.getUserLastTweet(potentialFollower.getId()));
+                    potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2));
                     if (potentialFollower.shouldBeFollowed()) {
-                        potentialFollower.addLanguageFromLastTweet(this.getUserLastTweet(potentialFollower.getId())); // really slow
-                        if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(ScoringConstant.LANGUAGE1)){
+                        potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2)); // really slow
+                        if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(language)){
                             if (follow) {
                                 boolean result = this.follow(potentialFollower.getId());
                                 if (result) {
@@ -91,8 +92,8 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         while(i< followers.size() && followersInfluencers.size() < count){
             user = followers.get(i);
             if(user.isInfluencer()){
-                user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
-                if(user.getLang()!=null && user.getLang().equals(ScoringConstant.LANGUAGE1)){
+                user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
+                if(user.getLang()!=null && user.getLang().equals(language)){
                     followersInfluencers.add(user);
                 }
             }

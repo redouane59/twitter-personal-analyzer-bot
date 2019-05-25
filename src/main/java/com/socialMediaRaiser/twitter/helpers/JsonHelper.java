@@ -147,25 +147,28 @@ public class JsonHelper {
         }
     }
 
-    public Tweet jsonResponseToTweet(JSONObject jsonObject) {
-
-        if(jsonObject!=null){
-            Long id = Long.valueOf(jsonObject.get(ID).toString());
-            int retweetsCount = (int)jsonObject.get(RETWEET_COUNT);
-            int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
-            String text = jsonObject.get(TEXT).toString();
-            String lang = jsonObject.get(LANG).toString();
-            String created_at = jsonObject.get(CREATED_AT).toString();
-            Tweet tweet = Tweet.builder()
-                    .id(id)
-                    .retweet_count(retweetsCount)
-                    .favorite_count(favourites_count)
-                    .text(text)
-                    .lang(lang)
-                    .created_at(getTwitterDate(created_at))
-                    .build();
-            return tweet;
+    public List<Tweet> jsonResponseToTweetList(JSONArray jsonArray) {
+        List<Tweet> tweets = new ArrayList<>();
+        if(jsonArray!=null){
+            for(Object o : jsonArray){
+                JSONObject jsonObject = (JSONObject)o;
+                Long id = Long.valueOf(jsonObject.get(ID).toString());
+                int retweetsCount = (int)jsonObject.get(RETWEET_COUNT);
+                int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
+                String text = jsonObject.get(TEXT).toString();
+                String lang = jsonObject.get(LANG).toString();
+                String created_at = jsonObject.get(CREATED_AT).toString();
+                Tweet tweet = Tweet.builder()
+                        .id(id)
+                        .retweet_count(retweetsCount)
+                        .favorite_count(favourites_count)
+                        .text(text)
+                        .lang(lang)
+                        .created_at(getTwitterDate(created_at))
+                        .build();
+                tweets.add(tweet);
+            }
         }
-        return null;
+        return tweets;
     }
 }

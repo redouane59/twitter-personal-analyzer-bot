@@ -73,13 +73,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 break;
             }
             List<User> users = this.getJsonHelper().jsonUserArrayToList(response.get(USERS));
-            /*if(additionnalInfo){
-                for(User user : users){
-                    if (user.shouldBeStudied()) {
-                        user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
-                    }
-                }
-            } */
             result.addAll(users);
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
@@ -298,7 +291,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
             User user = this.getJsonHelper().jsonResponseToUser(response);
-            user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
+            user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
             return user;
         } else{
             System.err.println("user " + userId + " not found !!");
@@ -312,7 +305,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
             User user = this.getJsonHelper().jsonResponseToUser(response);
-            user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
+            user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
             return user;
         } else{
             return null;
@@ -325,7 +318,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         if(response!=null){
             List<User> users = this.getJsonHelper().jsonUserArrayToList(response);
             for(User user : users){
-                user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
+                user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
             }
             return users;
         } else{
@@ -339,7 +332,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         if(response!=null){
             List<User> users = this.getJsonHelper().jsonUserArrayToList(response);
             for(User user : users){
-                user.addLanguageFromLastTweet(this.getUserLastTweet(user.getId()));
+                user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
             }
             return users;
         } else{
@@ -358,22 +351,20 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
     }
 
-    public Tweet getUserLastTweet(Long userId){
-        String url = this.getUrlHelper().getUserTweetsUrl(userId, 1);
+    public List<Tweet> getUserLastTweets(Long userId, int count){
+        String url = this.getUrlHelper().getUserTweetsUrl(userId, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null && response.length()>0){
-            JSONObject lastTweet = (JSONObject)response.get(0);
-            return this.getJsonHelper().jsonResponseToTweet(lastTweet);
+            return this.getJsonHelper().jsonResponseToTweetList(response);
         }
         return null;
     }
 
-    public Tweet getUserLastTweet(String userName){
-        String url = this.getUrlHelper().getUserTweetsUrl(userName, 1);
+    public List<Tweet> getUserLastTweets(String userName, int count){
+        String url = this.getUrlHelper().getUserTweetsUrl(userName, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null && response.length()>0){
-            JSONObject lastTweet = (JSONObject)response.get(0);
-            return this.getJsonHelper().jsonResponseToTweet(lastTweet);
+            return this.getJsonHelper().jsonResponseToTweetList(response);
         }
         return null;
     }

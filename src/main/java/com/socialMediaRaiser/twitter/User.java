@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,6 +26,7 @@ public class User extends AbstractUser {
     private Date lastUpdate;
     private String location;
     private UserScoringEngine scoringEngine = new UserScoringEngine(100); // @todo parameter somewhere ?
+    private ScoringConstant scoringConstant = new ScoringConstant(); // @todo to remove
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
@@ -59,9 +61,9 @@ public class User extends AbstractUser {
 
     public boolean shouldBeTakenForItsFollowers(){
 
-        if(this.getFollowersCount()> ScoringConstant.MIN_NB_FOLLOWERS
-                && this.getFollowersRatio()> ScoringConstant.MIN_RATIO
-                && this.lang.equals(ScoringConstant.LANGUAGE1)){
+        if(this.getFollowersCount()> scoringConstant.getMinNbFollowers()
+                && this.getFollowersRatio()> scoringConstant.getMinRatio()
+                && this.lang.equals(scoringConstant.getLanguage())){
             return true;
         } else{
             return false;
@@ -71,7 +73,7 @@ public class User extends AbstractUser {
     public boolean isInfluencer(){
         if(this.getFollowersRatio()> ScoringConstant.INFLUENCER_MIN_RATIO
                 && this.getFollowersCount()> ScoringConstant.INFLUENCER_MIN_NB_FOLLOWERS
-                /*&& this.lang.equals(ScoringConstant.LANGUAGE1)*/){
+                /*&& this.lang.equals(ScoringConstant.LANGUAGE)*/){
             return true;
         } else{
             return false;
@@ -90,9 +92,12 @@ public class User extends AbstractUser {
         return (dateOfFollow.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
     }
 
-    public void addLanguageFromLastTweet(Tweet userLastTweet){
-        if(userLastTweet!=null) {
-            this.setLang(userLastTweet.getLang());
+    public void addLanguageFromLastTweet(List<Tweet> userLastTweets){
+        for(Tweet tweet : userLastTweets){
+            if(!tweet.getLang().equals("und")){
+                this.setLang(tweet.getLang());
+                break;
+            }
         }
     }
 }

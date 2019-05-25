@@ -1,0 +1,12 @@
+{
+  "minNbFollowers":100,
+  "maxNbFollowers":10000,
+  "minNbFollowings":1,
+  "maxNbFollowings":10000,
+  "minRatio":1,
+  "maxRatio":4,
+  "language":"fr",
+  "maxDaysSinceLastTweet":15,
+  "description":"[]",
+  "location":"[]"
+}

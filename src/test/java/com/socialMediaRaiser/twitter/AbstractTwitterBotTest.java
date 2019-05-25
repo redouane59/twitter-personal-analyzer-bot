@@ -1,6 +1,7 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.RelationType;
+import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
@@ -147,7 +148,7 @@ public class AbstractTwitterBotTest {
     public void testGetUserInfoLang() {
         long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
-        user.addLanguageFromLastTweet(twitterBot.getUserLastTweet(userId));
+        user.addLanguageFromLastTweet(twitterBot.getUserLastTweets(userId,2));
         Assert.assertEquals("fr",user.getLang());
     }
 
@@ -352,14 +353,22 @@ public class AbstractTwitterBotTest {
     @Test
     public void testGetLastTweetByUserName(){
         String userName = "RedTheOne";
-        Tweet response = twitterBot.getUserLastTweet(userName);
-        Assert.assertEquals(response.getLang(), "fr");
+        List<Tweet> response = twitterBot.getUserLastTweets(userName,2 );
+        Assert.assertTrue(response.get(0).getLang().equals("fr")
+        || response.get(1).getLang().equals("fr"));
     }
 
     @Test
     public void testGetLastTweetByUserId(){
         Long userId = 92073489L;
-        Tweet response = twitterBot.getUserLastTweet(userId);
-        Assert.assertEquals(response.getLang(), "fr");
+        List<Tweet> response = twitterBot.getUserLastTweets(userId, 2);
+        Assert.assertTrue(response.get(0).getLang().equals("fr")
+                || response.get(1).getLang().equals("fr"));
+    }
+
+    @Test
+    public void testLoadFollowConfiguration(){
+        ScoringConstant scoringConstant = new ScoringConstant();
+        Assert.assertNotEquals(0,scoringConstant.getMinNbFollowers());
     }
 }

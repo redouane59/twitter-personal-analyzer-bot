@@ -12,6 +12,7 @@ public class UserScoringEngine {
 
     private int limit;
     private List<ScoringParameter> parameters = new ArrayList<>();
+    private ScoringConstant scoringConstant = new ScoringConstant();
 
     public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
@@ -75,8 +76,8 @@ public class UserScoringEngine {
 
     private int getNbFollowersScore(int nbFollowers){
         int maxPoints = Criterion.NB_FOLLOWERS.getMaxPoints();
-        if(nbFollowers> ScoringConstant.MIN_NB_FOLLOWERS
-                && nbFollowers< ScoringConstant.MAX_NB_FOLLOWERS){
+        if(nbFollowers> scoringConstant.getMinNbFollowers()
+                && nbFollowers< scoringConstant.getMaxNbFollowers()){
             return maxPoints;
         }
         return 0;
@@ -84,8 +85,8 @@ public class UserScoringEngine {
 
     private int getNbFollowingsScore(int nbFollowings){
         int maxPoints = Criterion.NB_FOLLOWINGS.getMaxPoints();
-        if(nbFollowings> ScoringConstant.MIN_NB_FOLLOWINGS
-                && nbFollowings< ScoringConstant.MAX_NB_FOLLOWINGS){
+        if(nbFollowings> scoringConstant.getMinNbFollowings()
+                && nbFollowings< scoringConstant.getMaxNbFollowings()){
             return maxPoints;
         }
         return 0;
@@ -93,8 +94,8 @@ public class UserScoringEngine {
 
     private int getRatioScore(double ratio){
         int maxPoints = Criterion.RATIO.getMaxPoints();
-        if(ratio> ScoringConstant.MIN_RATIO
-                && ratio< ScoringConstant.MAX_RATIO){
+        if(ratio> scoringConstant.getMinRatio()
+                && ratio< scoringConstant.getMaxRatio()){
             return maxPoints;
         }
         return 0;
@@ -105,7 +106,7 @@ public class UserScoringEngine {
         Date now = new Date();
         if(lastUpdate!=null){
             long daysSinceLastUpdate = (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
-            if(daysSinceLastUpdate < ScoringConstant.MAX_DAYS_SINCE_LAST_TWEET) {
+            if(daysSinceLastUpdate < scoringConstant.getMaxDaysSinceLastTweet()) {
                 return maxPoints;
             }
         }

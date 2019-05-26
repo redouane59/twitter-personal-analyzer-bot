@@ -1,6 +1,10 @@
 package com.socialMediaRaiser.twitter;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.socialMediaRaiser.AbstractUser;
+import com.socialMediaRaiser.twitter.helpers.JsonHelper;
 import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
@@ -25,8 +29,8 @@ public class User extends AbstractUser {
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
-    private UserScoringEngine scoringEngine = new UserScoringEngine(100); // @todo parameter somewhere ?
-    private ScoringConstant scoringConstant = new ScoringConstant(); // @todo to remove
+    private ScoringConstant scoringConstant = new ScoringConstant();
+    private UserScoringEngine scoringEngine = new UserScoringEngine(scoringConstant.getMinimumPercentMatch());
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
@@ -93,10 +97,14 @@ public class User extends AbstractUser {
     }
 
     public void addLanguageFromLastTweet(List<Tweet> userLastTweets){
-        for(Tweet tweet : userLastTweets){
-            if(!tweet.getLang().equals("und")){
-                this.setLang(tweet.getLang());
-                break;
+        if(userLastTweets!=null){
+            for(Tweet tweet : userLastTweets){
+                if(!tweet.getLang().equals("und")){
+                    this.setLang(tweet.getLang());
+                    if(this.lang.equals(scoringConstant.getLanguage())){
+                        break;
+                    }
+                }
             }
         }
     }

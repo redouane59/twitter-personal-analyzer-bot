@@ -27,7 +27,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         int nbFollowersMaxToWatch = 20;
         int minOccurence = 2;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId);
-        List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers, 40);
+        List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers, 100);
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
@@ -53,7 +53,6 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
-                    potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2));
                     if (potentialFollower.shouldBeFollowed()) {
                         potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2)); // really slow
                         if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(language)){

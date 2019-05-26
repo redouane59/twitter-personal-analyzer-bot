@@ -8,5 +8,7 @@
   "language":"fr",
   "maxDaysSinceLastTweet":15,
   "description":"[]",
-  "location":"[]"
+  "location":"[]",
+  "minimumPercentMatch":100,
+  "key_words": []
 }

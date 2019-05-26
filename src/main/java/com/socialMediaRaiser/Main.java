@@ -23,7 +23,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         twitterBot.checkNotFollowBack(tweetName, true, true, yesterday());
-    //    twitterBot.getPotentialFollowers(tweetName, 350, true, true);
+      //  twitterBot.getPotentialFollowers(tweetName, 350, true, true);
     }
 
     private static Date yesterday() {

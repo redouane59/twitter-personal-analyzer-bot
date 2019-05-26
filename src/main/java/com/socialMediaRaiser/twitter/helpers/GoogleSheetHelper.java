@@ -104,29 +104,6 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    // @todo add date
-    public void updateFollowBackInformation(Map<Long, Boolean> result){
-        //String followedBackColumn = tabName+"!L";
-        for(Map.Entry<Long, Boolean> entry : result.entrySet()) {
-            Long userId = entry.getKey();
-            String followedBack = String.valueOf(entry.getValue()).toUpperCase();
-            System.out.println("updating " + userId + " -> " + followedBack + " ..."); // @todo call other function
-            int row = getRowOfUser(userId);
-
-            ValueRange requestBody = new ValueRange()
-                    .setValues(Arrays.asList(Arrays.asList(followedBack)));
-
-            try {
-                Sheets.Spreadsheets.Values.Update request = sheetsService.spreadsheets().values()
-                        .update(SPREADSHEET_ID, followedBackColumn+row, requestBody);
-                request.setValueInputOption("USER_ENTERED"); // change to INPUT_VALUE_OPTION_UNSPECIFIED ?
-                request.execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public void updateFollowBackInformation(Long userId, Boolean result) {
         String followedBack = String.valueOf(result).toUpperCase();
         System.out.print("updating " + userId + " -> " + followedBack + " ...");

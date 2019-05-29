@@ -6,12 +6,8 @@ import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.User;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 public class GoogleSheetHelper extends AbstractIOHelper {
@@ -82,7 +78,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         String.valueOf(user.getId()),
                         user.getUserName(),
                         user.getFollowersCount(),
-                        user.getFollowingCount(),
+                        user.getFollowingsCount(),
                         user.getStatusesCount(),
                         user.getFavouritesCount(),
                         user.getDescription().

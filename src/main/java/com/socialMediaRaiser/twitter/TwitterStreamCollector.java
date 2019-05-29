@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.socialMediaRaiser.twitter.constants.SignatureConstants;
+import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
+import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -15,14 +17,16 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TwitterStreamCollector {
-    static int QUEUE_SIZE = 100;
+    private int QUEUE_SIZE = 100;
+    private TwitterBotByInfluencers bot = new TwitterBotByInfluencers();
+    private FollowConfiguration followConfiguration = new FollowConfiguration();
+    List<Long> ownerFollowers;
 
     public void collect() throws IOException, InterruptedException {
 
@@ -30,30 +34,16 @@ public class TwitterStreamCollector {
         final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
         // add some track terms with this code:
-         endpoint.trackTerms(Lists.newArrayList("redtheone", "@redtheone", "lille"));
-         List<Long> followings = new ArrayList();
-         followings.add(92073489L);
-         endpoint.followings(followings);
-
-        ObjectMapper mapper = new ObjectMapper();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File from = new File(classLoader.getResource("twitter-client-secret.json").getFile());
-        TypeReference<HashMap<String,Object>> typeRef
-                = new TypeReference<>() {};
-
-        HashMap<String,Object> o = mapper.readValue(from, typeRef);
-
-        final Authentication auth = new OAuth1(
-                o.get(SignatureConstants.CONSUMER_KEY).toString(),
-                o.get(SignatureConstants.CONSUMER_SECRET).toString(),
-                o.get(SignatureConstants.ACCESS_TOKEN).toString(),
-                o.get(SignatureConstants.SECRET_TOKEN).toString());
+        endpoint.trackTerms(Lists.newArrayList("decathlon"));
+     //   List<Long> followings = new ArrayList();
+     //   followings.add(92073489L);
+     //   endpoint.followings(followings);
 
         // Create a new BasicClient. By default gzip is enabled.
         final Client client = new ClientBuilder()
                 .hosts(Constants.STREAM_HOST)
                 .endpoint(endpoint)
-                .authentication(auth)
+                .authentication(this.getAuthentication())
                 .processor(new StringDelimitedProcessor(queue))
                 .build();
 
@@ -62,20 +52,51 @@ public class TwitterStreamCollector {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+       // this.ownerFollowers = bot.getFollowerIds(92073489L);
+
         while (!client.isDone()) {
             if(queue.size()>0){
-                System.out.println("size : " + queue.size());
-                String s = queue.take();
-                try{
-                    Tweet tweet = objectMapper.readValue(s, Tweet.class);
-                    System.out.println(tweet);
-                } catch (Exception e){
-                    System.err.println(e);
-                }
+                this.doAction(objectMapper.readValue(queue.take(), Tweet.class));
             }
         }
-
         client.stop();
-        System.out.println("Client stopped, restart needed");
+    }
+
+    public void doAction(Tweet tweet){
+        System.out.println(tweet);
+
+        bot.likeTweet(tweet.getId());
+
+        User user = tweet.getUser();
+        if(user.shouldBeFollowed()){
+            user.addLanguageFromLastTweet(bot.getUserLastTweets(user.getId(), 2));
+            if(user.getLang()!=null && user.getLang().equals(followConfiguration.getLanguage())){
+                bot.follow(user.getId());
+                bot.getIOHelper().addNewFollowerLine(user);
+            }
+        }
+    }
+
+    private Authentication getAuthentication(){
+        // Authentication
+        ObjectMapper mapper = new ObjectMapper();
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        File from = new File(classLoader.getResource("twitter-client-secret.json").getFile());
+        TypeReference<HashMap<String,Object>> typeRef
+                = new TypeReference<>() {};
+
+        HashMap<String,Object> o = null;
+        try {
+            o = mapper.readValue(from, typeRef);
+            return new OAuth1(
+                    o.get(SignatureConstants.CONSUMER_KEY).toString(),
+                    o.get(SignatureConstants.CONSUMER_SECRET).toString(),
+                    o.get(SignatureConstants.ACCESS_TOKEN).toString(),
+                    o.get(SignatureConstants.SECRET_TOKEN).toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

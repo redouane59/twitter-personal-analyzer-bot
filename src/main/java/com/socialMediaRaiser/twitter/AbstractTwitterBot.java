@@ -189,8 +189,13 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     @Override
-    public List<User> getFollowingsUserList(String userName) {
+    public List<User> getFollowingsUsers(String userName) {
         return this.getUsersInfoByRelation(userName, RelationType.FOLLOWING);
+    }
+
+    @Override
+    public List<User> getFollowingsUsers(Long userId) {
+        return this.getUsersInfoByRelation(userId, RelationType.FOLLOWING);
     }
 
     @Override
@@ -367,6 +372,16 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             return this.getJsonHelper().jsonResponseToTweetList(response);
         }
         return null;
+    }
+
+    @Override
+    public void likeTweet(Long tweetId) {
+
+    }
+
+    @Override
+    public void retweetTweet(Long tweetId) {
+
     }
 
 }

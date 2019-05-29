@@ -1,17 +1,15 @@
 package com.socialMediaRaiser.twitter;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.socialMediaRaiser.AbstractUser;
-import com.socialMediaRaiser.twitter.helpers.JsonHelper;
-import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
+import com.socialMediaRaiser.twitter.scoring.Criterion;
+import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -29,8 +27,8 @@ public class User extends AbstractUser {
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
-    private ScoringConstant scoringConstant = new ScoringConstant();
-    private UserScoringEngine scoringEngine = new UserScoringEngine(scoringConstant.getMinimumPercentMatch());
+    private FollowConfiguration followConfiguration = new FollowConfiguration();
+    private UserScoringEngine scoringEngine = new UserScoringEngine(followConfiguration, followConfiguration.getMinimumPercentMatch());
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
@@ -65,9 +63,9 @@ public class User extends AbstractUser {
 
     public boolean shouldBeTakenForItsFollowers(){
 
-        if(this.getFollowersCount()> scoringConstant.getMinNbFollowers()
-                && this.getFollowersRatio()> scoringConstant.getMinRatio()
-                && this.lang.equals(scoringConstant.getLanguage())){
+        if(this.getFollowersCount()> followConfiguration.getMinNbFollowers()
+                && this.getFollowersRatio()> followConfiguration.getMinRatio()
+                && this.lang.equals(followConfiguration.getLanguage())){
             return true;
         } else{
             return false;
@@ -75,13 +73,23 @@ public class User extends AbstractUser {
     }
 
     public boolean isInfluencer(){
-        if(this.getFollowersRatio()> ScoringConstant.INFLUENCER_MIN_RATIO
-                && this.getFollowersCount()> ScoringConstant.INFLUENCER_MIN_NB_FOLLOWERS
-                /*&& this.lang.equals(ScoringConstant.LANGUAGE)*/){
+        String[] words = followConfiguration.getDescription();
+        String[] descriptionSplitted = this.getDescription().split(" ");
+        for(String s :descriptionSplitted){
+            if(Arrays.stream(words).anyMatch(s::contains)){
+                return true;
+            }
+        }
+        return false;
+
+       /* if(this.getFollowersRatio()> followConfiguration.getMinRatio()
+                && this.getFollowersCount()> followConfiguration.getInfluencerMinNbFollowers()
+                && this.description.contains(followConfiguration.getDescription()[0]) */
+                /*&& this.lang!=null && this.lang.equals(followConfiguration.getLanguage())*//*){
             return true;
         } else{
             return false;
-        }
+        } */
     }
 
     public void incrementCommonFollowers(){
@@ -101,7 +109,7 @@ public class User extends AbstractUser {
             for(Tweet tweet : userLastTweets){
                 if(!tweet.getLang().equals("und")){
                     this.setLang(tweet.getLang());
-                    if(this.lang.equals(scoringConstant.getLanguage())){
+                    if(this.lang.equals(followConfiguration.getLanguage())){
                         break;
                     }
                 }

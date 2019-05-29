@@ -9,8 +9,9 @@ public enum Criterion {
     NB_FOLLOWINGS(10, true),
     RATIO(10, true),
     LAST_UPDATE(10, true),
-    DESCRIPTION(10, false),
-    LOCATION(10, false);
+    DESCRIPTION(10, true),
+    LOCATION(10, false),
+    COMMON_FOLLOWERS(10, true);
 
     private int maxPoints;
     private boolean active;

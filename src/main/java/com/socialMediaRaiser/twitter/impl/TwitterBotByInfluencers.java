@@ -3,7 +3,7 @@ package com.socialMediaRaiser.twitter.impl;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
-import com.socialMediaRaiser.twitter.scoring.ScoringConstant;
+import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 import lombok.Data;
 
 import java.io.File;
@@ -17,21 +17,23 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
-    private String language = new ScoringConstant().getLanguage();
+    private String language = new FollowConfiguration().getLanguage();
+    private FollowConfiguration followConfiguration = new FollowConfiguration();
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship){
             count = maxFriendship;
         }
-        int nbFollowersMaxToWatch = 20;
-        int minOccurence = 2;
+        int minOccurence = 0;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId);
-        List<User> influencerFollowers = this.getInfluencersFromFollowers(ownerFollowers, 100);
+        //List<User> influencerFollowers = this.getInfluencersFromUsers(ownerFollowers, 150);
+        List<User> influencerFollowers = this.getInfluencersFromUsers(this.getFollowingsUsers(ownerId), 150);
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
-                this.getAllFollowerIdsFromUsersSortedByOccurence(ownerId, influencerFollowers, nbFollowersMaxToWatch, minOccurence);
+                this.getAllFollowerIdsFromUsersSortedByOccurence(ownerId, influencerFollowers,
+                        followConfiguration.getNbBaseFollowers(), minOccurence);
 
         Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
         int iteration = 0;
@@ -83,13 +85,13 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         return potentialFollowers;
     }
 
-    private List<User> getInfluencersFromFollowers(List<User> followers, int count){
+    private List<User> getInfluencersFromUsers(List<User> users, int count){
         List<User> followersInfluencers = new ArrayList<>();
         User user;
         int i=0;
         // building influencers list
-        while(i< followers.size() && followersInfluencers.size() < count){
-            user = followers.get(i);
+        while(i< users.size() && followersInfluencers.size() < count){
+            user = users.get(i);
             if(user.isInfluencer()){
                 user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
                 if(user.getLang()!=null && user.getLang().equals(language)){

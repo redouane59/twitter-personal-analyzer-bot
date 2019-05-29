@@ -1,7 +1,6 @@
 package com.socialMediaRaiser;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,10 +11,10 @@ public abstract class AbstractUser {
     private long id;
     private String userName;
     private int followersCount;
-    private int followingCount;
+    private int followingsCount;
 
     public double getFollowersRatio() {
-        return (double) this.followersCount / (double) this.followingCount;
+        return (double) this.followersCount / (double) this.followingsCount;
     }
 
     public abstract boolean shouldBeFollowed();

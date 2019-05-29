@@ -1,14 +1,18 @@
 {
-  "minNbFollowers":100,
+  "tweetName": "RedouaneBali",
+  "minNbFollowers":1,
   "maxNbFollowers":10000,
   "minNbFollowings":1,
   "maxNbFollowings":10000,
-  "minRatio":1,
-  "maxRatio":4,
+  "minRatio":0.5,
+  "maxRatio":2,
   "language":"fr",
   "maxDaysSinceLastTweet":15,
-  "description":"[]",
-  "location":"[]",
-  "minimumPercentMatch":100,
-  "key_words": []
+  "description":"[\"decathlon\",\"dev\",\"java\",\"tech\",\"data\", \"software\", \"network\", \"digital\",\"prog\"]",
+  "location":[],
+  "minimumPercentMatch":80,
+  "terms": [],
+  "nbBaseFollowers": 20,
+  "influencerMinNbFollowers": 0,
+  "influencerMinRatio": 0.5
 }

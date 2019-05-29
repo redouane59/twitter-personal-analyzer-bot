@@ -76,4 +76,5 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
     protected List<Long> getFollowedRecently() {
         return null;
     }
+
 }

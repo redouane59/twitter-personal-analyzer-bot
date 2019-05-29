@@ -34,7 +34,7 @@ public class IOHelper {
             writer.write(user.getId() + ";"
                     + user.getUserName() + ";"
                     + user.getFollowersCount() + ";"
-                    + user.getFollowingCount()  + ";"
+                    + user.getFollowingsCount()  + ";"
                     + user.getStatusesCount()  + ";"
                     + user.getFavouritesCount() + ";"
                     + user.getDescription().

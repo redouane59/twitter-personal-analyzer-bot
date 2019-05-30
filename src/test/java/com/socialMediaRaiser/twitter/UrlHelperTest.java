@@ -2,6 +2,7 @@ package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -12,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UrlHelperTest {
 
     private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
+
+    @BeforeAll
+    public static void init(){
+        FollowProperties.init();
+    }
 
     @Test
     public void testUrlRetweetrs(){

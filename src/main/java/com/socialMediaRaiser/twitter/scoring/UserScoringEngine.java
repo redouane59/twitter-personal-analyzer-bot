@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.scoring;
 
+import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
 import lombok.Getter;
 
@@ -13,10 +14,8 @@ public class UserScoringEngine {
 
     private int limit;
     private List<ScoringParameter> parameters = new ArrayList<>();
-    private FollowConfiguration followConfiguration;
 
-    public UserScoringEngine(FollowConfiguration followConfiguration, int minimumPercentMatch){
-        this.followConfiguration = followConfiguration;
+    public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
             this.limit = Criterion.getTotalMaxPoints()*minimumPercentMatch/100;
         } else{
@@ -92,8 +91,8 @@ public class UserScoringEngine {
 
     private int getNbFollowersScore(int nbFollowers){
         int maxPoints = Criterion.NB_FOLLOWERS.getMaxPoints();
-        if(nbFollowers> followConfiguration.getMinNbFollowers()
-                && nbFollowers< followConfiguration.getMaxNbFollowers()){
+        if(nbFollowers> FollowProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWERS)
+                && nbFollowers< FollowProperties.getIntProperty(FollowProperties.MAX_NB_FOLLOWERS)){
             return maxPoints;
         }
         return 0;
@@ -101,8 +100,8 @@ public class UserScoringEngine {
 
     private int getNbFollowingsScore(int nbFollowings){
         int maxPoints = Criterion.NB_FOLLOWINGS.getMaxPoints();
-        if(nbFollowings> followConfiguration.getMinNbFollowings()
-                && nbFollowings< followConfiguration.getMaxNbFollowings()){
+        if(nbFollowings> FollowProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWINGS)
+                && nbFollowings< FollowProperties.getIntProperty(FollowProperties.MAX_NB_FOLLOWINGS)){
             return maxPoints;
         }
         return 0;
@@ -110,8 +109,8 @@ public class UserScoringEngine {
 
     private int getRatioScore(double ratio){
         int maxPoints = Criterion.RATIO.getMaxPoints();
-        if(ratio> followConfiguration.getMinRatio()
-                && ratio< followConfiguration.getMaxRatio()){
+        if(ratio> FollowProperties.getFloatProperty(FollowProperties.MIN_RATIO)
+                && ratio< FollowProperties.getFloatProperty(FollowProperties.MAX_RATIO)){
             return maxPoints;
         }
         return 0;
@@ -122,7 +121,7 @@ public class UserScoringEngine {
         Date now = new Date();
         if(lastUpdate!=null){
             long daysSinceLastUpdate = (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
-            if(daysSinceLastUpdate < followConfiguration.getMaxDaysSinceLastTweet()) {
+            if(daysSinceLastUpdate < FollowProperties.getIntProperty(FollowProperties.MAX_DAYS_SINCE_LAST_TWEET)) {
                 return maxPoints;
             }
         }
@@ -131,7 +130,7 @@ public class UserScoringEngine {
 
     private int getDescriptionScore(String description){
         int maxPoints = Criterion.DESCRIPTION.getMaxPoints();
-        String[] words = followConfiguration.getDescription();
+        String[] words = FollowProperties.getStringArrayProperty(FollowProperties.DESCRIPTION);
         String[] descriptionSplitted = description.split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(words).anyMatch(s::equals)){

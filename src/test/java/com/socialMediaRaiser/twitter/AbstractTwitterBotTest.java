@@ -2,9 +2,10 @@ package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
+import com.socialMediaRaiser.twitter.helpers.IOHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
-import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AbstractTwitterBotTest {
 
     private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
-    FollowConfiguration followConfiguration = new FollowConfiguration();
+
+    @BeforeAll
+    public static void init(){
+        FollowProperties.init();
+    }
 
     @Test
     public void testGetFollowingIdsById() {
@@ -204,7 +209,7 @@ public class AbstractTwitterBotTest {
 
     @Test
     public void testShouldBeFollowedBadRatio(){
-        UserScoringEngine engine = new UserScoringEngine(followConfiguration,100);
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1);
         user.setFollowingsCount(1000);
@@ -215,7 +220,7 @@ public class AbstractTwitterBotTest {
     }
 
     public void testShouldBeFollowBadLastUpdate(){
-        UserScoringEngine engine = new UserScoringEngine(followConfiguration,100);
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingsCount(1000);
@@ -226,7 +231,7 @@ public class AbstractTwitterBotTest {
     }
 
     public void testShouldBeFollowBadLastUpdate2(){
-        UserScoringEngine engine = new UserScoringEngine(followConfiguration,100);
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingsCount(1000);
@@ -237,7 +242,7 @@ public class AbstractTwitterBotTest {
     }
 
     public void testShouldBeFollowedOk(){
-        UserScoringEngine engine = new UserScoringEngine(followConfiguration,100);
+        UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingsCount(1000);
@@ -318,20 +323,6 @@ public class AbstractTwitterBotTest {
         assertTrue(  diffDays < 15);
     }
 
-    @Test
-    public void testGetPreviouslyFollowedIdsAll(){
-        List<Long> result = twitterBot.getIOHelper().getPreviouslyFollowedIds();
-        assertTrue(result.size()>200);
-    }
-
-    @Test
-    public void testGetPreviouslyFollowedIdsByDate(){
-        Date date = new Date();
-        date.setDate(18);
-        date.setMonth(4);
-        List<Long> result = twitterBot.getIOHelper().getPreviouslyFollowedIds(true, true, date);
-        assertTrue(result.size()>250);
-    }
 
     @Test
     public void testUserDiffDate0(){
@@ -370,16 +361,14 @@ public class AbstractTwitterBotTest {
     }
 
     @Test
-    public void testLoadFollowConfiguration(){
-        FollowConfiguration followConfiguration = new FollowConfiguration();
-        assertNotEquals(0, followConfiguration.getMinNbFollowers());
-    }
-
-
-    @Test
     @Disabled
     public void testStreaming() throws IOException, InterruptedException {
         TwitterStreamCollector collector = new TwitterStreamCollector();
         collector.collect();
+    }
+
+    @Test
+    public void testProperties() throws IOException {
+        FollowProperties p = new FollowProperties();
     }
 }

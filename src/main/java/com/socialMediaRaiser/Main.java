@@ -1,7 +1,7 @@
 package com.socialMediaRaiser;
 
+import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
-import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 
 import java.util.*;
 
@@ -11,9 +11,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        FollowConfiguration followConfiguration = new FollowConfiguration();
-      //  twitterBot.checkNotFollowBack(tweetName, true, true, yesterday());
-        twitterBot.getPotentialFollowers(followConfiguration.getTweetName(), 50, true, true);
+        FollowProperties.init();
+        //  twitterBot.checkNotFollowBack(tweetName, true, true, yesterday());
+        twitterBot.getPotentialFollowers(FollowProperties.getStringProperty(FollowProperties.TWEET_NAME), 20, true, true);
     }
 
     private static Date yesterday() {

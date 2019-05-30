@@ -1,8 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.AbstractUser;
-import com.socialMediaRaiser.twitter.scoring.Criterion;
-import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,8 +25,7 @@ public class User extends AbstractUser {
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
-    private FollowConfiguration followConfiguration = new FollowConfiguration();
-    private UserScoringEngine scoringEngine = new UserScoringEngine(followConfiguration, followConfiguration.getMinimumPercentMatch());
+    private UserScoringEngine scoringEngine = new UserScoringEngine(FollowProperties.getIntProperty(FollowProperties.MIN_PERCENT_MATCH));
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
@@ -63,9 +60,9 @@ public class User extends AbstractUser {
 
     public boolean shouldBeTakenForItsFollowers(){
 
-        if(this.getFollowersCount()> followConfiguration.getMinNbFollowers()
-                && this.getFollowersRatio()> followConfiguration.getMinRatio()
-                && this.lang.equals(followConfiguration.getLanguage())){
+        if(this.getFollowersCount()> FollowProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWERS)
+                && this.getFollowersRatio()> FollowProperties.getFloatProperty(FollowProperties.MIN_RATIO)
+                && this.lang.equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
             return true;
         } else{
             return false;
@@ -73,7 +70,7 @@ public class User extends AbstractUser {
     }
 
     public boolean isInfluencer(){
-        String[] words = followConfiguration.getDescription();
+        String[] words = FollowProperties.getStringArrayProperty(FollowProperties.DESCRIPTION);
         String[] descriptionSplitted = this.getDescription().split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(words).anyMatch(s::contains)){
@@ -109,7 +106,7 @@ public class User extends AbstractUser {
             for(Tweet tweet : userLastTweets){
                 if(!tweet.getLang().equals("und")){
                     this.setLang(tweet.getLang());
-                    if(this.lang.equals(followConfiguration.getLanguage())){
+                    if(this.lang.equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
                         break;
                     }
                 }

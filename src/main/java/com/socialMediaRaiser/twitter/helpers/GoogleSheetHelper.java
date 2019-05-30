@@ -3,6 +3,7 @@ package com.socialMediaRaiser.twitter.helpers;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
 import com.socialMediaRaiser.AbstractUser;
+import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
 
 import java.io.IOException;
@@ -11,12 +12,17 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class GoogleSheetHelper extends AbstractIOHelper {
-    private String SPREADSHEET_ID = "1rpTWqHvBFaxdHcbnHmry2quQTKhPVJ-dA2n_wep0hrs";
     private Sheets sheetsService;
-    private final String tabName = "V2";
-    private String followedBackColumn = tabName+"!L";
-
+    private String followedBackColumn;
+    private String sheetId;
+    private String tabName;
+    private String resultColumn;
     public GoogleSheetHelper(){
+        FollowProperties.init();
+        this.sheetId = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_IT);
+        this.tabName = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_TABNAME);
+        this.resultColumn = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_RESULT_COLUMN);
+        this.followedBackColumn = this.tabName+"!"+FollowProperties.getStringProperty(FollowProperties.IO_SHEET_RESULT_COLUMN);
         try {
             this.sheetsService = SheetsServiceUtil.getSheetsService();
         } catch(Exception e){
@@ -26,13 +32,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
 
     public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date) {
         String startLine = "A2";
-        String endLine = "L";
-        int followBackResultIndex = 11; // dirty ?
-        int dateOfFollowIndex = 10; // dirty ?
-        List<String> ranges = Arrays.asList(tabName+"!"+startLine+":"+endLine);
+        int followBackResultIndex = resultColumn.toLowerCase().toCharArray()[0] - 'a';
+        List<String> ranges = Arrays.asList(this.tabName +"!"+startLine+":"+resultColumn);
         try{
             BatchGetValuesResponse readResult = sheetsService.spreadsheets().values()
-                    .batchGet(SPREADSHEET_ID)
+                    .batchGet(this.sheetId)
                     .setRanges(ranges)
                     .execute();
             List<List<Object>> result = readResult.getValueRanges().get(0).getValues();
@@ -43,11 +47,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         || (valueArray.size()>followBackResultIndex && showFalse && String.valueOf(valueArray.get(followBackResultIndex)).toLowerCase().equals("false"))
                         || (valueArray.size()>followBackResultIndex && showTrue && String.valueOf(valueArray.get(followBackResultIndex)).toLowerCase().equals("true"))){
 
-                    DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                    Date followDate = formatter.parse( String.valueOf(valueArray.get(dateOfFollowIndex)));
+                    DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+                    Date followDate = formatter.parse( String.valueOf(valueArray.get(FollowProperties.getIntProperty(FollowProperties.IO_SHEET_FOLLOW_DATE_INDEX))));
 
                     int diffInDays = -1;
-                    if(date!=null && valueArray.size() > dateOfFollowIndex && date.getDate() == followDate.getDate()){
+                    if(date!=null && valueArray.size() > FollowProperties.getIntProperty(FollowProperties.IO_SHEET_FOLLOW_DATE_INDEX) && date.getDate() == followDate.getDate()){
                         diffInDays = (int) ((followDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
                     }
 
@@ -67,7 +71,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
 
     public void addNewFollowerLine(AbstractUser u){
         User user = (User)u;
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date followDate = user.getDateOfFollow();
         if(followDate==null){
             followDate = new Date();
@@ -92,7 +96,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                 )));
         try{
             Sheets.Spreadsheets.Values.Append request =
-                    sheetsService.spreadsheets().values().append(SPREADSHEET_ID, tabName+"!A1", body);
+                    sheetsService.spreadsheets().values().append(this.sheetId, this.tabName+"!A1", body);
             request.setValueInputOption("RAW");
             request.execute();
         } catch(Exception e){
@@ -109,7 +113,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                 .setValues(Arrays.asList(Arrays.asList(followedBack)));
         try {
             Sheets.Spreadsheets.Values.Update request = sheetsService.spreadsheets().values()
-                    .update(SPREADSHEET_ID, followedBackColumn+row, requestBody);
+                    .update(this.sheetId, followedBackColumn+row, requestBody);
             request.setValueInputOption("USER_ENTERED");
             request.execute();
         } catch (IOException e) {

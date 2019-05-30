@@ -14,11 +14,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.socialMediaRaiser.twitter.helpers.AbstractIOHelper.DATE_FORMAT;
+
 public class IOHelper {
 
     public void write(List<? extends AbstractUser> result) throws IOException {
         LocalDateTime now = LocalDateTime.now();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
                 + "Documents" + File.separatorChar
                 + "followed"

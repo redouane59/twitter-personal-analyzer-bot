@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.socialMediaRaiser.twitter.constants.SignatureConstants;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
-import com.socialMediaRaiser.twitter.scoring.FollowConfiguration;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -25,7 +24,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TwitterStreamCollector {
     private int QUEUE_SIZE = 100;
     private TwitterBotByInfluencers bot = new TwitterBotByInfluencers();
-    private FollowConfiguration followConfiguration = new FollowConfiguration();
     List<Long> ownerFollowers;
 
     public void collect() throws IOException, InterruptedException {
@@ -70,7 +68,7 @@ public class TwitterStreamCollector {
         User user = tweet.getUser();
         if(user.shouldBeFollowed()){
             user.addLanguageFromLastTweet(bot.getUserLastTweets(user.getId(), 2));
-            if(user.getLang()!=null && user.getLang().equals(followConfiguration.getLanguage())){
+            if(user.getLang()!=null && user.getLang().equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
                 bot.follow(user.getId());
                 bot.getIOHelper().addNewFollowerLine(user);
             }

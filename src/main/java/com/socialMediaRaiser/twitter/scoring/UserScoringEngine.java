@@ -81,12 +81,8 @@ public class UserScoringEngine {
 
     private int getCommonFollowersScore(int value) {
         int maxPoints = Criterion.COMMON_FOLLOWERS.getMaxPoints();
-        int result = value*3;
-        if(result>maxPoints){
-            return maxPoints;
-        } else{
-            return result;
-        }
+        int maxFollow = FollowProperties.getIntProperty(FollowProperties.NB_BASE_FOLLOWERS);
+        return maxPoints*value/maxFollow;
     }
 
     private int getNbFollowersScore(int nbFollowers){
@@ -133,7 +129,7 @@ public class UserScoringEngine {
         String[] words = FollowProperties.getStringArrayProperty(FollowProperties.DESCRIPTION);
         String[] descriptionSplitted = description.split(" ");
         for(String s :descriptionSplitted){
-            if(Arrays.stream(words).anyMatch(s::equals)){
+            if(Arrays.stream(words).anyMatch(s.toLowerCase()::contains)){
                 return maxPoints;
             }
         }

@@ -2,7 +2,8 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.socialMediaRaiser.twitter.constants.SignatureConstants;
+import com.socialMediaRaiser.twitter.signature.Oauth1SigningInterceptor;
+import com.socialMediaRaiser.twitter.signature.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.*;
@@ -15,6 +16,7 @@ import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -23,13 +25,14 @@ public class RequestHelper {
 
     private int sleepTime = 15;
 
+    // @todo to remove
     public JSONObject executeRequest(String url, RequestMethod method) {
         try {
             switch (method) {
                 case GET:
                     return executeGetRequest(url);
                 case POST:
-                    return executePostRequest(url);
+                    return executePostRequest(url, new HashMap<>());
                 default:
                     return null;
             }
@@ -66,18 +69,23 @@ public class RequestHelper {
         return null;
     }
 
-    private JSONObject executePostRequest(String url) {
-
-        RequestBody reqbody = RequestBody.create(null, new byte[0]);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .post(reqbody)
-                .build();
+    public JSONObject executePostRequest(String url, Map<String, String> parameters) {
 
         try {
-            OkHttpClient client = new OkHttpClient();
-            Response response = client.newCall(this.getSignedRequest(request, this.getNonce(), this.getTimestamp())).execute();
+            String json = new ObjectMapper().writeValueAsString(parameters);
+
+            RequestBody requestBody = RequestBody.create(null, json);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+
+            Request signedRequest = this.getSignedRequest(request, this.getNonce(), this.getTimestamp());
+
+            Response response = this.getHttpClient(url)
+                    .newCall(signedRequest).execute();
+
             if(response.code()!=200){
                 System.err.println("(POST) ! not 200 " + response.message() + " - " + response.code());
             }
@@ -120,7 +128,6 @@ public class RequestHelper {
         }
         return null;
     }
-
 
     private String getNonce(){
         SecureRandom secureRandom = new SecureRandom();

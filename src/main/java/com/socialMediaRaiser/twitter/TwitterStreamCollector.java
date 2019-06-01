@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.socialMediaRaiser.twitter.constants.SignatureConstants;
+import com.socialMediaRaiser.twitter.signature.SignatureConstants;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -24,6 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TwitterStreamCollector {
     private int QUEUE_SIZE = 100;
     private TwitterBotByInfluencers bot = new TwitterBotByInfluencers();
+
     List<Long> ownerFollowers;
 
     public void collect() throws IOException, InterruptedException {

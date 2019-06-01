@@ -18,7 +18,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     private String tabName;
     private String resultColumn;
     public GoogleSheetHelper(){
-        FollowProperties.init();
+        FollowProperties.load();
         this.sheetId = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_IT);
         this.tabName = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_TABNAME);
         this.resultColumn = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_RESULT_COLUMN);

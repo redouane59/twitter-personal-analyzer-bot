@@ -11,6 +11,7 @@ public interface ITwitterBot {
     List<User> getFollowingsUsers(Long userId);
     void likeTweet(Long tweetId);
     void retweetTweet(Long tweetId);
+    List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate);
 
 }
 

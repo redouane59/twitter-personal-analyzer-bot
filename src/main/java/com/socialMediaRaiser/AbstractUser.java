@@ -24,10 +24,7 @@ public abstract class AbstractUser {
     @Override
     public boolean equals(Object o) {
         AbstractUser otherUser = (AbstractUser) o;
-        if (otherUser.getId() == this.getId()) {
-            return true;
-        }
-        return false;
+        return otherUser.getId() == this.getId();
     }
 
     @Override

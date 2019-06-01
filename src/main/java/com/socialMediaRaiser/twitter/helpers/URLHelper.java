@@ -22,6 +22,10 @@ public class URLHelper {
     private final String STATUSES = "/statuses";
     private final String FRIENDSHIPS = "/friendships";
     private final String USERS = "/users";
+    private static final String TWEETS = "/tweets";
+    private static final String SEARCH = "/search";
+    private static final String THIRTY_DAYS = "/30day";
+    private static final String DEV_ENV_NAME_30DAYS = "/dev.json";
     private final String USER_ID = "user_id";
     private final String LOOKUP_JSON = "/lookup.json?";
     private final String USER_TIMELINE = "/user_timeline.json?";
@@ -380,6 +384,14 @@ public class URLHelper {
                 .toString();
     }
 
+    public String getSearchTweetsUrl() {
+        return new StringBuilder(ROOT_URL)
+                .append(TWEETS)
+                .append(SEARCH)
+                .append(THIRTY_DAYS)
+                .append(DEV_ENV_NAME_30DAYS)
+                .toString();
+    }
 
 
     public boolean canCallGetFollowers(){
@@ -417,4 +429,6 @@ public class URLHelper {
                 .append(userCount);
         System.out.println("current rates : " + s);
     }
+
+
 }

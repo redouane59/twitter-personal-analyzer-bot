@@ -12,7 +12,7 @@ public class PropertiesTest {
 
     @BeforeAll
     public static void init(){
-        FollowProperties.init();
+        FollowProperties.load();
     }
 
     @Test

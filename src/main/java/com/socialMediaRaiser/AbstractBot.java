@@ -22,8 +22,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         AbstractUser user = this.getUserFromUserName(userName);
         return this.getPotentialFollowers(user.getId(), count, follow, saveResults);
     }
-
-
+    
     protected LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
         int nbUnfollows = 0;

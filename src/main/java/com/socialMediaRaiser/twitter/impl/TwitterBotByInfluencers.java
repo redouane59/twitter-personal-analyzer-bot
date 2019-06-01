@@ -25,8 +25,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
         int minOccurence = 0;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId);
-        //List<User> influencerFollowers = this.getInfluencersFromUsers(ownerFollowers, 150);
-        List<User> influencerFollowers = this.getInfluencersFromUsers(this.getFollowingsUsers(ownerId), 150);
+        List<User> influencerFollowers = this.getInfluencersFromUsers(ownerFollowers, 150);
         Collections.shuffle(influencerFollowers);
 
         Map<Long, Long> sortedPotentialFollowersMap =

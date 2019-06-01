@@ -4,14 +4,14 @@ import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.*;
 import lombok.Data;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
@@ -30,7 +30,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final String SOURCE = "source";
     private final int MAX_GET_F_CALLS = 30;
 
-    public AbstractTwitterBot(){
+    protected AbstractTwitterBot(){
         super(new GoogleSheetHelper());
     }
 
@@ -126,8 +126,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getUsersInfoByRelation(url);
     }
 
-    // fin refactor
-
     @Override
     public List<Long> getFollowingIds(String userName) {
         Long cursor = -1L;
@@ -152,6 +150,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getUserIdsByRelation(userId, RelationType.FOLLOWER);
     }
 
+    @Override
     public List<Long> getFollowerIds(String userName)  {
         return this.getUserIdsByRelation(userName, RelationType.FOLLOWER);
     }
@@ -350,9 +349,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getRequestHelper().executeRequest(url, RequestMethod.GET);
     }
 
-    public void checkNotFollowBack(String tweetName, boolean unfollow, boolean writeInSheet, Date date) throws IOException {
+    public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date) throws IOException {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
-        User user = this.getUserFromUserName(tweetName);
+        User user = this.getUserFromUserName(FollowProperties.getStringProperty(FollowProperties.TWEET_NAME));
         this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
     }
 
@@ -384,4 +383,24 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     }
 
+    @Override
+    public List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate){ // @todo use date
+        if(count<10){
+            count = 10;
+            System.err.println("count minimum = 10");
+        }
+        String url = this.getUrlHelper().getSearchTweetsUrl();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("query",query);
+        parameters.put("maxResults",String.valueOf(count));
+        parameters.put("fromDate",fromDate);
+        parameters.put("toDate",toDate);
+
+        JSONObject response = this.getRequestHelper().executePostRequest(url,parameters);
+        JSONArray responseArray = (JSONArray)response.get("results");
+        if(response!=null && response.length()>0){
+            return this.getJsonHelper().jsonResponseToTweetList(responseArray);
+        }
+        return null;
+    }
 }

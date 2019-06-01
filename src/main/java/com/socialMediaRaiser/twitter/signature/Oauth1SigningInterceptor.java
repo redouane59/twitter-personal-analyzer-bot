@@ -1,4 +1,4 @@
-package com.socialMediaRaiser.twitter.helpers;
+package com.socialMediaRaiser.twitter.signature;
 
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
@@ -73,7 +73,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
             Buffer body = new Buffer();
             requestBody.writeTo(body);
 
-            while (!body.exhausted()) {
+     /*       while (!body.exhausted()) {
                 long keyEnd = body.indexOf((byte) '=');
                 if (keyEnd == -1) throw new IllegalStateException("Key with no parameterValue: " + body.readUtf8());
                 String key = body.readUtf8(keyEnd);
@@ -84,7 +84,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
                 if (valueEnd != -1) body.skip(1); // Ampersand.
 
                 parameters.put(key, value);
-            }
+            }*/
         }
 
         Buffer base = new Buffer();

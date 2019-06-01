@@ -14,7 +14,7 @@ public class JsonHelperTest {
 
     @BeforeAll
     public static void init(){
-        FollowProperties.init();
+        FollowProperties.load();
     }
 
     @Test

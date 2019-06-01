@@ -15,22 +15,22 @@ public class GoogleSheetHelperTest {
 
     @BeforeAll
     public static void init(){
-        FollowProperties.init();
+        FollowProperties.load();
     }
 
     @Test
     public void testGetPreviouslyFollowedIdsAll(){
         List<Long> result = googleSheetHelper.getPreviouslyFollowedIds();
-        assertTrue(result.size()>400);
+        assertTrue(result.size()>200);
     }
 
     @Test
     public void testGetPreviouslyFollowedIdsByDate(){
         Date date = new Date();
-        date.setDate(18);
-        date.setMonth(4);
+        date.setDate(30);
+        date.setMonth(04);
         List<Long> result = googleSheetHelper.getPreviouslyFollowedIds(true, true, date);
-        assertTrue(result.size()>250);
+        assertTrue(result.size()>50);
     }
 
 }

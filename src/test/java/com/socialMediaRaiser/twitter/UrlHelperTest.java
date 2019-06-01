@@ -16,7 +16,7 @@ public class UrlHelperTest {
 
     @BeforeAll
     public static void init(){
-        FollowProperties.init();
+        FollowProperties.load();
     }
 
     @Test
@@ -132,6 +132,13 @@ public class UrlHelperTest {
     public void testGetUserTweetUrlById(){
         assertEquals("https://api.twitter.com/1.1/statuses/user_timeline.json?user_id=12345&count=1&trim_user=true&include_rts=false",
                 twitterBot.getUrlHelper().getUserTweetsUrl(12345L,1));
+    }
+
+    @Test
+    public void testSearchTweetsUrl(){
+        //https://api.twitter.com/1.1/tweets/search/30day/DevImproveMyTwitter.json
+        assertEquals("https://api.twitter.com/1.1/tweets/search/30day/dev.json",
+                twitterBot.getUrlHelper().getSearchTweetsUrl());
     }
 
 

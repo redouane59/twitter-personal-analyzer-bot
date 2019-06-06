@@ -4,8 +4,6 @@ import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.*;
 import lombok.Data;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -351,7 +349,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date) throws IOException {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
-        User user = this.getUserFromUserName(FollowProperties.getStringProperty(FollowProperties.TWEET_NAME));
+        User user = this.getUserFromUserName(FollowProperties.TWEET_NAME);
         this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
     }
 
@@ -395,12 +393,12 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getSearchTweetsUrl();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("query",query);
-        parameters.put("maxResults","100");
+        parameters.put("maxResults",String.valueOf(count));
         parameters.put("fromDate",dateFormat.format(fromDate));
         parameters.put("toDate",dateFormat.format(toDate));
 
 
-        String next=null;
+        String next;
         List<Tweet> result = new ArrayList<>();
         int nbCalls = 1;
         do {
@@ -420,7 +418,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             parameters.put("next", next);
             nbCalls++;
         }
-        while (next!= null && nbCalls < MAX_GET_F_CALLS);
+        while (next!= null && nbCalls < MAX_GET_F_CALLS && result.size()<count);
         return result;
     }
 }

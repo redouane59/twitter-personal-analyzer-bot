@@ -3,8 +3,6 @@ package com.socialMediaRaiser.twitter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PropertiesTest {
@@ -17,7 +15,7 @@ public class PropertiesTest {
 
     @Test
     public void testStringProperty(){
-        assertTrue(followProperties.getStringProperty(FollowProperties.TWEET_NAME).length()>0);
+        assertTrue(FollowProperties.TWEET_NAME.length()>0);
     }
 
     @Test

@@ -10,11 +10,11 @@ import java.util.Properties;
 
 public class FollowProperties {
 
-    private static String fileName = "config.properties";
+    public final static String TWEET_NAME = "RedTheOne";
+    private static String fileName = TWEET_NAME +"/config.properties"; // @todo circular depedency otherwise
     @Setter @Getter
     private static Map<String, String> propertiesMap ;
 
-    public static String TWEET_NAME = "customer.tweetName";
     public static String MIN_NB_FOLLOWERS = "target.minNbFollowers";
     public static String MAX_NB_FOLLOWERS = "target.maxNbFollowers";
     public static String MIN_NB_FOLLOWINGS = "target.minNbFollowings";
@@ -42,7 +42,6 @@ public class FollowProperties {
             Properties prop = new Properties();
 
             // set the properties value
-            prop.setProperty(TWEET_NAME, "RedouaneBali");
             prop.setProperty(MIN_NB_FOLLOWERS, "1");
             prop.setProperty(MAX_NB_FOLLOWERS, "10000");
             prop.setProperty(MIN_NB_FOLLOWINGS, "1");
@@ -86,7 +85,6 @@ public class FollowProperties {
             // load a properties file
             prop.load(input);
 
-            propertiesMap.put(TWEET_NAME,prop.getProperty(TWEET_NAME));
             propertiesMap.put(MIN_NB_FOLLOWERS,prop.getProperty(MIN_NB_FOLLOWERS));
             propertiesMap.put(MAX_NB_FOLLOWERS,prop.getProperty(MAX_NB_FOLLOWERS));
             propertiesMap.put( MIN_NB_FOLLOWINGS, prop.getProperty(MIN_NB_FOLLOWINGS));

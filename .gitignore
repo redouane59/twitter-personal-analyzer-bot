@@ -3,7 +3,11 @@
 *.iml
 *.class
 src/main/resources/google-sheets-client-secret.json
+src/main/resources/RedouaneBali.json
+src/main/resources/RedTheOne.json
+src/main/resources/twitter-client-secret.json
 target/classes/google-sheets-client-secret.json
+src/main/resources/*
 target/
 */target/**
 */target/*

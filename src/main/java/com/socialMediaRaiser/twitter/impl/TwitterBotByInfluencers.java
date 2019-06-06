@@ -133,23 +133,4 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         System.out.println(sortedPotentialFollowersMap.size() + " followers found \n");
         return sortedPotentialFollowersMap;
     }
-
-    @Override
-    public List<Long> getFollowedRecently() {
-        List<Long> result = new ArrayList<>();
-        String filePath = System.getProperty("user.home") + File.separatorChar
-                + "Documents" + File.separatorChar
-                + "all_followed"
-                +".csv";
-        IOHelper ioHelper = new IOHelper();
-        try {
-            List<String[]> file = ioHelper.readData(filePath);
-            for(String[] s : file){
-                result.add(Long.valueOf(s[0]));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
 }

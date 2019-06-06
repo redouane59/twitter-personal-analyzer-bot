@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ITwitterBot {
@@ -11,7 +12,7 @@ public interface ITwitterBot {
     List<User> getFollowingsUsers(Long userId);
     void likeTweet(Long tweetId);
     void retweetTweet(Long tweetId);
-    List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate);
+    List<Tweet> searchForTweets(String query, int count, Date fromDate, Date toDate);
 
 }
 

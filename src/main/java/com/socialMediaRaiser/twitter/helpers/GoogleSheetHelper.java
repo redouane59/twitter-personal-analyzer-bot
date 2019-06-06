@@ -107,7 +107,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     public void updateFollowBackInformation(Long userId, Boolean result) {
         String followedBack = String.valueOf(result).toUpperCase();
         System.out.print("updating " + userId + " -> " + followedBack + " ...");
-        int row = getRowOfUser(userId);
+        int row = getRowOfUser(userId); // @todo can optimize with map<String,int> ?
 
         ValueRange requestBody = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(followedBack)));

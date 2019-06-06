@@ -11,6 +11,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
@@ -33,8 +35,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     protected AbstractTwitterBot(){
         super(new GoogleSheetHelper());
     }
-
-    protected abstract List<Long> getFollowedRecently();
 
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
     private List<Long> getUserIdsByRelation(String url){
@@ -383,8 +383,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     }
 
+    // @todo remove count
     @Override
-    public List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate){ // @todo use date
+    public List<Tweet> searchForTweets(String query, int count, Date fromDate, Date toDate){
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+
         if(count<10){
             count = 10;
             System.err.println("count minimum = 10");
@@ -392,15 +395,32 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getSearchTweetsUrl();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("query",query);
-        parameters.put("maxResults",String.valueOf(count));
-        parameters.put("fromDate",fromDate);
-        parameters.put("toDate",toDate);
+        parameters.put("maxResults","100");
+        parameters.put("fromDate",dateFormat.format(fromDate));
+        parameters.put("toDate",dateFormat.format(toDate));
 
-        JSONObject response = this.getRequestHelper().executePostRequest(url,parameters);
-        JSONArray responseArray = (JSONArray)response.get("results");
-        if(response!=null && response.length()>0){
-            return this.getJsonHelper().jsonResponseToTweetList(responseArray);
+
+        String next=null;
+        List<Tweet> result = new ArrayList<>();
+        int nbCalls = 1;
+        do {
+            JSONObject response = this.getRequestHelper().executePostRequest(url,parameters);
+            JSONArray responseArray = (JSONArray)response.get("results");
+
+            if(response!=null && response.length()>0){
+                result.addAll(this.getJsonHelper().jsonResponseToTweetList(responseArray));
+            } else{
+                System.err.println("response null or ids not found !");
+            }
+
+            if(!response.has("next")){
+                break;
+            }
+            next = response.get("next").toString(); // @todo constante
+            parameters.put("next", next);
+            nbCalls++;
         }
-        return null;
+        while (next!= null && nbCalls < MAX_GET_F_CALLS);
+        return result;
     }
 }

@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum Criterion {
 
-    NB_FOLLOWERS(10, true),
+    NB_FOLLOWERS(20, true),
     NB_FOLLOWINGS(10, true),
-    RATIO(10, true),
+    RATIO(20, true),
     LAST_UPDATE(10, true),
     DESCRIPTION(10, true),
     LOCATION(10, false),

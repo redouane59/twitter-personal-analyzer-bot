@@ -25,7 +25,7 @@ public class URLHelper {
     private static final String TWEETS = "/tweets";
     private static final String SEARCH = "/search";
     private static final String THIRTY_DAYS = "/30day";
-    private static final String DEV_ENV_NAME_30DAYS = "/dev.json";
+    private static final String DEV_ENV_NAME_30DAYS = "/dev.json"; // @todo config
     private final String USER_ID = "user_id";
     private final String LOOKUP_JSON = "/lookup.json?";
     private final String USER_TIMELINE = "/user_timeline.json?";
@@ -53,13 +53,11 @@ public class URLHelper {
 
     public String getFollowUrl(String relatedName) {
         this.followCount++;
-        // System.out.println("follows : " + followCount);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(CREATE_JSON)
                 .append(SCREEN_NAME+"=")
                 .append(relatedName)
-                //    .append("&follow=true")
                 .toString();
     }
 
@@ -75,7 +73,6 @@ public class URLHelper {
 
     public String getUnfollowUrl(String userName) {
         this.unfollowCount++;
-        //System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(DESTROY_JSON)
@@ -86,7 +83,6 @@ public class URLHelper {
 
     public String getUnfollowUrl(Long userId) {
         this.unfollowCount++;
-        // System.out.println("unfollows : " + unfollowCount + " / " + UNFOLLOW_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
                 .append(DESTROY_JSON)

@@ -80,7 +80,7 @@ public class TwitterStreamCollector {
         // Authentication
         ObjectMapper mapper = new ObjectMapper();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File from = new File(classLoader.getResource("twitter-client-secret.json").getFile());
+        File from = new File(classLoader.getResource(FollowProperties.getStringProperty(FollowProperties.TWEET_NAME)+".json").getFile());
         TypeReference<HashMap<String,Object>> typeRef
                 = new TypeReference<>() {};
 

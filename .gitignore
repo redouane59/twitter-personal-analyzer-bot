@@ -7,3 +7,5 @@ target/classes/google-sheets-client-secret.json
 target/
 */target/**
 */target/*
+target/classes/RedouaneBali.json
+target/classes/RedTheOne.json

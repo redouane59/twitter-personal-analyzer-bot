@@ -2,6 +2,7 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.signature.Oauth1SigningInterceptor;
 import com.socialMediaRaiser.twitter.signature.SignatureConstants;
 import lombok.Data;
@@ -146,7 +147,7 @@ public class RequestHelper {
 
         ObjectMapper mapper = new ObjectMapper();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File from = new File(classLoader.getResource("twitter-client-secret.json").getFile());
+        File from = new File(classLoader.getResource(FollowProperties.getStringProperty(FollowProperties.TWEET_NAME)+".json").getFile());
         TypeReference<HashMap<String,Object>> typeRef
                 = new TypeReference<>() {};
 

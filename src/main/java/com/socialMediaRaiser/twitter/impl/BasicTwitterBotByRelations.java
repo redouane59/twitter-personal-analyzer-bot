@@ -72,9 +72,4 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
         System.out.println("***********************************");
     }
 
-    @Override
-    protected List<Long> getFollowedRecently() {
-        return null;
-    }
-
 }

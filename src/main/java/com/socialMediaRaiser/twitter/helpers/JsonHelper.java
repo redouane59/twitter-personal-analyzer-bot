@@ -19,6 +19,7 @@ public class JsonHelper {
     private static final String STATUSES_COUNT = "statuses_count";
     private static final String CREATED_AT = "created_at";
     private final String SCREEN_NAME = "screen_name";
+    private final String USER = "user";
     private final String FOLLOWER_COUNT = "followers_count";
     private final String FRIENDS_COUNT = "friends_count";
     private final String FAVOURITES_COUNT = "favourites_count";
@@ -92,16 +93,11 @@ public class JsonHelper {
             if(jsonObject.has(STATUS)){
                 lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
             }
-        /*    String lang = jsonObject.get(LANG).toString(); // soon deprecated deprecated
-            if(lang==null && jsonObject.has(LANG)){
-                lang = ((JSONObject)jsonObject.get(STATUS)).get(LANG).toString();
-            }*/
             return User.builder()
                     .id(id)
                     .userName(screenName)
                     .followerCout(followersCount)
                     .followingCount(friendsCount)
-                 //   .lang(lang)
                     .statusesCount(statuses_count)
                     .dateOfCreation(getTwitterDate(created_at))
                     .description(description)
@@ -157,14 +153,22 @@ public class JsonHelper {
                 int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
                 String text = jsonObject.get(TEXT).toString();
                 String lang = jsonObject.get(LANG).toString();
-                String created_at = jsonObject.get(CREATED_AT).toString();
+                Date createdAtDate = getTwitterDate(jsonObject.get(CREATED_AT).toString());
+                User user = null;
+                try{
+                    user = jsonResponseToUser((JSONObject)jsonObject.get(USER));
+                    user.setLastUpdate(createdAtDate);
+                } catch (Exception e){
+                 //   System.err.println(e);
+                }
                 Tweet tweet = Tweet.builder()
                         .id(id)
                         .retweet_count(retweetsCount)
                         .favorite_count(favourites_count)
                         .text(text)
                         .lang(lang)
-                        .created_at(getTwitterDate(created_at))
+                        .created_at(createdAtDate)
+                        .user(user)
                         .build();
                 tweets.add(tweet);
             }

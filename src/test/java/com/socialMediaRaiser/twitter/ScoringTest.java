@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 public class ScoringTest {
@@ -49,7 +50,7 @@ public class ScoringTest {
     }
 
     @ParameterizedTest(name = "Expect score: {2} when followers: {0} followings: {1}")
-    @CsvSource(value = {"1000, 1000, 10," +
+    @CsvSource(value = {"1000, 1000, 20," +
                         "100, 1000, 0," +
                         "1000, 100, 0"})
     void testScoringMinMaxRatio(String nbFollowers, String nbFollowings, String exceptedResult){
@@ -84,4 +85,12 @@ public class ScoringTest {
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
+
+    @Test
+    void testLimit(){
+        UserScoringEngine scoring = new UserScoringEngine(100);
+        assertNotEquals(0, scoring.getLimit());
+    }
+
+
 }

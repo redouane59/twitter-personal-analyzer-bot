@@ -34,7 +34,21 @@ public class FollowProperties {
     public static String IO_SHEET_TABNAME = "io.sheet.tabName";
     public static String IO_SHEET_RESULT_COLUMN = "io.sheet.resultColumn";
     public static String IO_SHEET_FOLLOW_DATE_INDEX = "io.sheet.followDateIndex";
-
+    public static String SCORING_IS_ACTIVE_NB_FOLLOWERS = "scoring.active.nbFollowers";
+    public static String SCORING_IS_ACTIVE_NB_FOLLOWINGS = "scoring.active.nbFollowings";
+    public static String SCORING_IS_ACTIVE_RATIO = "scoring.active.ratio";
+    public static String SCORING_IS_ACTIVE_LAST_UPDATE = "scoring.active.lastUpdate";
+    public static String SCORING_IS_ACTIVE_DESCRIPTION = "scoring.active.description";
+    public static String SCORING_IS_ACTIVE_LOCATION = "scoring.active.location";
+    public static String SCORING_IS_ACTIVE_COMMON_FOLLOWERS = "scoring.active.commonFollowers";
+    public static String SCORING_MAX_POINTS_NB_FOLLOWERS = "scoring.maxPoints.nbFollowers";
+    public static String SCORING_MAX_POINTS_NB_FOLLOWINGS = "scoring.maxPoints.nbFollowings";
+    public static String SCORING_MAX_POINTS_RATIO = "scoring.maxPoints.ratio";
+    public static String SCORING_MAX_POINTS_LAST_UPDATE = "scoring.maxPoints.lastUpdate";
+    public static String SCORING_MAX_POINTS_DESCRIPTION = "scoring.maxPoints.description";
+    public static String SCORING_MAX_POINTS_LOCATION = "scoring.maxPoints.location";
+    public static String SCORING_MAX_POINTS_COMMON_FOLLOWERS = "scoring.maxPoints.commonFollowers";
+    
     private static void init() {
 
         try (OutputStream output = new FileOutputStream("src/main/resources/"+fileName)) {
@@ -105,6 +119,22 @@ public class FollowProperties {
             propertiesMap.put(IO_SHEET_RESULT_COLUMN,prop.getProperty(IO_SHEET_RESULT_COLUMN));
             propertiesMap.put(IO_SHEET_FOLLOW_DATE_INDEX, prop.getProperty(IO_SHEET_FOLLOW_DATE_INDEX));
 
+            propertiesMap.put(SCORING_IS_ACTIVE_NB_FOLLOWERS, prop.getProperty(SCORING_IS_ACTIVE_NB_FOLLOWERS));
+            propertiesMap.put(SCORING_IS_ACTIVE_NB_FOLLOWINGS, prop.getProperty(SCORING_IS_ACTIVE_NB_FOLLOWINGS));
+            propertiesMap.put(SCORING_IS_ACTIVE_RATIO, prop.getProperty(SCORING_IS_ACTIVE_RATIO));
+            propertiesMap.put(SCORING_IS_ACTIVE_LAST_UPDATE, prop.getProperty(SCORING_IS_ACTIVE_LAST_UPDATE));
+            propertiesMap.put(SCORING_IS_ACTIVE_DESCRIPTION, prop.getProperty(SCORING_IS_ACTIVE_DESCRIPTION));
+            propertiesMap.put(SCORING_IS_ACTIVE_LOCATION, prop.getProperty(SCORING_IS_ACTIVE_LOCATION));
+            propertiesMap.put(SCORING_IS_ACTIVE_COMMON_FOLLOWERS, prop.getProperty(SCORING_IS_ACTIVE_COMMON_FOLLOWERS));
+
+            propertiesMap.put(SCORING_MAX_POINTS_NB_FOLLOWERS, prop.getProperty(SCORING_MAX_POINTS_NB_FOLLOWERS));
+            propertiesMap.put(SCORING_MAX_POINTS_NB_FOLLOWINGS, prop.getProperty(SCORING_MAX_POINTS_NB_FOLLOWINGS));
+            propertiesMap.put(SCORING_MAX_POINTS_RATIO, prop.getProperty(SCORING_MAX_POINTS_RATIO));
+            propertiesMap.put(SCORING_MAX_POINTS_LAST_UPDATE, prop.getProperty(SCORING_MAX_POINTS_LAST_UPDATE));
+            propertiesMap.put(SCORING_MAX_POINTS_DESCRIPTION, prop.getProperty(SCORING_MAX_POINTS_DESCRIPTION));
+            propertiesMap.put(SCORING_MAX_POINTS_LOCATION, prop.getProperty(SCORING_MAX_POINTS_LOCATION));
+            propertiesMap.put(SCORING_MAX_POINTS_COMMON_FOLLOWERS, prop.getProperty(SCORING_MAX_POINTS_COMMON_FOLLOWERS));
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -125,6 +155,15 @@ public class FollowProperties {
         } else{
             System.err.println(propertyName + " property not found");
             return -1;
+        }
+    }
+
+    public static boolean getBooleanProperty(String propertyName){
+        if(propertiesMap.containsKey(propertyName)){
+            return Boolean.valueOf(propertiesMap.get(propertyName));
+        } else{
+            System.err.println(propertyName + " property not found");
+            return false;
         }
     }
 

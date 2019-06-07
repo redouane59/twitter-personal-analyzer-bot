@@ -15,7 +15,7 @@ public class PropertiesTest {
 
     @Test
     public void testStringProperty(){
-        assertTrue(FollowProperties.TWEET_NAME.length()>0);
+        assertTrue(FollowProperties.USER_NAME.length()>0);
     }
 
     @Test

@@ -24,9 +24,9 @@ public class TwitterBotByActivity extends AbstractTwitterBot {
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
 
-        List<Tweet> lastTweets = null; // @todo param
+        List<Tweet> lastTweets = null;
         try {
-            lastTweets = this.searchForTweets("@RedTheOne", 200, getDiffDay(-1), new SimpleDateFormat("yyyyMMddHHmm").parse("201906021900"));
+            lastTweets = this.searchForTweets("@"+FollowProperties.USER_NAME, 200, getDiffDay(-1), new SimpleDateFormat("yyyyMMddHHmm").parse("201906021900"));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -36,8 +36,9 @@ public class TwitterBotByActivity extends AbstractTwitterBot {
             Tweet tweet = lastTweets.get(iteration);
             User potentialFollower = tweet.getUser();
             // @todo how to not count commonFollowers in scoring ?
-            // @todo add indexof potentialFollower to avoid double
-            if(ownerFollowingIds.indexOf(potentialFollower.getId())==-1 && followedRecently.indexOf(potentialFollower.getId())==-1) {
+            if(ownerFollowingIds.indexOf(potentialFollower.getId())==-1
+                    && followedRecently.indexOf(potentialFollower.getId())==-1
+                    && potentialFollowers.indexOf(potentialFollower.getId())==-1) {
 
                 if (potentialFollower.shouldBeFollowed()) {
                     if (follow) {

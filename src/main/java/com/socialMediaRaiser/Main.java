@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         FollowProperties.load();
       // twitterBot.checkNotFollowBack( true, true, yesterday());
-       twitterBot.getPotentialFollowers(FollowProperties.TWEET_NAME, 50, true, true);
+       twitterBot.getPotentialFollowers(FollowProperties.USER_NAME, 75, true, true);
     }
 
     private static Date yesterday() {

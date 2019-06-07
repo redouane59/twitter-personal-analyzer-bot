@@ -10,8 +10,8 @@ import java.util.Properties;
 
 public class FollowProperties {
 
-    public final static String TWEET_NAME = "RedTheOne";
-    private static String fileName = TWEET_NAME +"/config.properties"; // @todo circular depedency otherwise
+    public final static String USER_NAME = "RedouaneBali";
+    private static String fileName = USER_NAME +"/config.properties";
     @Setter @Getter
     private static Map<String, String> propertiesMap ;
 

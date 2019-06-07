@@ -26,7 +26,7 @@ public class RequestHelper {
 
     private int sleepTime = 15;
 
-    // @todo to remove
+    @Deprecated
     public JSONObject executeRequest(String url, RequestMethod method) {
         try {
             switch (method) {
@@ -147,7 +147,7 @@ public class RequestHelper {
 
         ObjectMapper mapper = new ObjectMapper();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File from = new File(classLoader.getResource(FollowProperties.TWEET_NAME+"/twitter_credentials.json").getFile());
+        File from = new File(classLoader.getResource(FollowProperties.USER_NAME +"/twitter_credentials.json").getFile());
         TypeReference<HashMap<String,Object>> typeRef
                 = new TypeReference<>() {};
 

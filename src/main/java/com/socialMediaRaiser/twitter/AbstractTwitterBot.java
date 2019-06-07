@@ -23,6 +23,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final String IDS = "ids";
     private final String USERS = "users";
     private final String CURSOR = "cursor";
+    private final String NEXT = "next";
     private final String RETWEET_COUNT = "retweet_count";
     private final String RELATIONSHIP = "relationship";
     private final String FOLLOWING = "following";
@@ -349,7 +350,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date) throws IOException {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
-        User user = this.getUserFromUserName(FollowProperties.TWEET_NAME);
+        User user = this.getUserFromUserName(FollowProperties.USER_NAME);
         this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
     }
 
@@ -411,11 +412,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 System.err.println("response null or ids not found !");
             }
 
-            if(!response.has("next")){
+            if(!response.has(NEXT)){
                 break;
             }
-            next = response.get("next").toString(); // @todo constante
-            parameters.put("next", next);
+            next = response.get(NEXT).toString();
+            parameters.put(NEXT, next);
             nbCalls++;
         }
         while (next!= null && nbCalls < MAX_GET_F_CALLS && result.size()<count);

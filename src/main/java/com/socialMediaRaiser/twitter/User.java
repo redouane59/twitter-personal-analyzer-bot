@@ -25,7 +25,7 @@ public class User extends AbstractUser {
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
-    private UserScoringEngine scoringEngine = new UserScoringEngine(FollowProperties.getIntProperty(FollowProperties.MIN_PERCENT_MATCH));
+    private UserScoringEngine scoringEngine = new UserScoringEngine(FollowProperties.targetProperties.getMinimumPercentMatch());
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
@@ -60,9 +60,9 @@ public class User extends AbstractUser {
 
     public boolean shouldBeTakenForItsFollowers(){
 
-        if(this.getFollowersCount()> FollowProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWERS)
-                && this.getFollowersRatio()> FollowProperties.getFloatProperty(FollowProperties.MIN_RATIO)
-                && this.lang.equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
+        if(this.getFollowersCount()> FollowProperties.targetProperties.getMinNbFollowers()
+                && this.getFollowersRatio()> FollowProperties.influencerProperties.getMinRatio()
+                && this.lang.equals(FollowProperties.targetProperties.getLanguage())){
             return true;
         } else{
             return false;
@@ -70,10 +70,11 @@ public class User extends AbstractUser {
     }
 
     public boolean isInfluencer(){
-        String[] words = FollowProperties.getStringArrayProperty(FollowProperties.DESCRIPTION);
+        String words = FollowProperties.targetProperties.getDescription();
+        String[] wordsSplitted = words.split(",");
         String[] descriptionSplitted = this.getDescription().split(" ");
         for(String s :descriptionSplitted){
-            if(Arrays.stream(words).anyMatch(s::contains)){
+            if(Arrays.stream(wordsSplitted).anyMatch(s::contains)){
                 return true;
             }
         }
@@ -106,7 +107,7 @@ public class User extends AbstractUser {
             for(Tweet tweet : userLastTweets){
                 if(!tweet.getLang().equals("und")){
                     this.setLang(tweet.getLang());
-                    if(this.lang.equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
+                    if(this.lang.equals(FollowProperties.targetProperties.getLanguage())){
                         break;
                     }
                 }

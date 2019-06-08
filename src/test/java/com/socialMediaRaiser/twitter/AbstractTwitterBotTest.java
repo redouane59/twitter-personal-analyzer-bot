@@ -112,6 +112,7 @@ class AbstractTwitterBotTest {
     }
 
     @Test
+    @Disabled
     public void testFollowNew() {
         String userName = "RedTheOne";
         boolean result = twitterBot.follow(userName);

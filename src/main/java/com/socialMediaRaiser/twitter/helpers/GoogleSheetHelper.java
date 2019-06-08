@@ -19,10 +19,10 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     private String resultColumn;
     public GoogleSheetHelper(){
         FollowProperties.load();
-        this.sheetId = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_IT);
-        this.tabName = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_TABNAME);
-        this.resultColumn = FollowProperties.getStringProperty(FollowProperties.IO_SHEET_RESULT_COLUMN);
-        this.followedBackColumn = this.tabName+"!"+FollowProperties.getStringProperty(FollowProperties.IO_SHEET_RESULT_COLUMN);
+        this.sheetId = FollowProperties.ioProperties.getId();
+        this.tabName = FollowProperties.ioProperties.getTabName();
+        this.resultColumn = FollowProperties.ioProperties.getResultColumn();
+        this.followedBackColumn = this.tabName+"!"+FollowProperties.ioProperties.getResultColumn();
         try {
             this.sheetsService = SheetsServiceUtil.getSheetsService();
         } catch(Exception e){
@@ -48,10 +48,10 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         || (valueArray.size()>followBackResultIndex && showTrue && String.valueOf(valueArray.get(followBackResultIndex)).toLowerCase().equals("true"))){
 
                     DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-                    Date followDate = formatter.parse( String.valueOf(valueArray.get(FollowProperties.getIntProperty(FollowProperties.IO_SHEET_FOLLOW_DATE_INDEX))));
+                    Date followDate = formatter.parse( String.valueOf(valueArray.get(FollowProperties.ioProperties.getFollowDateIndex())));
 
                     int diffInDays = -1;
-                    if(date!=null && valueArray.size() > FollowProperties.getIntProperty(FollowProperties.IO_SHEET_FOLLOW_DATE_INDEX) && date.getDate() == followDate.getDate()){
+                    if(date!=null && valueArray.size() > FollowProperties.ioProperties.getFollowDateIndex() && date.getDate() == followDate.getDate()){
                         diffInDays = (int) ((followDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
                     }
 

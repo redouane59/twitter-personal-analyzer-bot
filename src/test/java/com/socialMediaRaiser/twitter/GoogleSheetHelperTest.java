@@ -27,7 +27,7 @@ public class GoogleSheetHelperTest {
     @Test
     public void testGetPreviouslyFollowedIdsByDate(){
         Date date = new Date();
-        date.setDate(30);
+        date.setDate(11);
         date.setMonth(04);
         List<Long> result = googleSheetHelper.getPreviouslyFollowedIds(true, true, date);
         assertTrue(result.size()>50);

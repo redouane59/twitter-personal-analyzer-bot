@@ -20,17 +20,17 @@ public class PropertiesTest {
 
     @Test
     public void testIntProperty(){
-        assertTrue(followProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWERS)>0);
+        assertTrue(followProperties.targetProperties.getMinNbFollowers()>0);
     }
 
     @Test
     public void testFloatProperty(){
-        assertTrue(followProperties.getFloatProperty(FollowProperties.MIN_RATIO)>0);
+        assertTrue(followProperties.targetProperties.getMinRatio()>0);
     }
 
     @Test
     public void testArrayProperty(){
-        assertTrue(followProperties.getStringArrayProperty(FollowProperties.DESCRIPTION).length>0);
+        assertTrue(followProperties.targetProperties.getDescription().length()>0);
     }
 
 }

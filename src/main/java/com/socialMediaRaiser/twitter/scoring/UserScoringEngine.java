@@ -17,7 +17,7 @@ public class UserScoringEngine {
 
     public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
-            this.limit = Criterion.getTotalMaxPoints()*minimumPercentMatch/100;
+            this.limit = FollowProperties.scoringProperties.getTotalMaxPoints()*minimumPercentMatch/100;
         } else{
             System.err.println("argument should be between 0 & 100");
             this.limit = 100;
@@ -48,7 +48,9 @@ public class UserScoringEngine {
     private int computeScore(){
         int score = 0;
         for(ScoringParameter parameter : parameters){
-            if(parameter.getCriterion().isActive() && parameter.getValue()!=null) {
+            if(
+                    FollowProperties.scoringProperties.getProperty(parameter.getCriterion()).isActive()
+                            && parameter.getValue()!=null) {
                 // @todo argument casts dirty
                 switch (parameter.getCriterion()) {
                     case NB_FOLLOWERS:
@@ -80,44 +82,44 @@ public class UserScoringEngine {
     }
 
     private int getCommonFollowersScore(int value) {
-        int maxPoints = Criterion.COMMON_FOLLOWERS.getMaxPoints();
-        int maxFollow = FollowProperties.getIntProperty(FollowProperties.NB_BASE_FOLLOWERS);
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).getMaxPoints();
+        int maxFollow = FollowProperties.targetProperties.getNbBaseFollowers();
         return maxPoints*value/maxFollow;
     }
 
     private int getNbFollowersScore(int nbFollowers){
-        int maxPoints = Criterion.NB_FOLLOWERS.getMaxPoints();
-        if(nbFollowers> FollowProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWERS)
-                && nbFollowers< FollowProperties.getIntProperty(FollowProperties.MAX_NB_FOLLOWERS)){
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).getMaxPoints();
+        if(nbFollowers> FollowProperties.targetProperties.getMinNbFollowers()
+                && nbFollowers< FollowProperties.targetProperties.getMaxNbFollowers()){
             return maxPoints;
         }
         return 0;
     }
 
     private int getNbFollowingsScore(int nbFollowings){
-        int maxPoints = Criterion.NB_FOLLOWINGS.getMaxPoints();
-        if(nbFollowings> FollowProperties.getIntProperty(FollowProperties.MIN_NB_FOLLOWINGS)
-                && nbFollowings< FollowProperties.getIntProperty(FollowProperties.MAX_NB_FOLLOWINGS)){
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).getMaxPoints();
+        if(nbFollowings> FollowProperties.targetProperties.getMinNbFollowings()
+                && nbFollowings< FollowProperties.targetProperties.getMaxNbFollowings()){
             return maxPoints;
         }
         return 0;
     }
 
     private int getRatioScore(double ratio){
-        int maxPoints = Criterion.RATIO.getMaxPoints();
-        if(ratio> FollowProperties.getFloatProperty(FollowProperties.MIN_RATIO)
-                && ratio< FollowProperties.getFloatProperty(FollowProperties.MAX_RATIO)){
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.RATIO).getMaxPoints();
+        if(ratio> FollowProperties.targetProperties.getMinRatio()
+                && ratio< FollowProperties.targetProperties.getMaxRatio()){
             return maxPoints;
         }
         return 0;
     }
 
     private int getLastUpdateScore(Date lastUpdate){
-        int maxPoints = Criterion.LAST_UPDATE.getMaxPoints();
+        int maxPoints = 0; // @todo Criterion.LAST_UPDATE.getMaxPoints();
         Date now = new Date();
         if(lastUpdate!=null){
             long daysSinceLastUpdate = (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
-            if(daysSinceLastUpdate < FollowProperties.getIntProperty(FollowProperties.MAX_DAYS_SINCE_LAST_TWEET)) {
+            if(daysSinceLastUpdate < FollowProperties.targetProperties.getMaxDaysSinceLastTweet()) {
                 return maxPoints;
             }
         }
@@ -125,8 +127,8 @@ public class UserScoringEngine {
     }
 
     private int getDescriptionScore(String description){
-        int maxPoints = Criterion.DESCRIPTION.getMaxPoints();
-        String[] words = FollowProperties.getStringArrayProperty(FollowProperties.DESCRIPTION);
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).getMaxPoints();
+        String[] words = FollowProperties.targetProperties.getDescription().split(",");
         String[] descriptionSplitted = description.split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(words).anyMatch(s.toLowerCase()::contains)){
@@ -138,7 +140,7 @@ public class UserScoringEngine {
 
     // @todo
     private int getLocationScore(String location){
-        int maxPoints = Criterion.LOCATION.getMaxPoints();
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).getMaxPoints();
         return maxPoints;
     }
 }

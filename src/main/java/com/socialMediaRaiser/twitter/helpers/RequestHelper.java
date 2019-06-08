@@ -1,10 +1,8 @@
 package com.socialMediaRaiser.twitter.helpers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.signature.Oauth1SigningInterceptor;
-import com.socialMediaRaiser.twitter.signature.SignatureConstants;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.*;
@@ -145,19 +143,11 @@ public class RequestHelper {
 
     private Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File from = new File(classLoader.getResource(FollowProperties.USER_NAME +"/twitter_credentials.json").getFile());
-        TypeReference<HashMap<String,Object>> typeRef
-                = new TypeReference<>() {};
-
-        HashMap<String,Object> o = mapper.readValue(from, typeRef);
-
         Oauth1SigningInterceptor oauth = new Oauth1SigningInterceptor.Builder()
-                .consumerKey(o.get(SignatureConstants.CONSUMER_KEY).toString())
-                .consumerSecret(o.get(SignatureConstants.CONSUMER_SECRET).toString())
-                .accessToken(o.get(SignatureConstants.ACCESS_TOKEN).toString())
-                .accessSecret(o.get(SignatureConstants.SECRET_TOKEN).toString())
+                .consumerKey(FollowProperties.twitterCredentialsProperties.getConsumerKey())
+                .consumerSecret(FollowProperties.twitterCredentialsProperties.getConsumerSecret())
+                .accessToken(FollowProperties.twitterCredentialsProperties.getAccessToken())
+                .accessSecret(FollowProperties.twitterCredentialsProperties.getSecretToken())
                 .oauthNonce(nonce)
                 .oauthTimeStamp(timestamp)
                 .build();

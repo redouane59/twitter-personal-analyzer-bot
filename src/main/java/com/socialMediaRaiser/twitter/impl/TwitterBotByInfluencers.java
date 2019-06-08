@@ -30,7 +30,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
         Map<Long, Long> sortedPotentialFollowersMap =
                 this.getAllFollowerIdsFromUsersSortedByOccurence(ownerId, influencerFollowers,
-                        FollowProperties.getIntProperty(FollowProperties.NB_BASE_FOLLOWERS), minOccurence);
+                        FollowProperties.targetProperties.getNbBaseFollowers(), minOccurence);
 
         Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
         int iteration = 0;
@@ -54,7 +54,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                     if (potentialFollower.shouldBeFollowed()) {
                         potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2)); // really slow
-                        if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
+                        if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())){
                             if (follow) {
                                 boolean result = this.follow(potentialFollower.getId());
                                 if (result) {
@@ -91,7 +91,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
             user = users.get(i);
             if(user.isInfluencer()){
                 user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
-                if(user.getLang()!=null && user.getLang().equals(FollowProperties.getStringProperty(FollowProperties.LANGUAGE))){
+                if(user.getLang()!=null && user.getLang().equals(FollowProperties.targetProperties.getLanguage())){
                     followersInfluencers.add(user);
                 }
             }

@@ -144,10 +144,10 @@ public class RequestHelper {
     private Request getSignedRequest(Request request, String nonce, String timestamp) throws IOException {
 
         Oauth1SigningInterceptor oauth = new Oauth1SigningInterceptor.Builder()
-                .consumerKey(FollowProperties.twitterCredentialsProperties.getConsumerKey())
-                .consumerSecret(FollowProperties.twitterCredentialsProperties.getConsumerSecret())
-                .accessToken(FollowProperties.twitterCredentialsProperties.getAccessToken())
-                .accessSecret(FollowProperties.twitterCredentialsProperties.getSecretToken())
+                .consumerKey(FollowProperties.twitterCredentials.getConsumerKey())
+                .consumerSecret(FollowProperties.twitterCredentials.getConsumerSecret())
+                .accessToken(FollowProperties.twitterCredentials.getAccessToken())
+                .accessSecret(FollowProperties.twitterCredentials.getSecretToken())
                 .oauthNonce(nonce)
                 .oauthTimeStamp(timestamp)
                 .build();

@@ -21,8 +21,8 @@ public class FollowProperties {
     public static ScoringProperties scoringProperties;
     public static InfluencerProperties influencerProperties;
     public static IOProperties ioProperties;
-    public static CredentialsProperties twitterCredentialsProperties;
-    public static CredentialsProperties googleCredentialsProperties;
+    public static TwitterCredentials twitterCredentials;
+    public static GoogleCredentials googleCredentials;
 
     public static void load() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -42,8 +42,8 @@ public class FollowProperties {
             }
             scoringProperties = new ScoringProperties(scoringPropertyList);
             targetProperties = objectMapper.convertValue(yaml.get("target"),TargetProperties.class);
-            twitterCredentialsProperties = objectMapper.convertValue(yaml.get("twitter-credentials"), CredentialsProperties.class);
-            googleCredentialsProperties = objectMapper.convertValue(yaml.get("google-credentials"), CredentialsProperties.class);
+            twitterCredentials = objectMapper.convertValue(yaml.get("twitter-credentials"), TwitterCredentials.class);
+            googleCredentials = objectMapper.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
             influencerProperties = objectMapper.convertValue(yaml.get("influencer"),InfluencerProperties.class);
             ioProperties = objectMapper.convertValue(yaml.get("io"), IOProperties.class);
             System.out.println("properties loaded correctly");

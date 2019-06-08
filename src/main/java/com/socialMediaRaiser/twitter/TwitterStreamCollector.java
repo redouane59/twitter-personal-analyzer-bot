@@ -74,9 +74,9 @@ public class TwitterStreamCollector {
 
     private Authentication getAuthentication(){
         return new OAuth1(
-                FollowProperties.twitterCredentialsProperties.getConsumerKey(),
-                FollowProperties.twitterCredentialsProperties.getConsumerSecret(),
-                FollowProperties.twitterCredentialsProperties.getAccessToken(),
-                FollowProperties.twitterCredentialsProperties.getSecretToken());
+                FollowProperties.twitterCredentials.getConsumerKey(),
+                FollowProperties.twitterCredentials.getConsumerSecret(),
+                FollowProperties.twitterCredentials.getAccessToken(),
+                FollowProperties.twitterCredentials.getSecretToken());
     }
 }

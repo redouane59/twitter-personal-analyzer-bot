@@ -16,7 +16,7 @@ import java.util.Map;
 @Data
 public class FollowProperties {
 
-    public final static String USER_NAME = "RedouaneBali";
+    public final static String USER_NAME = "RedTheOne";
     public static TargetProperties targetProperties;
     public static ScoringProperties scoringProperties;
     public static InfluencerProperties influencerProperties;
@@ -31,7 +31,7 @@ public class FollowProperties {
 
         try {
 
-            Map<String,Object> yaml = mapper.readValue(new File("src/main/resources/RedTheOne.yaml"), HashMap.class);
+            Map<String,Object> yaml = mapper.readValue(new File("src/main/resources/"+USER_NAME+".yaml"), HashMap.class);
 
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
             List<ScoringProperty> scoringPropertyList = new ArrayList<>();

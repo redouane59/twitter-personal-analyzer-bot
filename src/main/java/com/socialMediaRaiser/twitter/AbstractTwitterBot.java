@@ -55,7 +55,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != 0 && cursor != null && nbCalls < MAX_GET_F_CALLS);
+        while (cursor != null && cursor != 0 && nbCalls < MAX_GET_F_CALLS);
         return result;
     }
 
@@ -348,7 +348,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getRequestHelper().executeRequest(url, RequestMethod.GET);
     }
 
-    public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date) throws IOException {
+    public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date) {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
         User user = this.getUserFromUserName(FollowProperties.USER_NAME);
         this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);

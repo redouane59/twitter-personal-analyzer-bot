@@ -2,6 +2,7 @@ package com.socialMediaRaiser.twitter.scoring;
 
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
+import com.socialMediaRaiser.twitter.properties.ScoringProperty;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 public class UserScoringEngine {
 
     private int limit;
-    private List<ScoringParameter> parameters = new ArrayList<>();
+    private List<ScoringProperty> parameters = new ArrayList<>();
 
     public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
@@ -36,43 +37,42 @@ public class UserScoringEngine {
 
     private void buildScoringParameters(User user){
         this.parameters = new ArrayList<>();
-        this.parameters.add(new ScoringParameter(Criterion.NB_FOLLOWERS, user.getFollowersCount()));
-        this.parameters.add(new ScoringParameter(Criterion.NB_FOLLOWINGS, user.getFollowingsCount()));
-        this.parameters.add(new ScoringParameter(Criterion.RATIO, user.getFollowersRatio()));
-        this.parameters.add(new ScoringParameter(Criterion.LAST_UPDATE, user.getLastUpdate()));
-        this.parameters.add(new ScoringParameter(Criterion.DESCRIPTION, user.getDescription()));
-        this.parameters.add(new ScoringParameter(Criterion.LOCATION, user.getLocation()));
-        this.parameters.add(new ScoringParameter(Criterion.COMMON_FOLLOWERS, user.getCommonFollowers()));
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.NB_FOLLOWERS).value(user.getFollowersCount()).build());
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.NB_FOLLOWINGS).value(user.getFollowingsCount()).build());
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.RATIO).value(user.getFollowersRatio()).build());
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.LAST_UPDATE).value(user.getLastUpdate()).build());
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.DESCRIPTION).value(user.getDescription()).build());
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.LOCATION).value(user.getLocation()).build());
+        this.parameters.add(ScoringProperty.builder().criterion(Criterion.COMMON_FOLLOWERS).value(user.getCommonFollowers()).build());
     }
 
     private int computeScore(){
         int score = 0;
-        for(ScoringParameter parameter : parameters){
-            if(
-                    FollowProperties.scoringProperties.getProperty(parameter.getCriterion()).isActive()
-                            && parameter.getValue()!=null) {
+        for(ScoringProperty prop : parameters){
+            if(FollowProperties.scoringProperties.getProperty(prop.getCriterion()).isActive()
+                            && prop.getValue()!=null) {
                 // @todo argument casts dirty
-                switch (parameter.getCriterion()) {
+                switch (prop.getCriterion()) {
                     case NB_FOLLOWERS:
-                        score += getNbFollowersScore((int) parameter.getValue());
+                        score += getNbFollowersScore((int) prop.getValue());
                         break;
                     case NB_FOLLOWINGS:
-                        score += getNbFollowingsScore((int) parameter.getValue());
+                        score += getNbFollowingsScore((int) prop.getValue());
                         break;
                     case RATIO:
-                        score += getRatioScore((double) parameter.getValue());
+                        score += getRatioScore((double) prop.getValue());
                         break;
                     case LAST_UPDATE:
-                        score += getLastUpdateScore((Date) parameter.getValue());
+                        score += getLastUpdateScore((Date) prop.getValue());
                         break;
                     case DESCRIPTION:
-                        score += getDescriptionScore(parameter.getValue().toString());
+                        score += getDescriptionScore(prop.getValue().toString());
                         break;
                     case LOCATION:
-                        score += getLocationScore(parameter.getValue().toString());
+                        score += getLocationScore(prop.getValue().toString());
                         break;
                     case COMMON_FOLLOWERS:
-                        score += getCommonFollowersScore((int) parameter.getValue());
+                        score += getCommonFollowersScore((int) prop.getValue());
                         break;
                 }
             }
@@ -115,7 +115,7 @@ public class UserScoringEngine {
     }
 
     private int getLastUpdateScore(Date lastUpdate){
-        int maxPoints = 0; // @todo Criterion.LAST_UPDATE.getMaxPoints();
+        int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).getMaxPoints();
         Date now = new Date();
         if(lastUpdate!=null){
             long daysSinceLastUpdate = (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);

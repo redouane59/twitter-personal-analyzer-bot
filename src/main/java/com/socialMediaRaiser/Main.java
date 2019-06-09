@@ -11,10 +11,10 @@ public class Main {
 
     private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         FollowProperties.load();
       // twitterBot.checkNotFollowBack( true, true, yesterday());
-       twitterBot.getPotentialFollowers(FollowProperties.USER_NAME, 75, true, true);
+       twitterBot.getPotentialFollowers(FollowProperties.USER_NAME, 350, true, true);
     }
 
     private static Date yesterday() {

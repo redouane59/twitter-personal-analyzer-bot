@@ -1,15 +1,26 @@
 package com.socialMediaRaiser.twitter.properties;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@Builder
 public class ScoringProperty {
     private Criterion criterion;
     private boolean active;
     private int maxPoints;
+    private Object value; // @todo dirty (could be int, String, String[], double)
+
+    public ScoringProperty(){
+
+    }
 
     public void setCriterion(String s){
         switch (s){

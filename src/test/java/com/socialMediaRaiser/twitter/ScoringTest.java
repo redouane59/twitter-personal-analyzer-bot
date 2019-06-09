@@ -7,21 +7,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 public class ScoringTest {
 
-    @BeforeAll
-    public static void init() {
-        FollowProperties.load();
-    }
-
     @Test
     void testScoringZero(){
+        FollowProperties.load();
         User user = new User();
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(0,scoring.getUserScore(user));
@@ -29,9 +23,11 @@ public class ScoringTest {
 
     @Test
     void testScoringOneMatchDescription(){
+        FollowProperties.load();
         User user = new User();
         user.setDescription("a");
-        FollowProperties.targetProperties.setDescription("a,b,c");
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).getMaxPoints(), scoring.getUserScore(user));
         user.setDescription("b");
@@ -42,9 +38,11 @@ public class ScoringTest {
 
     @Test
     void testScoringSeveralMatchesDescription(){
+        FollowProperties.load();
         User user = new User();
         user.setDescription("a b c ");
-        FollowProperties.targetProperties.setDescription("a,b,c");
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).getMaxPoints(), scoring.getUserScore(user));
     }
@@ -54,11 +52,16 @@ public class ScoringTest {
                         "100, 1000, 0," +
                         "1000, 100, 0"})
     void testScoringMinMaxRatio(String nbFollowers, String nbFollowings, String exceptedResult){
+        FollowProperties.load();
         User user = new User();
         user.setFollowersCount(Integer.valueOf(nbFollowers));
         user.setFollowingsCount(Integer.valueOf(nbFollowings));
         FollowProperties.targetProperties.setMinRatio((float)0.5);
         FollowProperties.targetProperties.setMaxRatio((float)1.5);
+        FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setMaxPoints(20);
+        FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setActive(true);
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setActive(false);
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setActive(false);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
@@ -72,6 +75,7 @@ public class ScoringTest {
         user.setFollowersCount(Integer.valueOf(nbFollowers));
         FollowProperties.targetProperties.setMinNbFollowers(500);
         FollowProperties.targetProperties.setMaxNbFollowers(5000);
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
@@ -81,16 +85,19 @@ public class ScoringTest {
             "100, 0," +
             "10000, 0"})
     void testScoringMinMaxFollowings(String nbFollowings, String exceptedResult){
+        FollowProperties.load();
         User user = new User();
         user.setFollowingsCount(Integer.valueOf(nbFollowings));
         FollowProperties.targetProperties.setMinNbFollowings(500);
         FollowProperties.targetProperties.setMaxNbFollowings(5000);
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
 
     @Test
     void testLimit(){
+        FollowProperties.load();
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertNotEquals(0, scoring.getLimit());
     }

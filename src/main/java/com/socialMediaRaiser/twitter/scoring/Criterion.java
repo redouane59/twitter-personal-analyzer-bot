@@ -11,6 +11,8 @@ public enum Criterion {
     LAST_UPDATE,
     DESCRIPTION,
     LOCATION,
+    NB_FAVS,
+    NB_TWEETS,
     COMMON_FOLLOWERS;
 
 }

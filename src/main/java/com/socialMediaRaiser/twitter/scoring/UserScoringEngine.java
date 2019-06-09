@@ -14,7 +14,6 @@ import java.util.List;
 public class UserScoringEngine {
 
     private int limit;
-    private List<ScoringProperty> parameters = new ArrayList<>();
 
     public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
@@ -30,27 +29,22 @@ public class UserScoringEngine {
     }
 
     public int getUserScore(User user){
-        this.buildScoringParameters(user);
-        System.out.print(user.getUserName());
+        System.out.print("User="+user.getUserName());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setValue(user.getFollowersCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingsCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setValue(user.getFollowersRatio());
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setValue(user.getDescription());
+        FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).setValue(user.getLocation());
+        FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).setValue(user.getCommonFollowers());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getStatusesCount());
         return this.computeScore();
-    }
-
-    private void buildScoringParameters(User user){
-        this.parameters = new ArrayList<>();
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.NB_FOLLOWERS).value(user.getFollowersCount()).build());
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.NB_FOLLOWINGS).value(user.getFollowingsCount()).build());
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.RATIO).value(user.getFollowersRatio()).build());
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.LAST_UPDATE).value(user.getLastUpdate()).build());
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.DESCRIPTION).value(user.getDescription()).build());
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.LOCATION).value(user.getLocation()).build());
-        this.parameters.add(ScoringProperty.builder().criterion(Criterion.COMMON_FOLLOWERS).value(user.getCommonFollowers()).build());
     }
 
     private int computeScore(){
         int score = 0;
-        for(ScoringProperty prop : parameters){
-            if(FollowProperties.scoringProperties.getProperty(prop.getCriterion()).isActive()
-                            && prop.getValue()!=null) {
+        for(ScoringProperty prop : FollowProperties.scoringProperties.getProperties()){
+            if(prop.isActive() && prop.getValue()!=null) {
                 // @todo argument casts dirty
                 switch (prop.getCriterion()) {
                     case NB_FOLLOWERS:

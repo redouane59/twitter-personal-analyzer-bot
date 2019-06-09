@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GoogleSheetHelperTest {
@@ -14,18 +15,18 @@ public class GoogleSheetHelperTest {
     private GoogleSheetHelper googleSheetHelper = new GoogleSheetHelper();
 
     @BeforeAll
-    public static void init(){
+    static void init(){
         FollowProperties.load();
     }
 
     @Test
-    public void testGetPreviouslyFollowedIdsAll(){
+    void testGetPreviouslyFollowedIdsAll(){
         List<Long> result = googleSheetHelper.getPreviouslyFollowedIds();
         assertTrue(result.size()>200);
     }
 
     @Test
-    public void testGetPreviouslyFollowedIdsByDate(){
+    void testGetPreviouslyFollowedIdsByDate(){
         Date date = new Date();
         date.setDate(11);
         date.setMonth(04);
@@ -33,4 +34,11 @@ public class GoogleSheetHelperTest {
         assertTrue(result.size()>50);
     }
 
+    @Test
+    void testRowOfUser(){
+        int result = googleSheetHelper.getUserRows().get(925955978L);
+        assertEquals(10, result);
+        result = googleSheetHelper.getUserRows().get(1719824233L);
+        assertEquals(3493, result);
+    }
 }

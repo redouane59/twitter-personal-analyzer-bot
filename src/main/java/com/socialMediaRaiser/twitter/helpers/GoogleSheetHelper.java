@@ -5,18 +5,22 @@ import com.google.api.services.sheets.v4.model.*;
 import com.socialMediaRaiser.AbstractUser;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
+import lombok.Data;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Data
 public class GoogleSheetHelper extends AbstractIOHelper {
     private Sheets sheetsService;
     private String followedBackColumn;
     private String sheetId;
     private String tabName;
     private String resultColumn;
+    private Map<Long, Integer> userRows = new HashMap<>();
+
     public GoogleSheetHelper(){
         FollowProperties.load();
         this.sheetId = FollowProperties.ioProperties.getId();
@@ -28,6 +32,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         } catch(Exception e){
             e.printStackTrace();
         }
+        this.setAllUserRows();
     }
 
     public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date) {
@@ -107,7 +112,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     public void updateFollowBackInformation(Long userId, Boolean result) {
         String followedBack = String.valueOf(result).toUpperCase();
         System.out.print("updating " + userId + " -> " + followedBack + " ...");
-        int row = getRowOfUser(userId); // @todo can optimize with map<String,int> ?
+        int row = this.userRows.get(userId); // @todo can optimize with map<String,int> ?
 
         ValueRange requestBody = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(followedBack)));
@@ -119,19 +124,13 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public int getRowOfUser(Long userId){
-        List<Long> ids = this.getPreviouslyFollowedIds(true, true);
+    private void setAllUserRows(){
         int startIndex = 2; // sheet starts at line 1 + header 1
-        int i=0;
-        while (i<ids.size()){
-            if(ids.get(i).equals(userId)){
-                return i + startIndex;
-            }
-            i++;
+        List<Long> ids = this.getPreviouslyFollowedIds(true, true);
+        for(int i=0; i<ids.size(); i++){
+            this.userRows.put(ids.get(i), i+startIndex);
         }
-        return -1;
     }
 }

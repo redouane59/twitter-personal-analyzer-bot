@@ -45,6 +45,12 @@ public class ScoringProperty {
             case "ratio":
                 this.criterion = Criterion.RATIO;
                 break;
+            case "favouritesCount":
+                this.criterion = Criterion.NB_FAVS;
+                break;
+            case "statusesCount":
+                this.criterion = Criterion.NB_TWEETS;
+                break;
             default:
                 System.err.println("criterion not found");
                 break;

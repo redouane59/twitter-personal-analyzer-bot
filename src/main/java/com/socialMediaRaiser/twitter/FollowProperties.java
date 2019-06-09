@@ -16,7 +16,7 @@ import java.util.Map;
 @Data
 public class FollowProperties {
 
-    public final static String USER_NAME = "RedTheOne";
+    public final static String USER_NAME = "RedouaneBali";
     public static TargetProperties targetProperties;
     public static ScoringProperties scoringProperties;
     public static InfluencerProperties influencerProperties;
@@ -30,9 +30,7 @@ public class FollowProperties {
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         try {
-
             Map<String,Object> yaml = mapper.readValue(new File("src/main/resources/"+USER_NAME+".yaml"), HashMap.class);
-
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
             List<ScoringProperty> scoringPropertyList = new ArrayList<>();
             for(Map.Entry<String, Object> p : scoringList.entrySet()){

@@ -13,8 +13,8 @@ public class Main {
 
     public static void main(String[] args) {
         FollowProperties.load();
-      // twitterBot.checkNotFollowBack( true, true, yesterday());
-       twitterBot.getPotentialFollowers(FollowProperties.USER_NAME, 350, true, true);
+       twitterBot.checkNotFollowBack( true, true, yesterday());
+      // twitterBot.getPotentialFollowers(FollowProperties.USER_NAME, 350, true, true);
     }
 
     private static Date yesterday() {

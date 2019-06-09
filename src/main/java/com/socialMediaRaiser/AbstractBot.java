@@ -47,5 +47,4 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size() + " ( " + nbUnfollows*100/otherIds.size() + "%)");
         return result;
     }
-
 }

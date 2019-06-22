@@ -17,6 +17,7 @@ public class ScoringProperty {
     private boolean active;
     private int maxPoints;
     private Object value; // @todo dirty (could be int, String, String[], double)
+    private boolean blocking;
 
     public ScoringProperty(){
 

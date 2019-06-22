@@ -97,7 +97,8 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         dateFormat.format(user.getLastUpdate()),
                         dateFormat.format(user.getDateOfCreation()),
                         user.getCommonFollowers(),
-                        dateFormat.format(followDate)
+                        dateFormat.format(followDate),
+                        user.getRandomForestPrediction() // @todo adding
                 )));
         try{
             Sheets.Spreadsheets.Values.Append request =

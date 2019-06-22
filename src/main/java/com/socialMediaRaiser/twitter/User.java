@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 @Getter
 @Setter
@@ -99,7 +100,14 @@ public class User extends AbstractUser {
     }
 
     public long getDaysBetweenFollowAndLastUpdate(){
+        if(dateOfFollow==null || lastUpdate==null){
+            return Long.MAX_VALUE;
+        }
         return (dateOfFollow.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
+    }
+
+    public long getYearsBetweenFollowAndCreation(){
+        return (dateOfFollow.getTime()-dateOfCreation.getTime()) / (365 * 24 * 60 * 60 * 1000);
     }
 
     public void addLanguageFromLastTweet(List<Tweet> userLastTweets){
@@ -113,5 +121,10 @@ public class User extends AbstractUser {
                 }
             }
         }
+    }
+
+    public boolean getRandomForestPrediction(){
+        this.setDateOfFollowNow();
+        return RandomForestAlgoritm.getPrediction(this);
     }
 }

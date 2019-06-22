@@ -24,6 +24,7 @@ public class ScoringTest {
     @Test
     void testScoringOneMatchDescription(){
         FollowProperties.load();
+        FollowProperties.targetProperties.setDescription("a,b,c");
         User user = new User();
         user.setDescription("a");
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
@@ -41,6 +42,7 @@ public class ScoringTest {
         FollowProperties.load();
         User user = new User();
         user.setDescription("a b c ");
+        FollowProperties.targetProperties.setDescription("a,b,c");
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
@@ -100,6 +102,25 @@ public class ScoringTest {
         FollowProperties.load();
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertNotEquals(0, scoring.getLimit());
+    }
+
+    @Test
+    void testBlockingProperty(){
+        FollowProperties.load();
+        User user = new User();
+        user.setDescription("x");
+        user.setLang("fr");
+        user.setFollowersCount(100);
+        FollowProperties.targetProperties.setDescription("a,b,c");
+        FollowProperties.targetProperties.setMinNbFollowers(10);
+        FollowProperties.targetProperties.setMaxNbFollowers(1000);
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setMaxPoints(10);
+        FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setBlocking(true);
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setActive(true);
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setMaxPoints(10);
+        UserScoringEngine scoring = new UserScoringEngine(100);
+        assertEquals(0, scoring.getUserScore(user));
     }
 
 

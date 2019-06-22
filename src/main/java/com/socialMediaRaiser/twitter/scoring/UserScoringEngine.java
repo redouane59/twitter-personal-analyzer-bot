@@ -38,6 +38,7 @@ public class UserScoringEngine {
         FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).setValue(user.getCommonFollowers());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getStatusesCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).setValue(user.getLastUpdate());
         return this.computeScore();
     }
 
@@ -45,30 +46,36 @@ public class UserScoringEngine {
         int score = 0;
         for(ScoringProperty prop : FollowProperties.scoringProperties.getProperties()){
             if(prop.isActive() && prop.getValue()!=null) {
-                // @todo argument casts dirty
+                int modifValue = 0;
                 switch (prop.getCriterion()) {
                     case NB_FOLLOWERS:
-                        score += getNbFollowersScore((int) prop.getValue());
+                        modifValue = getNbFollowersScore((int) prop.getValue());
                         break;
                     case NB_FOLLOWINGS:
-                        score += getNbFollowingsScore((int) prop.getValue());
+                        modifValue = getNbFollowingsScore((int) prop.getValue());
                         break;
                     case RATIO:
-                        score += getRatioScore((double) prop.getValue());
+                        modifValue = getRatioScore((double) prop.getValue());
                         break;
                     case LAST_UPDATE:
-                        score += getLastUpdateScore((Date) prop.getValue());
+                        modifValue = getLastUpdateScore((Date) prop.getValue());
                         break;
                     case DESCRIPTION:
-                        score += getDescriptionScore(prop.getValue().toString());
+                        modifValue = getDescriptionScore(prop.getValue().toString());
                         break;
                     case LOCATION:
-                        score += getLocationScore(prop.getValue().toString());
+                        modifValue = getLocationScore(prop.getValue().toString());
                         break;
                     case COMMON_FOLLOWERS:
-                        score += getCommonFollowersScore((int) prop.getValue());
+                        modifValue = getCommonFollowersScore((int) prop.getValue());
                         break;
+                    default:
+                        System.err.println("no function found for " + prop.getCriterion());
                 }
+                if(modifValue == 0 && prop.isBlocking()){
+                    return 0;
+                }
+                score += modifValue;
             }
         }
         System.out.println(" : " + score +"/"+limit);
@@ -110,11 +117,15 @@ public class UserScoringEngine {
 
     private int getLastUpdateScore(Date lastUpdate){
         int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).getMaxPoints();
+        int maxDays = FollowProperties.targetProperties.getMaxDaysSinceLastTweet();
+        if(maxDays<=0){
+            maxDays=1;
+        }
         Date now = new Date();
         if(lastUpdate!=null){
-            long daysSinceLastUpdate = (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
-            if(daysSinceLastUpdate < FollowProperties.targetProperties.getMaxDaysSinceLastTweet()) {
-                return maxPoints;
+            int daysSinceLastUpdate = (int)((now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000));
+            if(daysSinceLastUpdate < maxDays) {
+                return maxPoints * (maxDays-daysSinceLastUpdate)/maxDays;
             }
         }
         return 0;

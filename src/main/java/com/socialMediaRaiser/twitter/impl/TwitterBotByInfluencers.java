@@ -52,7 +52,8 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
-                    if (potentialFollower.shouldBeFollowed()) {
+                    if (potentialFollower.shouldBeFollowed()
+                    && potentialFollower.getRandomForestPrediction()) { // @todo added here
                         potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2)); // really slow
                         if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())){
                             if (follow) {

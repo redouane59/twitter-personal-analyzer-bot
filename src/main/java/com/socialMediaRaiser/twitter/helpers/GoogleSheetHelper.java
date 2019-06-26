@@ -81,7 +81,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         if(followDate==null){
             followDate = new Date();
         }
-        // @todo add location
+        String followBackDate = "";
+        if(user.getDateOfFollowBack()!=null){
+            followBackDate = dateFormat.format(followBackDate);
+        }
+
         ValueRange body = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(
                         String.valueOf(user.getId()),
@@ -97,7 +101,9 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         dateFormat.format(user.getLastUpdate()),
                         dateFormat.format(user.getDateOfCreation()),
                         user.getCommonFollowers(),
+                        user.getLocation(),
                         dateFormat.format(followDate),
+                        followBackDate,
                         user.getRandomForestPrediction() // @todo adding
                 )));
         try{
@@ -113,7 +119,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     public void updateFollowBackInformation(Long userId, Boolean result) {
         String followedBack = String.valueOf(result).toUpperCase();
         System.out.print("updating " + userId + " -> " + followedBack + " ...");
-        int row = this.userRows.get(userId); // @todo can optimize with map<String,int> ?
+        int row = this.userRows.get(userId);
 
         ValueRange requestBody = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(followedBack)));

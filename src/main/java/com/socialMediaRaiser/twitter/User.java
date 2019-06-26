@@ -22,6 +22,7 @@ public class User extends AbstractUser {
     private Date dateOfCreation;
     private int commonFollowers; // nb of occurrences in followers search
     private Date dateOfFollow;
+    private Date dateOfFollowBack;
     private String description;
     private int favouritesCount;
     private Date lastUpdate;
@@ -30,13 +31,14 @@ public class User extends AbstractUser {
 
     @Builder
     User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
-         Date dateOfFollow, String description, int favouritesCount, Date lastUpdate, String location){
+         Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount, Date lastUpdate, String location){
         super(id,userName, followerCout, followingCount);
         this.lang = lang;
         this.statusesCount = statusesCount;
         this.dateOfCreation = dateOfCreation;
         this.commonFollowers = commonFollowers;
         this.dateOfFollow = dateOfFollow;
+        this.dateOfFollowBack = dateOfFollowBack;
         this.description = description;
         this.favouritesCount = favouritesCount;
         this.lastUpdate = lastUpdate;

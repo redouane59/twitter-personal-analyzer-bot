@@ -10,6 +10,8 @@ import java.util.*;
 
 public class Main {
 
+    // @todo read RFA data from sheets
+    // @todo add follow back time
     private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
 
     public static void main(String[] args) throws Exception {

@@ -52,22 +52,23 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
-                    if (potentialFollower.shouldBeFollowed()
-                    && potentialFollower.getRandomForestPrediction()) { // @todo added here
-                        potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2)); // really slow
-                        if(potentialFollower.getLang()!=null && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())){
-                            if (follow) {
-                                boolean result = this.follow(potentialFollower.getId());
-                                if (result) {
-                                    potentialFollower.setDateOfFollowNow();
-                                    potentialFollowers.add(potentialFollower);
-                                    if(saveResults){
-                                        this.getIOHelper().addNewFollowerLine(potentialFollower);
+                    if (potentialFollower.shouldBeFollowed()) {
+                        if(!FollowProperties.ioProperties.isUseRFA() || potentialFollower.getRandomForestPrediction()) {
+                            potentialFollower.addLanguageFromLastTweet(this.getUserLastTweets(potentialFollower.getId(), 2)); // really slow
+                            if (potentialFollower.getLang() != null && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())) {
+                                if (follow) {
+                                    boolean result = this.follow(potentialFollower.getId());
+                                    if (result) {
+                                        potentialFollower.setDateOfFollowNow();
+                                        potentialFollowers.add(potentialFollower);
+                                        if (saveResults) {
+                                            this.getIOHelper().addNewFollowerLine(potentialFollower);
+                                        }
                                     }
+                                } else {
+                                    System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+                                    potentialFollowers.add(potentialFollower);
                                 }
-                            } else {
-                                System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
-                                potentialFollowers.add(potentialFollower);
                             }
                         }
                     }

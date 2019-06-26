@@ -293,9 +293,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUserUrl(userId);
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
-            User user = this.getJsonHelper().jsonResponseToUser(response);
-         //   user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2)); // @todo in double ?
-            return user;
+            return this.getJsonHelper().jsonResponseToUser(response);
         } else{
             System.err.println("user " + userId + " not found !!");
             return null;

@@ -7,4 +7,5 @@ public class IOProperties {
     private String tabName;
     private int followDateIndex;
     private String id;
+    private boolean useRFA;
 }

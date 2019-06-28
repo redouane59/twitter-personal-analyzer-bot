@@ -8,4 +8,5 @@ public class IOProperties {
     private int followDateIndex;
     private String id;
     private boolean useRFA;
+    private String rfaRange;
 }

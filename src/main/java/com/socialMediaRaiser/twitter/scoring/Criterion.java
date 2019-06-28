@@ -14,6 +14,4 @@ public enum Criterion {
     NB_FAVS,
     NB_TWEETS,
     COMMON_FOLLOWERS;
-    // @todo lang ?
-
 }

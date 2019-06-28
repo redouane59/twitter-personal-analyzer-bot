@@ -158,7 +158,7 @@ class AbstractTwitterBotTest {
     public void testGetUserInfoLang() {
         long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
-        user.addLanguageFromLastTweet(twitterBot.getUserLastTweets(userId, 2));
+        user.addLanguageFromLastTweet(twitterBot.getUserLastTweets(userId, 3));
         assertEquals("fr", user.getLang());
     }
 
@@ -350,7 +350,7 @@ class AbstractTwitterBotTest {
     @Test
     public void testGetLastTweetByUserId() {
         Long userId = 92073489L;
-        List<Tweet> response = twitterBot.getUserLastTweets(userId, 2);
+        List<Tweet> response = twitterBot.getUserLastTweets(userId, 3);
         assertTrue(response.get(0).getLang().equals("fr")
                 || response.get(1).getLang().equals("fr"));
     }

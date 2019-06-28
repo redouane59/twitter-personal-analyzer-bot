@@ -10,7 +10,7 @@ public class TargetProperties {
     private int maxNbFollowers;
     private int minNbFollowings;
     private int maxNbFollowings;
-    private String description; // @todo String[]
+    private String description;
     private float minRatio;
     private float maxRatio;
     private int maxDaysSinceLastTweet;

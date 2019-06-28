@@ -263,6 +263,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 System.err.println("following property not found :(  " + userId + " not followed !");
             }
         }
+        System.err.println("jsonResponse was null for user  " + userId);
         return false;
     }
 
@@ -306,7 +307,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
         if(response!=null){
             User user = this.getJsonHelper().jsonResponseToUser(response);
-            user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
             return user;
         } else{
             return null;
@@ -317,11 +317,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUsersUrlbyNames(userNames);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
-            List<User> users = this.getJsonHelper().jsonUserArrayToList(response);
-            for(User user : users){
-                user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
-            }
-            return users;
+            return this.getJsonHelper().jsonUserArrayToList(response);
         } else{
             return null;
         }
@@ -331,11 +327,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.getUrlHelper().getUsersUrlbyIds(userIds);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
-            List<User> users = this.getJsonHelper().jsonUserArrayToList(response);
-            for(User user : users){
-                user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(),2));
-            }
-            return users;
+            return this.getJsonHelper().jsonUserArrayToList(response);
         } else{
             return null;
         }

@@ -74,6 +74,20 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         return new ArrayList<Long>();
     }
 
+    public List<List<Object>> getRandomForestData(){
+        List<String> ranges = Arrays.asList(FollowProperties.ioProperties.getRfaRange());
+        try{
+            BatchGetValuesResponse readResult = sheetsService.spreadsheets().values()
+                    .batchGet(this.sheetId)
+                    .setRanges(ranges)
+                    .execute();
+            return readResult.getValueRanges().get(0).getValues();
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
     public void addNewFollowerLine(AbstractUser u){
         User user = (User)u;
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -104,7 +118,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         user.getLocation(),
                         dateFormat.format(followDate),
                         followBackDate,
-                        user.getRandomForestPrediction() // @todo adding
+                        user.getRandomForestPrediction()
                 )));
         try{
             Sheets.Spreadsheets.Values.Append request =

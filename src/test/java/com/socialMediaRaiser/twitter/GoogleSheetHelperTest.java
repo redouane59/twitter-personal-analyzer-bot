@@ -41,4 +41,11 @@ public class GoogleSheetHelperTest {
         result = googleSheetHelper.getUserRows().get(1719824233L);
         assertEquals(3493, result);
     }
+
+    @Test
+    void testGetRandomForestData() throws Exception {
+        RandomForestAlgoritm.process();
+        List<List<Object>> result = googleSheetHelper.getRandomForestData();
+        assertTrue(result.size()>0);
+    }
 }

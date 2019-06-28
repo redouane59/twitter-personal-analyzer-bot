@@ -10,15 +10,13 @@ import java.util.*;
 
 public class Main {
 
-    // @todo read RFA data from sheets
-    // @todo add follow back time
     private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
 
     public static void main(String[] args) throws Exception {
         RandomForestAlgoritm.process();
         FollowProperties.load();
-       //twitterBot.checkNotFollowBack( true, true, yesterday());
-       twitterBot.getPotentialFollowers(FollowProperties.USER_NAME, 100, true, true);
+       // twitterBot.checkNotFollowBack(true, true, yesterday());
+        twitterBot.getPotentialFollowers(100, true, true);
     }
 
     private static Date yesterday() {

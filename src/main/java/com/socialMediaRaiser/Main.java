@@ -9,6 +9,8 @@ import com.socialMediaRaiser.twitter.impl.TwitterBotByLiveKeyWords;
 import java.io.IOException;
 import java.util.*;
 
+// @todo dev followback hour reception
+
 public class Main {
 
     //private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();

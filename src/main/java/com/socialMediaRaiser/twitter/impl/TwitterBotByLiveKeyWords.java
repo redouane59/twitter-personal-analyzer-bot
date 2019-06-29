@@ -97,11 +97,5 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         }
     }
 
-    private Authentication getAuthentication(){
-        return new OAuth1(
-                FollowProperties.twitterCredentials.getConsumerKey(),
-                FollowProperties.twitterCredentials.getConsumerSecret(),
-                FollowProperties.twitterCredentials.getAccessToken(),
-                FollowProperties.twitterCredentials.getSecretToken());
-    }
+
 }

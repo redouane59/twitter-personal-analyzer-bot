@@ -25,7 +25,9 @@ public class URLHelper {
     private static final String TWEETS = "/tweets";
     private static final String SEARCH = "/search";
     private static final String THIRTY_DAYS = "/30day";
-    private static final String DEV_ENV_NAME_30DAYS = "/dev.json"; // @todo config
+    private static final String DEV_ENV_NAME = "/dev"; // @todo config
+    private static final String ACCOUNT_ACTIVITY = "/account_activity/all";
+    private static final String WEBHOOKS = "/webhooks";
     private final String USER_ID = "user_id";
     private final String LOOKUP_JSON = "/lookup.json?";
     private final String USER_TIMELINE = "/user_timeline.json?";
@@ -385,7 +387,18 @@ public class URLHelper {
                 .append(TWEETS)
                 .append(SEARCH)
                 .append(THIRTY_DAYS)
-                .append(DEV_ENV_NAME_30DAYS)
+                .append(DEV_ENV_NAME)
+                .append(".json")
+                .toString();
+    }
+
+
+    public String getLiveEventUrl() {
+        return new StringBuilder(ROOT_URL)
+                .append(ACCOUNT_ACTIVITY)
+                .append(DEV_ENV_NAME)
+                .append(WEBHOOKS)
+                .append(".json")
                 .toString();
     }
 

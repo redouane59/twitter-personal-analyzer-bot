@@ -141,5 +141,12 @@ public class UrlHelperTest {
                 twitterBot.getUrlHelper().getSearchTweetsUrl());
     }
 
+    @Test
+    public void testLiveEventUrl(){
+        //https://api.twitter.com/1.1/account_activity/all/:env_name/webhooks.json
+        assertEquals("https://api.twitter.com/1.1/account_activity/all/dev/webhooks.json",
+                twitterBot.getUrlHelper().getLiveEventUrl());
+    }
+
 
 }

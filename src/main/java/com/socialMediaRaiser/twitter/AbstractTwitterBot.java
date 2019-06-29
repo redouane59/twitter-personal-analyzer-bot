@@ -3,6 +3,8 @@ package com.socialMediaRaiser.twitter;
 import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.*;
+import com.twitter.hbc.httpclient.auth.Authentication;
+import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,7 +18,7 @@ import java.util.*;
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
 
-    private HttpClient client = HttpClient.newHttpClient();
+//    private HttpClient client = HttpClient.newHttpClient();
     private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
     private JsonHelper jsonHelper = new JsonHelper();
@@ -419,5 +421,13 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(), 3)); // really slow
         }
         return (user.getLang()!=null && user.getLang().equals(FollowProperties.targetProperties.getLanguage()));
+    }
+
+    public Authentication getAuthentication(){
+        return new OAuth1(
+                FollowProperties.twitterCredentials.getConsumerKey(),
+                FollowProperties.twitterCredentials.getConsumerSecret(),
+                FollowProperties.twitterCredentials.getAccessToken(),
+                FollowProperties.twitterCredentials.getSecretToken());
     }
 }

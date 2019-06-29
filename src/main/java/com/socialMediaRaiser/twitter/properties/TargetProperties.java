@@ -11,6 +11,7 @@ public class TargetProperties {
     private int minNbFollowings;
     private int maxNbFollowings;
     private String description;
+    private String keywords;
     private float minRatio;
     private float maxRatio;
     private int maxDaysSinceLastTweet;

@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
-public class TwitterBotByActivity extends AbstractTwitterBot {
+public class TwitterBotByLastActivity extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;

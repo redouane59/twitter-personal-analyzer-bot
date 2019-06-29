@@ -74,7 +74,7 @@ public class User extends AbstractUser {
 
     public boolean isInfluencer(){
         String words = FollowProperties.targetProperties.getDescription();
-        String[] wordsSplitted = words.split(",");
+        String[] wordsSplitted = words.split(FollowProperties.ARRAY_SEPARATOR);
         String[] descriptionSplitted = this.getDescription().split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(wordsSplitted).anyMatch(s::contains)){

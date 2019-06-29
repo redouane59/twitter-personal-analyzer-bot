@@ -356,13 +356,6 @@ class AbstractTwitterBotTest {
     }
 
     @Test
-    @Disabled
-    public void testStreaming() throws IOException, InterruptedException {
-        TwitterStreamCollector collector = new TwitterStreamCollector();
-        collector.collect();
-    }
-
-    @Test
     public void testSearchForTweets() {
         int count = 10;
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyyMMddHHmm");

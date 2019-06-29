@@ -97,13 +97,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         return followersInfluencers;
     }
 
-    private boolean isLanguageOK(User user){
-        if(user.getLang()==null){
-            user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(), 2)); // really slow
-        }
 
-        return (user.getLang()!=null && user.getLang().equals(FollowProperties.targetProperties.getLanguage()));
-    }
     // id, occurencies
     private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(Long ownerId, List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);

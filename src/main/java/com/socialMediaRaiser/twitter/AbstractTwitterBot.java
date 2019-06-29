@@ -362,6 +362,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
+    // @todo
     @Override
     public void likeTweet(Long tweetId) {
 
@@ -411,5 +412,12 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
         while (next!= null && nbCalls < MAX_GET_F_CALLS && result.size()<count);
         return result;
+    }
+
+    public boolean isLanguageOK(User user){
+        if(user.getLang()==null){
+            user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(), 3)); // really slow
+        }
+        return (user.getLang()!=null && user.getLang().equals(FollowProperties.targetProperties.getLanguage()));
     }
 }

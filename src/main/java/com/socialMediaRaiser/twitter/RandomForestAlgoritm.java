@@ -35,6 +35,7 @@ public class RandomForestAlgoritm {
             if(followBack) {
                 followBackValue = 1;
             }
+
             double[] attValues = {Double.valueOf(line.get(0).toString()),
                     Double.valueOf(line.get(1).toString()),
                     Double.valueOf(line.get(2).toString()),

@@ -8,9 +8,6 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.http.HttpClient;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -18,7 +15,6 @@ import java.util.*;
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
 
-//    private HttpClient client = HttpClient.newHttpClient();
     private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
     private JsonHelper jsonHelper = new JsonHelper();

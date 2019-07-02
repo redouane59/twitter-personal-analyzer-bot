@@ -23,15 +23,17 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
         AbstractUser user = this.getUserFromUserName(FollowProperties.USER_NAME);
         return this.getPotentialFollowers(user.getId(), count, follow, saveResults);
     }
-    
+
     protected LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
         int nbUnfollows = 0;
         for(Long otherId : otherIds){
-            boolean userFollowsBack = false;
+            Boolean userFollowsBack = null;
             RelationType relation = this.getRelationType(userId, otherId);
             if(relation == RelationType.FRIENDS || relation == RelationType.FOLLOWER){
                 userFollowsBack = true;
+            } else if (relation!=null){
+                userFollowsBack = false;
             }
             if(unfollow && !userFollowsBack && relation == RelationType.FOLLOWING){
                 boolean unfollowResult = this.unfollow(otherId);
@@ -45,7 +47,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
             result.put(otherId, userFollowsBack);
             System.out.println();
         }
-        System.out.println(nbUnfollows + " users unfollowed / " + otherIds.size() + " ( " + nbUnfollows*100/otherIds.size() + "%)");
+        System.out.println("Followback : " + ((otherIds.size()-nbUnfollows)*100)/otherIds.size() + "%");
         return result;
     }
 }

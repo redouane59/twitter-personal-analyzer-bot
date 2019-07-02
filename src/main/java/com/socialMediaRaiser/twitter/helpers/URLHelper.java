@@ -21,6 +21,7 @@ public class URLHelper {
     private final String FRIENDS = "/friends";
     private final String STATUSES = "/statuses";
     private final String FRIENDSHIPS = "/friendships";
+    private final String FAVORITES = "/favorites";
     private final String USERS = "/users";
     private static final String TWEETS = "/tweets";
     private static final String SEARCH = "/search";
@@ -440,4 +441,14 @@ public class URLHelper {
     }
 
 
+    public String getLikeUrl(Long tweetId) {
+        // curl --request POST
+        //--url 'https://api.twitter.com/1.1/favorites/create.json?id=TWEET_ID_TO_FAVORITE'
+        return new StringBuilder(ROOT_URL)
+                .append(FAVORITES)
+                .append(CREATE_JSON)
+                .append(ID+"=")
+                .append(tweetId)
+                .toString();
+    }
 }

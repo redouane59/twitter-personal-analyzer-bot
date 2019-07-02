@@ -80,13 +80,15 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     private void doActions(Tweet tweet){
-        System.out.println(tweet);
-        this.likeTweet(tweet.getId());
         User user = tweet.getUser();
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
+                && potentialFollowers.indexOf(user.getId())==-1
                 && user.shouldBeFollowed()){
             if(this.isLanguageOK(user)){
+                System.out.println("\n-------------");
+                System.out.println(tweet.getText());
+                this.likeTweet(tweet.getId());
                 boolean result = this.follow(user.getId());
                 if (result) {
                     user.setDateOfFollowNow();

@@ -360,10 +360,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
-    // @todo
     @Override
     public void likeTweet(Long tweetId) {
-
+        String url = this.getUrlHelper().getLikeUrl(tweetId);
+        this.getRequestHelper().executePostRequest(url, null);
     }
 
     @Override

@@ -148,5 +148,13 @@ public class UrlHelperTest {
                 twitterBot.getUrlHelper().getLiveEventUrl());
     }
 
+    @Test
+    public void testLikeUrl(){
+        //https://api.twitter.com/1.1/favorites/create.json?id=TWEET_ID_TO_FAVORITE
+        Long tweetId = 12345L;
+        assertEquals("https://api.twitter.com/1.1/favorites/create.json?id="+tweetId,
+                twitterBot.getUrlHelper().getLikeUrl(tweetId));
+    }
+
 
 }

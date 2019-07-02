@@ -29,7 +29,6 @@ public class UserScoringEngine {
     }
 
     public int getUserScore(User user){
-        System.out.print("User="+user.getUserName());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setValue(user.getFollowersCount());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingsCount());
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setValue(user.getFollowersRatio());
@@ -143,9 +142,18 @@ public class UserScoringEngine {
         return 0;
     }
 
-    // @todo
+    // @todo to test
     private int getLocationScore(String location){
         int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).getMaxPoints();
-        return maxPoints;
+        String targetLocation = FollowProperties.targetProperties.getLocation();
+        if(targetLocation==null){
+            return maxPoints;
+        } else{
+            String[] words = targetLocation.split(FollowProperties.ARRAY_SEPARATOR);
+            if (Arrays.asList(words).contains(location)){
+                return maxPoints;
+            }
+            return 0;
+        }
     }
 }

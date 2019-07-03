@@ -83,7 +83,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         User user = tweet.getUser();
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
-                && potentialFollowers.indexOf(user.getId())==-1
+                && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed()){
             if(this.isLanguageOK(user)){
                 System.out.println("\n-------------");
@@ -94,6 +94,8 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                     user.setDateOfFollowNow();
                     potentialFollowers.add(user);
                     this.getIOHelper().addNewFollowerLine(user);
+                } else{
+                    System.err.println("error following " + user.getUserName());
                 }
             }
         }

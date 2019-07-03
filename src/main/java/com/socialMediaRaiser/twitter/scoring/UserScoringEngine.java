@@ -77,7 +77,6 @@ public class UserScoringEngine {
                 score += modifValue;
             }
         }
-        System.out.println(" : " + score +"/"+limit);
         return score;
     }
 

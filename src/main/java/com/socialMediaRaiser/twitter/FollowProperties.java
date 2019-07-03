@@ -16,7 +16,7 @@ import java.util.Map;
 @Data
 public class FollowProperties {
 
-    public final static String USER_NAME = "RedTheOne";
+    public final static String USER_NAME = "RedouaneBali";
     public static TargetProperties targetProperties;
     public static ScoringProperties scoringProperties;
     public static InfluencerProperties influencerProperties;

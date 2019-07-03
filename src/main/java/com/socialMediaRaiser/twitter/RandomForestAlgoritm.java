@@ -106,7 +106,7 @@ public class RandomForestAlgoritm {
 
         try {
             double result = forest.classifyInstance(dataset.instance(0));
-            System.out.print(" Prediction:" + result + " ");
+            System.out.println(" Prediction: " + result + " ");
             return result == 1.0;
         } catch (Exception e) {
             e.printStackTrace();

@@ -75,7 +75,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
         System.out.println("********************************");
         System.out.println(potentialFollowers.size() + " followers followed / "
-                + iteration + " users analyzed");
+                + iteration + " users analyzed (" + (potentialFollowers.size()*100)/iteration + "%)");
         System.out.println("********************************");
 
         return potentialFollowers;

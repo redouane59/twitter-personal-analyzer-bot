@@ -60,7 +60,7 @@ public class RequestHelper {
                 }
                 return this.executeGetRequest(url);
             } else{
-                System.err.println("(GET) not 200 return null " + response.message() + " - " + response.code());
+                System.err.println("(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
             }
         } catch(IOException e){
             e.printStackTrace();
@@ -86,7 +86,7 @@ public class RequestHelper {
                     .newCall(signedRequest).execute();
 
             if(response.code()!=200){
-                System.err.println("(POST) ! not 200 " + response.message() + " - " + response.code());
+                System.err.println("(POST) ! not 200 calling " + url + " " + response.message() + " - " + response.code());
             }
             String stringResposne = response.body().string();
             return new JSONObject(stringResposne);
@@ -119,7 +119,7 @@ public class RequestHelper {
                 }
                 return this.executeGetRequestReturningArray(url);
             } else{
-                System.err.println("not 200 (return null)" + response.message() + " - " + response.code());
+                System.err.println("not 200 (return null) calling " + url + " " + response.message() + " - " + response.code());
             }
         } catch(Exception e){
             System.err.println("exception return null");

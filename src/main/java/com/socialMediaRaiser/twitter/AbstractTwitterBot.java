@@ -338,8 +338,12 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date) {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(true, true, date);
-        User user = this.getUserFromUserName(FollowProperties.USER_NAME);
-        this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
+        if(followedPreviously!=null && followedPreviously.size()>0){
+            User user = this.getUserFromUserName(FollowProperties.USER_NAME);
+            this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
+        } else{
+            System.err.println("no followers found at this date");
+        }
     }
 
     public List<Tweet> getUserLastTweets(Long userId, int count){

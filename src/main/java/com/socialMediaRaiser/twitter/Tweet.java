@@ -10,9 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 import static java.util.TimeZone.getDefault;
 
@@ -31,4 +29,13 @@ public class Tweet {
     private String text;
     private Date created_at;
     private User user;
+
+    public boolean matchWords(List<String> words){
+        for(String word : words){
+            if(this.text.contains(word)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

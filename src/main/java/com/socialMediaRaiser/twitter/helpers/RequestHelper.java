@@ -51,7 +51,7 @@ public class RequestHelper {
                 return jsonResponse;
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
-                System.out.println(response.message() +" at "
+                System.out.println("\n" + response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ...");
                 try {
                     TimeUnit.MINUTES.sleep(sleepTime);
@@ -110,7 +110,7 @@ public class RequestHelper {
                 System.out.println("user private, not authorized");
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
-                System.out.println(response.message() +" at "
+                System.out.println("\n" +           response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
                 try {
                     TimeUnit.MINUTES.sleep(sleepTime);
@@ -179,7 +179,7 @@ public class RequestHelper {
         if(url.contains("/friends")){
             defaultCache = 2;
         } else if (url.contains("/friendships")){
-            defaultCache = 2;
+            defaultCache = 0;
         } else if (url.contains("/followers")){
             defaultCache = 72;
         } else if (url.contains("/users")){

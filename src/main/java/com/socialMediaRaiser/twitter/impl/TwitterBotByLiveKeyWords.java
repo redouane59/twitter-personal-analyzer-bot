@@ -2,15 +2,12 @@ package com.socialMediaRaiser.twitter.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.socialMediaRaiser.twitter.*;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
-import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
 
 import java.io.IOException;
@@ -28,6 +25,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     List<Long> ownerFollowingIds;
     private int maxFriendship = 390;
     private int QUEUE_SIZE = 100;
+    private int iterations = 0;
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
@@ -45,7 +43,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         }
 
         System.out.println("********************************");
-        System.out.println(potentialFollowers.size() + " followers followed");
+        System.out.println(potentialFollowers.size() + " followers followed / " + iterations + " ("+(potentialFollowers.size()*100)/iterations + "%)");
         System.out.println("********************************");
 
         return potentialFollowers;
@@ -73,22 +71,32 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
         while (!client.isDone() && potentialFollowers.size()<count) {
             if(queue.size()>0){
-                this.doActions(objectMapper.readValue(queue.take(), Tweet.class));
+                try{
+                    String queueString = queue.take();
+                    Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);
+                    if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
+                        this.doActions(foundedTweet);
+                    }
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+
             }
         }
+
         client.stop();
     }
 
     private void doActions(Tweet tweet){
         User user = tweet.getUser();
+        iterations++;
+
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed()){
             if(this.isLanguageOK(user)){
-                System.out.println("\n-------------");
-                System.out.println(tweet.getText());
-                this.likeTweet(tweet.getId());
+              //  this.likeTweet(tweet.getId());
                 boolean result = this.follow(user.getId());
                 if (result) {
                     user.setDateOfFollowNow();
@@ -97,9 +105,10 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 } else{
                     System.err.println("error following " + user.getUserName());
                 }
+                System.out.println(tweet.getText());
+                System.out.println("\n-------------");
             }
         }
     }
-
 
 }

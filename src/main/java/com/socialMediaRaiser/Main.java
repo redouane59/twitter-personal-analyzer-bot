@@ -21,7 +21,7 @@ public class Main {
         FollowProperties.load();
         System.out.println("start working for " + FollowProperties.USER_NAME);
       //  twitterBot.checkNotFollowBack(true, true, yesterday());
-       twitterBot.getPotentialFollowers(100, true, true);
+        twitterBot.getPotentialFollowers(100, true, true);
     }
 
     private static Date yesterday() {

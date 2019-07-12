@@ -25,7 +25,12 @@ public class UserScoringEngine {
     }
 
     public boolean shouldBeFollowed(User user){
-        return getUserScore(user) >= limit;
+        int score = getUserScore(user);
+        if(score >= limit){
+            System.out.println("score of " + score + "/"+limit+ " for " + user.getUserName());
+            return true;
+        }
+        return false;
     }
 
     public int getUserScore(User user){
@@ -135,6 +140,7 @@ public class UserScoringEngine {
         String[] descriptionSplitted = description.split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(words).anyMatch(s.toLowerCase()::contains)){
+                System.out.println("match description with " + s);
                 return maxPoints;
             }
         }

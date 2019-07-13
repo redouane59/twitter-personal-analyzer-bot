@@ -1,1 +1,1 @@
-web: java -cp target/classes/;target/dependency/* com.socialMediaRaiser.Main 8080
+web: java -cp target/classes/;target/dependency/* com.socialMediaRaiser.Main $PORT

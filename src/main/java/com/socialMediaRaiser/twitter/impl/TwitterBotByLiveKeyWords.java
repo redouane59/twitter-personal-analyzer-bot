@@ -101,12 +101,11 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed()){
             if(this.isLanguageOK(user)){
-                //  this.likeTweet(tweet.getId());
+                // this.likeTweet(tweet.getId());
                 boolean result = false;
                 if(this.follow) {
                     result = this.follow(user.getId());
                 }
-
                 if (result || !this.follow) {
                     user.setDateOfFollowNow();
                     potentialFollowers.add(user);

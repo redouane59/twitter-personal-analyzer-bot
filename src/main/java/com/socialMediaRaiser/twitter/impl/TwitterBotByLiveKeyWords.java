@@ -26,9 +26,14 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     private int maxFriendship = 390;
     private int QUEUE_SIZE = 100;
     private int iterations = 0;
+    private boolean follow; // @todo in abstract ?
+    private boolean saveResults;
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+        this.follow = follow;
+        this.saveResults = saveResults;
+
         if(count>maxFriendship){
             count = maxFriendship;
         }
@@ -50,7 +55,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
 
-    public void collect(int count) throws IOException, InterruptedException {
+    public void collect(int count){
 
         final BlockingQueue<String> queue = new LinkedBlockingQueue<>(QUEUE_SIZE);
         final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
@@ -96,13 +101,19 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed()){
             if(this.isLanguageOK(user)){
-              //  this.likeTweet(tweet.getId());
-                boolean result = this.follow(user.getId());
-                if (result) {
+                //  this.likeTweet(tweet.getId());
+                boolean result = false;
+                if(this.follow) {
+                    result = this.follow(user.getId());
+                }
+
+                if (result || !this.follow) {
                     user.setDateOfFollowNow();
                     potentialFollowers.add(user);
-                    this.getIOHelper().addNewFollowerLine(user);
-                } else{
+                    if(this.saveResults){
+                        this.getIOHelper().addNewFollowerLine(user);
+                    }
+                } else {
                     System.err.println("error following " + user.getUserName());
                 }
                 System.out.println(tweet.getText());

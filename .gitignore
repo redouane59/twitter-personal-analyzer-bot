@@ -6,5 +6,3 @@ src/main/resources/*
 target/
 */target/**
 */target/*
-!/target/dependency
-!/target/dependency*

@@ -65,7 +65,7 @@ public class ScoringTest {
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setActive(false);
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setActive(false);
         UserScoringEngine scoring = new UserScoringEngine(100);
-        assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
+        assertEquals((int)Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
 
     @ParameterizedTest(name = "Expect score: {1} when followers: {0}")
@@ -79,7 +79,7 @@ public class ScoringTest {
         FollowProperties.targetProperties.setMaxNbFollowers(5000);
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
-        assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
+        assertEquals((int)Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
 
     @ParameterizedTest(name = "Expect score: {1} when followings: {0}")
@@ -94,7 +94,7 @@ public class ScoringTest {
         FollowProperties.targetProperties.setMaxNbFollowings(5000);
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
-        assertEquals(Integer.valueOf(exceptedResult), scoring.getUserScore(user));
+        assertEquals((int)Integer.valueOf(exceptedResult), scoring.getUserScore(user));
     }
 
     @Test

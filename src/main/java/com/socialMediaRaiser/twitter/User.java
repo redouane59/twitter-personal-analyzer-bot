@@ -47,6 +47,9 @@ public class User extends AbstractUser {
 
     @Override
     public boolean shouldBeFollowed(){
+        if(this.getUserName().equals(FollowProperties.USER_NAME)){
+            return false;
+        }
         return this.scoringEngine.shouldBeFollowed(this);
     }
 

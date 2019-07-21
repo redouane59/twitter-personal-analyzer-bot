@@ -164,7 +164,7 @@ public class RequestHelper {
 
     private OkHttpClient getHttpClient(String url){
         int cacheSize = 500 * 1024 * 1024; // 500MB
-        String path = "C:\\okhttpCache";
+        String path = "okhttpCache";
         File file = new File(path);
         return new OkHttpClient.Builder()
                 .addNetworkInterceptor(new CacheInterceptor(this.getCacheTimeoutFromUrl(url)))

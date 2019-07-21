@@ -356,6 +356,7 @@ class AbstractTwitterBotTest {
     }
 
     @Test
+    @Disabled
     public void testSearchForTweets() {
         int count = 10;
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyyMMddHHmm");

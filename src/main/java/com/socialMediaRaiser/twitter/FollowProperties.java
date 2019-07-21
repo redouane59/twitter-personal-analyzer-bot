@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.socialMediaRaiser.twitter.properties.*;
 import lombok.Data;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class FollowProperties {
             ioProperties = objectMapper.convertValue(yaml.get("io"), IOProperties.class);
             System.out.println("properties loaded correctly");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println("properties could not be loaded (" + ex.getMessage()+")");
         }
     }
 }

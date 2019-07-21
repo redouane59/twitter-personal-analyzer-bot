@@ -22,7 +22,7 @@ public class Main implements ServletContextListener {
         RandomForestAlgoritm.process();
         FollowProperties.load();
         System.out.println("start working for " + FollowProperties.USER_NAME);
-        //twitterBot.checkNotFollowBack(true, true, yesterday(), false);
+        twitterBot.checkNotFollowBack(true, true, yesterday(), false);
         //twitterBot.getPotentialFollowers(400, true, true);
     }
 

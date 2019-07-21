@@ -6,7 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.socialMediaRaiser.twitter.properties.*;
 import lombok.Data;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +32,12 @@ public class FollowProperties {
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         try {
-            Map<String,Object> yaml = mapper.readValue(FollowProperties.class.getResource("/"+USER_NAME+".yaml"), HashMap.class);
+            URL yamlFile = FollowProperties.class.getResource("/"+USER_NAME+".yaml");
+            if(yamlFile==null){
+                System.err.println("yaml file not found at /"+USER_NAME+".yaml");
+                return;
+            }
+            Map<String,Object> yaml = mapper.readValue(yamlFile, HashMap.class);
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
             List<ScoringProperty> scoringPropertyList = new ArrayList<>();
             for(Map.Entry<String, Object> p : scoringList.entrySet()){

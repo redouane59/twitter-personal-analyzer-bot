@@ -22,7 +22,7 @@ public class Main implements ServletContextListener {
         RandomForestAlgoritm.process();
         FollowProperties.load();
         System.out.println("start working for " + FollowProperties.USER_NAME);
-        twitterBot.checkNotFollowBack(true, true, yesterday(), false);
+        //twitterBot.checkNotFollowBack(true, true, yesterday(), false);
         //twitterBot.getPotentialFollowers(400, true, true);
     }
 
@@ -44,8 +44,9 @@ public class Main implements ServletContextListener {
         try {
             RandomForestAlgoritm.process();
             FollowProperties.load();
-            System.out.println("start working for " + FollowProperties.USER_NAME);
-            twitterBot.getPotentialFollowers(10, true, true);
+            System.out.println("C | start working for " + FollowProperties.USER_NAME);
+            AbstractTwitterBot twitterBot = new TwitterBotByLiveKeyWords();
+            twitterBot.getPotentialFollowers(400, true, true);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -3,6 +3,7 @@ package com.socialMediaRaiser.twitter.impl;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.*;
+import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -13,6 +14,7 @@ import lombok.Data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -28,6 +30,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     private int iterations = 0;
     private boolean follow; // @todo in abstract ?
     private boolean saveResults;
+    private Client client;
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
@@ -63,18 +66,23 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         endpoint.trackTerms(Arrays.asList(FollowProperties.targetProperties.getKeywords()));
         endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
 
-        final Client client = new ClientBuilder()
-                .hosts(Constants.STREAM_HOST)
-                .endpoint(endpoint)
-                .authentication(this.getAuthentication())
-                .processor(new StringDelimitedProcessor(queue))
-                .build();
+        if(client==null || client.isDone()){
 
-        client.connect();
+            client = new ClientBuilder()
+                    .hosts(Constants.STREAM_HOST)
+                    .endpoint(endpoint)
+                    .authentication(this.getAuthentication())
+                    .processor(new StringDelimitedProcessor(queue))
+                    .build();
+            client.connect();
+        }
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        while (!client.isDone() && potentialFollowers.size()<count) {
+        int nbFollows = new GoogleSheetHelper().getPreviouslyFollowedIds(true, true, new Date()).size();
+
+        while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
             if(queue.size()>0){
                 try{
                     String queueString = queue.take();

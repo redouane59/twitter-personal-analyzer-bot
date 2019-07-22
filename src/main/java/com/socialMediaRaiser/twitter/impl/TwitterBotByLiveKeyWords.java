@@ -64,7 +64,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
         endpoint.trackTerms(Arrays.asList(FollowProperties.targetProperties.getKeywords()));
-        endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
+      //  endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
 
         System.out.println("tracking terms : ");
         Arrays.asList(FollowProperties.targetProperties.getKeywords()).forEach(System.out::println);
@@ -137,6 +137,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 System.out.println("\n-------------");
             }
         }
+        System.out.println("end doAction()");
     }
 
 }

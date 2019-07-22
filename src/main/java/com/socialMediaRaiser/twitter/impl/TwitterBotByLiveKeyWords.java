@@ -89,8 +89,8 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         int nbFollows = new GoogleSheetHelper().getPreviouslyFollowedIds(true, true, new Date()).size();
 
         while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
-            System.out.println("while : " + nbFollows+potentialFollowers.size() + "<" + count);
             if(queue.size()>0){
+                System.out.println("while : " + nbFollows+potentialFollowers.size() + "<" + count);
                 try{
                     String queueString = queue.take();
                     Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);

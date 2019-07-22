@@ -15,15 +15,15 @@ import java.util.*;
 
 public class Main implements ServletContextListener {
 
-    //private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
-    private static AbstractTwitterBot twitterBot = new TwitterBotByLiveKeyWords();
+    private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
+   // private static AbstractTwitterBot twitterBot = new TwitterBotByLiveKeyWords();
 
     public static void main(String[] args) throws Exception {
         RandomForestAlgoritm.process();
         FollowProperties.load();
         System.out.println("start working for " + FollowProperties.USER_NAME);
-        twitterBot.checkNotFollowBack(true, true, yesterday(), false);
-        //twitterBot.getPotentialFollowers(400, true, true);
+        //twitterBot.checkNotFollowBack(true, true, yesterday(), false);
+        twitterBot.getPotentialFollowers(100, true, true);
     }
 
     private static Date yesterday() {

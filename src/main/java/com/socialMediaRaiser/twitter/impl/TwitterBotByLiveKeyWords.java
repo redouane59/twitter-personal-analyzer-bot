@@ -103,11 +103,12 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     private void doActions(Tweet tweet){
         User user = tweet.getUser();
         iterations++;
-
+        System.out.println("analysing tweet from " + tweet.getUser().getUserName() + " : " + tweet.getText());
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed()){
+            System.out.println("checking language...");
             if(this.isLanguageOK(user)){
                 // this.likeTweet(tweet.getId());
                 boolean result = false;

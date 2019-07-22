@@ -26,11 +26,8 @@ public class UserScoringEngine {
 
     public boolean shouldBeFollowed(User user){
         int score = getUserScore(user);
-        if(score >= limit){
-            System.out.println("score of " + score + "/"+limit+ " for " + user.getUserName());
-            return true;
-        }
-        return false;
+        System.out.println("score of " + score + "/"+limit+ " for " + user.getUserName());
+        return score >= limit;
     }
 
     public int getUserScore(User user){

@@ -66,6 +66,12 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         endpoint.trackTerms(Arrays.asList(FollowProperties.targetProperties.getKeywords()));
         endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
 
+        System.out.println("tracking terms : ");
+        Arrays.asList(FollowProperties.targetProperties.getKeywords()).forEach(System.out::println);
+
+        System.out.println("tracking languages : ");
+        Arrays.asList(FollowProperties.targetProperties.getLanguage()).forEach(System.out::println);
+
         if(client==null || client.isDone()){
 
             client = new ClientBuilder()
@@ -87,6 +93,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 try{
                     String queueString = queue.take();
                     Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);
+                    System.out.println("analysing tweet from " + foundedTweet.getUser().getUserName() + " : " + foundedTweet.getText());
                     if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
                         this.doActions(foundedTweet);
                     }
@@ -101,9 +108,9 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     private void doActions(Tweet tweet){
+        System.out.println("doAction()");
         User user = tweet.getUser();
         iterations++;
-        System.out.println("analysing tweet from " + tweet.getUser().getUserName() + " : " + tweet.getText());
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
                 && potentialFollowers.indexOf(user)==-1

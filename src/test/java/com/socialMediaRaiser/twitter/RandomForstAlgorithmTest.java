@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.RandomForest;
@@ -16,6 +17,7 @@ import java.util.List;
 public class RandomForstAlgorithmTest {
 
     @Test
+    @Disabled
     void test1() throws Exception {
         this.process();
     }

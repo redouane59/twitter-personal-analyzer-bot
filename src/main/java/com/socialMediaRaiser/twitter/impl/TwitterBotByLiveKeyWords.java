@@ -89,11 +89,13 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         int nbFollows = new GoogleSheetHelper().getPreviouslyFollowedIds(true, true, new Date()).size();
 
         while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
+            System.out.println("while : " + nbFollows+potentialFollowers.size() + "<" + count);
             if(queue.size()>0){
                 try{
                     String queueString = queue.take();
                     Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);
-                    System.out.println("analysing tweet from " + foundedTweet.getUser().getUserName() + " : " + foundedTweet.getText());
+                    System.out.println("analysing tweet from " + foundedTweet.getUser().getUserName() + " : "
+                            + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
                     if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
                         this.doActions(foundedTweet);
                     }

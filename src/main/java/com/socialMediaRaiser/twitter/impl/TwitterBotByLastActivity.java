@@ -25,8 +25,10 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
         List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
 
         List<Tweet> lastTweets = null;
+        String startDate = "201907200000";
+        String endDate = "201907221000";
         try {
-            lastTweets = this.searchForTweets("@"+FollowProperties.USER_NAME, 200, getDiffDay(-1), new SimpleDateFormat("yyyyMMddHHmm").parse("201906021900"));
+            lastTweets = this.searchForTweets("@"+FollowProperties.USER_NAME, 100, new SimpleDateFormat("yyyyMMddHHmm").parse(startDate), new SimpleDateFormat("yyyyMMddHHmm").parse(endDate));
         } catch (ParseException e) {
             e.printStackTrace();
         }

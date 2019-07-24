@@ -4,6 +4,7 @@ import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.RandomForestAlgoritm;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
+import com.socialMediaRaiser.twitter.impl.TwitterBotByLastActivity;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByLiveKeyWords;
 
 import javax.servlet.ServletContextEvent;
@@ -15,15 +16,15 @@ import java.util.*;
 
 public class Main implements ServletContextListener {
 
-    private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
-   // private static AbstractTwitterBot twitterBot = new TwitterBotByLiveKeyWords();
+   // private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
+    private static AbstractTwitterBot twitterBot = new TwitterBotByLastActivity();
 
     public static void main(String[] args) throws Exception {
         RandomForestAlgoritm.process();
         FollowProperties.load();
         System.out.println("start working for " + FollowProperties.USER_NAME);
-        //twitterBot.checkNotFollowBack(true, true, yesterday(), false);
-        twitterBot.getPotentialFollowers(100, true, true);
+        twitterBot.checkNotFollowBack(true, true, yesterday(), false);
+        //twitterBot.getPotentialFollowers(100, true, true);
     }
 
     private static Date yesterday() {
@@ -40,16 +41,16 @@ public class Main implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent)
     {
-        System.out.println("\nContext initialized code here\n");
+        System.out.println("\nSMR - start program\n");
         try {
             RandomForestAlgoritm.process();
             FollowProperties.load();
-            System.out.println("C | start working for " + FollowProperties.USER_NAME);
+            System.out.println("SMR - start working for " + FollowProperties.USER_NAME);
             AbstractTwitterBot twitterBot = new TwitterBotByLiveKeyWords();
             twitterBot.getPotentialFollowers(400, true, true);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        System.out.println("SMR - end program");
     }
 }

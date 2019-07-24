@@ -384,6 +384,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             count = 10;
             System.err.println("count minimum = 10");
         }
+        if(count>100){
+            count = 100;
+            System.err.println("count maximum = 100");
+        }
         String url = this.getUrlHelper().getSearchTweetsUrl();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("query",query);

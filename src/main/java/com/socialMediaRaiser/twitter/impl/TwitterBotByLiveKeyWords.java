@@ -64,12 +64,12 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
         endpoint.trackTerms(Arrays.asList(FollowProperties.targetProperties.getKeywords()));
-      //  endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
+        endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
 
-        System.out.println("tracking terms : ");
+        System.out.println("SMR - tracking terms : ");
         Arrays.asList(FollowProperties.targetProperties.getKeywords()).forEach(System.out::println);
 
-        System.out.println("tracking languages : ");
+        System.out.println("SMR - tracking languages : ");
         Arrays.asList(FollowProperties.targetProperties.getLanguage()).forEach(System.out::println);
 
         if(client==null || client.isDone()){
@@ -90,11 +90,11 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
         while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
             if(queue.size()>0){
-                System.out.println("while : " + nbFollows+potentialFollowers.size() + "<" + count);
+                System.out.println("SMR - queue > 0");
                 try{
                     String queueString = queue.take();
                     Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);
-                    System.out.println("analysing tweet from " + foundedTweet.getUser().getUserName() + " : "
+                    System.out.println("SMR - analysing tweet from " + foundedTweet.getUser().getUserName() + " : "
                             + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
                     if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
                         this.doActions(foundedTweet);
@@ -110,14 +110,13 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     private void doActions(Tweet tweet){
-        System.out.println("doAction()");
         User user = tweet.getUser();
         iterations++;
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed()){
-            System.out.println("checking language...");
+            System.out.println("SMR - checking language...");
             if(this.isLanguageOK(user)){
                 // this.likeTweet(tweet.getId());
                 boolean result = false;
@@ -137,7 +136,6 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 System.out.println("\n-------------");
             }
         }
-        System.out.println("end doAction()");
     }
 
 }

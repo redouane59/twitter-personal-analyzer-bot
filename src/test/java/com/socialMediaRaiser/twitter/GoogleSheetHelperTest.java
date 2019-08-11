@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GoogleSheetHelperTest {
 
     private GoogleSheetHelper googleSheetHelper = new GoogleSheetHelper();
-
+    private static String ownerName = "RedTheOne";
     @BeforeAll
     static void init(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
     }
 
     @Test

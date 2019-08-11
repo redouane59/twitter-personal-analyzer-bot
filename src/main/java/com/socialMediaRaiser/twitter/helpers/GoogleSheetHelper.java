@@ -22,7 +22,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     private Map<Long, Integer> userRows = new HashMap<>();
 
     public GoogleSheetHelper(){
-        FollowProperties.load();
+      //  FollowProperties.load();
         this.sheetId = FollowProperties.ioProperties.getId();
         this.tabName = FollowProperties.ioProperties.getTabName();
         this.resultColumn = FollowProperties.ioProperties.getResultColumn();

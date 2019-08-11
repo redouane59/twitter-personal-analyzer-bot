@@ -7,24 +7,31 @@ import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByLastActivity;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByLiveKeyWords;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+//import javax.servlet.ServletContextEvent;
+//import javax.servlet.ServletContextListener;
 import java.io.IOException;
 import java.util.*;
 
 // @todo dev followback hour reception
 
-public class Main implements ServletContextListener {
+public class Main {
 
-   // private static AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
-    private static AbstractTwitterBot twitterBot = new TwitterBotByLastActivity();
+    private static AbstractTwitterBot twitterBot;
 
     public static void main(String[] args) throws Exception {
+        for(String s : args){
+            System.out.println(s);
+        }
+
+        String ownerName = "RedouaneBali";
+        twitterBot = new TwitterBotByInfluencers(ownerName);
+        // twitterBot = new TwitterBotByLastActivity();
+
         RandomForestAlgoritm.process();
-        FollowProperties.load();
-        System.out.println("start working for " + FollowProperties.USER_NAME);
-        twitterBot.checkNotFollowBack(true, true, yesterday(), false);
-        //twitterBot.getPotentialFollowers(100, true, true);
+        FollowProperties.load(ownerName);
+        System.out.println("start working for " + ownerName);
+        twitterBot.checkNotFollowBack(ownerName,true, true, yesterday(), false);
+        //twitterBot.getPotentialFollowers(ownerName, 100, true, true);
     }
 
     private static Date yesterday() {
@@ -33,7 +40,7 @@ public class Main implements ServletContextListener {
         return cal.getTime();
     }
 
-    @Override
+/*    @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         System.out.println("Context destroyed code here");
     }
@@ -52,5 +59,5 @@ public class Main implements ServletContextListener {
             e.printStackTrace();
         }
         System.out.println("SMR - end program");
-    }
+    } */
 }

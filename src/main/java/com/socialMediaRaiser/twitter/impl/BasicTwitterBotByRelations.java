@@ -3,6 +3,8 @@ package com.socialMediaRaiser.twitter.impl;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.User;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,10 +12,15 @@ import java.util.Comparator;
 import java.util.List;
 
 // follows followers of randomly selected followers
-@Data
+@Getter
+@Setter
 public class BasicTwitterBotByRelations extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
+
+    public BasicTwitterBotByRelations(String ownerName) {
+        super(ownerName);
+    }
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResult){
@@ -42,7 +49,7 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
         int i = 0;
         while (i < followerFollowers.size() && potentialFollowers.size()<count) {
             User potentialFollower = followerFollowers.get(i);
-            if (potentialFollower.shouldBeFollowed()
+            if (potentialFollower.shouldBeFollowed(this.getOwnerName())
             && ownerFollowingIds.indexOf(potentialFollower.getId())==-1) { // user not already followed
                     int indexInPotentialFollowersList = potentialFollowers.indexOf(potentialFollower);
                     if(indexInPotentialFollowersList==-1){ // not already found

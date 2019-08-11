@@ -5,6 +5,8 @@ import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.IOHelper;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,11 +14,16 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
+
+    public TwitterBotByInfluencers(String ownerName) {
+        super(ownerName);
+    }
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
@@ -50,7 +57,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
-                    if (potentialFollower.shouldBeFollowed()) {
+                    if (potentialFollower.shouldBeFollowed(this.getOwnerName())) {
                         if(!FollowProperties.ioProperties.isUseRFA() || potentialFollower.getRandomForestPrediction()) {
                             if (this.isLanguageOK(potentialFollower)) {
                                 if (follow) {

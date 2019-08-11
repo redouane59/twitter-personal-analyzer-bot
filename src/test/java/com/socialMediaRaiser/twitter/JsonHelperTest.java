@@ -12,9 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class JsonHelperTest {
 
+    private static String ownerName = "RedTheOne";
+
     @BeforeAll
     public static void init(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
     }
 
     @Test

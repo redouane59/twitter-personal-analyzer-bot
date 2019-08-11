@@ -10,6 +10,8 @@ import com.twitter.hbc.core.Constants;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +21,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@Data
+@Setter
+@Getter
 public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
@@ -31,6 +34,10 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     private boolean follow; // @todo in abstract ?
     private boolean saveResults;
     private Client client;
+
+    public TwitterBotByLiveKeyWords(String ownerName) {
+        super(ownerName);
+    }
 
     @Override
     public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
@@ -115,7 +122,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
                 && potentialFollowers.indexOf(user)==-1
-                && user.shouldBeFollowed()){
+                && user.shouldBeFollowed(this.getOwnerName())){
             System.out.println("SMR - checking language...");
             if(this.isLanguageOK(user)){
                 // this.likeTweet(tweet.getId());

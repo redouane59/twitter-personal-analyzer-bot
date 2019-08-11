@@ -17,7 +17,7 @@ import java.util.Map;
 @Data
 public class FollowProperties {
 
-    public final static String USER_NAME = "RedTheOne";
+    //public static String USER_NAME = "RedouaneBali";
     public static TargetProperties targetProperties;
     public static ScoringProperties scoringProperties;
     public static InfluencerProperties influencerProperties;
@@ -26,7 +26,7 @@ public class FollowProperties {
     public static GoogleCredentials googleCredentials;
     public static String ARRAY_SEPARATOR = ",";
 
-    public static void load() {
+    public static void load(String USER_NAME) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);

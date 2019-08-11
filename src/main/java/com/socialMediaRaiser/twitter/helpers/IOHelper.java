@@ -115,28 +115,6 @@ public class IOHelper {
         writer.close();
     }
 
-    public void writeId(Map<AbstractUser, Boolean> result) throws IOException {
-        LocalDateTime now = LocalDateTime.now();
-
-        FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
-                + "Documents" + File.separatorChar
-                + "ids"
-                + now.getYear()+now.getMonthValue()+now.getDayOfMonth()
-                +".csv");
-
-
-        writer.write("name;id;followed\n");
-        AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
-        for(Map.Entry<AbstractUser, Boolean> entry : result.entrySet()) {
-            writer.write(entry.getKey().getUserName() + ";"
-                    + twitterBot.getUserFromUserName(entry.getKey().getUserName()).getId() + ";"
-                    + entry.getValue()
-                    + "\n");
-        }
-
-        writer.close();
-    }
-
     public List<String[]> readData(String filePath) throws IOException {
         int count = 0;
         List<String[]> content = new ArrayList<>();

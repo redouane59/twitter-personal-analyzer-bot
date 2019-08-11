@@ -21,29 +21,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AbstractTwitterBotTest {
 
-    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers();
+    private static String ownerName = "RedTheOne";
+    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName);
 
     @BeforeAll
     public static void init() {
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
     }
 
     @Test
     public void testGetFollowingIdsById() {
         List<Long> followings = twitterBot.getFollowingIds(882266619115864066L);
-        assertTrue(followings.size() > 360);
+        assertTrue(followings.size() > 200);
     }
 
     @Test
     public void testGetFollowingIdsByName() {
         List<Long> followings = twitterBot.getFollowingIds("LaGhostquitweet");
-        assertTrue(followings.size() > 360);
+        assertTrue(followings.size() > 200);
     }
 
     @Test
     public void testGetFollowingsUserByName() {
         List<User> followings = twitterBot.getFollowingsUsers("LaGhostquitweet");
-        assertTrue(followings.size() > 360);
+        assertTrue(followings.size() > 200);
     }
 
     @Test
@@ -217,7 +218,7 @@ class AbstractTwitterBotTest {
         user.setFollowingsCount(1000);
         user.setLastUpdate(new Date());
         user.setLang("fr");
-        assertEquals(false, user.shouldBeFollowed());
+        assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
 
@@ -228,7 +229,7 @@ class AbstractTwitterBotTest {
         user.setFollowingsCount(1000);
         user.setLang("fr");
         user.setLastUpdate(null);
-        assertEquals(false, user.shouldBeFollowed());
+        assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
 
@@ -239,7 +240,7 @@ class AbstractTwitterBotTest {
         user.setFollowingsCount(1000);
         user.setLang("fr");
         user.setLastUpdate(new Date(2014, 1, 1));
-        assertEquals(false, user.shouldBeFollowed());
+        assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
 
@@ -250,7 +251,7 @@ class AbstractTwitterBotTest {
         user.setFollowingsCount(1000);
         user.setLang("fr");
         user.setLastUpdate(new Date());
-        assertEquals(true, user.shouldBeFollowed());
+        assertEquals(true, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
 

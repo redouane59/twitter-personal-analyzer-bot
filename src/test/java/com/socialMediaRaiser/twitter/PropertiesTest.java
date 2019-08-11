@@ -7,15 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PropertiesTest {
     FollowProperties followProperties = new FollowProperties();
+    static String userName = "RedTheOne";
 
     @BeforeAll
     public static void init(){
-        FollowProperties.load();
-    }
-
-    @Test
-    public void testStringProperty(){
-        assertTrue(FollowProperties.USER_NAME.length()>0);
+        FollowProperties.load(userName);
     }
 
     @Test

@@ -15,6 +15,7 @@ import java.util.*;
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
 
+    private String ownerName;
     private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
     private JsonHelper jsonHelper = new JsonHelper();
@@ -29,8 +30,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final String SOURCE = "source";
     private final int MAX_GET_F_CALLS = 30;
 
-    protected AbstractTwitterBot(){
+    public AbstractTwitterBot(String ownerName){
         super(new GoogleSheetHelper());
+        this.ownerName = ownerName;
     }
 
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
@@ -336,10 +338,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getRequestHelper().executeRequest(url, RequestMethod.GET);
     }
 
-    public void checkNotFollowBack(boolean unfollow, boolean writeInSheet, Date date, boolean override) {
+    public void checkNotFollowBack(String ownerName, boolean unfollow, boolean writeInSheet, Date date, boolean override) {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(override, override, date);
         if(followedPreviously!=null && followedPreviously.size()>0){
-            User user = this.getUserFromUserName(FollowProperties.USER_NAME);
+            User user = this.getUserFromUserName(ownerName);
             this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
         } else{
             System.err.println("no followers found at this date");

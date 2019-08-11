@@ -17,7 +17,7 @@ public abstract class AbstractUser {
         return (double) this.followersCount / (double) this.followingsCount;
     }
 
-    public abstract boolean shouldBeFollowed();
+    public abstract boolean shouldBeFollowed(String ownerName);
 
     public abstract boolean shouldBeUnfollowed();
 

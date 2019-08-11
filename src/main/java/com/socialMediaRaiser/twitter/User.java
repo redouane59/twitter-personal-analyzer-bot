@@ -45,9 +45,10 @@ public class User extends AbstractUser {
         this.location = location;
     }
 
+    // @odo remove argument ?
     @Override
-    public boolean shouldBeFollowed(){
-        if(this.getUserName()!=null && this.getUserName().equals(FollowProperties.USER_NAME)){
+    public boolean shouldBeFollowed(String ownerName){
+        if(this.getUserName()!=null && this.getUserName().equals(ownerName)){
             return false;
         }
         return this.scoringEngine.shouldBeFollowed(this);

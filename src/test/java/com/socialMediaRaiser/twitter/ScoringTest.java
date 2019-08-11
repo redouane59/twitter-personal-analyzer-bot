@@ -13,9 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ScoringTest {
 
+    private static String ownerName = "RedTheOne";
+
     @Test
     void testScoringZero(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         User user = new User();
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(0,scoring.getUserScore(user));
@@ -23,7 +25,7 @@ public class ScoringTest {
 
     @Test
     void testScoringOneMatchDescription(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         FollowProperties.targetProperties.setDescription("a,b,c");
         User user = new User();
         user.setDescription("a");
@@ -39,7 +41,7 @@ public class ScoringTest {
 
     @Test
     void testScoringSeveralMatchesDescription(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         User user = new User();
         user.setDescription("a b c ");
         FollowProperties.targetProperties.setDescription("a,b,c");
@@ -54,7 +56,7 @@ public class ScoringTest {
                         "100, 1000, 0," +
                         "1000, 100, 0"})
     void testScoringMinMaxRatio(String nbFollowers, String nbFollowings, String exceptedResult){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         User user = new User();
         user.setFollowersCount(Integer.valueOf(nbFollowers));
         user.setFollowingsCount(Integer.valueOf(nbFollowings));
@@ -87,7 +89,7 @@ public class ScoringTest {
             "100, 0," +
             "10000, 0"})
     void testScoringMinMaxFollowings(String nbFollowings, String exceptedResult){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         User user = new User();
         user.setFollowingsCount(Integer.valueOf(nbFollowings));
         FollowProperties.targetProperties.setMinNbFollowings(500);
@@ -99,14 +101,14 @@ public class ScoringTest {
 
     @Test
     void testLimit(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertNotEquals(0, scoring.getLimit());
     }
 
     @Test
     void testBlockingProperty(){
-        FollowProperties.load();
+        FollowProperties.load(ownerName);
         User user = new User();
         user.setDescription("x");
         user.setLang("fr");

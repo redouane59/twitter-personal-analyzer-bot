@@ -19,8 +19,8 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
     public abstract List<? extends AbstractUser> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults);
 
-    public List<? extends AbstractUser> getPotentialFollowers(int count, boolean follow, boolean saveResults){
-        AbstractUser user = this.getUserFromUserName(FollowProperties.USER_NAME);
+    public List<? extends AbstractUser> getPotentialFollowers(String ownerName, int count, boolean follow, boolean saveResults){
+        AbstractUser user = this.getUserFromUserName(ownerName);
         return this.getPotentialFollowers(user.getId(), count, follow, saveResults);
     }
 

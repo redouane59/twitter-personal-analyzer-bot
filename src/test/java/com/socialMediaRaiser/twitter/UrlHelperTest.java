@@ -1,7 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -86,8 +85,8 @@ public class UrlHelperTest {
     }
 
     @Test
-    public void testUrlGetUserById(){
-        assertEquals("https://api.twitter.com/1.1/users/show.json?user_id=12345",
+    public void testUrlGetUserByIdV2(){
+        assertEquals("https://api.twitter.com/labs/1/users?ids=12345&user.format=detailed&tweet.format=detailed&expansions=most_recent_tweet_id",
                 twitterBot.getUrlHelper().getUserUrl(12345L));
     }
 

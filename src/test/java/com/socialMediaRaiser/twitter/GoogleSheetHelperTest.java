@@ -12,8 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GoogleSheetHelperTest {
 
-    private GoogleSheetHelper googleSheetHelper = new GoogleSheetHelper();
     private static String ownerName = "RedTheOne";
+    private GoogleSheetHelper googleSheetHelper = new GoogleSheetHelper(ownerName);
+
     @BeforeAll
     static void init(){
         FollowProperties.load(ownerName);

@@ -25,24 +25,7 @@ public class RequestHelper {
     private int sleepTime = 15;
 
     @Deprecated
-    public JSONObject executeRequest(String url, RequestMethod method) {
-        try {
-            switch (method) {
-                case GET:
-                    return executeGetRequest(url);
-                case POST:
-                    return executePostRequest(url, new HashMap<>());
-                default:
-                    return null;
-            }
-        } catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-    private JSONObject executeGetRequest(String url) {
+    public JSONObject executeGetRequest(String url) {
         try {
             Response response = this.getHttpClient(url)
                     .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
@@ -59,6 +42,32 @@ public class RequestHelper {
                     e.printStackTrace();
                 }
                 return this.executeGetRequest(url);
+            } else{
+                // @TODO break here
+                System.err.println("(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String executeGetRequestV2(String url) {
+        try {
+            Response response = this.getHttpClient(url)
+                    .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
+            if(response.code()==200){
+                return response.body().string();
+            } else if (response.code()==429){
+                LocalDateTime now = LocalDateTime.now();
+                System.out.println("\n" + response.message() +" at "
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ...");
+                try {
+                    TimeUnit.MINUTES.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return this.executeGetRequestV2(url);
             } else{
                 System.err.println("(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
             }
@@ -97,6 +106,7 @@ public class RequestHelper {
         }
     }
 
+    @Deprecated
     public JSONArray executeGetRequestReturningArray(String url) {
         try {
             Response response = this.getHttpClient(url)

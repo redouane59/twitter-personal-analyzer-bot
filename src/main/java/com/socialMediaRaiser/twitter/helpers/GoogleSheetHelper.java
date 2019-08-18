@@ -21,8 +21,10 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     private String resultColumn;
     private Map<Long, Integer> userRows = new HashMap<>();
 
-    public GoogleSheetHelper(){
-      //  FollowProperties.load();
+    public GoogleSheetHelper(String ownerName){
+        if(ownerName!=null){
+            FollowProperties.load(ownerName);
+        }
         this.sheetId = FollowProperties.ioProperties.getId();
         this.tabName = FollowProperties.ioProperties.getTabName();
         this.resultColumn = FollowProperties.ioProperties.getResultColumn();

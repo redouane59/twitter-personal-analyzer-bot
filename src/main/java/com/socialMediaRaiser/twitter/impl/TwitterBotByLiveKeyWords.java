@@ -93,7 +93,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        int nbFollows = new GoogleSheetHelper().getPreviouslyFollowedIds(true, true, new Date()).size();
+        int nbFollows = new GoogleSheetHelper(this.getOwnerName()).getPreviouslyFollowedIds(true, true, new Date()).size();
 
         while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
             if(queue.size()>0){

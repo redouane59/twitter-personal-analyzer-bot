@@ -1,13 +1,18 @@
 package com.socialMediaRaiser.twitter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.*;
+import com.socialMediaRaiser.twitter.helpers.dto.getRelationship.RelationshipDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getRelationship.RelationshipObjectResponseDTO;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -31,7 +36,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private final int MAX_GET_F_CALLS = 30;
 
     public AbstractTwitterBot(String ownerName){
-        super(new GoogleSheetHelper());
+        super(new GoogleSheetHelper(ownerName));
         this.ownerName = ownerName;
     }
 
@@ -42,7 +47,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         int nbCalls = 1;
         do {
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
-            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
             if(response!=null && response.has(IDS)){
                 List<Long> ids = this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
                 if(ids!=null){
@@ -67,7 +72,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         System.out.print("users : ");
         do {
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
-            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
             if(response==null){
                 break;
             }
@@ -134,7 +139,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         do {
             System.out.println("looking for following with cursor = " + cursor);
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
-            JSONObject response = this.getRequestHelper().executeRequest(url_with_cursor, RequestMethod.GET);
+            JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
             result.addAll(this.getJsonHelper().jsonLongArrayToList(response.get("users")));
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
@@ -199,20 +204,23 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     @Override
     public RelationType getRelationType(Long userId1, Long userId2){
         String url = this.urlHelper.getFriendshipUrl(userId1, userId2);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null && response.has(RELATIONSHIP)) {
-            JSONObject relationship = (JSONObject) response.get(RELATIONSHIP);
-            JSONObject sourceResult = (JSONObject) relationship.get(SOURCE);
-            Boolean followedBy = (Boolean) sourceResult.get(FOLLOWED_BY);
-            Boolean following = (Boolean) sourceResult.get(FOLLOWING);
-            if(followedBy && !following){
-                return RelationType.FOLLOWER;
-            } else if (!followedBy && following){
-                return RelationType.FOLLOWING;
-            } else if (!followedBy && !following){
-                return RelationType.NONE;
-            } else if (followedBy && following){
-                return RelationType.FRIENDS;
+        String response = this.getRequestHelper().executeGetRequestV2(url);
+        if(response!=null) {
+            try {
+                RelationshipDTO relationshipDTO = new ObjectMapper().readValue(this.getRequestHelper().executeGetRequestV2(url), RelationshipObjectResponseDTO.class).getRelationship();
+                Boolean followedBy = relationshipDTO.getSource().isFollowed_by();
+                Boolean following = relationshipDTO.getSource().isFollowing();
+                if(followedBy && !following){
+                    return RelationType.FOLLOWER;
+                } else if (!followedBy && following){
+                    return RelationType.FOLLOWING;
+                } else if (!followedBy && !following){
+                    return RelationType.NONE;
+                } else if (followedBy && following){
+                    return RelationType.FRIENDS;
+                }
+            } catch (IOException e) {
+                System.err.print(e.getMessage());
             }
         }
         System.err.print("areFriends was null for " + userId2 + "! -> false ");
@@ -226,20 +234,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getUserIdsByRelation(url);
     }
 
-    int getNbRT(Long tweetId) {
-        String url = this.urlHelper.getTweetInfoUrl(tweetId);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null){
-            return (int)response.get(RETWEET_COUNT);
-        } else{
-            return -1;
-        }
-    }
-
     @Override
     public boolean follow(String userName){
         String url = this.urlHelper.getFollowUrl(userName);
-        JSONObject jsonResponse = this.requestHelper.executeRequest(url, RequestMethod.POST);
+        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null) {
             if (jsonResponse.has(JsonHelper.FOLLOWING)) {
                 System.out.println(userName + " followed ! ");
@@ -254,7 +252,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     @Override
     public boolean follow(Long userId) {
         String url = this.urlHelper.getFollowUrl(userId);
-        JSONObject jsonResponse = this.requestHelper.executeRequest(url, RequestMethod.POST);
+        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null) {
             if (jsonResponse.has(JsonHelper.FOLLOWING)) {
                 System.out.println(userId + " followed ! ");
@@ -270,7 +268,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     @Override
     public boolean unfollow(String userName){
         String url = this.urlHelper.getUnfollowUrl(userName);
-        JSONObject jsonResponse = this.requestHelper.executeRequest(url, RequestMethod.POST);
+        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null){
             System.out.println(userName + " unfollowed");
             return true;
@@ -281,7 +279,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     @Override
     public boolean unfollow(Long userId) {
         String url = this.urlHelper.getUnfollowUrl(userId);
-        JSONObject jsonResponse = this.requestHelper.executeRequest(url, RequestMethod.POST);
+        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null){
             System.out.println(userId + " unfollowed");
             return true;
@@ -292,25 +290,32 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     public User getUserFromUserId(Long userId)  {
         String url = this.getUrlHelper().getUserUrl(userId);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
+        String response = this.getRequestHelper().executeGetRequestV2(url);
         if(response!=null){
-            return this.getJsonHelper().jsonResponseToUser(response);
-        } else{
-            System.err.println("user " + userId + " not found !!");
-            return null;
+            try{
+                return this.getJsonHelper().jsonResponseToUserV2(response);
+            } catch(Exception e){
+                System.err.println(e.getMessage());;
+            }
         }
+        System.err.println("getUserFromUserId return null for " + userId);
+        return null;
     }
 
     @Override
-    public User getUserFromUserName(String userName)  {
+    public User getUserFromUserName(String userName) {
         String url = this.getUrlHelper().getUserUrl(userName);
-        JSONObject response = this.getRequestHelper().executeRequest(url, RequestMethod.GET);
-        if(response!=null){
-            User user = this.getJsonHelper().jsonResponseToUser(response);
-            return user;
-        } else{
-            return null;
+        String response = this.getRequestHelper().executeGetRequestV2(url);
+        if (response != null) {
+            try {
+              //  UserObjectResponseDTO userObjectResponseDTO = new ObjectMapper().readValue(response, UserObjectResponseDTO.class);
+                User user = this.getJsonHelper().jsonResponseToUserV2(response); // @todo find solution to use the dto directly
+                return user;
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
+        return null;
     }
 
     public List<User> getUsersFromUserNames(List<String> userNames)  {
@@ -333,9 +338,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
-    JSONObject getRateLimitStatus(){
+    // @TODO to implement
+    public String getRateLimitStatus(){
         String url = this.getUrlHelper().getRateLimitUrl();
-        return this.getRequestHelper().executeRequest(url, RequestMethod.GET);
+        return this.getRequestHelper().executeGetRequestV2(url);
     }
 
     public void checkNotFollowBack(String ownerName, boolean unfollow, boolean writeInSheet, Date date, boolean override) {

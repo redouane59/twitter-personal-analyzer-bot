@@ -8,6 +8,7 @@ import java.util.List;
 public class URLHelper {
 
     private final String ROOT_URL = "https://api.twitter.com/1.1";
+    private final String ROOT_URL_V2 = "https://api.twitter.com/labs/1";
     private final String IDS_JSON = "/ids.json?";
     private final String SCREEN_NAME = "screen_name";
     private final String ID = "id";
@@ -240,6 +241,7 @@ public class URLHelper {
                 .append(screenName)
                 .append("&"+COUNT+"=")
                 .append(maxCount)
+     //           .append("&user.format=compact") @todo not working for the moment, waiting labs
                 .toString();
     }
 
@@ -262,29 +264,36 @@ public class URLHelper {
                 .append("/user_timeline.json?").toString();
     }
 
+    // @todo add constantes
     public String getUserUrl(Long userId) {
         this.userCount++;
         if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         }
-        return new StringBuilder(ROOT_URL)
+        return new StringBuilder(ROOT_URL_V2)
                 .append(USERS)
-                .append(SHOW_JSON)
-                .append(USER_ID+"=")
+                .append("?ids=")
                 .append(userId)
+                .append("&user.format=detailed")
+                .append("&tweet.format=detailed")
+                .append("&expansions=most_recent_tweet_id")
                 .toString();
     }
 
-    public String getUserUrl(String name) {
+
+    @Deprecated
+    public String getUserUrl(String username) {
         this.userCount++;
         if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
         }
-        return new StringBuilder(ROOT_URL)
+        return new StringBuilder(ROOT_URL_V2)
                 .append(USERS)
-                .append(SHOW_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(name)
+                .append("?usernames=")
+                .append(username)
+                .append("&user.format=detailed")
+                .append("&tweet.format=detailed")
+                .append("&expansions=most_recent_tweet_id")
                 .toString();
     }
 
@@ -336,6 +345,7 @@ public class URLHelper {
                 .toString();
     }
 
+    @Deprecated
     public String getTweetInfoUrl(Long tweetId) {
         this.tweetInfoCount++;
         if(this.tweetInfoCount%10==0){
@@ -367,6 +377,24 @@ public class URLHelper {
     }
 
     public String getUserTweetsUrl(Long userId, int count){
+        this.tweetInfoCount++;
+        if(this.tweetInfoCount%10==0){
+            System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
+        }
+        return new StringBuilder(ROOT_URL)
+                .append(STATUSES)
+                .append(USER_TIMELINE)
+                .append(USER_ID+"=")
+                .append(userId)
+                .append("&"+COUNT+"=")
+                .append(count)
+                .append("&"+TRIM_USER)
+                .append("&"+EXCLUDE_RTS)
+                .toString();
+    }
+
+    // https://api.twitter.com/labs/1/tweets?ids=1067094924124872705
+    public String getUserTweetsUrlV2(Long userId, int count){
         this.tweetInfoCount++;
         if(this.tweetInfoCount%10==0){
             System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");

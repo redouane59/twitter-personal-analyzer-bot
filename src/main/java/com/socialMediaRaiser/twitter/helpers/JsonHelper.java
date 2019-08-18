@@ -1,27 +1,36 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.User.UserBuilder;
-import lombok.Builder;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.IncludesDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserObjectResponseDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.ParseException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+// @todo remove JSON from project, replace it by JsonNode
+
 public class JsonHelper {
 
+    @Deprecated
     private static final String STATUSES_COUNT = "statuses_count";
+    private static final String TWEET_COUNT = "tweet_count";
     private static final String CREATED_AT = "created_at";
     private final String SCREEN_NAME = "screen_name";
     private final String USER = "user";
     private final String FOLLOWER_COUNT = "followers_count";
+    @Deprecated
     private final String FRIENDS_COUNT = "friends_count";
+    private final String FOLLOWING_COUNT = "following_count";
     private final String FAVOURITES_COUNT = "favourites_count";
     private final String FAVORITE_COUNT = "favorite_count";
     private final String RETWEET_COUNT = "retweet_count";
@@ -34,6 +43,7 @@ public class JsonHelper {
     private final String NEXT_CURSOR = "next_cursor";
     public static final String FOLLOWING = "following";
 
+    @Deprecated
     public List<Long> jsonLongArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
         ArrayList<Long> listdata = new ArrayList<>();
@@ -53,6 +63,7 @@ public class JsonHelper {
         return listdata;
     }
 
+    @Deprecated
     public List<String> jsonStringArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
         ArrayList<String> listdata = new ArrayList<>();
@@ -64,6 +75,7 @@ public class JsonHelper {
         return listdata;
     }
 
+    @Deprecated
     public List<User> jsonUserArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
         ArrayList<User> listdata = new ArrayList<>();
@@ -75,6 +87,7 @@ public class JsonHelper {
         return listdata;
     }
 
+    @Deprecated
     public User jsonResponseToUser(JSONObject jsonObject){
         if(jsonObject!=null){
             Long id = Long.valueOf(jsonObject.get(ID).toString());
@@ -111,6 +124,29 @@ public class JsonHelper {
         }
     }
 
+    public User jsonResponseToUserV2(String response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
+        UserDTO data = obj.getData().get(0);
+        IncludesDTO includes = obj.getIncludes();
+        return User.builder()
+                .id(Long.valueOf(data.getId()))
+                .userName(data.getUsername())
+                .followerCout(data.getStats().getFollowers_count())
+                .followingCount(data.getStats().getFollowing_count())
+                .statusesCount(data.getStats().getTweet_count())
+                .dateOfCreation(getTwitterDateV2(data.getCreated_at()))
+                .description(data.getDescription())
+                .dateOfFollow(null)
+                //             .lastUpdate(getTwitterDate(lastUpdate))
+                .location(data.getLocation())
+                .mostRecentTweet(includes.getTweets())
+                .lang(includes.getTweets().get(0).getLang())
+                .lastUpdate(getTwitterDateV2(includes.getTweets().get(0).getCreated_at()))
+                .build();
+    }
+
+    @Deprecated
     public Long getLongFromCursorObject(JSONObject response){
         if(response==null){
             System.err.println("result null");
@@ -143,6 +179,21 @@ public class JsonHelper {
         }
     }
 
+    public static Date getTwitterDateV2(String date)
+    {
+        if(date==null){
+            return null;
+        }
+
+        try {
+            return Date.from(Instant.parse(date));
+        } catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Deprecated
     public List<Tweet> jsonResponseToTweetList(JSONArray jsonArray) {
         List<Tweet> tweets = new ArrayList<>();
         if(jsonArray!=null){
@@ -175,4 +226,5 @@ public class JsonHelper {
         }
         return tweets;
     }
+
 }

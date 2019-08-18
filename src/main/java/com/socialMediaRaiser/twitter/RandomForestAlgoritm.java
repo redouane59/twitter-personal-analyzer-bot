@@ -24,7 +24,7 @@ public class RandomForestAlgoritm {
     }
     public static void process() throws Exception {
 
-        GoogleSheetHelper sheetHelper = new GoogleSheetHelper();
+        GoogleSheetHelper sheetHelper = new GoogleSheetHelper(null);
         List<List<Object>> data = sheetHelper.getRandomForestData();
 
         Instances trainingDataSet = new Instances("trainingDataSet", getAttributes(), 0);

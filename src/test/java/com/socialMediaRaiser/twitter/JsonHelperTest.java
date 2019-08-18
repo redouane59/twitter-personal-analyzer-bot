@@ -2,13 +2,13 @@ package com.socialMediaRaiser.twitter;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserObjectResponseDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonHelperTest {
 
@@ -34,5 +34,112 @@ public class JsonHelperTest {
         assertNotNull(result.getRetweet_count());
         assertNotNull(result.getReply_count());
         assertNotNull(result.getText());
+    }
+
+    @Test
+    public void testParseGetUserResponse() throws IOException {
+        String stringResponse = "{\n" +
+                "   \"data\":[\n" +
+                "      {\n" +
+                "         \"id\":\"92073489\",\n" +
+                "         \"created_at\":\"2009-11-23T17:53:15.000Z\",\n" +
+                "         \"name\":\"Red'1\",\n" +
+                "         \"username\":\"RedTheOne\",\n" +
+                "         \"protected\":false,\n" +
+                "         \"location\":\"Madrid, Espagne\",\n" +
+                "         \"url\":\"\",\n" +
+                "         \"description\":\"En vérité, j'suis à ma place quand je les dérange. Jamais dans la tendance, toujours dans la bonne direction... #Lille #Montréal #Madrid @Decathlon\uD83D\uDC8D\uD83C\uDDE9\uD83C\uDDFF\uD83C\uDDEE\uD83C\uDDF9\",\n" +
+                "         \"verified\":false,\n" +
+                "         \"entities\":{\n" +
+                "            \"description\":{\n" +
+                "               \"hashtags\":[\n" +
+                "                  {\n" +
+                "                     \"start\":112,\n" +
+                "                     \"end\":118,\n" +
+                "                     \"tag\":\"Lille\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"start\":119,\n" +
+                "                     \"end\":128,\n" +
+                "                     \"tag\":\"Montréal\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"start\":129,\n" +
+                "                     \"end\":136,\n" +
+                "                     \"tag\":\"Madrid\"\n" +
+                "                  }\n" +
+                "               ],\n" +
+                "               \"mentions\":[\n" +
+                "                  {\n" +
+                "                     \"start\":137,\n" +
+                "                     \"end\":147,\n" +
+                "                     \"username\":\"Decathlon\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            }\n" +
+                "         },\n" +
+                "         \"profile_image_url\":\"https://pbs.twimg.com/profile_images/1162352850661445633/c1Rw5BI0_normal.jpg\",\n" +
+                "         \"stats\":{\n" +
+                "            \"followers_count\":6279,\n" +
+                "            \"following_count\":4153,\n" +
+                "            \"tweet_count\":35399,\n" +
+                "            \"listed_count\":73\n" +
+                "         },\n" +
+                "         \"most_recent_tweet_id\":\"1162756711595282432\",\n" +
+                "         \"pinned_tweet_id\":\"1035192987008020480\",\n" +
+                "         \"format\":\"detailed\"\n" +
+                "      }\n" +
+                "   ],\n" +
+                "   \"includes\":{\n" +
+                "      \"tweets\":[\n" +
+                "         {\n" +
+                "            \"id\":\"1162756711595282432\",\n" +
+                "            \"created_at\":\"2019-08-17T16:02:57.000Z\",\n" +
+                "            \"text\":\"@fbelmadi dédicace spéciale pour toi\",\n" +
+                "            \"author_id\":\"92073489\",\n" +
+                "            \"in_reply_to_user_id\":\"92073489\",\n" +
+                "            \"referenced_tweets\":[\n" +
+                "               {\n" +
+                "                  \"type\":\"replied_to\",\n" +
+                "                  \"id\":\"1162756655945306113\"\n" +
+                "               }\n" +
+                "            ],\n" +
+                "            \"entities\":{\n" +
+                "               \"mentions\":[\n" +
+                "                  {\n" +
+                "                     \"start\":0,\n" +
+                "                     \"end\":9,\n" +
+                "                     \"username\":\"fbelmadi\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            },\n" +
+                "            \"stats\":{\n" +
+                "               \"retweet_count\":0,\n" +
+                "               \"reply_count\":1,\n" +
+                "               \"like_count\":1,\n" +
+                "               \"quote_count\":0\n" +
+                "            },\n" +
+                "            \"possibly_sensitive\":false,\n" +
+                "            \"lang\":\"fr\",\n" +
+                "            \"source\":\"<a href=\\\"https://mobile.twitter.com\\\" rel=\\\"nofollow\\\">Twitter Web App</a>\",\n" +
+                "            \"format\":\"detailed\"\n" +
+                "         }\n" +
+                "      ]\n" +
+                "   }\n" +
+                "}";
+
+        UserObjectResponseDTO objectInterpretation = new ObjectMapper().readValue(stringResponse, UserObjectResponseDTO.class);
+        assertNotNull(objectInterpretation);
+        assertNotNull(objectInterpretation.getData());
+        assertNotNull(objectInterpretation.getIncludes());
+        assertEquals(112, objectInterpretation.getData().get(0).getEntities().getDescription().getHashtags().get(0).getStart());
+        assertTrue("Decathlon".equals(objectInterpretation.getData().get(0).getEntities().getDescription().getMentions().get(0).getUsername()));
+        assertEquals(6279, objectInterpretation.getData().get(0).getStats().getFollowers_count());
+        assertTrue("92073489".equals(objectInterpretation.getIncludes().getTweets().get(0).getAuthor_id()));
+    }
+
+    @Test
+    public void testParseGetTweetResponse() throws IOException{
+
     }
 }

@@ -2,14 +2,12 @@ package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
-import com.socialMediaRaiser.twitter.helpers.IOHelper;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -135,6 +133,7 @@ class AbstractTwitterBotTest {
     }
 
     @Test
+    @Disabled
     public void testGetUserInfoFavouritesCount() {
         long userId = 92073489L;
         User user = twitterBot.getUserFromUserId(userId);
@@ -186,13 +185,6 @@ class AbstractTwitterBotTest {
         assertEquals("RedTheOne", user.getUserName());
         user = twitterBot.getUserFromUserId(userId);
         assertEquals("RedTheOne", user.getUserName());
-    }
-
-    @Test
-    public void testGetNbRT() {
-        Long tweetId = 925804518662705153L;
-        int nbRT = twitterBot.getNbRT(tweetId);
-        assertTrue(nbRT > 1000);
     }
 
     @Test
@@ -266,7 +258,7 @@ class AbstractTwitterBotTest {
     @Disabled
     public void testWritingOnGoogleSheet() {
         User user = twitterBot.getUserFromUserName("RedTheOne");
-        GoogleSheetHelper helper = new GoogleSheetHelper();
+        GoogleSheetHelper helper = new GoogleSheetHelper(ownerName);
         helper.addNewFollowerLine(user);
     }
 
@@ -317,6 +309,13 @@ class AbstractTwitterBotTest {
         Date lastUpdate = user.getLastUpdate();
         long diffDays = (now.getTime() - lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
         assertTrue(diffDays < 15);
+    }
+
+    @Test
+    public void getMostRecentTweets(){
+        long userId = 92073489L;
+        User user = twitterBot.getUserFromUserId(userId);
+        assertTrue(user.getMostRecentTweet().size()>0);
     }
 
 

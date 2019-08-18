@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.helpers.dto.getUser;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 import java.util.List;
@@ -12,10 +13,12 @@ public class TweetDTO {
     private String author_id;
     private String in_reply_to_user_id;
     private List<ReferencedTweetDTO> referenced_tweets;
-    private MentionEntitiesDTO entities;
+    private JsonNode entities;
     private TwitterStatsDTO stats;
     private boolean possibly_sensitive;
     private String lang;
     private String source;
     private String format;
+    private JsonNode attachments;
+    private JsonNode geo;
 }

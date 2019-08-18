@@ -220,7 +220,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                     return RelationType.FRIENDS;
                 }
             } catch (IOException e) {
-                System.err.print(e.getMessage());
+                System.err.print(e.getMessage() + " response = " + response);
             }
         }
         System.err.print("areFriends was null for " + userId2 + "! -> false ");
@@ -295,7 +295,8 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             try{
                 return this.getJsonHelper().jsonResponseToUserV2(response);
             } catch(Exception e){
-                System.err.println(e.getMessage());;
+                System.err.print(e.getMessage() + " response = " + response);
+                e.printStackTrace();
             }
         }
         System.err.println("getUserFromUserId return null for " + userId);
@@ -312,7 +313,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 User user = this.getJsonHelper().jsonResponseToUserV2(response); // @todo find solution to use the dto directly
                 return user;
             } catch (IOException e) {
-                System.err.println(e.getMessage());
+                System.err.print(e.getMessage() + " response = " + response);
             }
         }
         return null;

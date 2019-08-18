@@ -57,8 +57,11 @@ public class RequestHelper {
             Response response = this.getHttpClient(url)
                     .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
             if(response.code()==200){
-                return response.body().string();
+                String result = response.body().string();
+                response.close();
+                return result;
             } else if (response.code()==429){
+                response.close();
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" + response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ...");

@@ -30,10 +30,12 @@ public class User extends AbstractUser {
     private String location;
     private UserScoringEngine scoringEngine = new UserScoringEngine(FollowProperties.targetProperties.getMinimumPercentMatch());
     private List<TweetDTO> mostRecentTweet;
+    private boolean protectedAccount;
 
     @Builder
-    User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation, int commonFollowers,
-         Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount, Date lastUpdate, String location, List<TweetDTO> mostRecentTweet){
+    User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
+         int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
+         Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
         super(id,userName, followerCout, followingCount);
         this.lang = lang;
         this.statusesCount = statusesCount;
@@ -46,6 +48,7 @@ public class User extends AbstractUser {
         this.lastUpdate = lastUpdate;
         this.location = location;
         this.mostRecentTweet = mostRecentTweet;
+        this.protectedAccount = protectedAccount;
     }
 
     // @odo remove argument ?

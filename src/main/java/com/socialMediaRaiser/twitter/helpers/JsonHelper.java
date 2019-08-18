@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.IncludesDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserObjectResponseDTO;
 import org.json.JSONArray;
@@ -129,6 +130,14 @@ public class JsonHelper {
         UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
         UserDTO data = obj.getData().get(0);
         IncludesDTO includes = obj.getIncludes();
+        List<TweetDTO> mostRecentTweet = null;
+        String lang = null;
+        Date lastUpdate = null;
+        if(!data.isProtectedAccount() && includes!=null){
+            mostRecentTweet = includes.getTweets();
+            lang = includes.getTweets().get(0).getLang();
+            lastUpdate = getTwitterDateV2(includes.getTweets().get(0).getCreated_at());
+        }
         return User.builder()
                 .id(Long.valueOf(data.getId()))
                 .userName(data.getUsername())
@@ -138,11 +147,11 @@ public class JsonHelper {
                 .dateOfCreation(getTwitterDateV2(data.getCreated_at()))
                 .description(data.getDescription())
                 .dateOfFollow(null)
-                //             .lastUpdate(getTwitterDate(lastUpdate))
                 .location(data.getLocation())
-                .mostRecentTweet(includes.getTweets())
-                .lang(includes.getTweets().get(0).getLang())
-                .lastUpdate(getTwitterDateV2(includes.getTweets().get(0).getCreated_at()))
+                .mostRecentTweet(mostRecentTweet)
+                .lang(lang)
+                .lastUpdate(lastUpdate)
+                .protectedAccount(data.isProtectedAccount())
                 .build();
     }
 

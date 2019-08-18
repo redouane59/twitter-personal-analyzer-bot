@@ -132,8 +132,6 @@ public class JsonHelperTest {
         assertNotNull(objectInterpretation);
         assertNotNull(objectInterpretation.getData());
         assertNotNull(objectInterpretation.getIncludes());
-        assertEquals(112, objectInterpretation.getData().get(0).getEntities().getDescription().getHashtags().get(0).getStart());
-        assertTrue("Decathlon".equals(objectInterpretation.getData().get(0).getEntities().getDescription().getMentions().get(0).getUsername()));
         assertEquals(6279, objectInterpretation.getData().get(0).getStats().getFollowers_count());
         assertTrue("92073489".equals(objectInterpretation.getIncludes().getTweets().get(0).getAuthor_id()));
     }

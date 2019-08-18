@@ -3,13 +3,9 @@ package com.socialMediaRaiser.twitter.impl;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.IOHelper;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -59,7 +55,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                     if (potentialFollower.shouldBeFollowed(this.getOwnerName())) {
                         if(!FollowProperties.ioProperties.isUseRFA() || potentialFollower.getRandomForestPrediction()) {
-                            if (this.isLanguageOK(potentialFollower)) {
+                            if (potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())) {
                                 if (follow) {
                                     boolean result = this.follow(potentialFollower.getId());
                                     if (result) {
@@ -82,7 +78,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
         System.out.println("********************************");
         System.out.println(potentialFollowers.size() + " followers followed / "
-                + iteration + " users analyzed (" + (potentialFollowers.size()*100)/iteration + "%)");
+                + iteration + " users analyzed (" + (potentialFollowers.size()*100)/(double)iteration + "%)");
         System.out.println("********************************");
 
         return potentialFollowers;
@@ -96,7 +92,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         while(i< users.size() && followersInfluencers.size() < count){
             user = users.get(i);
             if(user.isInfluencer() && this.isLanguageOK(user)){
-                    followersInfluencers.add(user);
+                followersInfluencers.add(user);
             }
             i++;
         }

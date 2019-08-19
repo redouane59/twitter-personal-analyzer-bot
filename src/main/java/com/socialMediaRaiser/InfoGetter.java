@@ -1,5 +1,7 @@
 package com.socialMediaRaiser;
 
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
+
 import java.util.List;
 
 public interface InfoGetter {
@@ -12,8 +14,8 @@ public interface InfoGetter {
   List<Long> getFollowingIds(String userName);
   List<Long> getFollowingIds(Long userId);
 
-  AbstractUser getUserFromUserName(String userName);
-  AbstractUser getUserFromUserId(Long userId);
+  UserDTO getUserFromUserName(String userName);
+  UserDTO getUserFromUserId(Long userId);
 
   //  int getNbFollowers(String userName);
   //  int getNbFollowings(String userName);

@@ -1,7 +1,7 @@
 package com.socialMediaRaiser.twitter.scoring;
 
 import com.socialMediaRaiser.twitter.FollowProperties;
-import com.socialMediaRaiser.twitter.User;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import com.socialMediaRaiser.twitter.properties.ScoringProperty;
 import lombok.Getter;
 
@@ -21,27 +21,26 @@ public class UserScoringEngine {
         }
     }
 
-    public boolean shouldBeFollowed(User user){
+    public boolean shouldBeFollowed(UserDTO user){
         int score = getUserScore(user);
-        System.out.println("score of " + score + "/"+limit+ " for " + user.getUserName());
+        System.out.println("score of " + score + "/"+limit+ " for " + user.getUsername());
         return score >= limit;
     }
 
-    public int getUserScore(User user){
+    public int getUserScore(UserDTO user){
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setValue(user.getFollowersCount());
-        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingsCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingCount());
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setValue(user.getFollowersRatio());
         String description = user.getDescription();
         // @odo only if public account
         if(user.getMostRecentTweet()!=null
-                && user.getMostRecentTweet().size()>0
                 && !user.isProtectedAccount()){ // adding the last tweet to description
-            description.concat(user.getMostRecentTweet().get(0).getText());
+            description.concat(user.getMostRecentTweet().getText());
         }
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setValue(description);
         FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).setValue(user.getLocation());
         FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).setValue(user.getCommonFollowers());
-        FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
+      //  FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getStatusesCount());
         FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).setValue(user.getLastUpdate());
         return this.computeScore();

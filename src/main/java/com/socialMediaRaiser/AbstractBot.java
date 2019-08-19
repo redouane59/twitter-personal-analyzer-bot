@@ -2,6 +2,7 @@ package com.socialMediaRaiser;
 
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.helpers.AbstractIOHelper;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,10 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
     private AbstractIOHelper IOHelper;
 
-    public abstract List<? extends AbstractUser> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults);
+    public abstract List<? extends UserDTO> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults);
 
-    public List<? extends AbstractUser> getPotentialFollowers(String ownerName, int count, boolean follow, boolean saveResults){
-        AbstractUser user = this.getUserFromUserName(ownerName);
+    public List<? extends UserDTO> getPotentialFollowers(String ownerName, int count, boolean follow, boolean saveResults){
+        UserDTO user = this.getUserFromUserName(ownerName);
         return this.getPotentialFollowers(user.getId(), count, follow, saveResults);
     }
 

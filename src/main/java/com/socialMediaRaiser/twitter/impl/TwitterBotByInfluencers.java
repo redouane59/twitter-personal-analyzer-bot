@@ -2,7 +2,8 @@ package com.socialMediaRaiser.twitter.impl;
 
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
-import com.socialMediaRaiser.twitter.User;
+
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @Setter
 public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
-    private List<User> potentialFollowers = new ArrayList<>();
+    private List<UserDTO> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
 
     public TwitterBotByInfluencers(String ownerName) {
@@ -22,11 +23,11 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+    public List<UserDTO> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship) count = maxFriendship;
         int minOccurence = 0;
-        List<User> ownerFollowers = this.getFollowerUsers(ownerId);
-        List<User> influencers = this.getInfluencersFromUsers(ownerFollowers, 150);
+        List<UserDTO> ownerFollowers = this.getFollowerUsers(ownerId);
+        List<UserDTO> influencers = this.getInfluencersFromUsers(ownerFollowers, 150);
         Collections.shuffle(influencers);
 
         Map<Long, Long> sortedPotentialFollowersMap =
@@ -50,7 +51,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
             Map.Entry<Long, Long> entry = it.next();
             if(entry.getKey()!=null && entry.getValue()!=null){
                 Long userId = entry.getKey();
-                User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
+                UserDTO potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                     if (potentialFollower.shouldBeFollowed(this.getOwnerName())) {
@@ -66,7 +67,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                                         }
                                     }
                                 } else {
-                                    System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+                                    System.out.println("potentialFollowers added : " + potentialFollower.getUsername());
                                     potentialFollowers.add(potentialFollower);
                                 }
                             }
@@ -84,9 +85,9 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         return potentialFollowers;
     }
 
-    private List<User> getInfluencersFromUsers(List<User> users, int count){
-        List<User> followersInfluencers = new ArrayList<>();
-        User user;
+    private List<UserDTO> getInfluencersFromUsers(List<UserDTO> users, int count){
+        List<UserDTO> followersInfluencers = new ArrayList<>();
+        UserDTO user;
         int i=0;
         // building influencers list
         while(i< users.size() && followersInfluencers.size() < count){
@@ -102,13 +103,13 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
 
     // id, occurencies
-    private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(Long ownerId, List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
+    private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(Long ownerId, List<UserDTO> followers, int nbFollowersMaxtoWatch, int minOccurence){
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         ownerFollowingIds.add(ownerId);
         List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
         // building influencers followers list
         List<Long> influencersFollowersIds = new ArrayList<>();
-        User user;
+        UserDTO user;
         int i=0;
         while(i<followers.size() && i<nbFollowersMaxtoWatch){
             user = followers.get(i);
@@ -119,7 +120,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                     influencersFollowersIds.add(userId);
                 }
             }
-            System.out.println(user.getUserName() + " (" + currentFollowersInfluencersFollowersId.size() + " followers)");
+            System.out.println(user.getUsername() + " (" + currentFollowersInfluencersFollowersId.size() + " followers)");
             i++;
         }
         Map<Long, Long> sortedPotentialFollowersMap = influencersFollowersIds.stream()

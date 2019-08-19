@@ -2,8 +2,10 @@ package com.socialMediaRaiser.twitter.impl;
 
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
-import com.socialMediaRaiser.twitter.Tweet;
-import com.socialMediaRaiser.twitter.User;
+
+
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +18,7 @@ import java.util.*;
 @Setter
 public class TwitterBotByLastActivity extends AbstractTwitterBot {
 
-    private List<User> potentialFollowers = new ArrayList<>();
+    private List<UserDTO> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
 
     public TwitterBotByLastActivity(String ownerName) {
@@ -24,14 +26,14 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+    public List<UserDTO> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship){
             count = maxFriendship;
         }
         List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
         List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
 
-        List<Tweet> lastTweets = null;
+        List<TweetDTO> lastTweets = null;
         String startDate = "201907200000";
         String endDate = "201907221000";
         try {
@@ -42,8 +44,8 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
 
         int iteration=0;
         while(iteration<lastTweets.size() && potentialFollowers.size() < count){
-            Tweet tweet = lastTweets.get(iteration);
-            User potentialFollower = tweet.getUser();
+            TweetDTO tweet = lastTweets.get(iteration);
+            UserDTO potentialFollower = this.getUserFromUserId(Long.valueOf(tweet.getAuthor_id()));
             // @todo how to not count commonFollowers in scoring ?
             if(ownerFollowingIds.indexOf(potentialFollower.getId())==-1
                     && followedRecently.indexOf(potentialFollower.getId())==-1
@@ -60,7 +62,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
                             }
                         }
                     } else {
-                        System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+                        System.out.println("potentialFollowers added : " + potentialFollower.getUsername());
                         potentialFollowers.add(potentialFollower);
                     }
                 }

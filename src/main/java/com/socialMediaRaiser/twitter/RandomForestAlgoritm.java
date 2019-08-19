@@ -1,6 +1,7 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
@@ -93,11 +94,11 @@ public class RandomForestAlgoritm {
         return fvWekaAttributes;
     }
 
-    public static boolean getPrediction(User user) {
+    public static boolean getPrediction(UserDTO user) {
          Instances dataset = new Instances("whatever", getAttributes(), 0);
         //Followers	Followings	NbDaySinceLastTweet	CommonFollowers	DateOfFollow	Tweets	Fav	YearsSinceCreation	FollowBack
-        double[] attValues = {user.getFollowersCount(), user.getFollowingsCount(), user.getDaysBetweenFollowAndLastUpdate()
-                , user.getCommonFollowers(), 0.0, user.getStatusesCount(), user.getFavouritesCount(),
+        double[] attValues = {user.getFollowersCount(), user.getFollowingCount(), user.getDaysBetweenFollowAndLastUpdate()
+                , user.getCommonFollowers(), 0.0, user.getStatusesCount(), 0, // @todo remove following from equation
                 user.getYearsBetweenFollowAndCreation()};
 
         Instance i1 = new DenseInstance(1.0, attValues);

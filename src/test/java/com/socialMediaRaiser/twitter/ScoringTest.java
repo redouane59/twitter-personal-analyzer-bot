@@ -1,5 +1,7 @@
 package com.socialMediaRaiser.twitter;
 
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserStatsDTO;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +20,7 @@ public class ScoringTest {
     @Test
     void testScoringZero(){
         FollowProperties.load(ownerName);
-        User user = new User();
+        UserDTO user = UserDTO.builder().build();
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(0,scoring.getUserScore(user));
     }
@@ -27,8 +29,7 @@ public class ScoringTest {
     void testScoringOneMatchDescription(){
         FollowProperties.load(ownerName);
         FollowProperties.targetProperties.setDescription("a,b,c");
-        User user = new User();
-        user.setDescription("a");
+        UserDTO user = UserDTO.builder().description("a").build();
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setMaxPoints(10);
         UserScoringEngine scoring = new UserScoringEngine(100);
@@ -42,8 +43,7 @@ public class ScoringTest {
     @Test
     void testScoringSeveralMatchesDescription(){
         FollowProperties.load(ownerName);
-        User user = new User();
-        user.setDescription("a b c ");
+        UserDTO user = UserDTO.builder().description("a b c ").build();
         FollowProperties.targetProperties.setDescription("a,b,c");
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setActive(true);
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setMaxPoints(10);
@@ -57,9 +57,11 @@ public class ScoringTest {
                         "1000, 100, 0"})
     void testScoringMinMaxRatio(String nbFollowers, String nbFollowings, String exceptedResult){
         FollowProperties.load(ownerName);
-        User user = new User();
-        user.setFollowersCount(Integer.valueOf(nbFollowers));
-        user.setFollowingsCount(Integer.valueOf(nbFollowings));
+        UserDTO user = UserDTO.builder()
+                .stats(UserStatsDTO.builder()
+                        .followersCount(Integer.valueOf(nbFollowers))
+                        .followingCount(Integer.valueOf(nbFollowings))
+                        .build()).build();
         FollowProperties.targetProperties.setMinRatio((float)0.5);
         FollowProperties.targetProperties.setMaxRatio((float)1.5);
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setMaxPoints(20);
@@ -75,8 +77,10 @@ public class ScoringTest {
             "100, 0," +
             "10000, 0"})
     void testScoringMinMaxFollowers(String nbFollowers, String exceptedResult){
-        User user = new User();
-        user.setFollowersCount(Integer.valueOf(nbFollowers));
+        UserDTO user = UserDTO.builder()
+                .stats(UserStatsDTO.builder()
+                        .followersCount(Integer.valueOf(nbFollowers))
+                        .build()).build();
         FollowProperties.targetProperties.setMinNbFollowers(500);
         FollowProperties.targetProperties.setMaxNbFollowers(5000);
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setMaxPoints(10);
@@ -90,8 +94,10 @@ public class ScoringTest {
             "10000, 0"})
     void testScoringMinMaxFollowings(String nbFollowings, String exceptedResult){
         FollowProperties.load(ownerName);
-        User user = new User();
-        user.setFollowingsCount(Integer.valueOf(nbFollowings));
+        UserDTO user = UserDTO.builder()
+                .stats(UserStatsDTO.builder()
+                        .followingCount(Integer.valueOf(nbFollowings))
+                        .build()).build();
         FollowProperties.targetProperties.setMinNbFollowings(500);
         FollowProperties.targetProperties.setMaxNbFollowings(5000);
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setMaxPoints(10);
@@ -109,10 +115,12 @@ public class ScoringTest {
     @Test
     void testBlockingProperty(){
         FollowProperties.load(ownerName);
-        User user = new User();
-        user.setDescription("x");
-        user.setLang("fr");
-        user.setFollowersCount(100);
+        UserDTO user =
+                UserDTO.builder()
+                 .description("x")
+                        .stats(UserStatsDTO.builder().followersCount(100).build())
+                .build();
+        //user.setLang("fr"); @todo mock ?
         FollowProperties.targetProperties.setDescription("a,b,c");
         FollowProperties.targetProperties.setMinNbFollowers(10);
         FollowProperties.targetProperties.setMaxNbFollowers(1000);

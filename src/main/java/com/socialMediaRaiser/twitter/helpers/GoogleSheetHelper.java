@@ -2,9 +2,10 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.*;
-import com.socialMediaRaiser.AbstractUser;
+
 import com.socialMediaRaiser.twitter.FollowProperties;
-import com.socialMediaRaiser.twitter.User;
+
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import lombok.Data;
 
 import java.io.IOException;
@@ -90,8 +91,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void addNewFollowerLine(AbstractUser u){
-        User user = (User)u;
+    public void addNewFollowerLine(UserDTO user){
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date followDate = user.getDateOfFollow();
         if(followDate==null){
@@ -105,11 +105,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         ValueRange body = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(
                         String.valueOf(user.getId()),
-                        user.getUserName(),
+                        user.getUsername(),
                         user.getFollowersCount(),
-                        user.getFollowingsCount(),
+                        user.getFollowingCount(),
                         user.getStatusesCount(),
-                        user.getFavouritesCount(),
+                        0, // @todo remove favourites count
                         user.getDescription().
                                 replaceAll("\"","")
                                 .replaceAll(";"," ")

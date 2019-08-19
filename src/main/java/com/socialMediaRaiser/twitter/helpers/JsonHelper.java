@@ -1,12 +1,10 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.socialMediaRaiser.twitter.Tweet;
-import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.IncludesDTO;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserObjectResponseDTO;
+
+
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,14 +22,14 @@ public class JsonHelper {
 
     @Deprecated
     private static final String STATUSES_COUNT = "statuses_count";
-    private static final String TWEET_COUNT = "tweet_count";
-    private static final String CREATED_AT = "created_at";
+    private static final String TWEET_COUNT = "tweetCount";
+    private static final String CREATED_AT = "dateOfCreation";
     private final String SCREEN_NAME = "screen_name";
     private final String USER = "user";
-    private final String FOLLOWER_COUNT = "followers_count";
+    private final String FOLLOWER_COUNT = "followersCount";
     @Deprecated
     private final String FRIENDS_COUNT = "friends_count";
-    private final String FOLLOWING_COUNT = "following_count";
+    private final String FOLLOWING_COUNT = "followingCount";
     private final String FAVOURITES_COUNT = "favourites_count";
     private final String FAVORITE_COUNT = "favorite_count";
     private final String RETWEET_COUNT = "retweet_count";
@@ -76,83 +74,23 @@ public class JsonHelper {
         return listdata;
     }
 
-    @Deprecated
-    public List<User> jsonUserArrayToList(Object jsonObject){
-        JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<User> listdata = new ArrayList<>();
-        if (jArray != null) {
-            for (int i=0;i<jArray.length();i++){
-                listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
-            }
-        }
-        return listdata;
-    }
-
-    @Deprecated
-    public User jsonResponseToUser(JSONObject jsonObject){
-        if(jsonObject!=null){
-            Long id = Long.valueOf(jsonObject.get(ID).toString());
-            String screenName = jsonObject.get(SCREEN_NAME).toString();
-            int followersCount = (int)jsonObject.get(FOLLOWER_COUNT);
-            int friendsCount = (int)jsonObject.get(FRIENDS_COUNT);
-            int statuses_count = (int)jsonObject.get(STATUSES_COUNT);
-            String created_at = jsonObject.get(CREATED_AT).toString();
-            String description = jsonObject.get(DESCRIPTION).toString();
-            int favourites_count = (int)jsonObject.get(FAVOURITES_COUNT);
-            String location = "";
-            if(jsonObject.has(LOCATION)){
-                location = jsonObject.get(LOCATION).toString();
-            }
-            String lastUpdate = null;
-            if(jsonObject.has(STATUS)){
-                lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
-            }
-            return User.builder()
-                    .id(id)
-                    .userName(screenName)
-                    .followerCout(followersCount)
-                    .followingCount(friendsCount)
-                    .statusesCount(statuses_count)
-                    .dateOfCreation(getTwitterDate(created_at))
-                    .description(description)
-                    .favouritesCount(favourites_count)
-                    .dateOfFollow(null)
-                    .lastUpdate(getTwitterDate(lastUpdate))
-                    .location(location)
-                    .build();
-        } else{
-            return null;
-        }
-    }
-
-    public User jsonResponseToUserV2(String response) throws IOException {
+    public UserDTO jsonResponseToUserV2(String response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
-        UserDTO data = obj.getData().get(0);
-        IncludesDTO includes = obj.getIncludes();
-        List<TweetDTO> mostRecentTweet = null;
-        String lang = null;
-        Date lastUpdate = null;
-        if(!data.isProtectedAccount() && includes!=null){
-            mostRecentTweet = includes.getTweets();
-            lang = includes.getTweets().get(0).getLang();
-            lastUpdate = getTwitterDateV2(includes.getTweets().get(0).getCreated_at());
-        }
-        return User.builder()
-                .id(Long.valueOf(data.getId()))
-                .userName(data.getUsername())
-                .followerCout(data.getStats().getFollowers_count())
-                .followingCount(data.getStats().getFollowing_count())
-                .statusesCount(data.getStats().getTweet_count())
-                .dateOfCreation(getTwitterDateV2(data.getCreated_at()))
-                .description(data.getDescription())
-                .dateOfFollow(null)
-                .location(data.getLocation())
-                .mostRecentTweet(mostRecentTweet)
-                .lang(lang)
-                .lastUpdate(lastUpdate)
-                .protectedAccount(data.isProtectedAccount())
-                .build();
+        JsonNode obj = objectMapper.readValue(response, JsonNode.class);
+        UserDTO user = objectMapper.treeToValue(obj.get("data").get(0), UserDTO.class);
+        TweetDTO lastTweet = objectMapper.treeToValue(obj.get("includes").get("tweets").get(0), TweetDTO.class);
+        user.setMostRecentTweet(lastTweet);
+        return user;
+    }
+
+    public List<TweetDTO> jsonResponseToTweetList(Object o){
+        System.out.println("not implemented");
+        return new ArrayList<>();
+    }
+
+    public List<UserDTO> jsonUserArrayToList(Object o){
+        System.out.println("not implemented");
+        return new ArrayList<>();
     }
 
     @Deprecated
@@ -200,40 +138,6 @@ public class JsonHelper {
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Deprecated
-    public List<Tweet> jsonResponseToTweetList(JSONArray jsonArray) {
-        List<Tweet> tweets = new ArrayList<>();
-        if(jsonArray!=null){
-            for(Object o : jsonArray){
-                JSONObject jsonObject = (JSONObject)o;
-                Long id = Long.valueOf(jsonObject.get(ID).toString());
-                int retweetsCount = (int)jsonObject.get(RETWEET_COUNT);
-                int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
-                String text = jsonObject.get(TEXT).toString();
-                String lang = jsonObject.get(LANG).toString();
-                Date createdAtDate = getTwitterDate(jsonObject.get(CREATED_AT).toString());
-                User user = null;
-                try{
-                    user = jsonResponseToUser((JSONObject)jsonObject.get(USER));
-                    user.setLastUpdate(createdAtDate);
-                } catch (Exception e){
-                 //   System.err.println(e);
-                }
-                Tweet tweet = Tweet.builder()
-                        .id(id)
-                        .retweet_count(retweetsCount)
-                        .favorite_count(favourites_count)
-                        .text(text)
-                        .lang(lang)
-                        .created_at(createdAtDate)
-                        .user(user)
-                        .build();
-                tweets.add(tweet);
-            }
-        }
-        return tweets;
     }
 
 }

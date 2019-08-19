@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.*;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -25,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Getter
 public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
-    private List<User> potentialFollowers = new ArrayList<>();
+    private List<UserDTO> potentialFollowers = new ArrayList<>();
     List<Long> followedRecently;
     List<Long> ownerFollowingIds;
     private int maxFriendship = 390;
@@ -40,7 +42,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+    public List<UserDTO> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
         this.follow = follow;
         this.saveResults = saveResults;
 
@@ -100,11 +102,11 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 System.out.println("SMR - queue > 0");
                 try{
                     String queueString = queue.take();
-                    Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);
-                    System.out.println("SMR - analysing tweet from " + foundedTweet.getUser().getUserName() + " : "
-                            + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
-                    if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
-                        this.doActions(foundedTweet);
+                    TweetDTO foundTweet = objectMapper.readValue(queueString, TweetDTO.class);
+                    System.out.println("SMR - analysing tweet from " + this.getUserFromUserId(Long.valueOf(foundTweet.getAuthor_id())).getUsername() + " : "
+                            + foundTweet.getText() + " ("+foundTweet.getLang()+")");
+                    if(!foundTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
+                        this.doActions(foundTweet);
                     }
                 } catch(Exception e){
                     e.printStackTrace();
@@ -116,8 +118,8 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         client.stop();
     }
 
-    private void doActions(Tweet tweet){
-        User user = tweet.getUser();
+    private void doActions(TweetDTO tweet){
+        UserDTO user = this.getUserFromUserId(Long.valueOf(tweet.getAuthor_id()));
         iterations++;
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1
@@ -137,7 +139,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                         this.getIOHelper().addNewFollowerLine(user);
                     }
                 } else {
-                    System.err.println("error following " + user.getUserName());
+                    System.err.println("error following " + user.getUsername());
                 }
                 System.out.println(tweet.getText());
                 System.out.println("\n-------------");

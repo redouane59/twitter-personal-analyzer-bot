@@ -6,6 +6,8 @@ import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.*;
 import com.socialMediaRaiser.twitter.helpers.dto.getRelationship.RelationshipDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getRelationship.RelationshipObjectResponseDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
@@ -65,9 +67,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     // can manage up to 200 results/call . Max 15 calls/15min ==> 3.000 results max./15min
-    private List<User> getUsersInfoByRelation(String url) {
+    private List<UserDTO> getUsersInfoByRelation(String url) {
         Long cursor = -1L;
-        List<User> result = new ArrayList<>();
+        List<UserDTO> result = new ArrayList<>();
         int nbCalls = 1;
         System.out.print("users : ");
         do {
@@ -76,7 +78,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             if(response==null){
                 break;
             }
-            List<User> users = this.getJsonHelper().jsonUserArrayToList(response.get(USERS));
+            List<UserDTO> users = this.getJsonHelper().jsonUserArrayToList(response.get(USERS));
             result.addAll(users);
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
@@ -109,7 +111,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     // can manage up to 200 results/call . Max 15 calls/15min ==> 3.000 results max./15min
-    private List<User> getUsersInfoByRelation(String userName, RelationType relationType) {
+    private List<UserDTO> getUsersInfoByRelation(String userName, RelationType relationType) {
         String url = null;
         if(relationType == RelationType.FOLLOWER){
             url = this.urlHelper.getFollowerUsersUrl(userName);
@@ -120,7 +122,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getUsersInfoByRelation(url);
     }
 
-    private List<User> getUsersInfoByRelation(Long userId, RelationType relationType) {
+    private List<UserDTO> getUsersInfoByRelation(Long userId, RelationType relationType) {
         String url = null;
         if(relationType == RelationType.FOLLOWER){
             url = this.urlHelper.getFollowerUsersUrl(userId);
@@ -160,19 +162,19 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     @Override
-    public List<User> getFollowerUsers(Long userId) {
+    public List<UserDTO> getFollowerUsers(Long userId) {
         return this.getUsersInfoByRelation(userId, RelationType.FOLLOWER);
     }
 
     @Override
-    public List<User> getFollowerUsers(String userName) {
+    public List<UserDTO> getFollowerUsers(String userName) {
         if(this.urlHelper.canCallGetFollowers()){
             System.out.print("(1) ");
             return this.getUsersInfoByRelation(userName, RelationType.FOLLOWER);
         } else{
             System.out.print("(2) ");
             List<Long> followerIds = this.getUserIdsByRelation(userName, RelationType.FOLLOWER);
-            List<User> result = new ArrayList<>();
+            List<UserDTO> result = new ArrayList<>();
             int i=0;
             while(this.urlHelper.canCallUserInfo() && i<followerIds.size()){
                 Long followerId = followerIds.get(i);
@@ -192,12 +194,12 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     @Override
-    public List<User> getFollowingsUsers(String userName) {
+    public List<UserDTO> getFollowingsUsers(String userName) {
         return this.getUsersInfoByRelation(userName, RelationType.FOLLOWING);
     }
 
     @Override
-    public List<User> getFollowingsUsers(Long userId) {
+    public List<UserDTO> getFollowingsUsers(Long userId) {
         return this.getUsersInfoByRelation(userId, RelationType.FOLLOWING);
     }
 
@@ -288,7 +290,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return false;
     }
 
-    public User getUserFromUserId(Long userId)  {
+    public UserDTO getUserFromUserId(Long userId)  {
         String url = this.getUrlHelper().getUserUrl(userId);
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if(response!=null){
@@ -304,13 +306,13 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     @Override
-    public User getUserFromUserName(String userName) {
+    public UserDTO getUserFromUserName(String userName) {
         String url = this.getUrlHelper().getUserUrl(userName);
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if (response != null) {
             try {
               //  UserObjectResponseDTO userObjectResponseDTO = new ObjectMapper().readValue(response, UserObjectResponseDTO.class);
-                User user = this.getJsonHelper().jsonResponseToUserV2(response); // @todo find solution to use the dto directly
+                UserDTO user = this.getJsonHelper().jsonResponseToUserV2(response); // @todo find solution to use the dto directly
                 return user;
             } catch (IOException e) {
                 System.err.print(e.getMessage() + " response = " + response);
@@ -319,7 +321,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
-    public List<User> getUsersFromUserNames(List<String> userNames)  {
+    public List<UserDTO> getUsersFromUserNames(List<String> userNames)  {
         String url = this.getUrlHelper().getUsersUrlbyNames(userNames);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
@@ -329,7 +331,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
-    List<User> getUsersFromUserIds(List<Long> userIds)  {
+    List<UserDTO> getUsersFromUserIds(List<Long> userIds)  {
         String url = this.getUrlHelper().getUsersUrlbyIds(userIds);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
@@ -348,14 +350,14 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     public void checkNotFollowBack(String ownerName, boolean unfollow, boolean writeInSheet, Date date, boolean override) {
         List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(override, override, date);
         if(followedPreviously!=null && followedPreviously.size()>0){
-            User user = this.getUserFromUserName(ownerName);
-            this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
+            UserDTO user = this.getUserFromUserName(ownerName);
+            this.areFriends(Long.valueOf(user.getId()), followedPreviously, unfollow, writeInSheet);
         } else{
             System.err.println("no followers found at this date");
         }
     }
 
-    public List<Tweet> getUserLastTweets(Long userId, int count){
+    public List<TweetDTO> getUserLastTweets(Long userId, int count){
         String url = this.getUrlHelper().getUserTweetsUrl(userId, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null && response.length()>0){
@@ -364,7 +366,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
-    public List<Tweet> getUserLastTweets(String userName, int count){
+    public List<TweetDTO> getUserLastTweets(String userName, int count){
         String url = this.getUrlHelper().getUserTweetsUrl(userName, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null && response.length()>0){
@@ -386,7 +388,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     // @todo remove count
     @Override
-    public List<Tweet> searchForTweets(String query, int count, Date fromDate, Date toDate){
+    public List<TweetDTO> searchForTweets(String query, int count, Date fromDate, Date toDate){
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 
         if(count<10){
@@ -406,7 +408,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
 
         String next;
-        List<Tweet> result = new ArrayList<>();
+        List<TweetDTO> result = new ArrayList<>();
         int nbCalls = 1;
         do {
             JSONObject response = this.getRequestHelper().executePostRequest(url,parameters);
@@ -429,9 +431,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return result;
     }
 
-    public boolean isLanguageOK(User user){
+    public boolean isLanguageOK(UserDTO user){
         if(user.getLang()==null){
-            user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(), 3)); // really slow
+            System.out.println("no language found");
+            //user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(), 3)); // really slow
         }
         return (user.getLang()!=null && user.getLang().equals(FollowProperties.targetProperties.getLanguage()));
     }

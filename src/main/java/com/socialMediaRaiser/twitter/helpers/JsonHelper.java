@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,10 +12,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 // @todo remove JSON from project, replace it by JsonNode
 
@@ -85,9 +83,15 @@ public class JsonHelper {
 
     public List<TweetDTO> jsonResponseToTweetList(Object o){
         // [{"in_reply_to_status_id_str":"1162977652812275712","in_reply_to_status_id":1162977652812275712,"coordinates":null,"created_at":"Sun Aug 18 06:41:49 +0000 2019","truncated":false,"in_reply_to_user_id_str":"910189037968855042","source":"<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android<\/a>","retweet_count":0,"retweeted":false,"geo":null,"in_reply_to_screen_name":"baki2439","is_quote_status":false,"entities":{"urls":[],"hashtags":[],"user_mentions":[{"indices":[0,9],"screen_name":"baki2439","id_str":"910189037968855042","name":"🇷\u200b🇴\u200b🇦\u200b🇩\u200b🇹\u200b🇴バキ🧢","id":910189037968855042}],"symbols":[]},"id_str":"1162977884648198145","in_reply_to_user_id":910189037968855042,"favorite_count":1,"id":1162977884648198145,"text":"@baki2439 J'avais pas reçu la notif sorry","place":null,"contributors":null,"lang":"fr","user":{"id_str":"92073489","id":92073489},"favorited":false},{"in_reply_to_status_id_str":"1162973948885307392","in_reply_to_status_id":1162973948885307392,"coordinates":null,"created_at":"Sun Aug 18 06:39:42 +0000 2019","truncated":false,"in_reply_to_user_id_str":"910189037968855042","source":"<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android<\/a>","retweet_count":0,"retweeted":false,"geo":null,"in_reply_to_screen_name":"baki2439","is_quote_status":false,"entities":{"urls":[],"hashtags":[],"user_mentions":[],"symbols":[]},"id_str":"1162977351820632064","in_reply_to_user_id":910189037968855042,"favorite_count":0,"id":1162977351820632064,"text":"@baki2439 ?","place":null,"contributors":null,"lang":"und","user":{"id_str":"92073489","id":92073489},"favorited":false},{"in_reply_to_status_id_str":"1162798251533373442","in_reply_to_status_id":1162798251533373442,"coordinates":null,"created_at":"Sat Aug 17 18:53:50 +0000 2019","truncated":false,"in_reply_to_user_id_str":"1024594135","source":"<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App<\/a>","retweet_count":0,"retweeted":false,"geo":null,"in_reply_to_screen_name":"DelrieuLoic","is_quote_status":false,"entities":{"urls":[],"hashtags":[],"user_mentions":[{"indices":[0,12],"screen_name":"DelrieuLoic","id_str":"1024594135","name":"loic delrieu","id":1024594135}],"symbols":[]},"id_str":"1162799716544987136","in_reply_to_user_id":1024594135,"favorite_count":0,"id":1162799716544987136,"text":"@DelrieuLoic comment elle est arrivée là ptdr","place":null,"contributors":null,"lang":"fr","user":{"id_str":"92073489","id":92073489},"favorited":false}]
-        List<TweetDTO> tweets = new ObjectMapper().readValuee(o, new TypeReference<List<TweetDTO>>(){}.class);
-        System.out.println("not implemented");
-        return new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        List<TweetDTO> tweets = null;
+        try {
+            tweets = mapper.readValue(o.toString(), new TypeReference<List<TweetDTO>>() {});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return tweets;
     }
 
     public List<UserDTO> jsonUserArrayToList(Object o){

@@ -117,7 +117,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         dateFormat.format(user.getLastUpdate()),
                         dateFormat.format(user.getDateOfCreation()),
                         user.getCommonFollowers(),
-                        user.getLocation(), // @todo bug ici qui crée un décalage
+                        Optional.ofNullable(user.getLocation()).orElse(""),
                         dateFormat.format(followDate),
                         followBackDate,
                         user.getRandomForestPrediction()

@@ -55,17 +55,8 @@ public class URLHelper {
     private static final int TWEET_INFO_MAX_CALLS = 900;
     private final int MAX_LOOKUP = 100;
 
-    public String getFollowUrl(String relatedName) {
-        this.followCount++;
-        return new StringBuilder(ROOT_URL)
-                .append(FRIENDSHIPS)
-                .append(CREATE_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(relatedName)
-                .toString();
-    }
 
-    public String getFollowUrl(Long userId) {
+    public String getFollowUrl(String userId) {
         this.followCount++;
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
@@ -75,17 +66,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getUnfollowUrl(String userName) {
-        this.unfollowCount++;
-        return new StringBuilder(ROOT_URL)
-                .append(FRIENDSHIPS)
-                .append(DESTROY_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(userName)
-                .toString();
-    }
-
-    public String getUnfollowUrl(Long userId) {
+    public String getUnfollowUrl(String userId) {
         this.unfollowCount++;
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
@@ -95,7 +76,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFriendshipUrl(Long sourceId, Long targetId) {
+    public String getFriendshipUrl(String sourceId, String targetId) {
         this.friendshipCount++;
         if(friendshipCount%50==0){
             System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
@@ -110,22 +91,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFriendshipUrl(String sourceScreenName, String targetScreenName) {
-        this.friendshipCount++;
-        if(friendshipCount%50==0){
-            System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
-        }
-        return new StringBuilder(ROOT_URL)
-                .append(FRIENDSHIPS)
-                .append(SHOW_JSON)
-                .append("source_"+ SCREEN_NAME +"=")
-                .append(sourceScreenName)
-                .append("&target_"+ SCREEN_NAME +"=")
-                .append(targetScreenName)
-                .toString();
-    }
-
-    public String getRetweetersUrl(Long tweetId){
+    public String getRetweetersUrl(String tweetId){
         this.retweeterCount++;
         System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -139,22 +105,7 @@ public class URLHelper {
                 .toString();
     }
 
-
-    public String getRetweetersUrl(String screenName){
-        this.retweeterCount++;
-        System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
-        return new StringBuilder(ROOT_URL)
-                .append(STATUSES)
-                .append(RETWEETERS)
-                .append(LIST_JSON)
-                .append(ID + "=")
-                .append(screenName)
-                .append("&"+COUNT+"=")
-                .append(maxCount)
-                .toString();
-    }
-
-    public String getFollowerIdsUrl(Long userId){
+    public String getFollowerIdsUrl(String userId){
         this.followersCount++;
         if(followersCount%5==0) {
             System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
@@ -167,35 +118,8 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowerIdsUrl(String screenName){
-        this.followersCount++;
-        if(followersCount%5==0) {
-            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
-        }
-        return new StringBuilder(ROOT_URL)
-                .append(FOLLOWERS)
-                .append(IDS_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(screenName)
-                .toString();
-    }
 
-    public String getFollowerUsersUrl(String screenName){
-        this.followersCount++;
-        if(followersCount%5==0) {
-            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
-        }
-        return new StringBuilder(ROOT_URL)
-                .append(FOLLOWERS)
-                .append(LIST_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(screenName)
-                .append("&"+COUNT+"=")
-                .append(maxCount)
-                .toString();
-    }
-
-    public String getFollowerUsersUrl(Long userId){
+    public String getFollowerUsersUrl(String userId){
         this.followersCount++;
         if(followersCount%5==0) {
             System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
@@ -210,7 +134,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getFollowingIdsUrl(Long userId){
+    public String getFollowingIdsUrl(String userId){
         this.followingCount++;
         System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -220,32 +144,7 @@ public class URLHelper {
                 .append(userId).toString();
     }
 
-    public String getFollowingIdsUrl(String screenName){
-        this.followingCount++;
-        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
-        return new StringBuilder(ROOT_URL)
-                .append(FRIENDS)
-                .append(IDS_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(screenName)
-                .toString();
-    }
-
-    public String getFollowingUsersUrl(String screenName){
-        this.followingCount++;
-        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
-        return new StringBuilder(ROOT_URL)
-                .append(FRIENDS)
-                .append(LIST_JSON)
-                .append(SCREEN_NAME+"=")
-                .append(screenName)
-                .append("&"+COUNT+"=")
-                .append(maxCount)
-     //           .append("&user.format=compact") @todo not working for the moment, waiting labs
-                .toString();
-    }
-
-    public String getFollowingUsersUrl(Long userId){
+    public String getFollowingUsersUrl(String userId){
         this.followingCount++;
         System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
@@ -265,7 +164,7 @@ public class URLHelper {
     }
 
     // @todo add constantes
-    public String getUserUrl(Long userId) {
+    public String getUserUrl(String userId) {
         this.userCount++;
         if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
@@ -280,9 +179,7 @@ public class URLHelper {
                 .toString();
     }
 
-
-    @Deprecated
-    public String getUserUrl(String username) {
+    public String getUserUrlFromName(String username) {
         this.userCount++;
         if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
@@ -296,6 +193,7 @@ public class URLHelper {
                 .append("&expansions=most_recent_tweet_id")
                 .toString();
     }
+
 
     public String getUsersUrlbyNames(List<String> names) {
         this.userCount++;
@@ -317,7 +215,7 @@ public class URLHelper {
         return result.toString();
     }
 
-    public String getUsersUrlbyIds(List<Long> ids) {
+    public String getUsersUrlbyIds(List<String> ids) {
         this.userCount++;
         if(userCount%50==0) {
             System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
@@ -328,7 +226,7 @@ public class URLHelper {
                 .append(USER_ID+"=");
         int i=0;
         while(i<ids.size() && i<MAX_LOOKUP){
-            Long id = ids.get(i);
+            String id = ids.get(i);
             result.append(id);
             result.append(",");
             i++;
@@ -346,7 +244,7 @@ public class URLHelper {
     }
 
     @Deprecated
-    public String getTweetInfoUrl(Long tweetId) {
+    public String getTweetInfoUrl(String tweetId) {
         this.tweetInfoCount++;
         if(this.tweetInfoCount%10==0){
             System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
@@ -359,24 +257,7 @@ public class URLHelper {
                 .toString();
     }
 
-    public String getUserTweetsUrl(String userName, int count){
-        this.tweetInfoCount++;
-        if(this.tweetInfoCount%10==0){
-            System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
-        }
-        return new StringBuilder(ROOT_URL)
-                .append(STATUSES)
-                .append(USER_TIMELINE)
-                .append(SCREEN_NAME+"=")
-                .append(userName)
-                .append("&"+COUNT+"=")
-                .append(count)
-                .append("&"+TRIM_USER)
-                .append("&"+EXCLUDE_RTS)
-                .toString();
-    }
-
-    public String getUserTweetsUrl(Long userId, int count){
+    public String getUserTweetsUrl(String userId, int count){
         this.tweetInfoCount++;
         if(this.tweetInfoCount%10==0){
             System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
@@ -394,7 +275,7 @@ public class URLHelper {
     }
 
     // https://api.twitter.com/labs/1/tweets?ids=1067094924124872705
-    public String getUserTweetsUrlV2(Long userId, int count){
+    public String getUserTweetsUrlV2(String userId, int count){
         this.tweetInfoCount++;
         if(this.tweetInfoCount%10==0){
             System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
@@ -469,7 +350,7 @@ public class URLHelper {
     }
 
 
-    public String getLikeUrl(Long tweetId) {
+    public String getLikeUrl(String tweetId) {
         // curl --request POST
         //--url 'https://api.twitter.com/1.1/favorites/create.json?id=TWEET_ID_TO_FAVORITE'
         return new StringBuilder(ROOT_URL)

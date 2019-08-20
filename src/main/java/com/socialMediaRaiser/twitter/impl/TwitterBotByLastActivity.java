@@ -24,12 +24,12 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+    public List<User> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship){
             count = maxFriendship;
         }
-        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
-        List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
+        List<String> ownerFollowingIds = this.getFollowingIds(ownerId);
+        List<String> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
 
         List<Tweet> lastTweets = null;
         String startDate = "201907200000";

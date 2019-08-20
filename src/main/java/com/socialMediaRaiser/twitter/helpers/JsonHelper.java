@@ -45,19 +45,19 @@ public class JsonHelper {
     public static final String FOLLOWING = "following";
 
     @Deprecated
-    public List<Long> jsonLongArrayToList(Object jsonObject){
+    public List<String> jsonLongArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<Long> listdata = new ArrayList<>();
+        ArrayList<String> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 if(jArray.get(i) instanceof Long){
-                    listdata.add(jArray.getLong(i));
+                    listdata.add(String.valueOf(jArray.getLong(i)));
                 } else if(jArray.get(i) instanceof Integer){
-                    listdata.add(Long.valueOf(jArray.getInt(i)));
+                    listdata.add(String.valueOf(jArray.getInt(i)));
                 } else if (((JSONObject)jArray.get(i)).get(ID) instanceof Long){
-                    listdata.add((Long)((JSONObject)jArray.get(i)).get(ID));
+                    listdata.add((String)((JSONObject)jArray.get(i)).get(ID));
                 } else if (((JSONObject)jArray.get(i)).get(ID) instanceof Integer){
-                    listdata.add((long) (Integer) ((JSONObject) jArray.get(i)).get(ID));
+                    listdata.add((String)((JSONObject) jArray.get(i)).get(ID));
                 }
             }
         }
@@ -91,7 +91,7 @@ public class JsonHelper {
     @Deprecated
     public User jsonResponseToUser(JSONObject jsonObject){
         if(jsonObject!=null){
-            Long id = Long.valueOf(jsonObject.get(ID).toString());
+            String id = jsonObject.get(ID).toString();
             String screenName = jsonObject.get(SCREEN_NAME).toString();
             int followersCount = (int)jsonObject.get(FOLLOWER_COUNT);
             int friendsCount = (int)jsonObject.get(FRIENDS_COUNT);
@@ -139,7 +139,7 @@ public class JsonHelper {
             lastUpdate = getTwitterDateV2(includes.getTweets().get(0).getCreated_at());
         }
         return User.builder()
-                .id(Long.valueOf(data.getId()))
+                .id(data.getId())
                 .userName(data.getUsername())
                 .followerCout(data.getStats().getFollowers_count())
                 .followingCount(data.getStats().getFollowing_count())

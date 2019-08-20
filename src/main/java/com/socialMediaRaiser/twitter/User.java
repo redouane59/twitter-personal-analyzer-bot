@@ -33,7 +33,7 @@ public class User extends AbstractUser {
     private boolean protectedAccount;
 
     @Builder
-    User(long id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
+    User(String id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
          int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
          Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
         super(id,userName, followerCout, followingCount);
@@ -83,15 +83,28 @@ public class User extends AbstractUser {
     }
 
     public boolean isInfluencer(){
-        String words = FollowProperties.targetProperties.getDescription();
-        String[] wordsSplitted = words.split(FollowProperties.ARRAY_SEPARATOR);
-        String[] descriptionSplitted = this.getDescription().split(" ");
-        for(String s :descriptionSplitted){
-            if(Arrays.stream(wordsSplitted).anyMatch(s::contains)){
-                return true;
+        String descriptionWords = FollowProperties.targetProperties.getDescription();
+        String[] descriptionWordsSplitted = descriptionWords.split(FollowProperties.ARRAY_SEPARATOR);
+        String[] userDescriptionSplitted = this.getDescription().split(" ");
+
+        String locationWords = FollowProperties.targetProperties.getLocation();
+        String[] locationWordsSplitted = locationWords.split(FollowProperties.ARRAY_SEPARATOR);
+        String[] userLocationSplitted = this.getLocation().split(" ");
+
+        boolean matchDescription = false;
+        boolean matchLocation = false;
+
+        for(String s :userDescriptionSplitted){
+            if(Arrays.stream(descriptionWordsSplitted).anyMatch(s::contains)){
+                matchDescription = true;
             }
         }
-        return false;
+        for(String s :userLocationSplitted){
+            if(Arrays.stream(locationWordsSplitted).anyMatch(s::contains)){
+                matchLocation = true;
+            }
+        }
+        return (matchDescription&&matchLocation);
 
        /* if(this.getFollowersRatio()> followConfiguration.getMinRatio()
                 && this.getFollowersCount()> followConfiguration.getInfluencerMinNbFollowers()

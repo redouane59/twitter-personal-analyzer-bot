@@ -21,31 +21,19 @@ public class UrlHelperTest {
 
     @Test
     public void testUrlRetweetrs(){
-        assertEquals("https://api.twitter.com/1.1/statuses/retweeters/ids.json?id=12345&count=100", twitterBot.getUrlHelper().getRetweetersUrl(12345L));
+        assertEquals("https://api.twitter.com/1.1/statuses/retweeters/ids.json?id=12345&count=100", twitterBot.getUrlHelper().getRetweetersUrl("12345"));
     }
 
     @Test
     public void testUrlFollowersById(){
         assertEquals("https://api.twitter.com/1.1/followers/ids.json?user_id=952253106",
-                twitterBot.getUrlHelper().getFollowerIdsUrl(952253106L));
-    }
-
-    @Test
-    public void testUrlFollowersByName(){
-        assertEquals("https://api.twitter.com/1.1/followers/list.json?screen_name=RedTheOne&count=200",
-                twitterBot.getUrlHelper().getFollowerUsersUrl("RedTheOne"));
+                twitterBot.getUrlHelper().getFollowerIdsUrl("952253106"));
     }
 
     @Test
     public void testUrlFollowingsById(){
         assertEquals("https://api.twitter.com/1.1/friends/ids.json?user_id=952253106",
-                twitterBot.getUrlHelper().getFollowingIdsUrl(952253106L));
-    }
-
-    @Test
-    public void testUrlFollowingsByName(){
-        assertEquals("https://api.twitter.com/1.1/friends/list.json?screen_name=RedTheOne&count=200",
-                twitterBot.getUrlHelper().getFollowingUsersUrl("RedTheOne"));
+                twitterBot.getUrlHelper().getFollowingIdsUrl("952253106"));
     }
 
     @Test
@@ -57,37 +45,19 @@ public class UrlHelperTest {
     @Test
     public void testUrlFriendshipById(){
         assertEquals("https://api.twitter.com/1.1/friendships/show.json?source_id=12345&target_id=67890",
-                twitterBot.getUrlHelper().getFriendshipUrl(12345L,67890L));
-    }
-
-    @Test
-    public void testUrlFriendshipByName(){
-        assertEquals("https://api.twitter.com/1.1/friendships/show.json?source_screen_name=RedTheOne&target_screen_name=EmmanuelMacron",
-                twitterBot.getUrlHelper().getFriendshipUrl("RedTheOne","EmmanuelMacron"));
-    }
-
-    @Test
-    public void testUrlFollowByName(){
-        assertEquals("https://api.twitter.com/1.1/friendships/create.json?screen_name=RedTheOne",
-                twitterBot.getUrlHelper().getFollowUrl("RedTheOne"));
-    }
-
-    @Test
-    public void testUrlUnfollowByName(){
-        assertEquals("https://api.twitter.com/1.1/friendships/destroy.json?screen_name=RedTheOne",
-                twitterBot.getUrlHelper().getUnfollowUrl("RedTheOne"));
+                twitterBot.getUrlHelper().getFriendshipUrl("12345","67890"));
     }
 
     @Test
     public void testUrlFollowById(){
         assertEquals("https://api.twitter.com/1.1/friendships/create.json?user_id=12345",
-                twitterBot.getUrlHelper().getFollowUrl(12345L));
+                twitterBot.getUrlHelper().getFollowUrl("12345"));
     }
 
     @Test
     public void testUrlGetUserByIdV2(){
         assertEquals("https://api.twitter.com/labs/1/users?ids=12345&user.format=detailed&tweet.format=detailed&expansions=most_recent_tweet_id",
-                twitterBot.getUrlHelper().getUserUrl(12345L));
+                twitterBot.getUrlHelper().getUserUrl("12345"));
     }
 
     @Test
@@ -102,10 +72,10 @@ public class UrlHelperTest {
 
     @Test
     public void testUrlGetUsersByIds(){
-        List<Long> ids = new ArrayList<>();
-        ids.add(12345L);
-        ids.add(23456L);
-        ids.add(34567L);
+        List<String> ids = new ArrayList<>();
+        ids.add("12345");
+        ids.add("23456");
+        ids.add("34567");
         assertEquals("https://api.twitter.com/1.1/users/lookup.json?user_id=12345,23456,34567",
                 twitterBot.getUrlHelper().getUsersUrlbyIds(ids));
     }
@@ -113,7 +83,7 @@ public class UrlHelperTest {
     @Test
     public void testUrlGetTweetInfoById(){
         assertEquals("https://api.twitter.com/1.1/statuses/show.json?id=12345",
-                twitterBot.getUrlHelper().getTweetInfoUrl(12345L));
+                twitterBot.getUrlHelper().getTweetInfoUrl("12345"));
     }
 
     @Test
@@ -123,15 +93,9 @@ public class UrlHelperTest {
     }
 
     @Test
-    public void testGetUserTweetUrlByName(){
-        assertEquals("https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=twitterdev&count=1&trim_user=true&include_rts=false",
-        twitterBot.getUrlHelper().getUserTweetsUrl("twitterdev",1));
-    }
-
-    @Test
     public void testGetUserTweetUrlById(){
         assertEquals("https://api.twitter.com/1.1/statuses/user_timeline.json?user_id=12345&count=1&trim_user=true&include_rts=false",
-                twitterBot.getUrlHelper().getUserTweetsUrl(12345L,1));
+                twitterBot.getUrlHelper().getUserTweetsUrl("12345",1));
     }
 
     @Test
@@ -151,7 +115,7 @@ public class UrlHelperTest {
     @Test
     public void testLikeUrl(){
         //https://api.twitter.com/1.1/favorites/create.json?id=TWEET_ID_TO_FAVORITE
-        Long tweetId = 12345L;
+        String tweetId = "12345";
         assertEquals("https://api.twitter.com/1.1/favorites/create.json?id="+tweetId,
                 twitterBot.getUrlHelper().getLikeUrl(tweetId));
     }

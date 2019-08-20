@@ -36,8 +36,8 @@ public class StartStreamingHandler implements RequestHandler<String, String> {
         } */
         this.logger.log("\ninputObject : " + map);
         TwitterBotByLiveKeyWords bot = new TwitterBotByLiveKeyWords("RedouaneBali");
-       // Long ownerId = Long.valueOf(map.get(OWNER_ID));
-        Long ownerId = 1120050519182016513L;
+       // String ownerId = Long.valueOf(map.get(OWNER_ID));
+        String ownerId = "1120050519182016513";
       //  int count = Integer.valueOf(map.get(COUNT));
         int count = 300;
         System.out.println("start working with " + ownerId + " for " + count + " followers...");

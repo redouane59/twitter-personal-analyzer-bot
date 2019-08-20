@@ -5,13 +5,11 @@ import java.util.List;
 
 public interface ITwitterBot {
 
-    List<Long> getRetweetersId(Long tweetId);
-    List<User> getFollowerUsers(String userName);
-    List<User> getFollowerUsers(Long userId);
-    List<User> getFollowingsUsers(String userName);
-    List<User> getFollowingsUsers(Long userId);
-    void likeTweet(Long tweetId);
-    void retweetTweet(Long tweetId);
+    List<String> getRetweetersId(String tweetId);
+    List<User> getFollowerUsers(String userId);
+    List<User> getFollowingsUsers(String userId);
+    void likeTweet(String tweetId);
+    void retweetTweet(String tweetId);
     List<Tweet> searchForTweets(String query, int count, Date fromDate, Date toDate);
 
 }

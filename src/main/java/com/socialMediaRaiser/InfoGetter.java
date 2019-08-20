@@ -4,19 +4,13 @@ import java.util.List;
 
 public interface InfoGetter {
 
-  RelationType getRelationType(Long userId1, Long userId2);
+  RelationType getRelationType(String userId1, String userId2);
 
-  List<Long> getFollowerIds(String userName);
-  List<Long> getFollowerIds(Long userId);
+  List<String> getFollowerIds(String userId);
 
-  List<Long> getFollowingIds(String userName);
-  List<Long> getFollowingIds(Long userId);
+  List<String> getFollowingIds(String userId);
 
   AbstractUser getUserFromUserName(String userName);
-  AbstractUser getUserFromUserId(Long userId);
+  AbstractUser getUserFromUserId(String userId);
 
-  //  int getNbFollowers(String userName);
-  //  int getNbFollowings(String userName);
-  //   int getNbFollowers(Long userId);
-  //   int getNbFollowings(Long userId);
 }

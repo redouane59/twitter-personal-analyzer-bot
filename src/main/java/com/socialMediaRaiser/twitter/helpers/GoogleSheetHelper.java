@@ -19,7 +19,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     private String sheetId;
     private String tabName;
     private String resultColumn;
-    private Map<Long, Integer> userRows = new HashMap<>();
+    private Map<String, Integer> userRows = new HashMap<>();
 
     public GoogleSheetHelper(String ownerName){
         if(ownerName!=null){
@@ -37,7 +37,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         this.setAllUserRows();
     }
 
-    public List<Long> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date) {
+    public List<String> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date) {
         String startLine = "A2";
         int followBackResultIndex = resultColumn.toLowerCase().toCharArray()[0] - 'a';
         List<String> ranges = Arrays.asList(this.tabName +"!"+startLine+":"+resultColumn);
@@ -47,7 +47,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                     .setRanges(ranges)
                     .execute();
             List<List<Object>> result = readResult.getValueRanges().get(0).getValues();
-            List<Long> ids = new ArrayList<>();
+            List<String> ids = new ArrayList<>();
             for(List<Object> valueArray : result){
                 if((showFalse && showTrue)
                         || valueArray.size()<=followBackResultIndex
@@ -63,8 +63,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                     }
 
                     if (date==null || diffInDays==0) {
-                        String stringValue = String.valueOf(valueArray.get(0));
-                        ids.add(Long.valueOf(stringValue));
+                        ids.add(String.valueOf(valueArray.get(0)));
                     }
                 }
             }
@@ -73,7 +72,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
             e.printStackTrace();
         }
 
-        return new ArrayList<Long>();
+        return new ArrayList<String>();
     }
 
     public List<List<Object>> getRandomForestData(){
@@ -132,7 +131,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void updateFollowBackInformation(Long userId, Boolean result) {
+    public void updateFollowBackInformation(String userId, Boolean result) {
         String followedBack = String.valueOf(result).toUpperCase();
         System.out.print("updating " + userId + " -> " + followedBack + " ...");
         int row = this.userRows.get(userId);
@@ -151,7 +150,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
 
     private void setAllUserRows(){
         int startIndex = 2; // sheet starts at line 1 + header 1
-        List<Long> ids = this.getPreviouslyFollowedIds(true, true);
+        List<String> ids = this.getPreviouslyFollowedIds(true, true);
         for(int i=0; i<ids.size(); i++){
             this.userRows.put(ids.get(i), i+startIndex);
         }

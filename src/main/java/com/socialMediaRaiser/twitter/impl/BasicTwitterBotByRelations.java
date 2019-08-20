@@ -23,9 +23,9 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResult){
+    public List<User> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResult){
         List<User> ownerFollowers = this.getFollowerUsers(ownerId); // criticity here (15/15min)
-        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
+        List<String> ownerFollowingIds = this.getFollowingIds(ownerId);
         Collections.shuffle(ownerFollowers);
 
         int i=0;
@@ -41,7 +41,7 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
         return potentialFollowers;
     }
 
-    private void addPotentialFollowersFromUserFollowers(String userName, List<Long> ownerFollowingIds, int count, boolean follow) {
+    private void addPotentialFollowersFromUserFollowers(String userName, List<String> ownerFollowingIds, int count, boolean follow) {
         long startWorkingTime = System.currentTimeMillis();
         List<User> followerFollowers = this.getFollowerUsers(userName); // criticity here (15/15min)
         System.out.println("----- Watching followers of " + userName + "(" + followerFollowers.size() + ") -----");
@@ -56,7 +56,7 @@ public class BasicTwitterBotByRelations extends AbstractTwitterBot {
                         nbUsersAdded++;
                         if(follow){
                             potentialFollower.setDateOfFollowNow();
-                            boolean result = this.follow(potentialFollower.getUserName());
+                            boolean result = this.follow(potentialFollower.getId());
                             if(result){
                                 potentialFollowers.add(potentialFollower);
                             }

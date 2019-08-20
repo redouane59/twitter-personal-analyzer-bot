@@ -26,8 +26,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
     private List<User> potentialFollowers = new ArrayList<>();
-    List<Long> followedRecently;
-    List<Long> ownerFollowingIds;
+    List<String> followedRecently;
+    List<String> ownerFollowingIds;
     private int maxFriendship = 390;
     private int QUEUE_SIZE = 100;
     private int iterations = 0;
@@ -40,7 +40,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+    public List<User> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
         this.follow = follow;
         this.saveResults = saveResults;
 

@@ -17,18 +17,13 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
     private AbstractIOHelper IOHelper;
 
-    public abstract List<? extends AbstractUser> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults);
+    public abstract List<? extends AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults);
 
-    public List<? extends AbstractUser> getPotentialFollowers(String ownerName, int count, boolean follow, boolean saveResults){
-        AbstractUser user = this.getUserFromUserName(ownerName);
-        return this.getPotentialFollowers(user.getId(), count, follow, saveResults);
-    }
-
-    protected LinkedHashMap<Long, Boolean> areFriends(Long userId, List<Long> otherIds, boolean unfollow, boolean writeOnSheet){
-        LinkedHashMap<Long, Boolean> result = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Boolean> areFriends(String userId, List<String> otherIds, boolean unfollow, boolean writeOnSheet){
+        LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
         int nbUnfollows = 0;
         int nbFollowingBack = 0;
-        for(Long otherId : otherIds){
+        for(String otherId : otherIds){
             Boolean userFollowsBack = null;
             RelationType relation = this.getRelationType(userId, otherId);
             if(relation == RelationType.FRIENDS || relation == RelationType.FOLLOWER){

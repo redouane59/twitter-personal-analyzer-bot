@@ -41,15 +41,15 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
-    private List<Long> getUserIdsByRelation(String url){
+    private List<String> getUserIdsByRelation(String url){
         Long cursor = -1L;
-        List<Long> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
         int nbCalls = 1;
         do {
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
             JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
             if(response!=null && response.has(IDS)){
-                List<Long> ids = this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
+                List<String> ids = this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
                 if(ids!=null){
                     result.addAll(ids);
                 }
@@ -86,7 +86,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return result;
     }
 
-    private List<Long> getUserIdsByRelation(Long userId, RelationType relationType){
+    private List<String> getUserIdsByRelation(String userId, RelationType relationType){
         String url = null;
         if(relationType == RelationType.FOLLOWER){
             url = this.urlHelper.getFollowerIdsUrl(userId);
@@ -96,31 +96,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getUserIdsByRelation(url);
     }
 
-    // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
-    private List<Long> getUserIdsByRelation(String userName, RelationType relationType){
-        String url = null;
-
-        if(relationType == RelationType.FOLLOWER){
-            url = this.urlHelper.getFollowerIdsUrl(userName);
-        } else if (relationType == RelationType.FOLLOWING){
-            url = this.urlHelper.getFollowingIdsUrl(userName);
-        }
-        return this.getUserIdsByRelation(url);
-    }
-
-    // can manage up to 200 results/call . Max 15 calls/15min ==> 3.000 results max./15min
-    private List<User> getUsersInfoByRelation(String userName, RelationType relationType) {
-        String url = null;
-        if(relationType == RelationType.FOLLOWER){
-            url = this.urlHelper.getFollowerUsersUrl(userName);
-        } else if (relationType == RelationType.FOLLOWING){
-            url = this.urlHelper.getFollowingUsersUrl(userName);
-        }
-
-        return this.getUsersInfoByRelation(url);
-    }
-
-    private List<User> getUsersInfoByRelation(Long userId, RelationType relationType) {
+    private List<User> getUsersInfoByRelation(String userId, RelationType relationType) {
         String url = null;
         if(relationType == RelationType.FOLLOWER){
             url = this.urlHelper.getFollowerUsersUrl(userId);
@@ -131,78 +107,27 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     @Override
-    public List<Long> getFollowingIds(String userName) {
-        Long cursor = -1L;
-        List<Long> result = new ArrayList<>();
-        String url = this.urlHelper.getFollowingUsersUrl(userName);
-        int nbCalls = 1;
-        do {
-            System.out.println("looking for following with cursor = " + cursor);
-            String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
-            JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
-            result.addAll(this.getJsonHelper().jsonLongArrayToList(response.get("users")));
-            cursor = this.getJsonHelper().getLongFromCursorObject(response);
-            nbCalls++;
-        }
-        while (cursor != 0 && cursor!=null && nbCalls < MAX_GET_F_CALLS);
-        System.out.println(result.size() + " followings found for " + userName);
-        return result;
-    }
-
-    @Override
-    public List<Long> getFollowerIds(Long userId)  {
+    public List<String> getFollowerIds(String userId)  {
         return this.getUserIdsByRelation(userId, RelationType.FOLLOWER);
     }
 
     @Override
-    public List<Long> getFollowerIds(String userName)  {
-        return this.getUserIdsByRelation(userName, RelationType.FOLLOWER);
-    }
-
-    @Override
-    public List<User> getFollowerUsers(Long userId) {
+    public List<User> getFollowerUsers(String userId) {
         return this.getUsersInfoByRelation(userId, RelationType.FOLLOWER);
     }
 
     @Override
-    public List<User> getFollowerUsers(String userName) {
-        if(this.urlHelper.canCallGetFollowers()){
-            System.out.print("(1) ");
-            return this.getUsersInfoByRelation(userName, RelationType.FOLLOWER);
-        } else{
-            System.out.print("(2) ");
-            List<Long> followerIds = this.getUserIdsByRelation(userName, RelationType.FOLLOWER);
-            List<User> result = new ArrayList<>();
-            int i=0;
-            while(this.urlHelper.canCallUserInfo() && i<followerIds.size()){
-                Long followerId = followerIds.get(i);
-                result.add(this.getUserFromUserId(followerId));
-                i++;
-            }
-            if(!this.urlHelper.canCallUserInfo()){
-                this.urlHelper.setFollowersCount(0);
-            }
-            return result;
-        }
-    }
-
-    @Override
-    public List<Long> getFollowingIds(Long userId) {
+    public List<String> getFollowingIds(String userId) {
         return this.getUserIdsByRelation(userId, RelationType.FOLLOWING);
     }
 
     @Override
-    public List<User> getFollowingsUsers(String userName) {
-        return this.getUsersInfoByRelation(userName, RelationType.FOLLOWING);
-    }
-
-    @Override
-    public List<User> getFollowingsUsers(Long userId) {
+    public List<User> getFollowingsUsers(String userId) {
         return this.getUsersInfoByRelation(userId, RelationType.FOLLOWING);
     }
 
     @Override
-    public RelationType getRelationType(Long userId1, Long userId2){
+    public RelationType getRelationType(String userId1, String userId2){
         String url = this.urlHelper.getFriendshipUrl(userId1, userId2);
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if(response!=null) {
@@ -229,28 +154,13 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     // API KO
     @Override
-    public List<Long> getRetweetersId(Long tweetId) {
+    public List<String> getRetweetersId(String tweetId) {
         String url = this.urlHelper.getRetweetersUrl(tweetId);
         return this.getUserIdsByRelation(url);
     }
 
     @Override
-    public boolean follow(String userName){
-        String url = this.urlHelper.getFollowUrl(userName);
-        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
-        if(jsonResponse!=null) {
-            if (jsonResponse.has(JsonHelper.FOLLOWING)) {
-                System.out.println(userName + " followed ! ");
-                return true;
-            } else{
-                System.err.println("following property not found :(  " + userName + " not followed !");
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean follow(Long userId) {
+    public boolean follow(String userId) {
         String url = this.urlHelper.getFollowUrl(userId);
         JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null) {
@@ -266,29 +176,18 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     @Override
-    public boolean unfollow(String userName){
-        String url = this.urlHelper.getUnfollowUrl(userName);
-        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
-        if(jsonResponse!=null){
-            System.out.println(userName + " unfollowed");
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean unfollow(Long userId) {
+    public boolean unfollow(String userId) {
         String url = this.urlHelper.getUnfollowUrl(userId);
         JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null){
-            System.out.println(userId + " unfollowed");
+            System.out.println(userId + " unfollowed"); // @todo check if needed during unfollow
             return true;
         }
         System.err.println(userId + " not unfollowed");
         return false;
     }
 
-    public User getUserFromUserId(Long userId)  {
+    public User getUserFromUserId(String userId)  {
         String url = this.getUrlHelper().getUserUrl(userId);
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if(response!=null){
@@ -305,7 +204,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     @Override
     public User getUserFromUserName(String userName) {
-        String url = this.getUrlHelper().getUserUrl(userName);
+        String url = this.getUrlHelper().getUserUrlFromName(ownerName);
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if (response != null) {
             try {
@@ -329,7 +228,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
-    List<User> getUsersFromUserIds(List<Long> userIds)  {
+    List<User> getUsersFromUserIds(List<String> userIds)  {
         String url = this.getUrlHelper().getUsersUrlbyIds(userIds);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
@@ -346,7 +245,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     public void checkNotFollowBack(String ownerName, boolean unfollow, boolean writeInSheet, Date date, boolean override) {
-        List<Long> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(override, override, date);
+        List<String> followedPreviously = this.getIOHelper().getPreviouslyFollowedIds(override, override, date);
         if(followedPreviously!=null && followedPreviously.size()>0){
             User user = this.getUserFromUserName(ownerName);
             this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
@@ -355,7 +254,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
-    public List<Tweet> getUserLastTweets(Long userId, int count){
+    public List<Tweet> getUserLastTweets(String userId, int count){
         String url = this.getUrlHelper().getUserTweetsUrl(userId, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null && response.length()>0){
@@ -364,23 +263,14 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
-    public List<Tweet> getUserLastTweets(String userName, int count){
-        String url = this.getUrlHelper().getUserTweetsUrl(userName, count);
-        JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
-        if(response!=null && response.length()>0){
-            return this.getJsonHelper().jsonResponseToTweetList(response);
-        }
-        return null;
-    }
-
     @Override
-    public void likeTweet(Long tweetId) {
+    public void likeTweet(String tweetId) {
         String url = this.getUrlHelper().getLikeUrl(tweetId);
         this.getRequestHelper().executePostRequest(url, null);
     }
 
     @Override
-    public void retweetTweet(Long tweetId) {
+    public void retweetTweet(String tweetId) {
 
     }
 

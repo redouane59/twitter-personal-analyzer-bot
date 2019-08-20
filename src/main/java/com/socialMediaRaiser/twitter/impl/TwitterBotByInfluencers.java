@@ -22,18 +22,18 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(Long ownerId, int count, boolean follow, boolean saveResults){
+    public List<User> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship) count = maxFriendship;
         int minOccurence = 0;
         List<User> ownerFollowers = this.getFollowerUsers(ownerId);
         List<User> influencers = this.getInfluencersFromUsers(ownerFollowers, 150);
         Collections.shuffle(influencers);
 
-        Map<Long, Long> sortedPotentialFollowersMap =
+        Map<String, Long> sortedPotentialFollowersMap =
                 this.getAllFollowerIdsFromUsersSortedByOccurence(ownerId, influencers,
                         FollowProperties.targetProperties.getNbBaseFollowers(), minOccurence);
 
-        Iterator<Map.Entry<Long, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
+        Iterator<Map.Entry<String, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
         int iteration = 0;
         long startWorkingTime = System.currentTimeMillis();
         long stopWorkingTime;
@@ -47,9 +47,9 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 startWorkingTime = System.currentTimeMillis();
             }
 
-            Map.Entry<Long, Long> entry = it.next();
+            Map.Entry<String, Long> entry = it.next();
             if(entry.getKey()!=null && entry.getValue()!=null){
-                Long userId = entry.getKey();
+                String userId = entry.getKey();
                 User potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 if(potentialFollower!=null){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
@@ -102,19 +102,19 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
 
     // id, occurencies
-    private Map<Long, Long> getAllFollowerIdsFromUsersSortedByOccurence(Long ownerId, List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
-        List<Long> ownerFollowingIds = this.getFollowingIds(ownerId);
+    private Map<String, Long> getAllFollowerIdsFromUsersSortedByOccurence(String ownerId, List<User> followers, int nbFollowersMaxtoWatch, int minOccurence){
+        List<String> ownerFollowingIds = this.getFollowingIds(ownerId);
         ownerFollowingIds.add(ownerId);
-        List<Long> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
+        List<String> followedRecently = this.getIOHelper().getPreviouslyFollowedIds();
         // building influencers followers list
-        List<Long> influencersFollowersIds = new ArrayList<>();
+        List<String> influencersFollowersIds = new ArrayList<>();
         User user;
         int i=0;
         while(i<followers.size() && i<nbFollowersMaxtoWatch){
             user = followers.get(i);
-            List<Long> currentFollowersInfluencersFollowersId = this.getFollowerIds(user.getId()); // criticity here -> cache
+            List<String> currentFollowersInfluencersFollowersId = this.getFollowerIds(user.getId()); // criticity here -> cache
             //  influencersFollowersIds.addAll(currentFollowersInfluencersFollowersId);
-            for(Long userId : currentFollowersInfluencersFollowersId){
+            for(String userId : currentFollowersInfluencersFollowersId){
                 if(ownerFollowingIds.indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1) {
                     influencersFollowersIds.add(userId);
                 }
@@ -122,7 +122,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
             System.out.println(user.getUserName() + " (" + currentFollowersInfluencersFollowersId.size() + " followers)");
             i++;
         }
-        Map<Long, Long> sortedPotentialFollowersMap = influencersFollowersIds.stream()
+        Map<String, Long> sortedPotentialFollowersMap = influencersFollowersIds.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))// create a map with item, occurence
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))

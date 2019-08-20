@@ -20,7 +20,7 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
         JsonNode userNode = tweetNode.get("user");
 
         User user = User.builder()
-                .id(userNode.get("id").asLong())
+                .id(userNode.get("id").asText())
                 .userName(userNode.get("screen_name").asText())
                 .followingCount(userNode.get("friends_count").asInt())
                 .followerCout(userNode.get("followers_count").asInt())

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class AbstractUser {
-    private long id;
+    private String id;
     private String userName;
     private int followersCount;
     private int followingsCount;
@@ -25,10 +25,5 @@ public abstract class AbstractUser {
     public boolean equals(Object o) {
         AbstractUser otherUser = (AbstractUser) o;
         return otherUser.getId() == this.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return Long.hashCode(this.getId());
     }
 }

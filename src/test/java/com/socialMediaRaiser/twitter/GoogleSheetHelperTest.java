@@ -22,7 +22,7 @@ public class GoogleSheetHelperTest {
 
     @Test
     void testGetPreviouslyFollowedIdsAll(){
-        List<Long> result = googleSheetHelper.getPreviouslyFollowedIds();
+        List<String> result = googleSheetHelper.getPreviouslyFollowedIds();
         assertTrue(result.size()>200);
     }
 
@@ -31,15 +31,15 @@ public class GoogleSheetHelperTest {
         Date date = new Date();
         date.setDate(11);
         date.setMonth(04);
-        List<Long> result = googleSheetHelper.getPreviouslyFollowedIds(true, true, date);
+        List<String> result = googleSheetHelper.getPreviouslyFollowedIds(true, true, date);
         assertTrue(result.size()>50);
     }
 
     @Test
     void testRowOfUser(){
-        int result = googleSheetHelper.getUserRows().get(925955978L);
+        int result = googleSheetHelper.getUserRows().get("925955978");
         assertEquals(10, result);
-        result = googleSheetHelper.getUserRows().get(1719824233L);
+        result = googleSheetHelper.getUserRows().get("1719824233");
         assertEquals(3493, result);
     }
 

@@ -357,6 +357,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
+    @Deprecated
     public List<TweetDTO> getUserLastTweets(Long userId, int count){
         String url = this.getUrlHelper().getUserTweetsUrl(userId, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
@@ -366,6 +367,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
+    @Deprecated
     public List<TweetDTO> getUserLastTweets(String userName, int count){
         String url = this.getUrlHelper().getUserTweetsUrl(userName, count);
         JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);

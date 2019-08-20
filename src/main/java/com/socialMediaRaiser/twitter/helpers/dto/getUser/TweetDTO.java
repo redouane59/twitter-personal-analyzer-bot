@@ -18,6 +18,7 @@ public class TweetDTO {
     private String text;
     private String author_id;
     private String in_reply_to_user_id;
+    private String in_reply_to_status_id;
     private List<ReferencedTweetDTO> referenced_tweets;
     private JsonNode entities;
     private TwitterStatsDTO stats;

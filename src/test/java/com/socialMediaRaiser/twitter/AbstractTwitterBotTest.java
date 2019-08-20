@@ -343,6 +343,7 @@ class AbstractTwitterBotTest {
     }
 
     @Test
+    @Disabled
     public void testGetLastTweetByUserName() {
         String userName = "RedTheOne";
         List<TweetDTO> response = twitterBot.getUserLastTweets(userName, 2);
@@ -351,6 +352,7 @@ class AbstractTwitterBotTest {
     }
 
     @Test
+    @Disabled
     public void testGetLastTweetByUserId() {
         Long userId = 92073489L;
         List<TweetDTO> response = twitterBot.getUserLastTweets(userId, 3);

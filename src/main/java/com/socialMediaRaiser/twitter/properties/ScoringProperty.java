@@ -16,7 +16,7 @@ public class ScoringProperty {
     private Criterion criterion;
     private boolean active;
     private int maxPoints;
-    private Object value; // @todo dirty (could be int, String, String[], double)
+    private Object value;
     private boolean blocking;
 
     public ScoringProperty(){
@@ -49,7 +49,7 @@ public class ScoringProperty {
             case "favouritesCount":
                 this.criterion = Criterion.NB_FAVS;
                 break;
-            case "statusesCount":
+            case "tweetCount":
                 this.criterion = Criterion.NB_TWEETS;
                 break;
             default:

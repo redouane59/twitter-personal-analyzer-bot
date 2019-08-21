@@ -1,6 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
-import com.socialMediaRaiser.AbstractUser;
+import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
@@ -15,10 +15,14 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User extends AbstractUser {
+public class User implements IUser {
 
+    private String id;
+    private String username;
+    private int followersCount;
+    private int followingCount;
     private String lang;
-    private int statusesCount;
+    private int tweetCount;
     private Date dateOfCreation;
     private int commonFollowers; // nb of occurrences in followers search
     private Date dateOfFollow;
@@ -33,12 +37,15 @@ public class User extends AbstractUser {
     private boolean protectedAccount;
 
     @Builder
-    User(String id, String userName, int followerCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
+    User(String id, String userName, int followersCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
          int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
          Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
-        super(id,userName, followerCout, followingCount);
+        this.id = id;
+        this.username = userName;
+        this.followersCount = followersCout;
+        this.followingCount = followingCount;
         this.lang = lang;
-        this.statusesCount = statusesCount;
+        this.tweetCount = statusesCount;
         this.dateOfCreation = dateOfCreation;
         this.commonFollowers = commonFollowers;
         this.dateOfFollow = dateOfFollow;
@@ -52,9 +59,8 @@ public class User extends AbstractUser {
     }
 
     // @odo remove argument ?
-    @Override
     public boolean shouldBeFollowed(String ownerName){
-        if(this.getUserName()!=null && this.getUserName().equals(ownerName)){
+        if(this.getUsername()!=null && this.getUsername().equals(ownerName)){
             return false;
         }
         return this.scoringEngine.shouldBeFollowed(this);
@@ -66,7 +72,6 @@ public class User extends AbstractUser {
         return (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
     }
 
-    @Override
     public boolean shouldBeUnfollowed() {
         throw new UnsupportedOperationException();
     }
@@ -151,5 +156,15 @@ public class User extends AbstractUser {
     public boolean getRandomForestPrediction(){
         this.setDateOfFollowNow();
         return RandomForestAlgoritm.getPrediction(this);
+    }
+
+    public double getFollowersRatio() {
+        return (double) this.followersCount / (double) this.followingCount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        User otherUser = (User) o;
+        return (otherUser).getId() == this.getId();
     }
 }

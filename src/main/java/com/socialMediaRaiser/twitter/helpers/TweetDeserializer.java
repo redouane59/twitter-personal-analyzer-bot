@@ -23,13 +23,13 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .id(userNode.get("id").asText())
                 .userName(userNode.get("screen_name").asText())
                 .followingCount(userNode.get("friends_count").asInt())
-                .followerCout(userNode.get("followers_count").asInt())
+                .followersCout(userNode.get("followers_count").asInt())
                 .statusesCount(userNode.get("statuses_count").asInt())
                 .favouritesCount(userNode.get("favourites_count").asInt())
                 .location(userNode.get("location").asText())
                 .description(userNode.get("description").asText())
-                .dateOfCreation(JsonHelper.getTwitterDate(userNode.get("created_at").asText()))
-                .lastUpdate(JsonHelper.getTwitterDate(tweetNode.get("created_at").asText()))
+                .dateOfCreation(JsonHelper.getDateFromTwitterString(userNode.get("created_at").asText()))
+                .lastUpdate(JsonHelper.getDateFromTwitterString(tweetNode.get("created_at").asText()))
                 .lang(tweetNode.get("lang").asText())
                 .build();
 
@@ -41,7 +41,7 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .retweet_count(tweetNode.get("retweet_count").asInt())
                 .reply_count(tweetNode.get("reply_count").asInt())
                 .user(user)
-                .created_at(JsonHelper.getTwitterDate(tweetNode.get("created_at").asText()))
+                .created_at(JsonHelper.getDateFromTwitterString(tweetNode.get("created_at").asText()))
                 .build();
 
         return tweet;

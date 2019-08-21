@@ -35,6 +35,9 @@ public class URLHelper {
     private final String USER_TIMELINE = "/user_timeline.json?";
     private final String TRIM_USER = "trim_user=true";
     private final String EXCLUDE_RTS = "include_rts=false";
+    private final String USER_FORMAT_DETAILED= "user.format=detailed";
+    private final String TWEET_FORMAT_DETAILED= "tweet.format=detailed";
+    private final String EXPANSIONS_RECENT_TWEET= "expansions=most_recent_tweet_id";
     private final int maxCount = 200;
     private int retweeterCount = 0;
     private int followersCount = 0;
@@ -163,7 +166,6 @@ public class URLHelper {
                 .append("/user_timeline.json?").toString();
     }
 
-    // @todo add constantes
     public String getUserUrl(String userId) {
         this.userCount++;
         if(userCount%50==0) {
@@ -173,9 +175,9 @@ public class URLHelper {
                 .append(USERS)
                 .append("?ids=")
                 .append(userId)
-                .append("&user.format=detailed")
-                .append("&tweet.format=detailed")
-                .append("&expansions=most_recent_tweet_id")
+                .append("&"+USER_FORMAT_DETAILED)
+                .append("&"+TWEET_FORMAT_DETAILED)
+                .append("&"+EXPANSIONS_RECENT_TWEET)
                 .toString();
     }
 
@@ -188,9 +190,9 @@ public class URLHelper {
                 .append(USERS)
                 .append("?usernames=")
                 .append(username)
-                .append("&user.format=detailed")
-                .append("&tweet.format=detailed")
-                .append("&expansions=most_recent_tweet_id")
+                .append("&"+USER_FORMAT_DETAILED)
+                .append("&"+TWEET_FORMAT_DETAILED)
+                .append("&"+EXPANSIONS_RECENT_TWEET)
                 .toString();
     }
 

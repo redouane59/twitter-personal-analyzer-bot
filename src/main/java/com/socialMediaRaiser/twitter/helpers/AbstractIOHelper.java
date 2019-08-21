@@ -1,12 +1,9 @@
 package com.socialMediaRaiser.twitter.helpers;
 
-import com.socialMediaRaiser.AbstractUser;
-import com.socialMediaRaiser.twitter.User;
-import lombok.Getter;
+import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractIOHelper {
 
@@ -22,6 +19,6 @@ public abstract class AbstractIOHelper {
 
     public abstract List<String> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date);
     public abstract void updateFollowBackInformation(String userId, Boolean result);
-    public abstract void addNewFollowerLine(AbstractUser user);
+    public abstract void addNewFollowerLine(IUser user);
 
 }

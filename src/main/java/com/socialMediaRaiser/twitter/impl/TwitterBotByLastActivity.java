@@ -1,10 +1,9 @@
 package com.socialMediaRaiser.twitter.impl;
 
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
-import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
-import lombok.Data;
+import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +15,7 @@ import java.util.*;
 @Setter
 public class TwitterBotByLastActivity extends AbstractTwitterBot {
 
-    private List<User> potentialFollowers = new ArrayList<>();
+    private List<IUser> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
 
     public TwitterBotByLastActivity(String ownerName) {
@@ -24,7 +23,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
     }
 
     @Override
-    public List<User> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
+    public List<IUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship){
             count = maxFriendship;
         }
@@ -43,7 +42,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
         int iteration=0;
         while(iteration<lastTweets.size() && potentialFollowers.size() < count){
             Tweet tweet = lastTweets.get(iteration);
-            User potentialFollower = tweet.getUser();
+            User potentialFollower = (User)tweet.getUser();
             // @todo how to not count commonFollowers in scoring ?
             if(ownerFollowingIds.indexOf(potentialFollower.getId())==-1
                     && followedRecently.indexOf(potentialFollower.getId())==-1
@@ -60,7 +59,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
                             }
                         }
                     } else {
-                        System.out.println("potentialFollowers added : " + potentialFollower.getUserName());
+                        System.out.println("potentialFollowers added : " + potentialFollower.getUsername());
                         potentialFollowers.add(potentialFollower);
                     }
                 }

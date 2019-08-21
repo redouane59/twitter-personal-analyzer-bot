@@ -23,13 +23,12 @@ public class UserScoringEngine {
 
     public boolean shouldBeFollowed(User user){
         int score = getUserScore(user);
-        System.out.println("score of " + score + "/"+limit+ " for " + user.getUserName());
         return score >= limit;
     }
 
     public int getUserScore(User user){
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setValue(user.getFollowersCount());
-        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingsCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingCount());
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setValue(user.getFollowersRatio());
         String description = user.getDescription();
         // @odo only if public account
@@ -42,7 +41,7 @@ public class UserScoringEngine {
         FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).setValue(user.getLocation());
         FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).setValue(user.getCommonFollowers());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
-        FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getStatusesCount());
+        FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getTweetCount());
         FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).setValue(user.getLastUpdate());
         return this.computeScore();
     }

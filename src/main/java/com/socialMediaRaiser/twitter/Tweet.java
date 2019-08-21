@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.socialMediaRaiser.twitter.helpers.TweetDeserializer;
+import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class Tweet {
     private int reply_count;
     private String text;
     private Date created_at;
-    private User user;
+    private IUser user;
 
     public boolean matchWords(List<String> words){
         for(String word : words){

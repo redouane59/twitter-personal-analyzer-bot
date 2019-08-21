@@ -3,6 +3,7 @@ package com.socialMediaRaiser.twitter.helpers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
+import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.IncludesDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
@@ -77,9 +78,9 @@ public class JsonHelper {
     }
 
     @Deprecated
-    public List<User> jsonUserArrayToList(Object jsonObject){
+    public List<IUser> jsonUserArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<User> listdata = new ArrayList<>();
+        ArrayList<IUser> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
@@ -110,14 +111,14 @@ public class JsonHelper {
             return User.builder()
                     .id(id)
                     .userName(screenName)
-                    .followerCout(followersCount)
+                    .followersCout(followersCount)
                     .followingCount(friendsCount)
                     .statusesCount(statuses_count)
-                    .dateOfCreation(getTwitterDate(created_at))
+                    .dateOfCreation(getDateFromTwitterString(created_at))
                     .description(description)
                     .favouritesCount(favourites_count)
                     .dateOfFollow(null)
-                    .lastUpdate(getTwitterDate(lastUpdate))
+                    .lastUpdate(getDateFromTwitterString(lastUpdate))
                     .location(location)
                     .build();
         } else{
@@ -125,7 +126,7 @@ public class JsonHelper {
         }
     }
 
-    public User jsonResponseToUserV2(String response) throws IOException {
+    public IUser jsonResponseToUserV2(String response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
         UserDTO data = obj.getData().get(0);
@@ -136,15 +137,15 @@ public class JsonHelper {
         if(!data.isProtectedAccount() && includes!=null){
             mostRecentTweet = includes.getTweets();
             lang = includes.getTweets().get(0).getLang();
-            lastUpdate = getTwitterDateV2(includes.getTweets().get(0).getCreated_at());
+            lastUpdate = getDateFromTwitterDateV2(includes.getTweets().get(0).getCreated_at());
         }
         return User.builder()
                 .id(data.getId())
                 .userName(data.getUsername())
-                .followerCout(data.getStats().getFollowers_count())
+                .followersCout(data.getStats().getFollowers_count())
                 .followingCount(data.getStats().getFollowing_count())
                 .statusesCount(data.getStats().getTweet_count())
-                .dateOfCreation(getTwitterDateV2(data.getCreated_at()))
+                .dateOfCreation(getDateFromTwitterDateV2(data.getCreated_at()))
                 .description(data.getDescription())
                 .dateOfFollow(null)
                 .location(data.getLocation())
@@ -171,7 +172,7 @@ public class JsonHelper {
         }
     }
 
-    public static Date getTwitterDate(String date)
+    public static Date getDateFromTwitterString(String date)
     {
         if(date==null){
             return null;
@@ -188,7 +189,7 @@ public class JsonHelper {
         }
     }
 
-    public static Date getTwitterDateV2(String date)
+    public static Date getDateFromTwitterDateV2(String date)
     {
         if(date==null){
             return null;
@@ -213,7 +214,7 @@ public class JsonHelper {
                 int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
                 String text = jsonObject.get(TEXT).toString();
                 String lang = jsonObject.get(LANG).toString();
-                Date createdAtDate = getTwitterDate(jsonObject.get(CREATED_AT).toString());
+                Date createdAtDate = getDateFromTwitterString(jsonObject.get(CREATED_AT).toString());
                 User user = null;
                 try{
                     user = jsonResponseToUser((JSONObject)jsonObject.get(USER));

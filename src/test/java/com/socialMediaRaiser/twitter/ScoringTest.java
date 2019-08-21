@@ -1,8 +1,8 @@
 package com.socialMediaRaiser.twitter;
 
+import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -59,7 +59,7 @@ public class ScoringTest {
         FollowProperties.load(ownerName);
         User user = new User();
         user.setFollowersCount(Integer.valueOf(nbFollowers));
-        user.setFollowingsCount(Integer.valueOf(nbFollowings));
+        user.setFollowingCount(Integer.valueOf(nbFollowings));
         FollowProperties.targetProperties.setMinRatio((float)0.5);
         FollowProperties.targetProperties.setMaxRatio((float)1.5);
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setMaxPoints(20);
@@ -91,7 +91,7 @@ public class ScoringTest {
     void testScoringMinMaxFollowings(String nbFollowings, String exceptedResult){
         FollowProperties.load(ownerName);
         User user = new User();
-        user.setFollowingsCount(Integer.valueOf(nbFollowings));
+        user.setFollowingCount(Integer.valueOf(nbFollowings));
         FollowProperties.targetProperties.setMinNbFollowings(500);
         FollowProperties.targetProperties.setMaxNbFollowings(5000);
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setMaxPoints(10);

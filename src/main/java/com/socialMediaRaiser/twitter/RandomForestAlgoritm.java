@@ -96,8 +96,8 @@ public class RandomForestAlgoritm {
     public static boolean getPrediction(User user) {
          Instances dataset = new Instances("whatever", getAttributes(), 0);
         //Followers	Followings	NbDaySinceLastTweet	CommonFollowers	DateOfFollow	Tweets	Fav	YearsSinceCreation	FollowBack
-        double[] attValues = {user.getFollowersCount(), user.getFollowingsCount(), user.getDaysBetweenFollowAndLastUpdate()
-                , user.getCommonFollowers(), 0.0, user.getStatusesCount(), user.getFavouritesCount(),
+        double[] attValues = {user.getFollowersCount(), user.getFollowingCount(), user.getDaysBetweenFollowAndLastUpdate()
+                , user.getCommonFollowers(), 0.0, user.getTweetCount(), user.getFavouritesCount(),
                 user.getYearsBetweenFollowAndCreation()};
 
         Instance i1 = new DenseInstance(1.0, attValues);

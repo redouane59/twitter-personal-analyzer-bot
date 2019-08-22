@@ -133,7 +133,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if(response!=null) {
             try {
-                RelationshipDTO relationshipDTO = new ObjectMapper().readValue(this.getRequestHelper().executeGetRequestV2(url), RelationshipObjectResponseDTO.class).getRelationship();
+                RelationshipDTO relationshipDTO = JsonHelper.OBJECT_MAPPER.readValue(this.getRequestHelper().executeGetRequestV2(url), RelationshipObjectResponseDTO.class).getRelationship();
                 Boolean followedBy = relationshipDTO.getSource().isFollowed_by();
                 Boolean following = relationshipDTO.getSource().isFollowing();
                 if(followedBy && !following){
@@ -166,7 +166,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null) {
             if (jsonResponse.has(JsonHelper.FOLLOWING)) {
-                System.out.println(userId + " followed ! ");
                 return true;
             } else{
                 System.err.println("following property not found :(  " + userId + " not followed !");
@@ -209,7 +208,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if (response != null) {
             try {
-              //  UserObjectResponseDTO userObjectResponseDTO = new ObjectMapper().readValue(response, UserObjectResponseDTO.class);
+              //  UserObjectResponseDTO userObjectResponseDTO = JsonHelper.OBJECT_MAPPER.readValue(response, UserObjectResponseDTO.class);
                 IUser user = this.getJsonHelper().jsonResponseToUserV2(response); // @todo find solution to use the dto directly
                 return user;
             } catch (IOException e) {

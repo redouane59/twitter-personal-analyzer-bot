@@ -112,5 +112,10 @@
             <artifactId>aws-java-sdk-core</artifactId>
             <version>1.11.478</version>
         </dependency>
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>0.10.2</version>
+        </dependency>
     </dependencies>
 </project>

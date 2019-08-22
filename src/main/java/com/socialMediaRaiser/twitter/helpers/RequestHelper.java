@@ -83,7 +83,7 @@ public class RequestHelper {
     public JSONObject executePostRequest(String url, Map<String, String> parameters) {
 
         try {
-            String json = new ObjectMapper().writeValueAsString(parameters);
+            String json = JsonHelper.OBJECT_MAPPER.writeValueAsString(parameters);
 
             RequestBody requestBody = RequestBody.create(null, json);
 

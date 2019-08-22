@@ -28,7 +28,7 @@ public class StartStreamingHandler implements RequestHandler<String, String> {
         this.logger.log("\ninputStream : " + inputString);
         Map<String, String> map = null;
     /*    try {
-            map = new ObjectMapper().readValue(inputString, Map.class);
+            map = JsonHelper.OBJECT_MAPPER.readValue(inputString, Map.class);
         } catch (IOException e) {
             e.printStackTrace();
             logger.log(e.getMessage());

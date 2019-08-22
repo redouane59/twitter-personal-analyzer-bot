@@ -5,6 +5,7 @@ import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
+import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,14 +39,14 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         Iterator<Map.Entry<String, Long>> it = sortedPotentialFollowersMap.entrySet().iterator();
         int iteration = 0;
         int pointLimit = FollowProperties.scoringProperties.getTotalMaxPoints()*FollowProperties.targetProperties.getMinimumPercentMatch()/100;
-        int score = 0;
+        int score;
         long startTime = System.currentTimeMillis();
         long time1;
         long time2;
         while (it.hasNext() && potentialFollowers.size() < count) {
             if(iteration%50==0 && iteration>0){
                 System.out.println(potentialFollowers.size() + " followers found / " + count + " in "
-                        +  (System.currentTimeMillis()-startTime)/(long)1000 + "s" + " | i="+iteration);
+                        +  (System.currentTimeMillis()-startTime)/(long)(1000*60) + "min" + " | i="+iteration);
             }
 
             Map.Entry<String, Long> entry = it.next();
@@ -54,21 +55,26 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 time1 = System.currentTimeMillis();
                 /* retrieving the user information */
                 User potentialFollower = (User)this.getUserFromUserId(userId); // criticity here (900/15min)
-                time1 = (System.currentTimeMillis()-time1)/(long)1000;
+                time1 = (System.currentTimeMillis()-time1);
                 time2 = System.currentTimeMillis();
                 /* checking if user exist and language is ok */
+                System.out.print(Option.of(potentialFollower.getUsername()).getOrElse("unknown user"));
                 if(potentialFollower!=null
+                        && !potentialFollower.isProtectedAccount()
                         && !potentialFollower.getUsername().equals(this.getOwnerName())
+                        && potentialFollower.getLang()!=null
                         && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                     /* general scoring */
                     score = potentialFollower.getScoringEngine().getUserScore(potentialFollower);
+                    System.out.println(" : " + score + "/"+pointLimit);
                     if(score >= pointLimit){
                         /* RFA */
                         if(!FollowProperties.ioProperties.isUseRFA() || potentialFollower.getRandomForestPrediction()) {
                             if (follow) {
                                 boolean result = this.follow(potentialFollower.getId());
                                 if (result) {
+                                    System.out.println(" " + potentialFollower.getUsername() + " followed ! ");
                                     potentialFollower.setDateOfFollowNow();
                                     potentialFollowers.add(potentialFollower);
                                     if (saveResults) {
@@ -81,10 +87,11 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                             }
                         }
                     }
+                } else{
+                    System.out.println();
                 }
-                time2 = (System.currentTimeMillis()-time2)/(long)1000;
-                System.out.println("score of " + score + "/"+pointLimit+ " for " + potentialFollower.getUsername()
-                        + " | times : " + time1 + "s - " + time2 + "s");
+                time2 = (System.currentTimeMillis()-time2);
+                System.out.println(" times : " + time1 + "ms - " + time2 + "ms");
             }
             iteration++;
         }

@@ -53,7 +53,7 @@ public class ScoringProperty {
                 this.criterion = Criterion.NB_TWEETS;
                 break;
             default:
-                System.err.println("criterion not found");
+                System.err.println("criterion " + s + " not found ");
                 break;
         }
     }

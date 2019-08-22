@@ -1,6 +1,7 @@
 package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractTwitterUser;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
@@ -15,10 +16,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User implements IUser {
+public class User extends AbstractTwitterUser {
 
-    private String id;
-    private String username;
     private int followersCount;
     private int followingCount;
     private String lang;
@@ -27,21 +26,18 @@ public class User implements IUser {
     private int commonFollowers; // nb of occurrences in followers search
     private Date dateOfFollow;
     private Date dateOfFollowBack;
-    private String description;
     @Deprecated
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
     private UserScoringEngine scoringEngine = new UserScoringEngine(FollowProperties.targetProperties.getMinimumPercentMatch());
-    private List<TweetDTO> mostRecentTweet;
     private boolean protectedAccount;
 
     @Builder
     User(String id, String userName, int followersCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
          int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
          Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
-        this.id = id;
-        this.username = userName;
+        super(id, userName, mostRecentTweet, description);
         this.followersCount = followersCout;
         this.followingCount = followingCount;
         this.lang = lang;
@@ -50,11 +46,9 @@ public class User implements IUser {
         this.commonFollowers = commonFollowers;
         this.dateOfFollow = dateOfFollow;
         this.dateOfFollowBack = dateOfFollowBack;
-        this.description = description;
         this.favouritesCount = favouritesCount;
         this.lastUpdate = lastUpdate;
         this.location = location;
-        this.mostRecentTweet = mostRecentTweet;
         this.protectedAccount = protectedAccount;
     }
 
@@ -162,9 +156,4 @@ public class User implements IUser {
         return (double) this.followersCount / (double) this.followingCount;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        User otherUser = (User) o;
-        return (otherUser).getId() == this.getId();
-    }
 }

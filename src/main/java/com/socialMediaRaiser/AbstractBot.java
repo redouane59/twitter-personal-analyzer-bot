@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,6 +36,13 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
                 boolean unfollowResult = this.unfollow(otherId);
                 if(unfollowResult) {
                     nbUnfollows++;
+                    if(nbUnfollows%10==0){
+                        try {
+                            TimeUnit.SECONDS.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
             if(writeOnSheet){

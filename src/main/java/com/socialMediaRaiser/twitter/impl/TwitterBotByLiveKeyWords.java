@@ -1,9 +1,9 @@
 package com.socialMediaRaiser.twitter.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.*;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
+import com.socialMediaRaiser.twitter.helpers.JsonHelper;
 import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
@@ -89,8 +89,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
             client.connect();
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         int nbFollows = new GoogleSheetHelper(this.getOwnerName()).getPreviouslyFollowedIds(true, true, new Date()).size();
 
@@ -99,7 +98,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 System.out.println("SMR - queue > 0");
                 try{
                     String queueString = queue.take();
-                    Tweet foundedTweet = objectMapper.readValue(queueString, Tweet.class);
+                    Tweet foundedTweet = JsonHelper.OBJECT_MAPPER.readValue(queueString, Tweet.class);
                     System.out.println("SMR - analysing tweet from " + foundedTweet.getUser().getUsername() + " : "
                             + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
                     if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){

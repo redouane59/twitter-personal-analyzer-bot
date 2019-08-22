@@ -16,7 +16,7 @@ import java.util.Collections;
 public class GoogleAuthorizeUtil {
     public static GoogleCredential authorize() throws IOException, GeneralSecurityException {
 
-        String jsonInString = new ObjectMapper().writeValueAsString(FollowProperties.googleCredentials);
+        String jsonInString = JsonHelper.OBJECT_MAPPER.writeValueAsString(FollowProperties.googleCredentials);
 
         InputStream inputStream = new ByteArrayInputStream(jsonInString.getBytes());
 

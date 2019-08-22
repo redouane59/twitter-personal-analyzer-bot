@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
@@ -22,6 +23,8 @@ import java.util.Locale;
 // @todo remove JSON from project, replace it by JsonNode
 
 public class JsonHelper {
+
+    public static ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @Deprecated
     private static final String STATUSES_COUNT = "statuses_count";
@@ -127,7 +130,7 @@ public class JsonHelper {
     }
 
     public IUser jsonResponseToUserV2(String response) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JsonHelper.OBJECT_MAPPER;
         UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
         UserDTO data = obj.getData().get(0);
         IncludesDTO includes = obj.getIncludes();

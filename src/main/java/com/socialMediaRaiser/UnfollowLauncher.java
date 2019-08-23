@@ -8,8 +8,6 @@ import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import java.util.Calendar;
 import java.util.Date;
 
-// @todo dev followback hour reception
-
 public class UnfollowLauncher {
 
     private static AbstractTwitterBot twitterBot;

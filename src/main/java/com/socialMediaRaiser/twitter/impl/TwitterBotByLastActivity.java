@@ -3,19 +3,22 @@ package com.socialMediaRaiser.twitter.impl;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
 public class TwitterBotByLastActivity extends AbstractTwitterBot {
 
-    private List<IUser> potentialFollowers = new ArrayList<>();
+    private List<AbstractUser> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
 
     public TwitterBotByLastActivity(String ownerName) {
@@ -23,7 +26,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
     }
 
     @Override
-    public List<IUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
+    public List<AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
         if(count>maxFriendship){
             count = maxFriendship;
         }

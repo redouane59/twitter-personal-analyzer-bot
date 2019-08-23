@@ -134,14 +134,13 @@ public class UserScoringEngine {
         return 0;
     }
 
-    // @todo add last tweets
     private int getDescriptionScore(String description){
         int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).getMaxPoints();
         String[] words = FollowProperties.targetProperties.getDescription().split(FollowProperties.ARRAY_SEPARATOR);
         String[] descriptionSplitted = description.split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(words).anyMatch(s.toLowerCase()::contains)){
-                System.out.println("match description with '" + s +"'");
+                System.out.print(" matches description with '" + s +"'");
                 return maxPoints;
             }
         }

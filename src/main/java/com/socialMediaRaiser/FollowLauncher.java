@@ -27,7 +27,7 @@ public class FollowLauncher {
         } else{
             String ownerName = args[0];
             int nbNeededFollowers = Integer.valueOf(args[1]);
-                System.out.println("start working for " + ownerName + " for "+nbNeededFollowers + " followers.");
+                System.out.println("Start working on @" + ownerName + " for "+nbNeededFollowers + " followers.");
             twitterBot = new TwitterBotByInfluencers(ownerName);
             // twitterBot = new TwitterBotByLastActivity();
             RandomForestAlgoritm.process();

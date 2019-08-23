@@ -1,10 +1,11 @@
 package com.socialMediaRaiser.twitter.helpers;
 
 import com.google.api.services.sheets.v4.Sheets;
-import com.google.api.services.sheets.v4.model.*;
+import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import lombok.Data;
 
 import java.io.IOException;
@@ -89,7 +90,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void addNewFollowerLine(IUser u){
+    public void addNewFollowerLine(AbstractUser u){
         User user = (User)u;
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date followDate = user.getDateOfFollow();

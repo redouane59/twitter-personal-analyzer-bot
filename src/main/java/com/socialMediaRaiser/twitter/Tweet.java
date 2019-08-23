@@ -1,19 +1,15 @@
 package com.socialMediaRaiser.twitter;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.socialMediaRaiser.twitter.helpers.TweetDeserializer;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
-
-import static java.util.TimeZone.getDefault;
+import java.util.Date;
+import java.util.List;
 
 @Builder
 @Data
@@ -29,7 +25,7 @@ public class Tweet {
     private int reply_count;
     private String text;
     private Date created_at;
-    private IUser user;
+    private AbstractUser user;
 
     public boolean matchWords(List<String> words){
         for(String word : words){

@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.IncludesDTO;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserDTO;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.UserObjectResponseDTO;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -81,9 +77,9 @@ public class JsonHelper {
     }
 
     @Deprecated
-    public List<IUser> jsonUserArrayToList(Object jsonObject){
+    public List<AbstractUser> jsonUserArrayToList(Object jsonObject){
         JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<IUser> listdata = new ArrayList<>();
+        ArrayList<AbstractUser> listdata = new ArrayList<>();
         if (jArray != null) {
             for (int i=0;i<jArray.length();i++){
                 listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
@@ -129,7 +125,7 @@ public class JsonHelper {
         }
     }
 
-    public IUser jsonResponseToUserV2(String response) throws IOException {
+    public AbstractUser jsonResponseToUserV2(String response) throws IOException {
         ObjectMapper objectMapper = JsonHelper.OBJECT_MAPPER;
         UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
         UserDTO data = obj.getData().get(0);

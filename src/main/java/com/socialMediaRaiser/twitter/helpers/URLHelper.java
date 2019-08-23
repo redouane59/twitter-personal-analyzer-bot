@@ -82,7 +82,7 @@ public class URLHelper {
     public String getFriendshipUrl(String sourceId, String targetId) {
         this.friendshipCount++;
         if(friendshipCount%50==0){
-            System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
+       //     System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)

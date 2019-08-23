@@ -132,7 +132,6 @@ public class JsonHelperTest {
                 "   }\n" +
                 "}";
 
-        // @todo use only one objectMapper
         UserObjectResponseDTO objectInterpretation = JsonHelper.OBJECT_MAPPER.readValue(stringResponse, UserObjectResponseDTO.class);
         assertNotNull(objectInterpretation);
         assertNotNull(objectInterpretation.getData());
@@ -144,7 +143,7 @@ public class JsonHelperTest {
         assertTrue("RedTheOne".equals(user.getUsername()));
         assertTrue("Madrid, Espagne".equals(user.getLocation()));
         assertEquals(6279, user.getFollowersCount());
-        assertEquals(4152, user.getFollowingCount());
+        assertEquals(4153, user.getFollowingCount());
         assertEquals(35399,user.getTweetCount());
         assertNotNull(user.getDescription());
         assertNotNull(user.getDateOfCreation());

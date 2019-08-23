@@ -1,7 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
-import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractTwitterUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import lombok.Builder;
@@ -16,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User extends AbstractTwitterUser {
+public class User extends AbstractUser {
 
     private int followersCount;
     private int followingCount;
@@ -24,7 +23,6 @@ public class User extends AbstractTwitterUser {
     private int tweetCount;
     private Date dateOfCreation;
     private int commonFollowers; // nb of occurrences in followers search
-    private Date dateOfFollow;
     private Date dateOfFollowBack;
     @Deprecated
     private int favouritesCount;
@@ -37,14 +35,13 @@ public class User extends AbstractTwitterUser {
     User(String id, String userName, int followersCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
          int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
          Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
-        super(id, userName, mostRecentTweet, description);
+        super(id, userName, mostRecentTweet, description, dateOfFollow);
         this.followersCount = followersCout;
         this.followingCount = followingCount;
         this.lang = lang;
         this.tweetCount = statusesCount;
         this.dateOfCreation = dateOfCreation;
         this.commonFollowers = commonFollowers;
-        this.dateOfFollow = dateOfFollow;
         this.dateOfFollowBack = dateOfFollowBack;
         this.favouritesCount = favouritesCount;
         this.lastUpdate = lastUpdate;
@@ -119,21 +116,6 @@ public class User extends AbstractTwitterUser {
         this.commonFollowers++;
     }
 
-    public void setDateOfFollowNow(){
-        this.setDateOfFollow(new Date());
-    }
-
-    public long getDaysBetweenFollowAndLastUpdate(){
-        if(dateOfFollow==null || lastUpdate==null){
-            return Long.MAX_VALUE;
-        }
-        return (dateOfFollow.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
-    }
-
-    public long getYearsBetweenFollowAndCreation(){
-        return (dateOfFollow.getTime()-dateOfCreation.getTime()) / (365 * 24 * 60 * 60 * 1000);
-    }
-
     public void addLanguageFromLastTweet(List<Tweet> userLastTweets){
         if(userLastTweets!=null){
             for(Tweet tweet : userLastTweets){
@@ -147,13 +129,7 @@ public class User extends AbstractTwitterUser {
         }
     }
 
-    public boolean getRandomForestPrediction(){
-        this.setDateOfFollowNow();
-        return RandomForestAlgoritm.getPrediction(this);
-    }
 
-    public double getFollowersRatio() {
-        return (double) this.followersCount / (double) this.followingCount;
-    }
+
 
 }

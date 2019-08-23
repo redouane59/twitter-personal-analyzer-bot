@@ -1,10 +1,13 @@
 package com.socialMediaRaiser.twitter.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.socialMediaRaiser.twitter.*;
+import com.socialMediaRaiser.twitter.AbstractTwitterBot;
+import com.socialMediaRaiser.twitter.FollowProperties;
+import com.socialMediaRaiser.twitter.Tweet;
+import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.helpers.JsonHelper;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -24,13 +27,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Getter
 public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
-    private List<IUser> potentialFollowers = new ArrayList<>();
+    private List<AbstractUser> potentialFollowers = new ArrayList<>();
     List<String> followedRecently;
     List<String> ownerFollowingIds;
     private int maxFriendship = 390;
     private int QUEUE_SIZE = 100;
     private int iterations = 0;
-    private boolean follow; // @todo in abstract ?
     private boolean saveResults;
     private Client client;
 
@@ -39,8 +41,8 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     @Override
-    public List<IUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
-        this.follow = follow;
+    public List<AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
+        this.setFollow(follow);
         this.saveResults = saveResults;
 
         if(count>maxFriendship){
@@ -122,13 +124,13 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed(this.getOwnerName())){
             System.out.println("SMR - checking language...");
-            if(this.isLanguageOK(user)){
+            if(user.isLanguageOK()){
                 // this.likeTweet(tweet.getId());
                 boolean result = false;
-                if(this.follow) {
+                if(this.isFollow()) {
                     result = this.follow(user.getId());
                 }
-                if (result || !this.follow) {
+                if (result || !this.isFollow()) {
                     user.setDateOfFollowNow();
                     potentialFollowers.add(user);
                     if(this.saveResults){

@@ -35,7 +35,7 @@ public class RequestHelper {
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" + response.message() +" at "
-                        + now.getHour() + ":" + now.getMinute() + ". Waiting ...");
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ... " + url);
                 try {
                     TimeUnit.MINUTES.sleep(sleepTime);
                 } catch (InterruptedException e) {
@@ -43,7 +43,6 @@ public class RequestHelper {
                 }
                 return this.executeGetRequest(url);
             } else{
-                // @TODO break here
                 System.err.println("(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
             }
         } catch(IOException e){
@@ -64,7 +63,7 @@ public class RequestHelper {
                 response.close();
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" + response.message() +" at "
-                        + now.getHour() + ":" + now.getMinute() + ". Waiting ...");
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ... " + url);
                 try {
                     TimeUnit.MINUTES.sleep(sleepTime);
                 } catch (InterruptedException e) {
@@ -124,7 +123,7 @@ public class RequestHelper {
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" +           response.message() +" at "
-                        + now.getHour() + ":" + now.getMinute() + ". Waiting ..."); // do a wait and return this function recursively
+                        + now.getHour() + ":" + now.getMinute() + ". Waiting ... " + url); // do a wait and return this function recursively
                 try {
                     TimeUnit.MINUTES.sleep(sleepTime);
                 } catch (InterruptedException e) {

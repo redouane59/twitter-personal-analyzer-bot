@@ -3,14 +3,12 @@ package com.socialMediaRaiser.twitter.helpers.dto.getUser;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.socialMediaRaiser.twitter.helpers.JsonHelper;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
-public class UserDTO extends AbstractTwitterUser {
+public class UserDTO extends AbstractUser {
     private String created_at;
     private String name;
     @JsonAlias("protected")

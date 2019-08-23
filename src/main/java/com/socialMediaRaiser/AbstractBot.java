@@ -1,7 +1,7 @@
 package com.socialMediaRaiser;
 
 import com.socialMediaRaiser.twitter.helpers.AbstractIOHelper;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
     private AbstractIOHelper IOHelper;
 
-    public abstract List<IUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults);
+    public abstract List<AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults);
 
     protected LinkedHashMap<String, Boolean> areFriends(String userId, List<String> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();

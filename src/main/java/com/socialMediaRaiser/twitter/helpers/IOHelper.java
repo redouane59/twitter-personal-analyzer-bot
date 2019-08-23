@@ -1,7 +1,7 @@
 package com.socialMediaRaiser.twitter.helpers;
 
 import com.socialMediaRaiser.twitter.User;
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -16,7 +16,7 @@ import static com.socialMediaRaiser.twitter.helpers.AbstractIOHelper.DATE_FORMAT
 
 public class IOHelper {
 
-    public void write(List<IUser> result) throws IOException {
+    public void write(List<AbstractUser> result) throws IOException {
         LocalDateTime now = LocalDateTime.now();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
@@ -25,7 +25,7 @@ public class IOHelper {
                 + now.getYear()+now.getMonthValue()+now.getDayOfMonth()
                 +".csv");
 
-        for(IUser absUser : result) {
+        for(AbstractUser absUser : result) {
             User user = (User)absUser;
             Date followDate = user.getDateOfFollow();
             if(followDate==null){
@@ -91,7 +91,7 @@ public class IOHelper {
         writer.close();
     }
 
-    public void writeFollowedWithUser(Map<IUser, Boolean> result) throws IOException {
+    public void writeFollowedWithUser(Map<AbstractUser, Boolean> result) throws IOException {
         LocalDateTime now = LocalDateTime.now();
 
         FileWriter writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
@@ -103,7 +103,7 @@ public class IOHelper {
 
         writer.write("id;name;followed\n");
 
-        for(Map.Entry<IUser, Boolean> entry : result.entrySet()) {
+        for(Map.Entry<AbstractUser, Boolean> entry : result.entrySet()) {
             writer.write(entry.getKey().getUsername() + ";"
                     + entry.getKey().getId() + ";"
                     + entry.getValue()

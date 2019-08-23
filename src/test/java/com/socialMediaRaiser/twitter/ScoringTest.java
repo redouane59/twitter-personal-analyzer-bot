@@ -1,6 +1,5 @@
 package com.socialMediaRaiser.twitter;
 
-import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.Test;

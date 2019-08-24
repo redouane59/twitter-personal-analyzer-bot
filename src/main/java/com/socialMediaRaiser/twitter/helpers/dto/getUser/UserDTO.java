@@ -11,8 +11,6 @@ import java.util.Date;
 public class UserDTO extends AbstractUser {
     private String created_at;
     private String name;
-    @JsonAlias("protected")
-    private boolean protectedAccount;
     private String location;
     private String url;
     private boolean verified;

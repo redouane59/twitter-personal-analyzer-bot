@@ -45,7 +45,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
         int iteration=0;
         while(iteration<lastTweets.size() && potentialFollowers.size() < count){
             Tweet tweet = lastTweets.get(iteration);
-            User potentialFollower = (User)tweet.getUser();
+            AbstractUser potentialFollower = tweet.getUser();
             // @todo how to not count commonFollowers in scoring ?
             if(ownerFollowingIds.indexOf(potentialFollower.getId())==-1
                     && followedRecently.indexOf(potentialFollower.getId())==-1

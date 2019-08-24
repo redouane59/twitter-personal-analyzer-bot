@@ -22,98 +22,24 @@ public class User extends AbstractUser {
     private String lang;
     private int tweetCount;
     private Date dateOfCreation;
-    private int commonFollowers; // nb of occurrences in followers search
-    private Date dateOfFollowBack;
     @Deprecated
     private int favouritesCount;
     private Date lastUpdate;
     private String location;
-    private UserScoringEngine scoringEngine = new UserScoringEngine(FollowProperties.targetProperties.getMinimumPercentMatch());
-    private boolean protectedAccount;
 
     @Builder
     User(String id, String userName, int followersCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
          int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
          Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
-        super(id, userName, mostRecentTweet, description, dateOfFollow);
+        super(id, userName, mostRecentTweet, description, dateOfFollow, protectedAccount, commonFollowers, dateOfFollowBack, new UserScoringEngine(FollowProperties.targetProperties.getMinimumPercentMatch()));
         this.followersCount = followersCout;
         this.followingCount = followingCount;
         this.lang = lang;
         this.tweetCount = statusesCount;
         this.dateOfCreation = dateOfCreation;
-        this.commonFollowers = commonFollowers;
-        this.dateOfFollowBack = dateOfFollowBack;
         this.favouritesCount = favouritesCount;
         this.lastUpdate = lastUpdate;
         this.location = location;
-        this.protectedAccount = protectedAccount;
-    }
-
-    // @odo remove argument ?
-    public boolean shouldBeFollowed(String ownerName){
-        if(this.getUsername()!=null && this.getUsername().equals(ownerName)){
-            return false;
-        }
-        return this.scoringEngine.shouldBeFollowed(this);
-    }
-
-    private long getNbDaysSinceLastTweet(){
-        Date now = new Date();
-        Date lastUpdate = this.getLastUpdate();
-        return (now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000);
-    }
-
-    public boolean shouldBeUnfollowed() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean shouldBeTakenForItsFollowers(){
-
-        if(this.getFollowersCount()> FollowProperties.targetProperties.getMinNbFollowers()
-                && this.getFollowersRatio()> FollowProperties.influencerProperties.getMinRatio()
-                && this.lang.equals(FollowProperties.targetProperties.getLanguage())){
-            return true;
-        } else{
-            return false;
-        }
-    }
-
-    public boolean isInfluencer(){
-        String descriptionWords = FollowProperties.targetProperties.getDescription();
-        String[] descriptionWordsSplitted = descriptionWords.split(FollowProperties.ARRAY_SEPARATOR);
-        String[] userDescriptionSplitted = this.getDescription().split(" ");
-
-        String locationWords = FollowProperties.targetProperties.getLocation();
-        String[] locationWordsSplitted = locationWords.split(FollowProperties.ARRAY_SEPARATOR);
-        String[] userLocationSplitted = this.getLocation().split(" ");
-
-        boolean matchDescription = false;
-        boolean matchLocation = false;
-
-        for(String s :userDescriptionSplitted){
-            if(Arrays.stream(descriptionWordsSplitted).anyMatch(s::contains)){
-                matchDescription = true;
-            }
-        }
-        for(String s :userLocationSplitted){
-            if(Arrays.stream(locationWordsSplitted).anyMatch(s::contains)){
-                matchLocation = true;
-            }
-        }
-        return (matchDescription&&matchLocation);
-
-       /* if(this.getFollowersRatio()> followConfiguration.getMinRatio()
-                && this.getFollowersCount()> followConfiguration.getInfluencerMinNbFollowers()
-                && this.description.contains(followConfiguration.getDescription()[0]) */
-                /*&& this.lang!=null && this.lang.equals(followConfiguration.getLanguage())*//*){
-            return true;
-        } else{
-            return false;
-        } */
-    }
-
-    public void incrementCommonFollowers(){
-        this.commonFollowers++;
     }
 
     public void addLanguageFromLastTweet(List<Tweet> userLastTweets){
@@ -128,8 +54,4 @@ public class User extends AbstractUser {
             }
         }
     }
-
-
-
-
 }

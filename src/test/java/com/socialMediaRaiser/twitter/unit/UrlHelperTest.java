@@ -1,5 +1,7 @@
-package com.socialMediaRaiser.twitter;
+package com.socialMediaRaiser.twitter.unit;
 
+import com.socialMediaRaiser.twitter.AbstractTwitterBot;
+import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

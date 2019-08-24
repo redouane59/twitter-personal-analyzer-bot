@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.RelationType;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
@@ -12,8 +13,6 @@ import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -51,9 +50,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         int nbCalls = 1;
         do {
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
-            JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
+            JsonNode response = this.getRequestHelper().executeGetRequest(url_with_cursor);
             if(response!=null && response.has(IDS)){
-                List<String> ids = this.getJsonHelper().jsonLongArrayToList(response.get(IDS));
+                List<String> ids = this.getJsonHelper().jsonLongArrayToList(response);
                 if(ids!=null){
                     result.addAll(ids);
                 }
@@ -76,7 +75,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         System.out.print("users : ");
         do {
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
-            JSONObject response = this.getRequestHelper().executeGetRequest(url_with_cursor);
+            JsonNode response = this.getRequestHelper().executeGetRequest(url_with_cursor);
             if(response==null){
                 break;
             }
@@ -166,7 +165,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     @Override
     public boolean follow(String userId) {
         String url = this.urlHelper.getFollowUrl(userId);
-        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
+        JsonNode jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null) {
             if (jsonResponse.has(JsonHelper.FOLLOWING)) {
                 return true;
@@ -181,7 +180,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     @Override
     public boolean unfollow(String userId) {
         String url = this.urlHelper.getUnfollowUrl(userId);
-        JSONObject jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
+        JsonNode jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null){
             System.out.println(userId + " unfollowed");
             return true;
@@ -222,7 +221,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     public List<AbstractUser> getUsersFromUserNames(List<String> userNames)  {
         String url = this.getUrlHelper().getUsersUrlbyNames(userNames);
-        JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
+        JsonNode response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
             return this.getJsonHelper().jsonUserArrayToList(response);
         } else{
@@ -230,9 +229,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
     }
 
-    List<AbstractUser> getUsersFromUserIds(List<String> userIds)  {
+    public List<AbstractUser> getUsersFromUserIds(List<String> userIds)  {
         String url = this.getUrlHelper().getUsersUrlbyIds(userIds);
-        JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
+        JsonNode response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null){
             return this.getJsonHelper().jsonUserArrayToList(response);
         } else{
@@ -258,8 +257,8 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     public List<Tweet> getUserLastTweets(String userId, int count){
         String url = this.getUrlHelper().getUserTweetsUrl(userId, count);
-        JSONArray response = this.getRequestHelper().executeGetRequestReturningArray(url);
-        if(response!=null && response.length()>0){
+        JsonNode response = this.getRequestHelper().executeGetRequestReturningArray(url);
+        if(response!=null && response.size()>0){
             return this.getJsonHelper().jsonResponseToTweetList(response);
         }
         return null;
@@ -301,10 +300,15 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         List<Tweet> result = new ArrayList<>();
         int nbCalls = 1;
         do {
-            JSONObject response = this.getRequestHelper().executePostRequest(url,parameters);
-            JSONArray responseArray = (JSONArray)response.get("results");
+            JsonNode response = this.getRequestHelper().executePostRequest(url,parameters);
+            JsonNode responseArray = null;
+            try {
+                responseArray = JsonHelper.OBJECT_MAPPER.readTree(response.get("results").toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            if(response!=null && response.length()>0){
+            if(response!=null && response.size()>0){
                 result.addAll(this.getJsonHelper().jsonResponseToTweetList(responseArray));
             } else{
                 System.err.println("response null or ids not found !");

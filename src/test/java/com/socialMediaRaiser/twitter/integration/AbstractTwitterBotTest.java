@@ -1,6 +1,10 @@
-package com.socialMediaRaiser.twitter;
+package com.socialMediaRaiser.twitter.integration;
 
 import com.socialMediaRaiser.RelationType;
+import com.socialMediaRaiser.twitter.AbstractTwitterBot;
+import com.socialMediaRaiser.twitter.FollowProperties;
+import com.socialMediaRaiser.twitter.Tweet;
+import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
@@ -167,11 +171,12 @@ class AbstractTwitterBotTest {
     @Test
     public void testShouldBeFollowedBadRatio() {
         UserScoringEngine engine = new UserScoringEngine(100);
-        User user = new User();
-        user.setFollowersCount(1);
-        user.setFollowingCount(1000);
-        user.setLastUpdate(new Date());
-        user.setLang("fr");
+        User user = User.builder()
+                .followersCout(1)
+                .followingCount(1000)
+        .lastUpdate(new Date())
+        .lang("fr")
+                .build();
         assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
@@ -219,7 +224,7 @@ class AbstractTwitterBotTest {
     @Test
     @Disabled
     public void testWritingOnGoogleSheet() {
-        User user = (User)twitterBot.getUserFromUserName("RedTheOne");
+        AbstractUser user = twitterBot.getUserFromUserName("RedTheOne");
         GoogleSheetHelper helper = new GoogleSheetHelper(ownerName);
         helper.addNewFollowerLine(user);
     }
@@ -276,7 +281,7 @@ class AbstractTwitterBotTest {
     @Test
     public void getMostRecentTweets(){
         String userId = "92073489";
-        User user = (User)twitterBot.getUserFromUserId(userId);
+        AbstractUser user = twitterBot.getUserFromUserId(userId);
         assertTrue(user.getMostRecentTweet().size()>0);
     }
 

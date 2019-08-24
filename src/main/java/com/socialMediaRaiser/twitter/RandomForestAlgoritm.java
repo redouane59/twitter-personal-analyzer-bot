@@ -94,8 +94,7 @@ public class RandomForestAlgoritm {
         return fvWekaAttributes;
     }
 
-    public static boolean getPrediction(AbstractUser aUser) {
-        User user = (User)aUser;
+    public static boolean getPrediction(AbstractUser user) {
          Instances dataset = new Instances("whatever", getAttributes(), 0);
         //Followers	Followings	NbDaySinceLastTweet	CommonFollowers	DateOfFollow	Tweets	YearsSinceCreation	FollowBack
         double[] attValues = new double[0];

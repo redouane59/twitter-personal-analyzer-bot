@@ -1,20 +1,17 @@
 package com.socialMediaRaiser.twitter.helpers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.signature.Oauth1SigningInterceptor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -24,14 +21,13 @@ public class RequestHelper {
 
     private int sleepTime = 15;
 
-    @Deprecated
-    public JSONObject executeGetRequest(String url) {
+    public JsonNode executeGetRequest(String url) {
         try {
             Response response = this.getHttpClient(url)
                     .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
-            JSONObject jsonResponse = new JSONObject(response.body().string());
+            JsonNode node = JsonHelper.OBJECT_MAPPER.readTree(response.body().string());
             if(response.code()==200){
-                return jsonResponse;
+                return node;
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" + response.message() +" at "
@@ -79,7 +75,7 @@ public class RequestHelper {
         return null;
     }
 
-    public JSONObject executePostRequest(String url, Map<String, String> parameters) {
+    public JsonNode executePostRequest(String url, Map<String, String> parameters) {
 
         try {
             String json = JsonHelper.OBJECT_MAPPER.writeValueAsString(parameters);
@@ -100,7 +96,7 @@ public class RequestHelper {
                 System.err.println("(POST) ! not 200 calling " + url + " " + response.message() + " - " + response.code());
             }
             String stringResposne = response.body().string();
-            return new JSONObject(stringResposne);
+            return JsonHelper.OBJECT_MAPPER.readTree(stringResposne);
 
         } catch(IOException e){
             e.printStackTrace();
@@ -109,13 +105,13 @@ public class RequestHelper {
     }
 
     @Deprecated
-    public JSONArray executeGetRequestReturningArray(String url) {
+    public JsonNode executeGetRequestReturningArray(String url) {
         try {
             Response response = this.getHttpClient(url)
                     .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
             if(response.code()==200){
                 String stringResult = response.body().string();
-                JSONArray resultArray = new JSONArray(stringResult);
+                JsonNode resultArray = JsonHelper.OBJECT_MAPPER.readTree(stringResult);
                 return resultArray;
             } else if (response.code() == 401){
                 response.close();
@@ -189,7 +185,7 @@ public class RequestHelper {
     private int getCacheTimeoutFromUrl(String url){
         int defaultCache = 48;
         if(url.contains("/friends")){
-            defaultCache = 2;
+            defaultCache = 12;
         } else if (url.contains("/friendships")){
             defaultCache = 0;
         } else if (url.contains("/followers")){

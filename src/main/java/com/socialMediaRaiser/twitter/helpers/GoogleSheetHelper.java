@@ -90,8 +90,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void addNewFollowerLine(AbstractUser u){
-        User user = (User)u;
+    public void addNewFollowerLine(AbstractUser user){
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date followDate = user.getDateOfFollow();
         if(followDate==null){
@@ -109,11 +108,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         user.getFollowersCount(),
                         user.getFollowingCount(),
                         user.getTweetCount(),
-                        user.getFavouritesCount(),
+                        /*user.getFavouritesCount()*/ " ",
                         user.getDescription().
-                                replaceAll("\"","")
+                                replaceAll("\""," ")
                                 .replaceAll(";"," ")
-                                .replaceAll("\n",""),
+                                .replaceAll("\n"," "),
                         dateFormat.format(user.getLastUpdate()),
                         dateFormat.format(user.getDateOfCreation()),
                         user.getCommonFollowers(),

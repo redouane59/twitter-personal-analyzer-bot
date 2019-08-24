@@ -16,5 +16,6 @@ public interface IUser {
     int getFollowingCount();
     int getTweetCount();
     String getLang();
+    boolean isProtectedAccount();
 
 }

@@ -117,7 +117,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
     }
 
     private void doActions(Tweet tweet){
-        User user = (User)tweet.getUser();
+        AbstractUser user = tweet.getUser();
         iterations++;
         if(ownerFollowingIds.indexOf(user.getId())==-1
                 && followedRecently.indexOf(user.getId())==-1

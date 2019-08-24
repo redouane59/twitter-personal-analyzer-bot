@@ -1,12 +1,12 @@
 package com.socialMediaRaiser.twitter.helpers;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import io.vavr.control.Option;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -16,22 +16,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-// @todo remove JSON from project, replace it by JsonNode
-
 public class JsonHelper {
 
     public static ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @Deprecated
     private static final String STATUSES_COUNT = "statuses_count";
-    private static final String TWEET_COUNT = "tweet_count";
     private static final String CREATED_AT = "created_at";
     private final String SCREEN_NAME = "screen_name";
     private final String USER = "user";
     private final String FOLLOWER_COUNT = "followers_count";
     @Deprecated
     private final String FRIENDS_COUNT = "friends_count";
-    private final String FOLLOWING_COUNT = "following_count";
     private final String FAVOURITES_COUNT = "favourites_count";
     private final String FAVORITE_COUNT = "favorite_count";
     private final String RETWEET_COUNT = "retweet_count";
@@ -40,89 +36,54 @@ public class JsonHelper {
     private final String STATUS = "status";
     private final String LOCATION = "location";
     private final String ID = "id";
+    private final String IDS = "ids";
     private final String LANG = "lang";
     private final String NEXT_CURSOR = "next_cursor";
     public static final String FOLLOWING = "following";
 
-    @Deprecated
-    public List<String> jsonLongArrayToList(Object jsonObject){
-        JSONArray jArray = (JSONArray)jsonObject;
+    public List<String> jsonLongArrayToList(JsonNode jsonObject){
         ArrayList<String> listdata = new ArrayList<>();
-        if (jArray != null) {
-            for (int i=0;i<jArray.length();i++){
-                if(jArray.get(i) instanceof Long){
-                    listdata.add(String.valueOf(jArray.getLong(i)));
-                } else if(jArray.get(i) instanceof Integer){
-                    listdata.add(String.valueOf(jArray.getInt(i)));
-                } else if (((JSONObject)jArray.get(i)).get(ID) instanceof Long){
-                    listdata.add((String)((JSONObject)jArray.get(i)).get(ID));
-                } else if (((JSONObject)jArray.get(i)).get(ID) instanceof Integer){
-                    listdata.add((String)((JSONObject) jArray.get(i)).get(ID));
-                }
-            }
+        for(JsonNode n : jsonObject.get(IDS)){
+            listdata.add(n.asText());
         }
         return listdata;
     }
 
-    @Deprecated
-    public List<String> jsonStringArrayToList(Object jsonObject){
-        JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<String> listdata = new ArrayList<>();
-        if (jArray != null) {
-            for (int i=0;i<jArray.length();i++){
-                listdata.add(jArray.getJSONObject(i).get(SCREEN_NAME).toString());
-            }
+    public List<AbstractUser> jsonUserArrayToList(JsonNode jsonObject){
+        ArrayList<AbstractUser> users = new ArrayList<>();
+        for(JsonNode node : jsonObject){
+            users.add(this.jsonResponseToUser(node));
         }
-        return listdata;
+        return users;
     }
 
-    @Deprecated
-    public List<AbstractUser> jsonUserArrayToList(Object jsonObject){
-        JSONArray jArray = (JSONArray)jsonObject;
-        ArrayList<AbstractUser> listdata = new ArrayList<>();
-        if (jArray != null) {
-            for (int i=0;i<jArray.length();i++){
-                listdata.add(this.jsonResponseToUser(jArray.getJSONObject(i)));
-            }
-        }
-        return listdata;
-    }
-
-    @Deprecated
-    public User jsonResponseToUser(JSONObject jsonObject){
-        if(jsonObject!=null){
-            String id = jsonObject.get(ID).toString();
-            String screenName = jsonObject.get(SCREEN_NAME).toString();
-            int followersCount = (int)jsonObject.get(FOLLOWER_COUNT);
-            int friendsCount = (int)jsonObject.get(FRIENDS_COUNT);
-            int statuses_count = (int)jsonObject.get(STATUSES_COUNT);
-            String created_at = jsonObject.get(CREATED_AT).toString();
-            String description = jsonObject.get(DESCRIPTION).toString();
-            int favourites_count = (int)jsonObject.get(FAVOURITES_COUNT);
-            String location = "";
-            if(jsonObject.has(LOCATION)){
-                location = jsonObject.get(LOCATION).toString();
-            }
-            String lastUpdate = null;
-            if(jsonObject.has(STATUS)){
-                lastUpdate = ((JSONObject)jsonObject.get(STATUS)).get(CREATED_AT).toString();
-            }
-            return User.builder()
-                    .id(id)
-                    .userName(screenName)
-                    .followersCout(followersCount)
-                    .followingCount(friendsCount)
-                    .statusesCount(statuses_count)
-                    .dateOfCreation(getDateFromTwitterString(created_at))
-                    .description(description)
-                    .favouritesCount(favourites_count)
-                    .dateOfFollow(null)
-                    .lastUpdate(getDateFromTwitterString(lastUpdate))
-                    .location(location)
-                    .build();
-        } else{
+    public User jsonResponseToUser(JsonNode jsonObject){
+        if(jsonObject==null) {
             return null;
         }
+        String id = jsonObject.get(ID).asText();
+        String screenName = jsonObject.get(SCREEN_NAME).asText();
+        int followersCount =jsonObject.get(FOLLOWER_COUNT).asInt();
+        int friendsCount = jsonObject.get(FRIENDS_COUNT).asInt();
+        int statuses_count = jsonObject.get(STATUSES_COUNT).asInt();
+        String created_at = jsonObject.get(CREATED_AT).asText();
+        String description = jsonObject.get(DESCRIPTION).asText();
+        int favourites_count = jsonObject.get(FAVOURITES_COUNT).asInt();
+        String location = Option.of(jsonObject.get(LOCATION)).map(s -> jsonObject.get(LOCATION).asText()).getOrElse("");
+        String lastUpdate = Option.of(jsonObject.has(STATUS)).map(s -> (jsonObject.get(STATUS)).get(CREATED_AT).asText()).getOrNull();
+        return User.builder()
+                .id(id)
+                .userName(screenName)
+                .followersCout(followersCount)
+                .followingCount(friendsCount)
+                .statusesCount(statuses_count)
+                .dateOfCreation(getDateFromTwitterString(created_at))
+                .description(description)
+                .favouritesCount(favourites_count)
+                .dateOfFollow(null)
+                .lastUpdate(getDateFromTwitterString(lastUpdate))
+                .location(location)
+                .build();
     }
 
     public AbstractUser jsonResponseToUserV2(String response) throws IOException {
@@ -156,19 +117,12 @@ public class JsonHelper {
     }
 
     @Deprecated
-    public Long getLongFromCursorObject(JSONObject response){
+    public Long getLongFromCursorObject(JsonNode response){
         if(response==null){
             System.err.println("result null");
             return null;
         }
-        if(response.get(NEXT_CURSOR) instanceof Long){
-            return (Long)response.get(NEXT_CURSOR);
-        } else if(response.get(NEXT_CURSOR) instanceof Integer) {
-            return Long.valueOf((Integer) response.get(NEXT_CURSOR));
-        }  else{
-            System.err.println("format problem");
-            return null;
-        }
+        return response.get(NEXT_CURSOR).asLong();
     }
 
     public static Date getDateFromTwitterString(String date)
@@ -203,23 +157,22 @@ public class JsonHelper {
     }
 
     @Deprecated
-    public List<Tweet> jsonResponseToTweetList(JSONArray jsonArray) {
+    public List<Tweet> jsonResponseToTweetList(JsonNode jsonArray) {
         List<Tweet> tweets = new ArrayList<>();
         if(jsonArray!=null){
-            for(Object o : jsonArray){
-                JSONObject jsonObject = (JSONObject)o;
-                Long id = Long.valueOf(jsonObject.get(ID).toString());
-                int retweetsCount = (int)jsonObject.get(RETWEET_COUNT);
-                int favourites_count = (int)jsonObject.get(FAVORITE_COUNT);
-                String text = jsonObject.get(TEXT).toString();
-                String lang = jsonObject.get(LANG).toString();
-                Date createdAtDate = getDateFromTwitterString(jsonObject.get(CREATED_AT).toString());
+            for(JsonNode node : jsonArray){
+                String id = node.get(ID).asText();
+                int retweetsCount = node.get(RETWEET_COUNT).asInt();
+                int favourites_count = node.get(FAVORITE_COUNT).asInt();
+                String text = node.get(TEXT).asText();
+                String lang = node.get(LANG).asText();
+                Date createdAtDate = getDateFromTwitterString(node.get(CREATED_AT).asText());
                 User user = null;
                 try{
-                    user = jsonResponseToUser((JSONObject)jsonObject.get(USER));
+                    user = jsonResponseToUser(JsonHelper.OBJECT_MAPPER.readTree(node.get(USER).asText()));
                     user.setLastUpdate(createdAtDate);
                 } catch (Exception e){
-                 //   System.err.println(e);
+                    System.err.println(e);
                 }
                 Tweet tweet = Tweet.builder()
                         .id(id)

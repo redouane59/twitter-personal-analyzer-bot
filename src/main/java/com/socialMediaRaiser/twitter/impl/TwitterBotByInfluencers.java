@@ -54,7 +54,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 String userId = entry.getKey();
                 time1 = System.currentTimeMillis();
                 /* retrieving the user information */
-                User potentialFollower = (User)this.getUserFromUserId(userId); // criticity here (900/15min)
+                AbstractUser potentialFollower = this.getUserFromUserId(userId); // criticity here (900/15min)
                 time1 = (System.currentTimeMillis()-time1);
                 time2 = System.currentTimeMillis();
                 /* checking if user exist and language is ok */
@@ -105,11 +105,11 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     private List<AbstractUser> getInfluencersFromUsers(List<AbstractUser> users, int count){
         List<AbstractUser> followersInfluencers = new ArrayList<>();
-        User user;
+        AbstractUser user;
         int i=0;
         // building influencers list
         while(i< users.size() && followersInfluencers.size() < count){
-            user = (User)users.get(i);
+            user = users.get(i);
             if(user.isInfluencer() && user.isLanguageOK()){
                 followersInfluencers.add(user);
             }
@@ -131,7 +131,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         int i=0;
         while(i<followers.size() && i<nbFollowersMaxtoWatch){
             user = followers.get(i);
-            List<String> currentFollowersInfluencersFollowersId = this.getFollowerIds(user.getId()); // criticity here -> cache
+            List<String> currentFollowersInfluencersFollowersId = this.getFollowerIds(user.getId());
             //  influencersFollowersIds.addAll(currentFollowersInfluencersFollowersId);
             for(String userId : currentFollowersInfluencersFollowersId){
                 if(ownerFollowingIds.indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1) {

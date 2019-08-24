@@ -1,11 +1,12 @@
 package com.socialMediaRaiser.twitter.scoring;
 
 import com.socialMediaRaiser.twitter.FollowProperties;
-import com.socialMediaRaiser.twitter.User;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.properties.ScoringProperty;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
 
 @Getter
 public class UserScoringEngine {
@@ -21,12 +22,12 @@ public class UserScoringEngine {
         }
     }
 
-    public boolean shouldBeFollowed(User user){
+    public boolean shouldBeFollowed(AbstractUser user){
         int score = getUserScore(user);
         return score >= limit;
     }
 
-    public int getUserScore(User user){
+    public int getUserScore(AbstractUser user){
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWERS).setValue(user.getFollowersCount());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_FOLLOWINGS).setValue(user.getFollowingCount());
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setValue(user.getFollowersRatio());
@@ -40,7 +41,7 @@ public class UserScoringEngine {
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setValue(description);
         FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).setValue(user.getLocation());
         FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).setValue(user.getCommonFollowers());
-        FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
+        //FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getTweetCount());
         FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).setValue(user.getLastUpdate());
         return this.computeScore();

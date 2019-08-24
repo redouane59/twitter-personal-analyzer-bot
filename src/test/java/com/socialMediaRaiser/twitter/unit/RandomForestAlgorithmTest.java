@@ -1,5 +1,7 @@
-package com.socialMediaRaiser.twitter;
+package com.socialMediaRaiser.twitter.unit;
 
+import com.socialMediaRaiser.twitter.FollowProperties;
+import com.socialMediaRaiser.twitter.RandomForestAlgoritm;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.jupiter.api.Disabled;

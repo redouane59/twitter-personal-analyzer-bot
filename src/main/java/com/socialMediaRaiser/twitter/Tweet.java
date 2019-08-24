@@ -18,7 +18,7 @@ import java.util.List;
 @JsonDeserialize(using = TweetDeserializer.class)
 
 public class Tweet {
-    private long id;
+    private String id;
     private String lang;
     private int retweet_count;
     private int favorite_count;

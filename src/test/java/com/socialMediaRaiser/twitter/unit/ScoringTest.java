@@ -1,5 +1,7 @@
-package com.socialMediaRaiser.twitter;
+package com.socialMediaRaiser.twitter.unit;
 
+import com.socialMediaRaiser.twitter.FollowProperties;
+import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.Test;

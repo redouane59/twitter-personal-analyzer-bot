@@ -25,8 +25,7 @@ public class IOHelper {
                 + now.getYear()+now.getMonthValue()+now.getDayOfMonth()
                 +".csv");
 
-        for(AbstractUser absUser : result) {
-            User user = (User)absUser;
+        for(AbstractUser user : result) {
             Date followDate = user.getDateOfFollow();
             if(followDate==null){
                 followDate = new Date();
@@ -36,7 +35,7 @@ public class IOHelper {
                     + user.getFollowersCount() + ";"
                     + user.getFollowingCount()  + ";"
                     + user.getTweetCount()  + ";"
-                    + user.getFavouritesCount() + ";"
+                    + /*user.getFavouritesCount() + */";"
                     + user.getDescription().
                     replaceAll("\"","")
                     .replaceAll(";"," ")

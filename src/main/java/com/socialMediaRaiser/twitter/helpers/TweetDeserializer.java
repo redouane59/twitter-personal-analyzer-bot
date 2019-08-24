@@ -34,7 +34,7 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .build();
 
         Tweet tweet = Tweet.builder()
-                .id(tweetNode.get("id").asLong())
+                .id(tweetNode.get("id").asText())
                 .text(tweetNode.get("text").asText())
                 .lang(tweetNode.get("lang").asText())
                 .favorite_count(tweetNode.get("favorite_count").asInt())

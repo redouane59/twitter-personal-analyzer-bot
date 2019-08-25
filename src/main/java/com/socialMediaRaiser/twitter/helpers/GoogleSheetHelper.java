@@ -23,7 +23,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     private Map<String, Integer> userRows = new HashMap<>();
 
     public GoogleSheetHelper(String ownerName){
-        if(ownerName!=null){
+        if(ownerName!=null && ownerName.length()>0){
             FollowProperties.load(ownerName);
         }
         this.sheetId = FollowProperties.ioProperties.getId();

@@ -210,8 +210,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if (response != null) {
             try {
-              //  UserObjectResponseDTO userObjectResponseDTO = JsonHelper.OBJECT_MAPPER.readValue(response, UserObjectResponseDTO.class);
-                return this.getJsonHelper().jsonResponseToUserV2(response); // @todo find solution to use the dto directly
+                return this.getJsonHelper().jsonResponseToUserV2(response);
             } catch (IOException e) {
                 System.err.print(e.getMessage() + " response = " + response);
             }
@@ -260,6 +259,18 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         JsonNode response = this.getRequestHelper().executeGetRequestReturningArray(url);
         if(response!=null && response.size()>0){
             return this.getJsonHelper().jsonResponseToTweetList(response);
+        }
+        return null;
+    }
+
+    public static List<Tweet> getUserLastTweetsStatic(String userId, int count){
+        URLHelper urlHelper = new URLHelper();
+        RequestHelper requestHelper = new RequestHelper();
+        JsonHelper jsonHelper = new JsonHelper();
+        String url = urlHelper.getUserTweetsUrl(userId, count);
+        JsonNode response = requestHelper.executeGetRequestReturningArray(url); // @todo understand why sometime not X responses received as count requested
+        if(response!=null && response.size()>0){
+            return jsonHelper.jsonResponseToTweetList(response);
         }
         return null;
     }

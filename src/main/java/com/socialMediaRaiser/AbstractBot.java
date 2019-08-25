@@ -38,7 +38,8 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
                     nbUnfollows++;
                     if(nbUnfollows%10==0){
                         try {
-                            TimeUnit.SECONDS.sleep(1);
+                            System.out.println("Sleeping 30sec");
+                            TimeUnit.SECONDS.sleep(30);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

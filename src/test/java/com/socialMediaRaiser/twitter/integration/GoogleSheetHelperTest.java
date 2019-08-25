@@ -1,4 +1,4 @@
-package com.socialMediaRaiser.twitter.unit;
+package com.socialMediaRaiser.twitter.integration;
 
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.RandomForestAlgoritm;

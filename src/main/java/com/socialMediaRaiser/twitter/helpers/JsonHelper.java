@@ -7,6 +7,7 @@ import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.*;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -58,19 +59,17 @@ public class JsonHelper {
     }
 
     public User jsonResponseToUser(JsonNode jsonObject){
-        if(jsonObject==null) {
-            return null;
-        }
+        if(jsonObject==null) return null;
+
         String id = jsonObject.get(ID).asText();
-        String screenName = jsonObject.get(SCREEN_NAME).asText();
-        int followersCount =jsonObject.get(FOLLOWER_COUNT).asInt();
-        int friendsCount = jsonObject.get(FRIENDS_COUNT).asInt();
-        int statuses_count = jsonObject.get(STATUSES_COUNT).asInt();
-        String created_at = jsonObject.get(CREATED_AT).asText();
-        String description = jsonObject.get(DESCRIPTION).asText();
-        int favourites_count = jsonObject.get(FAVOURITES_COUNT).asInt();
+        String screenName = Option.of(jsonObject.get(SCREEN_NAME)).map(s -> jsonObject.get(SCREEN_NAME).asText()).getOrNull();
+        int followersCount = Option.of(jsonObject.get(FOLLOWER_COUNT)).map(s -> jsonObject.get(FOLLOWER_COUNT).asInt()).getOrElse(0);
+        int friendsCount = Option.of(jsonObject.get(FRIENDS_COUNT)).map(s -> jsonObject.get(FRIENDS_COUNT).asInt()).getOrElse(0);
+        int statuses_count = Option.of(jsonObject.get(STATUSES_COUNT)).map(s -> jsonObject.get(STATUSES_COUNT).asInt()).getOrElse(0);
+        String created_at = Option.of(jsonObject.get(CREATED_AT)).map(s -> jsonObject.get(CREATED_AT).asText()).getOrNull();
+        String description = Option.of(jsonObject.get(DESCRIPTION)).map(s -> jsonObject.get(DESCRIPTION).asText()).getOrNull();
         String location = Option.of(jsonObject.get(LOCATION)).map(s -> jsonObject.get(LOCATION).asText()).getOrElse("");
-        String lastUpdate = Option.of(jsonObject.has(STATUS)).map(s -> (jsonObject.get(STATUS)).get(CREATED_AT).asText()).getOrNull();
+        String lastUpdate = Option.of(jsonObject.get(STATUS)).map(s -> (jsonObject.get(STATUS)).get(CREATED_AT).asText()).getOrNull();
         return User.builder()
                 .id(id)
                 .userName(screenName)
@@ -79,7 +78,6 @@ public class JsonHelper {
                 .statusesCount(statuses_count)
                 .dateOfCreation(getDateFromTwitterString(created_at))
                 .description(description)
-                .favouritesCount(favourites_count)
                 .dateOfFollow(null)
                 .lastUpdate(getDateFromTwitterString(lastUpdate))
                 .location(location)
@@ -127,36 +125,18 @@ public class JsonHelper {
 
     public static Date getDateFromTwitterString(String date)
     {
-        if(date==null){
-            return null;
-        }
-
-        try {
-            final String TWITTER = "EEE MMM dd HH:mm:ss Z yyyy";
-            SimpleDateFormat sf = new SimpleDateFormat(TWITTER, Locale.ENGLISH);
-            sf.setLenient(true);
-            return sf.parse(date);
-        } catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
+        if(date==null) return null;
+        final String TWITTER = "EEE MMM dd HH:mm:ss Z yyyy";
+        SimpleDateFormat sf = new SimpleDateFormat(TWITTER, Locale.ENGLISH);
+        sf.setLenient(true);
+        return Try.of(() -> sf.parse(date)).getOrNull();
     }
 
     public static Date getDateFromTwitterDateV2(String date)
     {
-        if(date==null){
-            return null;
-        }
-
-        try {
-            return Date.from(Instant.parse(date));
-        } catch(Exception e){
-            e.printStackTrace();
-            return null;
-        }
+        return Option.of(date).map(d -> Date.from(Instant.parse(date))).getOrNull();
     }
 
-    @Deprecated
     public List<Tweet> jsonResponseToTweetList(JsonNode jsonArray) {
         List<Tweet> tweets = new ArrayList<>();
         if(jsonArray!=null){
@@ -168,11 +148,11 @@ public class JsonHelper {
                 String lang = node.get(LANG).asText();
                 Date createdAtDate = getDateFromTwitterString(node.get(CREATED_AT).asText());
                 User user = null;
-                try{
-                    user = jsonResponseToUser(JsonHelper.OBJECT_MAPPER.readTree(node.get(USER).asText()));
+                try{ // @todo to test
+                    user = jsonResponseToUser(node.get(USER));
                     user.setLastUpdate(createdAtDate);
                 } catch (Exception e){
-                    System.err.println(e);
+                    e.printStackTrace();
                 }
                 Tweet tweet = Tweet.builder()
                         .id(id)

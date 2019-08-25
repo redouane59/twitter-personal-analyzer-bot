@@ -1,4 +1,4 @@
-package com.socialMediaRaiser.twitter.unit;
+package com.socialMediaRaiser.twitter.integration;
 
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.RandomForestAlgoritm;
@@ -23,11 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RandomForestAlgorithmTest {
 
     @Test
-    void test1() {
-        String userName = "RedTheOne";
+    void testFalse() {
+        String userName = "RedouaneBali";
         FollowProperties.load(userName);
-        RandomForestAlgoritm rfa = new RandomForestAlgoritm();
-        AbstractUser user = new TwitterBotByInfluencers(userName).getUserFromUserName("GhizleneBessai4");
+        AbstractUser user = new TwitterBotByInfluencers(userName).getUserFromUserName("blevy90");
+        assertEquals(false, user.getRandomForestPrediction());
+    }
+
+    @Test
+    void testTrue() {
+        String userName = "RedouaneBali";
+        FollowProperties.load(userName);
+        AbstractUser user = new TwitterBotByInfluencers(userName).getUserFromUserName("Caromontenot");
         assertEquals(false, user.getRandomForestPrediction());
     }
 

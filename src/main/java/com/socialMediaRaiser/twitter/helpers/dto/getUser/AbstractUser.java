@@ -5,6 +5,7 @@ import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.RandomForestAlgoritm;
 import com.socialMediaRaiser.twitter.helpers.dto.IUser;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
+import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -60,11 +61,8 @@ public abstract class AbstractUser implements IUser {
     }
 
     public boolean isLanguageOK(){
-        if(this.getLang()==null){
-            return false;
-            //user.addLanguageFromLastTweet(this.getUserLastTweets(user.getId(), 3)); // really slow
-        }
-        return this.getLang().equals(FollowProperties.targetProperties.getLanguage());
+        return Option.of(this.getLang())
+                .map(b -> this.getLang().equals(FollowProperties.targetProperties.getLanguage())).getOrElse(false);
     }
 
     public boolean isInfluencer(){
@@ -89,7 +87,7 @@ public abstract class AbstractUser implements IUser {
                 matchLocation = true;
             }
         }
-        return (matchDescription&&matchLocation);
+        return (matchDescription&&matchLocation&&this.getFollowersRatio()>0);
 
        /* if(this.getFollowersRatio()> followConfiguration.getMinRatio()
                 && this.getFollowersCount()> followConfiguration.getInfluencerMinNbFollowers()

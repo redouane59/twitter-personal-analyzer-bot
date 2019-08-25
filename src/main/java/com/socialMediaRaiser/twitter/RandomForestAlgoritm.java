@@ -23,7 +23,7 @@ public class RandomForestAlgoritm {
         try {
             process();
         } catch(Exception e){
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
     public static void process() throws Exception {
@@ -34,7 +34,7 @@ public class RandomForestAlgoritm {
         Instances trainingDataSet = new Instances("trainingDataSet", getAttributes(), 0);
         Instances testingDataSet = new Instances("testingDataSet", getAttributes(), 0);
         for(List<Object> line : data){
-            boolean followBack = Boolean.valueOf(line.get(8).toString());
+            boolean followBack = Boolean.valueOf(line.get(7).toString());
             double followBackValue = 0;
             if(followBack) {
                 followBackValue = 1;

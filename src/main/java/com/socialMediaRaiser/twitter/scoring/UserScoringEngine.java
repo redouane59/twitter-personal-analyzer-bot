@@ -33,15 +33,13 @@ public class UserScoringEngine {
         FollowProperties.scoringProperties.getProperty(Criterion.RATIO).setValue(user.getFollowersRatio());
         String description = user.getDescription();
         // @odo only if public account
-        if(user.getMostRecentTweet()!=null
-                && user.getMostRecentTweet().size()>0
-                && !user.isProtectedAccount()){ // adding the last tweet to description
+        if(!user.isProtectedAccount() && user.getMostRecentTweet()!=null
+                && user.getMostRecentTweet().size()>0){ // adding the last tweet to description
             description.concat(user.getMostRecentTweet().get(0).getText());
         }
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setValue(description);
         FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).setValue(user.getLocation());
         FollowProperties.scoringProperties.getProperty(Criterion.COMMON_FOLLOWERS).setValue(user.getCommonFollowers());
-        //FollowProperties.scoringProperties.getProperty(Criterion.NB_FAVS).setValue(user.getFavouritesCount());
         FollowProperties.scoringProperties.getProperty(Criterion.NB_TWEETS).setValue(user.getTweetCount());
         FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).setValue(user.getLastUpdate());
         return this.computeScore();

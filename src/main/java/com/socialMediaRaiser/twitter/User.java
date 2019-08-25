@@ -2,7 +2,9 @@ package com.socialMediaRaiser.twitter;
 
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.TweetDTO;
+import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
+import io.vavr.control.Option;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +44,12 @@ public class User extends AbstractUser {
         this.location = location;
     }
 
+    public String getLang(){
+        if(lang==null){
+            this.addLanguageFromLastTweet(AbstractTwitterBot.getUserLastTweetsStatic(this.getId(), 3));
+        }
+        return this.lang;
+    }
     public void addLanguageFromLastTweet(List<Tweet> userLastTweets){
         if(userLastTweets!=null){
             for(Tweet tweet : userLastTweets){

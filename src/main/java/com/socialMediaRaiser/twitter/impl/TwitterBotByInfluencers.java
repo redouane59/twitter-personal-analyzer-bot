@@ -29,7 +29,9 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         if(count>maxFriendship) count = maxFriendship;
         int minOccurence = 0;
         List<AbstractUser> ownerFollowers = this.getFollowerUsers(ownerId);
-        List<AbstractUser> influencers = this.getInfluencersFromUsers(ownerFollowers, 150);
+        // @todo add raw list of incluencers in config
+        List<AbstractUser> influencers = new ArrayList<>();
+        influencers.addAll(this.getInfluencersFromUsers(ownerFollowers, 150));
         Collections.shuffle(influencers);
 
         Map<String, Long> sortedPotentialFollowersMap =
@@ -43,10 +45,12 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         long startTime = System.currentTimeMillis();
         long time1;
         long time2;
+        List<Long> totalTimes = new ArrayList<>();
         while (it.hasNext() && potentialFollowers.size() < count) {
             if(iteration%50==0 && iteration>0){
                 System.out.println("*** " + potentialFollowers.size() + "/" + count + " followers found  in "
-                        +  (System.currentTimeMillis()-startTime)/(long)(1000*60) + "min" + " | i="+iteration +" ***");
+                        +  (System.currentTimeMillis()-startTime)/(long)(1000*60) + "min" + " | i="+iteration
+                        + " averrage time : " + totalTimes.stream().mapToLong(l -> l).average().getAsDouble()+" ***");
             }
 
             Map.Entry<String, Long> entry = it.next();
@@ -58,32 +62,33 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 time1 = (System.currentTimeMillis()-time1);
                 time2 = System.currentTimeMillis();
                 /* checking if user exist and language is ok */
-                System.out.print(Option.of(potentialFollower.getUsername()).getOrElse("unknown user"));
+                System.out.print(Option.of(potentialFollower).map(s -> potentialFollower.getUsername()).getOrElse("unknown user"));
                 if(potentialFollower!=null
                         && !potentialFollower.isProtectedAccount()
-                        && !potentialFollower.getUsername().equals(this.getOwnerName())
-                        && potentialFollower.getLang()!=null
-                        && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())){
+                        && !potentialFollower.getUsername().equals(this.getOwnerName())){
                     potentialFollower.setCommonFollowers(Math.toIntExact(entry.getValue()));
                     /* general scoring */
                     score = potentialFollower.getScoringEngine().getUserScore(potentialFollower);
                     System.out.print(" : " + score + "/"+pointLimit+ " | ");
                     if(score >= pointLimit){
-                        /* RFA */
-                        if(!FollowProperties.ioProperties.isUseRFA() || potentialFollower.getRandomForestPrediction()) {
-                            if (this.isFollow()) {
-                                boolean result = this.follow(potentialFollower.getId());
-                                if (result) {
-                                    System.out.println(" " + potentialFollower.getUsername() + " followed ! ");
-                                    potentialFollower.setDateOfFollowNow();
-                                    potentialFollowers.add(potentialFollower);
-                                    if (saveResults) {
-                                        this.getIOHelper().addNewFollowerLine(potentialFollower);
+                        if(potentialFollower.getLang()!=null // to put higher when V2 full imeplemented with lang inside user
+                                && potentialFollower.getLang().equals(FollowProperties.targetProperties.getLanguage())){
+                            /* RFA */
+                            if(!FollowProperties.ioProperties.isUseRFA() || potentialFollower.getRandomForestPrediction()) {
+                                if (this.isFollow()) {
+                                    boolean result = this.follow(potentialFollower.getId());
+                                    if (result) {
+                                        System.out.print(" followed ! ");
+                                        potentialFollower.setDateOfFollowNow();
+                                        potentialFollowers.add(potentialFollower);
+                                        if (saveResults) {
+                                            this.getIOHelper().addNewFollowerLine(potentialFollower);
+                                        }
                                     }
+                                } else {
+                                    System.out.println("potentialFollowers added : " + potentialFollower.getUsername());
+                                    potentialFollowers.add(potentialFollower);
                                 }
-                            } else {
-                                System.out.println("potentialFollowers added : " + potentialFollower.getUsername());
-                                potentialFollowers.add(potentialFollower);
                             }
                         }
                     }
@@ -92,12 +97,14 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 }
                 time2 = (System.currentTimeMillis()-time2);
                 System.out.println(" times : " + time1 + "ms - " + time2 + "ms");
+                totalTimes.add((time1+time2));
             }
             iteration++;
         }
         System.out.println("********************************");
         System.out.println(potentialFollowers.size() + " followers followed / "
-                + iteration + " users analyzed (" + (potentialFollowers.size()*100)/(double)iteration + "%)");
+                + iteration + " users analyzed (" + (potentialFollowers.size()*100)/(double)iteration + " %) in "
+        + totalTimes.stream().mapToLong(l -> l).sum()/(long)(1000*60) + " min");
         System.out.println("********************************");
 
         return potentialFollowers;

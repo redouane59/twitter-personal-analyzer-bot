@@ -27,15 +27,17 @@ public class FollowProperties {
     public static GoogleCredentials googleCredentials;
     public static String ARRAY_SEPARATOR = ",";
 
-    public static void load(String USER_NAME) {
+    public static boolean load(String userName) {
+
+        if(userName==null) return false;
+
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
         try {
-            URL yamlFile = FollowProperties.class.getResource("/"+USER_NAME+".yaml");
+            URL yamlFile = FollowProperties.class.getResource("/"+userName+".yaml");
             if(yamlFile==null){
-                System.err.println("yaml file not found at /"+USER_NAME+".yaml");
-                return;
+                System.err.println("yaml file not found at /"+userName+".yaml");
+                return false;
             }
             Map<String,Object> yaml = mapper.readValue(yamlFile, HashMap.class);
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
@@ -52,8 +54,10 @@ public class FollowProperties {
             influencerProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("influencer"),InfluencerProperties.class);
             ioProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("io"), IOProperties.class);
             System.out.println("properties loaded correctly");
+            return true;
         } catch (IOException ex) {
             System.err.println("properties could not be loaded (" + ex.getMessage()+")");
+            return false;
         }
     }
 }

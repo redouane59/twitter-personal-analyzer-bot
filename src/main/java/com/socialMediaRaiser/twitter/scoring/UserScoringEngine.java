@@ -146,8 +146,6 @@ public class UserScoringEngine {
         return 0;
     }
 
-
-
     // @todo to test
     private int getLocationScore(String location){
         int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).getMaxPoints();

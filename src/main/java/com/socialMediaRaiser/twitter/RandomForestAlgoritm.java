@@ -19,13 +19,6 @@ public class RandomForestAlgoritm {
 
     public static RandomForest forest;
 
-    public RandomForestAlgoritm(){
-        try {
-            process();
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-    }
     public static void process() throws Exception {
 
         GoogleSheetHelper sheetHelper = new GoogleSheetHelper(null);
@@ -113,7 +106,7 @@ public class RandomForestAlgoritm {
 
         Instance i1 = new DenseInstance(1.0, attValues);
         dataset.add(i1);
-        dataset.setClassIndex(dataset.numAttributes()-1);
+        dataset.setClassIndex(dataset.numAttributes()-1); // @todo correct ?
 
         try {
             double result = forest.classifyInstance(dataset.instance(0));

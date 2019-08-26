@@ -26,7 +26,7 @@ public class UnfollowLauncher {
         }
     }
 
-    private static Date yesterday(int nbDays) {
+    public static Date yesterday(int nbDays) {
         final Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -nbDays);
         return cal.getTime();

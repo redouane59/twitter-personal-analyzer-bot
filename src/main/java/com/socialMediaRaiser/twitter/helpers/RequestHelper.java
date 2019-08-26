@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor
 public class RequestHelper {
 
-    private int sleepTime = 15;
+    private int sleepTime = 5;
 
     public JsonNode executeGetRequest(String url) {
         try {

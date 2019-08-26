@@ -87,7 +87,7 @@ public abstract class AbstractUser implements IUser {
                 matchLocation = true;
             }
         }
-        return (matchDescription&&matchLocation&&this.getFollowersRatio()>0);
+        return (matchDescription&&matchLocation&&this.getFollowersRatio()>1&&this.getFollowersCount()>1000);
 
        /* if(this.getFollowersRatio()> followConfiguration.getMinRatio()
                 && this.getFollowersCount()> followConfiguration.getInfluencerMinNbFollowers()

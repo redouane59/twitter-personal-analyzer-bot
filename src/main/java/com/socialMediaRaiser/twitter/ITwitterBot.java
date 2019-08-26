@@ -12,7 +12,7 @@ public interface ITwitterBot {
     List<AbstractUser> getFollowingsUsers(String userId);
     void likeTweet(String tweetId);
     void retweetTweet(String tweetId);
-    List<Tweet> searchForTweets(String query, int count, Date fromDate, Date toDate);
+    List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate);
 
 }
 

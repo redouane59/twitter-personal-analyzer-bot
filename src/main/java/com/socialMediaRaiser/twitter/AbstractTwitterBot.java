@@ -287,9 +287,9 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     }
 
     // @todo remove count
+    // date with yyyyMMddHHmm format
     @Override
-    public List<Tweet> searchForTweets(String query, int count, Date fromDate, Date toDate){
-        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+    public List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate){
 
         if(count<10){
             count = 10;
@@ -303,9 +303,8 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         Map<String, String> parameters = new HashMap<>();
         parameters.put("query",query);
         parameters.put("maxResults",String.valueOf(count));
-        parameters.put("fromDate",dateFormat.format(fromDate));
-        parameters.put("toDate",dateFormat.format(toDate));
-
+        parameters.put("fromDate",fromDate);
+        parameters.put("toDate",toDate);
 
         String next;
         List<Tweet> result = new ArrayList<>();

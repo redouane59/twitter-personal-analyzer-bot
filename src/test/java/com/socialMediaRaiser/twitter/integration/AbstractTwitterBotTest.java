@@ -174,8 +174,8 @@ class AbstractTwitterBotTest {
         User user = User.builder()
                 .followersCout(1)
                 .followingCount(1000)
-        .lastUpdate(new Date())
-        .lang("fr")
+                .lastUpdate(new Date())
+                .lang("fr")
                 .build();
         assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
@@ -330,12 +330,7 @@ class AbstractTwitterBotTest {
         String strdate1 = "201906010000";
         String strdate2 = "201906011200";
         List<Tweet> results = null;
-        try {
-            results = twitterBot.searchForTweets("redtheone", count, dateformat.parse(strdate1), dateformat.parse(strdate2));
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        results = twitterBot.searchForTweets("redtheone", count, strdate1, strdate2);
         assertNotNull(results);
         assertTrue(results.size() == count);
     }

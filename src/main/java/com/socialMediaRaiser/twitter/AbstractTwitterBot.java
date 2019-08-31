@@ -206,7 +206,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     @Override
     public AbstractUser getUserFromUserName(String userName) {
-        String url = this.getUrlHelper().getUserUrlFromName(ownerName);
+        String url = this.getUrlHelper().getUserUrlFromName(userName);
         String response = this.getRequestHelper().executeGetRequestV2(url);
         if (response != null) {
             try {

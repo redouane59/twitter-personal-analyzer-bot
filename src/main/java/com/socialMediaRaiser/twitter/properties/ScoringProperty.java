@@ -46,9 +46,6 @@ public class ScoringProperty {
             case "ratio":
                 this.criterion = Criterion.RATIO;
                 break;
-            case "favouritesCount":
-                this.criterion = Criterion.NB_FAVS;
-                break;
             case "tweetCount":
                 this.criterion = Criterion.NB_TWEETS;
                 break;

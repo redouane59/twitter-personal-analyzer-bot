@@ -3,6 +3,7 @@ package com.socialMediaRaiser;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.RandomForestAlgoritm;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByLastActivity;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByLiveKeyWords;

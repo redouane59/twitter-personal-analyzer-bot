@@ -1,6 +1,7 @@
 package com.socialMediaRaiser.twitter.integration;
 
 import com.socialMediaRaiser.RelationType;
+import com.socialMediaRaiser.UnfollowLauncher;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.Tweet;
@@ -40,18 +41,21 @@ class AbstractTwitterBotTest {
 
 
     @Test
+    @Disabled
     public void testGetFollowingsUserByName() {
         List<AbstractUser> followings = twitterBot.getFollowingsUsers("LaGhostquitweet");
         assertTrue(followings.size() > 200);
     }
 
     @Test
+    @Disabled
     public void testGetFollersUserByName() {
         List<AbstractUser> followings = twitterBot.getFollowerUsers("LaGhostquitweet");
         assertTrue(followings.size() > 360);
     }
 
     @Test
+    @Disabled
     public void testGetFollowersIdsById() {
         List<String> followers = twitterBot.getFollowerIds("882266619115864066");
         assertTrue(followers.size() > 420);
@@ -64,6 +68,7 @@ class AbstractTwitterBotTest {
     }
 
     @Test
+    @Disabled
     public void testGetFollowersUsersById() {
         List<AbstractUser> followers = twitterBot.getFollowerUsers("882266619115864066");
         assertTrue(followers.size() > 420);
@@ -82,6 +87,9 @@ class AbstractTwitterBotTest {
         String userName = "RedTheOne";
         AbstractUser result = twitterBot.getUserFromUserName(userName);
         assertEquals(result.getId(), "92073489");
+        userName = "RedouaneBali";
+        result = twitterBot.getUserFromUserName(userName);
+        assertEquals(result.getUsername(), "RedouaneBali");
     }
 
     @Test
@@ -181,28 +189,34 @@ class AbstractTwitterBotTest {
         assertFalse(engine.shouldBeFollowed(user));
     }
 
+    @Test
     public void testShouldBeFollowBadLastUpdate() {
         UserScoringEngine engine = new UserScoringEngine(100);
-        User user = new User();
-        user.setFollowersCount(1500);
-        user.setFollowingCount(1000);
-        user.setLang("fr");
-        user.setLastUpdate(null);
+        User user = User.builder()
+                .followersCout(1500)
+        .followingCount(1000)
+        .lang("fr")
+        .lastUpdate(null)
+                .build();
+        user.setScoringEngine(new UserScoringEngine(65));
         assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
 
+    @Test
     public void testShouldBeFollowBadLastUpdate2() {
         UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
         user.setFollowersCount(1500);
         user.setFollowingCount(1000);
         user.setLang("fr");
-        user.setLastUpdate(new Date(2014, 1, 1));
+        user.setLastUpdate(UnfollowLauncher.yesterday(50));
+        user.setScoringEngine(engine);
         assertEquals(false, user.shouldBeFollowed(ownerName));
         assertFalse(engine.shouldBeFollowed(user));
     }
 
+    @Test
     public void testShouldBeFollowedOk() {
         UserScoringEngine engine = new UserScoringEngine(100);
         User user = new User();
@@ -210,8 +224,11 @@ class AbstractTwitterBotTest {
         user.setFollowingCount(1000);
         user.setLang("fr");
         user.setLastUpdate(new Date());
-        assertEquals(true, user.shouldBeFollowed(ownerName));
-        assertFalse(engine.shouldBeFollowed(user));
+        user.setScoringEngine(engine);
+        user.setLocation("Paris");
+        user.setCommonFollowers(20); // @todo not use redtheone config
+        assertTrue(user.shouldBeFollowed(ownerName));
+        assertTrue(engine.shouldBeFollowed(user));
     }
 
     @Test
@@ -339,7 +356,10 @@ class AbstractTwitterBotTest {
     public void testIsUserInfluencer(){
         FollowProperties.targetProperties.setDescription("java");
         FollowProperties.targetProperties.setLocation("France");
-        User user = User.builder().location("France").description("java").build();
+        User user = User.builder().location("France").description("java")
+                .followersCout(10000)
+                .followingCount(100)
+                .build();
         assertTrue(user.isInfluencer());
         user = User.builder().location("Senegal").description("java").build();
         assertFalse(user.isInfluencer());

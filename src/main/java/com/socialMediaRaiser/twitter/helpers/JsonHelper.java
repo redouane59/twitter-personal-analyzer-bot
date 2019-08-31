@@ -109,7 +109,7 @@ public class JsonHelper {
                 .location(data.getLocation())
                 .mostRecentTweet(mostRecentTweet)
                 .lang(lang)
-                .lastUpdate(lastUpdate)
+                .lastUpdate(lastUpdate) // @todo manage null value in scoring ?
                 .protectedAccount(data.isProtectedAccount())
                 .build();
     }

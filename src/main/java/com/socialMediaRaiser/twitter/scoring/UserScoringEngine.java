@@ -48,37 +48,41 @@ public class UserScoringEngine {
     private int computeScore(){
         int score = 0;
         for(ScoringProperty prop : FollowProperties.scoringProperties.getProperties()){
-            if(prop.isActive() && prop.getValue()!=null) {
-                int modifValue = 0;
-                switch (prop.getCriterion()) {
-                    case NB_FOLLOWERS:
-                        modifValue = getNbFollowersScore((int) prop.getValue());
-                        break;
-                    case NB_FOLLOWINGS:
-                        modifValue = getNbFollowingsScore((int) prop.getValue());
-                        break;
-                    case RATIO:
-                        modifValue = getRatioScore((double) prop.getValue());
-                        break;
-                    case LAST_UPDATE:
-                        modifValue = getLastUpdateScore((Date) prop.getValue());
-                        break;
-                    case DESCRIPTION:
-                        modifValue = getDescriptionScore(prop.getValue().toString());
-                        break;
-                    case LOCATION:
-                        modifValue = getLocationScore(prop.getValue().toString());
-                        break;
-                    case COMMON_FOLLOWERS:
-                        modifValue = getCommonFollowersScore((int) prop.getValue());
-                        break;
-                    default:
-                        System.err.println("no function found for " + prop.getCriterion());
-                }
-                if(modifValue == 0 && prop.isBlocking()){
+            if(prop.isActive()) {
+                if(prop.getValue()!=null) {
+                    int modifValue = 0;
+                    switch (prop.getCriterion()) {
+                        case NB_FOLLOWERS:
+                            modifValue = getNbFollowersScore((int) prop.getValue());
+                            break;
+                        case NB_FOLLOWINGS:
+                            modifValue = getNbFollowingsScore((int) prop.getValue());
+                            break;
+                        case RATIO:
+                            modifValue = getRatioScore((double) prop.getValue());
+                            break;
+                        case LAST_UPDATE:
+                            modifValue = getLastUpdateScore((Date) prop.getValue());
+                            break;
+                        case DESCRIPTION:
+                            modifValue = getDescriptionScore(prop.getValue().toString());
+                            break;
+                        case LOCATION:
+                            modifValue = getLocationScore(prop.getValue().toString());
+                            break;
+                        case COMMON_FOLLOWERS:
+                            modifValue = getCommonFollowersScore((int) prop.getValue());
+                            break;
+                        default:
+                            System.err.println("no function found for " + prop.getCriterion());
+                    }
+                    if (modifValue == 0 && prop.isBlocking()) {
+                        return 0;
+                    }
+                    score += modifValue;
+                } else if(prop.isBlocking()){
                     return 0;
                 }
-                score += modifValue;
             }
         }
         return score;
@@ -118,19 +122,21 @@ public class UserScoringEngine {
     }
 
     private int getLastUpdateScore(Date lastUpdate){
+        if(lastUpdate==null) {
+            return 0;
+        }
         int maxPoints = FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).getMaxPoints();
         int maxDays = FollowProperties.targetProperties.getMaxDaysSinceLastTweet();
         if(maxDays<=0){
             maxDays=1;
         }
         Date now = new Date();
-        if(lastUpdate!=null){
-            int daysSinceLastUpdate = (int)((now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000));
-            if(daysSinceLastUpdate < maxDays) {
-                return maxPoints * (maxDays-daysSinceLastUpdate)/maxDays;
-            }
+        int daysSinceLastUpdate = (int)((now.getTime()-lastUpdate.getTime()) / (24 * 60 * 60 * 1000));
+        if(daysSinceLastUpdate < maxDays) {
+            return maxPoints * (maxDays-daysSinceLastUpdate)/maxDays;
+        } else{
+            return 0;
         }
-        return 0;
     }
 
     private int getDescriptionScore(String description){

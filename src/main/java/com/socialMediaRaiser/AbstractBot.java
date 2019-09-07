@@ -36,7 +36,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
                 boolean unfollowResult = this.unfollow(otherId);
                 if(unfollowResult) {
                     nbUnfollows++;
-                    if(nbUnfollows%10==0){
+                    if(nbUnfollows%5==0){
                         try {
                             System.out.println("Sleeping 30sec");
                             TimeUnit.SECONDS.sleep(30);
@@ -47,7 +47,11 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
                 }
             }
             if(writeOnSheet){
-                this.getIOHelper().updateFollowBackInformation(otherId, userFollowsBack);
+                if(userFollowsBack!=null){
+                    this.getIOHelper().updateFollowBackInformation(otherId, userFollowsBack);
+                } else{
+                    System.err.println("null value for" + otherId);
+                }
             }
             result.put(otherId, userFollowsBack);
             System.out.println();

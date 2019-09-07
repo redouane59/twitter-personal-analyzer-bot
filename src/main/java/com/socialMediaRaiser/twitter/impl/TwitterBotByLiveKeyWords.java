@@ -129,6 +129,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 boolean result = false;
                 if(this.isFollow()) {
                     result = this.follow(user.getId());
+                    System.out.println(user.getUsername() + " followed " + result);
                 }
                 if (result || !this.isFollow()) {
                     user.setDateOfFollowNow();
@@ -141,6 +142,8 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 }
                 System.out.println(tweet.getText());
                 System.out.println("\n-------------");
+            } else{
+
             }
         }
     }

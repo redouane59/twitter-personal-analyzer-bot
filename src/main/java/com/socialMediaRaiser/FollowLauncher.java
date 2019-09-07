@@ -30,7 +30,7 @@ public class FollowLauncher {
             int nbNeededFollowers = Integer.valueOf(args[1]);
                 System.out.println("Start working on @" + ownerName + " for "+nbNeededFollowers + " followers.");
             twitterBot = new TwitterBotByInfluencers(ownerName);
-            // twitterBot = new TwitterBotByLastActivity();
+            //twitterBot = new TwitterBotByLiveKeyWords(ownerName); // @TODO in arg
             RandomForestAlgoritm.process();
             FollowProperties.load(ownerName);
             twitterBot.getPotentialFollowers(ownerName, nbNeededFollowers, true, true);

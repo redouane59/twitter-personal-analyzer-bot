@@ -28,6 +28,6 @@ Based on your last days activities, this bot will search for all users you were 
 Using the Twitter Stream API, this bot will look for live tweets speaking about some keywords you defined previously and will create relation with their authors.
 
 ## Resources :
-- [Twitter API documentation](https://developer.twitter.com/en/docs) : used to get users or tweets infos, follow & unfollow users, etc.
-- [Google Sheets API documentation](https://developers.google.com/sheets/api/) : used to write followed users information & statistics on an online google sheet document
+- [Twitter API](https://developer.twitter.com/en/docs) : used to get users or tweets infos, follow & unfollow users, etc.
+- [Google Sheets API](https://developers.google.com/sheets/api/) : used to write followed users information & statistics on an online google sheet document
 - [Twitter4j](http://twitter4j.org/en/) : used to consume live streaming twitter API

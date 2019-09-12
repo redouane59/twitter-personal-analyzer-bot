@@ -2,16 +2,23 @@ package com.socialMediaRaiser.twitter.helpers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.socialMediaRaiser.twitter.FollowProperties;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.RequestTokenDTO;
 import com.socialMediaRaiser.twitter.signature.Oauth1SigningInterceptor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.*;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +31,8 @@ public class RequestHelper {
     public JsonNode executeGetRequest(String url) {
         try {
             Response response = this.getHttpClient(url)
-                    .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp())).execute();
+                    .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp()))
+                    .execute();
             JsonNode node = JsonHelper.OBJECT_MAPPER.readTree(response.body().string());
             if(response.code()==200){
                 return node;
@@ -76,7 +84,6 @@ public class RequestHelper {
     }
 
     public JsonNode executePostRequest(String url, Map<String, String> parameters) {
-
         try {
             String json = JsonHelper.OBJECT_MAPPER.writeValueAsString(parameters);
 
@@ -95,10 +102,46 @@ public class RequestHelper {
             if(response.code()!=200){
                 System.err.println("(POST) ! not 200 calling " + url + " " + response.message() + " - " + response.code());
             }
-            String stringResposne = response.body().string();
-            return JsonHelper.OBJECT_MAPPER.readTree(stringResposne);
+            String stringResponse = response.body().string();
+            return JsonHelper.OBJECT_MAPPER.readTree(stringResponse);
 
         } catch(IOException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public RequestTokenDTO executeTokenRequest(String url){
+        try {
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create(null, "{}"))
+                    .build();
+
+            Request signedRequest = this.getSignedRequest(request, this.getNonce(), this.getTimestamp());
+
+            Response response = this.getHttpClient(url).newCall(signedRequest).execute();
+
+            if(response.code()!=200){
+                System.err.println("(POST) ! not 200 calling " + url + " " + response.message() + " - " + response.code());
+            }
+
+            String stringResponse = response.body().string();
+
+            List<NameValuePair> params = URLEncodedUtils.parse(new URI("twitter.com?"+stringResponse), Charset.forName("UTF-8").name());
+
+            RequestTokenDTO requestTokenDTO = new RequestTokenDTO();
+
+            for (NameValuePair param : params) {
+                if(param.getName().equals("oauth_token")){
+                    requestTokenDTO.setOauthToken(param.getValue());
+                } else if (param.getName().equals("oauth_token_secret")){
+                    requestTokenDTO.setOauthTokenSecret(param.getValue());
+                }
+            }
+
+            return requestTokenDTO;
+        } catch(IOException | URISyntaxException e){
             e.printStackTrace();
             return null;
         }

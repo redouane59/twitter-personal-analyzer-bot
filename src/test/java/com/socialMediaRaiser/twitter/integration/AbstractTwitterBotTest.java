@@ -368,4 +368,14 @@ class AbstractTwitterBotTest {
         user = User.builder().location("France").description("cool").build();
         assertFalse(user.isInfluencer());
     }
+
+
+    @Test
+    public void testGetTokens(){
+        FollowProperties.twitterCredentials.setAccessToken("");
+        FollowProperties.twitterCredentials.setSecretToken("");
+        this.twitterBot.setNewTokens();
+        assertTrue(FollowProperties.twitterCredentials.getAccessToken().length()>1);
+        assertTrue(FollowProperties.twitterCredentials.getSecretToken().length()>1);
+    }
 }

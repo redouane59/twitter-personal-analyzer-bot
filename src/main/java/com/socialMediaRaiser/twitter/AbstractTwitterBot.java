@@ -10,13 +10,12 @@ import com.socialMediaRaiser.twitter.helpers.URLHelper;
 import com.socialMediaRaiser.twitter.helpers.dto.getRelationship.RelationshipDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getRelationship.RelationshipObjectResponseDTO;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.RequestTokenDTO;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
@@ -341,5 +340,12 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 FollowProperties.twitterCredentials.getConsumerSecret(),
                 FollowProperties.twitterCredentials.getAccessToken(),
                 FollowProperties.twitterCredentials.getSecretToken());
+    }
+
+    public void setNewTokens(){
+        String url = this.getUrlHelper().getRequestTokenUrl();
+        RequestTokenDTO result = this.requestHelper.executeTokenRequest(url);
+        FollowProperties.twitterCredentials.setAccessToken(result.getOauthToken());
+        FollowProperties.twitterCredentials.setSecretToken(result.getOauthTokenSecret());
     }
 }

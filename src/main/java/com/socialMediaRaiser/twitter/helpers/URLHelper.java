@@ -314,6 +314,9 @@ public class URLHelper {
                 .toString();
     }
 
+    public String getRequestTokenUrl(){
+        return "https://api.twitter.com/oauth/request_token";
+    }
 
     public boolean canCallGetFollowers(){
         if(this.followersCount<FOLLOWER_MAX_CALLS){
@@ -328,6 +331,7 @@ public class URLHelper {
         }
         return false;
     }
+
 
     public void displayRateLimits(){
         StringBuilder s = new StringBuilder();

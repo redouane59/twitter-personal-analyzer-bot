@@ -71,7 +71,8 @@ public abstract class AbstractUser implements IUser {
         String[] userDescriptionSplitted = this.getDescription().split(" ");
 
         String locationWords = FollowProperties.targetProperties.getLocation();
-        String[] locationWordsSplitted = locationWords.split(FollowProperties.ARRAY_SEPARATOR);
+        String[] locationWordsSplitted = locationWords.split(FollowProperties.ARRAY_SEPARATOR); // @todo NPE
+
         String[] userLocationSplitted = this.getLocation().split(" ");
 
         boolean matchDescription = false;

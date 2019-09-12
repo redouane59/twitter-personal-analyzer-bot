@@ -122,5 +122,4 @@ public class UrlHelperTest {
                 twitterBot.getUrlHelper().getLikeUrl(tweetId));
     }
 
-
 }

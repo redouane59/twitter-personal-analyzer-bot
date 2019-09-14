@@ -8,6 +8,7 @@ import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.GoogleSheetHelper;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
+import com.socialMediaRaiser.twitter.helpers.dto.getUser.RequestTokenDTO;
 import com.socialMediaRaiser.twitter.impl.TwitterBotByInfluencers;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeAll;
@@ -374,8 +375,8 @@ class AbstractTwitterBotTest {
     public void testGetTokens(){
         FollowProperties.twitterCredentials.setAccessToken("");
         FollowProperties.twitterCredentials.setSecretToken("");
-        this.twitterBot.setNewTokens();
-        assertTrue(FollowProperties.twitterCredentials.getAccessToken().length()>1);
-        assertTrue(FollowProperties.twitterCredentials.getSecretToken().length()>1);
+        RequestTokenDTO result = this.twitterBot.getRequestHelper().executeTokenRequest();
+        assertTrue(result.getOauthToken().length()>1);
+        assertTrue(result.getOauthTokenSecret().length()>1);
     }
 }

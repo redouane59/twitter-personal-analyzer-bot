@@ -40,16 +40,12 @@ public class RequestHelper {
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" + response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ... " + url);
-                try {
-                    TimeUnit.MINUTES.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                TimeUnit.MINUTES.sleep(sleepTime);
                 return this.executeGetRequest(url);
             } else{
                 System.err.println("(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
             }
-        } catch(IOException e){
+        } catch(Exception e){
             e.printStackTrace();
         }
         return null;
@@ -68,16 +64,12 @@ public class RequestHelper {
                 LocalDateTime now = LocalDateTime.now();
                 System.out.println("\n" + response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ... " + url);
-                try {
-                    TimeUnit.MINUTES.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                TimeUnit.MINUTES.sleep(sleepTime);
                 return this.executeGetRequestV2(url);
             } else{
                 System.err.println("(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
             }
-        } catch(IOException e){
+        } catch(Exception e){
             e.printStackTrace();
         }
         return null;
@@ -101,30 +93,32 @@ public class RequestHelper {
 
             if(response.code()!=200){
                 System.err.println("(POST) ! not 200 calling " + url + " " + response.message() + " - " + response.code());
+                if(response.code()==429){
+                    RequestTokenDTO result = this.executeTokenRequest();
+                    FollowProperties.twitterCredentials.setAccessToken(result.getOauthToken());
+                    FollowProperties.twitterCredentials.setSecretToken(result.getOauthTokenSecret());
+                    System.out.println("token reset, now sleeping 30sec");
+                    TimeUnit.SECONDS.sleep(30);
+                }
             }
             String stringResponse = response.body().string();
             return JsonHelper.OBJECT_MAPPER.readTree(stringResponse);
-
-        } catch(IOException e){
+        } catch(Exception e){
             e.printStackTrace();
             return null;
         }
     }
 
-    public RequestTokenDTO executeTokenRequest(String url){
+    public RequestTokenDTO executeTokenRequest(){
         try {
             Request request = new Request.Builder()
-                    .url(url)
+                    .url("https://api.twitter.com/oauth/request_token")
                     .post(RequestBody.create(null, "{}"))
                     .build();
 
             Request signedRequest = this.getSignedRequest(request, this.getNonce(), this.getTimestamp());
 
-            Response response = this.getHttpClient(url).newCall(signedRequest).execute();
-
-            if(response.code()!=200){
-                System.err.println("(POST) ! not 200 calling " + url + " " + response.message() + " - " + response.code());
-            }
+            Response response = this.getHttpClient("https://api.twitter.com/oauth/request_token").newCall(signedRequest).execute();
 
             String stringResponse = response.body().string();
 
@@ -139,7 +133,6 @@ public class RequestHelper {
                     requestTokenDTO.setOauthTokenSecret(param.getValue());
                 }
             }
-
             return requestTokenDTO;
         } catch(IOException | URISyntaxException e){
             e.printStackTrace();
@@ -161,13 +154,9 @@ public class RequestHelper {
                 System.out.println("user private, not authorized");
             } else if (response.code()==429){
                 LocalDateTime now = LocalDateTime.now();
-                System.out.println("\n" +           response.message() +" at "
+                System.out.println("\n" + response.message() +" at "
                         + now.getHour() + ":" + now.getMinute() + ". Waiting ... " + url); // do a wait and return this function recursively
-                try {
-                    TimeUnit.MINUTES.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                TimeUnit.MINUTES.sleep(sleepTime);
                 return this.executeGetRequestReturningArray(url);
             } else{
                 System.err.println("not 200 (return null) calling " + url + " " + response.message() + " - " + response.code());

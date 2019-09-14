@@ -342,10 +342,5 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 FollowProperties.twitterCredentials.getSecretToken());
     }
 
-    public void setNewTokens(){
-        String url = this.getUrlHelper().getRequestTokenUrl();
-        RequestTokenDTO result = this.requestHelper.executeTokenRequest(url);
-        FollowProperties.twitterCredentials.setAccessToken(result.getOauthToken());
-        FollowProperties.twitterCredentials.setSecretToken(result.getOauthTokenSecret());
-    }
+    //@todo unfollow from lastupdate method
 }

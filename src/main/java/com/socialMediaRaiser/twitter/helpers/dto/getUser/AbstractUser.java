@@ -32,8 +32,15 @@ public abstract class AbstractUser implements IUser {
 
     @Override
     public boolean equals(Object o) {
+        if (o==null || this.getClass() != o.getClass()) return false;
+
         AbstractUser otherUser = (AbstractUser) o;
-        return (otherUser).getId() == this.getId();
+        return (otherUser).getId().equals(this.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
     }
 
     public double getFollowersRatio() {

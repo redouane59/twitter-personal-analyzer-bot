@@ -26,6 +26,8 @@ public class RandomForestAlgoritm {
 
         Instances trainingDataSet = new Instances("trainingDataSet", getAttributes(), 0);
         Instances testingDataSet = new Instances("testingDataSet", getAttributes(), 0);
+        Random random = new Random();
+
         for(List<Object> line : data){
             boolean followBack = Boolean.valueOf(line.get(7).toString());
             double followBackValue = 0;
@@ -42,7 +44,6 @@ public class RandomForestAlgoritm {
                     Double.valueOf(line.get(6).toString()),
                     followBackValue};
 
-            Random random = new Random();
             if(random.nextFloat()>0.8){
                 testingDataSet.add(new DenseInstance(1.0, attValues));
                 testingDataSet.setClassIndex(testingDataSet.numAttributes()-1);

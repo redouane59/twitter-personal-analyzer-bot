@@ -42,6 +42,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
                             TimeUnit.SECONDS.sleep(30);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            Thread.currentThread().interrupt();
                         }
                     }
                 }

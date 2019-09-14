@@ -18,6 +18,7 @@ import java.util.Random;
 public class RandomForestAlgoritm {
 
     public static RandomForest forest;
+    private static Random random = new Random();
 
     public static void process() throws Exception {
 
@@ -26,7 +27,6 @@ public class RandomForestAlgoritm {
 
         Instances trainingDataSet = new Instances("trainingDataSet", getAttributes(), 0);
         Instances testingDataSet = new Instances("testingDataSet", getAttributes(), 0);
-        Random random = new Random();
 
         for(List<Object> line : data){
             boolean followBack = Boolean.valueOf(line.get(7).toString());

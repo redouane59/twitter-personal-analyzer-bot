@@ -35,7 +35,7 @@ public class UserScoringEngine {
         // @odo only if public account
         if(!user.isProtectedAccount() && user.getMostRecentTweet()!=null
                 && user.getMostRecentTweet().size()>0){ // adding the last tweet to description
-            description.concat(user.getMostRecentTweet().get(0).getText());
+            description = description.concat(user.getMostRecentTweet().get(0).getText());
         }
         FollowProperties.scoringProperties.getProperty(Criterion.DESCRIPTION).setValue(description);
         FollowProperties.scoringProperties.getProperty(Criterion.LOCATION).setValue(user.getLocation());

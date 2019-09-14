@@ -117,5 +117,11 @@
             <artifactId>vavr</artifactId>
             <version>0.10.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>5.1</version>
+        </dependency>
+
     </dependencies>
 </project>

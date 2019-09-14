@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.impl;
 
+import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Getter
 @Setter
@@ -20,6 +22,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
 
     private List<AbstractUser> potentialFollowers = new ArrayList<>();
     private int maxFriendship = 390;
+    private static final Logger LOGGER = Logger.getLogger(TwitterBotByLastActivity.class.getName());
 
     public TwitterBotByLastActivity(String ownerName) {
         super(ownerName);
@@ -57,7 +60,7 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
                             }
                         }
                     } else {
-                        System.out.println("potentialFollowers added : " + potentialFollower.getUsername());
+                        LOGGER.info(()->"potentialFollowers added : " + potentialFollower.getUsername());
                         potentialFollowers.add(potentialFollower);
                     }
                 }
@@ -66,10 +69,10 @@ public class TwitterBotByLastActivity extends AbstractTwitterBot {
         }
 
 
-        System.out.println("********************************");
-        System.out.println(potentialFollowers.size() + " followers followed / "
+        LOGGER.info(()->"********************************");
+        LOGGER.info(potentialFollowers.size() + " followers followed / "
                 + iteration + " users analyzed");
-        System.out.println("********************************");
+        LOGGER.info(()->"********************************");
 
         return potentialFollowers;
     }

@@ -2,26 +2,28 @@ package com.socialMediaRaiser.twitter.properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.logging.Logger;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ScoringProperty {
+    private static final Logger LOGGER = Logger.getLogger(ScoringProperty.class.getName());
     private Criterion criterion;
     private boolean active;
     private int maxPoints;
     private Object value;
     private boolean blocking;
-
-    public ScoringProperty(){
-
-    }
 
     public void setCriterion(String s){
         switch (s){
@@ -50,7 +52,7 @@ public class ScoringProperty {
                 this.criterion = Criterion.NB_TWEETS;
                 break;
             default:
-                System.err.println("criterion " + s + " not found ");
+                LOGGER.severe(()->"criterion " + s + " not found ");
                 break;
         }
     }

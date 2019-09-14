@@ -110,9 +110,9 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         user.getTweetCount(),
                         /*user.getFavouritesCount()*/ " ",
                         user.getDescription().
-                                replaceAll("\""," ")
-                                .replaceAll(";"," ")
-                                .replaceAll("\n"," "),
+                                replace("\""," ")
+                                .replace(";"," ")
+                                .replace("\n"," "),
                         dateFormat.format(user.getLastUpdate()),
                         dateFormat.format(user.getDateOfCreation()),
                         user.getCommonFollowers(),

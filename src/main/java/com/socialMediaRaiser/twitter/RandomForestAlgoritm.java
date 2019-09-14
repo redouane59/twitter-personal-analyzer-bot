@@ -14,11 +14,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class RandomForestAlgoritm {
 
     public static RandomForest forest;
     private static Random random = new Random();
+    private static final Logger LOGGER = Logger.getLogger(RandomForestAlgoritm.class.getName());
 
     public static void process() throws Exception {
 
@@ -61,7 +63,7 @@ public class RandomForestAlgoritm {
 
         Evaluation eval = new Evaluation(trainingDataSet);
         eval.evaluateModel(forest, testingDataSet);
-        System.out.println("");
+        LOGGER.info(()->"");
     }
 
     private static ArrayList<Attribute> getAttributes(){

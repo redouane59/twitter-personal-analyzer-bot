@@ -240,14 +240,6 @@ class AbstractTwitterBotTest {
     }
 
     @Test
-    @Disabled
-    public void testWritingOnGoogleSheet() {
-        AbstractUser user = twitterBot.getUserFromUserName("RedTheOne");
-        GoogleSheetHelper helper = new GoogleSheetHelper(ownerName);
-        helper.addNewFollowerLine(user);
-    }
-
-    @Test
     public void testRelationBetweenUsersIdFriends() {
         String userId1 = "92073489";
         String userId2 = "723996356";

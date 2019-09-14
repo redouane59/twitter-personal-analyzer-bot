@@ -17,10 +17,12 @@ import lombok.Data;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Data
 public abstract class AbstractTwitterBot extends AbstractBot implements ITwitterBot{
 
+    private static final Logger LOGGER = Logger.getLogger(AbstractTwitterBot.class.getName());
     private String ownerName;
     private boolean follow; // if try will follow users
     private URLHelper urlHelper = new URLHelper();
@@ -56,7 +58,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                     result.addAll(ids);
                 }
             } else{
-                System.err.println("response null or ids not found !");
+                LOGGER.severe(()->"response null or ids not found !");
             }
 
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
@@ -71,7 +73,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         Long cursor = -1L;
         List<AbstractUser> result = new ArrayList<>();
         int nbCalls = 1;
-        System.out.print("users : ");
+        LOGGER.fine("users : ");
         do {
             String url_with_cursor = url + "&"+CURSOR+"=" + cursor;
             JsonNode response = this.getRequestHelper().executeGetRequest(url_with_cursor);
@@ -147,7 +149,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                     return RelationType.FRIENDS;
                 }
             } catch (IOException e) {
-                System.err.print(e.getMessage() + " response = " + response);
+                this.logError(e, response);
             }
         }
         System.err.print("areFriends was null for " + userId2 + "! -> false ");
@@ -169,10 +171,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             if (jsonResponse.has(JsonHelper.FOLLOWING)) {
                 return true;
             } else{
-                System.err.println("following property not found :(  " + userId + " not followed !");
+                LOGGER.severe(()->"following property not found :(  " + userId + " not followed !");
             }
         }
-        System.err.println("jsonResponse was null for user  " + userId);
+        LOGGER.severe(()->"jsonResponse was null for user  " + userId);
         return false;
     }
 
@@ -181,10 +183,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         String url = this.urlHelper.getUnfollowUrl(userId);
         JsonNode jsonResponse = this.requestHelper.executePostRequest(url, new HashMap<>());
         if(jsonResponse!=null){
-            System.out.println(userId + " unfollowed");
+            LOGGER.info(()->userId + " unfollowed");
             return true;
         }
-        System.err.println(userId + " not unfollowed");
+        LOGGER.severe(()->userId + " not unfollowed");
         return false;
     }
 
@@ -195,11 +197,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             try{
                 return this.getJsonHelper().jsonResponseToUserV2(response);
             } catch(Exception e){
-                System.err.print(e.getMessage() + " response = " + response);
-                e.printStackTrace();
+                this.logError(e, response);
             }
         }
-        System.err.println("getUserFromUserId return null for " + userId);
+        LOGGER.severe(()->"getUserFromUserId return null for " + userId);
         return null;
     }
 
@@ -211,7 +212,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             try {
                 return this.getJsonHelper().jsonResponseToUserV2(response);
             } catch (IOException e) {
-                System.err.print(e.getMessage() + " response = " + response);
+                this.logError(e, response);
             }
         }
         return null;
@@ -249,7 +250,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             AbstractUser user = this.getUserFromUserName(ownerName);
             this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
         } else{
-            System.err.println("no followers found at this date");
+            LOGGER.severe(()->"no followers found at this date");
         }
     }
 
@@ -292,11 +293,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
         if(count<10){
             count = 10;
-            System.err.println("count minimum = 10");
+            LOGGER.severe(()->"count minimum = 10");
         }
         if(count>100){
             count = 100;
-            System.err.println("count maximum = 100");
+            LOGGER.severe(()->"count maximum = 100");
         }
         String url = this.getUrlHelper().getSearchTweetsUrl();
         Map<String, String> parameters = new HashMap<>();
@@ -320,7 +321,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             if(response!=null && response.size()>0){
                 result.addAll(this.getJsonHelper().jsonResponseToTweetList(responseArray));
             } else{
-                System.err.println("response null or ids not found !");
+                LOGGER.severe(()->"response null or ids not found !");
             }
 
             if(!response.has(NEXT)){
@@ -340,6 +341,10 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 FollowProperties.twitterCredentials.getConsumerSecret(),
                 FollowProperties.twitterCredentials.getAccessToken(),
                 FollowProperties.twitterCredentials.getSecretToken());
+    }
+
+    private void logError(Exception e, String response){
+        System.err.print(e.getMessage() + " response = " + response);
     }
 
     //@todo unfollow from lastupdate method

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,48 +17,53 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
 
     private AbstractIOHelper IOHelper;
+    private static final Logger LOGGER = Logger.getLogger(AbstractBot.class.getName());
 
     public abstract List<AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults);
 
     protected LinkedHashMap<String, Boolean> areFriends(String userId, List<String> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
         int nbUnfollows = 0;
-        int nbFollowingBack = 0;
         for(String otherId : otherIds){
-            Boolean userFollowsBack = null;
-            RelationType relation = this.getRelationType(userId, otherId);
-            if(relation == RelationType.FRIENDS || relation == RelationType.FOLLOWER){
-                userFollowsBack = true;
-                nbFollowingBack++;
-            } else if (relation!=null){
-                userFollowsBack = false;
-            }
-            if(unfollow && relation !=null && !userFollowsBack && relation == RelationType.FOLLOWING){
+            boolean userShouldBeUnfollowed = shouldBeUnfollowed(userId, otherId, writeOnSheet);
+            if(unfollow && userShouldBeUnfollowed){
                 boolean unfollowResult = this.unfollow(otherId);
                 if(unfollowResult) {
                     nbUnfollows++;
-                    if(nbUnfollows%5==0){
-                        try {
-                            System.out.println("Sleeping 30sec");
-                            TimeUnit.SECONDS.sleep(30);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
-                        }
-                    }
+                    this.temporiseUnfollows(nbUnfollows);
                 }
             }
-            if(writeOnSheet){
-                if(userFollowsBack!=null){
-                    this.getIOHelper().updateFollowBackInformation(otherId, userFollowsBack);
-                } else{
-                    System.err.println("null value for" + otherId);
-                }
-            }
-            result.put(otherId, userFollowsBack);
-            System.out.println();
+            result.put(otherId, !userShouldBeUnfollowed);
         }
-        System.out.println("Follow back : " + (nbFollowingBack*100)/otherIds.size() + "% (nb unfollows : " + nbUnfollows+ ")");
+        LOGGER.info("Follow back : " + ((otherIds.size()-nbUnfollows)*100)/otherIds.size() + "% (nb unfollows : " + nbUnfollows+ ")");
         return result;
+    }
+
+    private boolean shouldBeUnfollowed(String userId, String otherId, boolean writeOnSheet){
+        RelationType relation = this.getRelationType(userId, otherId);
+        if(relation==null) LOGGER.severe(() -> "null value for" + otherId);
+
+        Boolean userFollowsBack = false;
+        if(relation == RelationType.FRIENDS || relation == RelationType.FOLLOWER){
+            userFollowsBack = true;
+        }
+
+        if(writeOnSheet){
+            this.getIOHelper().updateFollowBackInformation(otherId, userFollowsBack);
+        }
+
+        return !userFollowsBack && relation == RelationType.FOLLOWING;
+    }
+
+    private void temporiseUnfollows(int nbUnfollows){
+        if(nbUnfollows%5==0){
+            try {
+                LOGGER.info(()->"Sleeping 30sec");
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

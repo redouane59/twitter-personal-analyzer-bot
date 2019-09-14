@@ -2,13 +2,17 @@ package com.socialMediaRaiser.twitter.helpers.dto.getUser;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.twitter.helpers.JsonHelper;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.logging.Logger;
 
 @Data
 public class UserDTO extends AbstractUser {
+    private static final Logger LOGGER = Logger.getLogger(UserDTO.class.getName());
+
     private String created_at;
     private String name;
     private String location;
@@ -29,7 +33,7 @@ public class UserDTO extends AbstractUser {
     @Override
     public Date getLastUpdate() {
         if(this.getMostRecentTweet()==null && this.getMostRecentTweet().size()>0){
-            System.err.println("mostRecentTweet null");
+            LOGGER.severe(()->"mostRecentTweet null");
             return null;
         }
         return JsonHelper.getDateFromTwitterDateV2(this.getMostRecentTweet().get(0).getCreated_at());
@@ -53,7 +57,7 @@ public class UserDTO extends AbstractUser {
     @Override
     public String getLang() {
         if(this.getMostRecentTweet()==null && this.getMostRecentTweet().size()>0){
-            System.err.println("mostRecentTweet null");
+            LOGGER.severe(()->"mostRecentTweet null");
             return null;
         }
         return this.getMostRecentTweet().get(0).getLang();

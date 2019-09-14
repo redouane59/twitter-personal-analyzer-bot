@@ -1,6 +1,7 @@
 package com.socialMediaRaiser.twitter.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.twitter.AbstractTwitterBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.Tweet;
@@ -22,11 +23,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
 @Setter
 @Getter
 public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
+    private static final Logger LOGGER = Logger.getLogger(TwitterBotByLiveKeyWords.class.getName());
     private List<AbstractUser> potentialFollowers = new ArrayList<>();
     List<String> followedRecently;
     List<String> ownerFollowingIds;
@@ -58,9 +61,9 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
             e.printStackTrace();
         }
 
-        System.out.println("********************************");
-        System.out.println(potentialFollowers.size() + " followers followed / " + iterations + " ("+(potentialFollowers.size()*100)/iterations + "%)");
-        System.out.println("********************************");
+        LOGGER.info(()->"********************************");
+        LOGGER.info(()->potentialFollowers.size() + " followers followed / " + iterations + " ("+(potentialFollowers.size()*100)/iterations + "%)");
+        LOGGER.info(()->"********************************");
 
         return potentialFollowers;
     }
@@ -74,10 +77,10 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         endpoint.trackTerms(Arrays.asList(FollowProperties.targetProperties.getKeywords()));
         endpoint.languages(Arrays.asList(FollowProperties.targetProperties.getLanguage()));
 
-        System.out.println("SMR - tracking terms : ");
+        LOGGER.info(()->"SMR - tracking terms : ");
         Arrays.asList(FollowProperties.targetProperties.getKeywords()).forEach(System.out::println);
 
-        System.out.println("SMR - tracking languages : ");
+        LOGGER.info(()->"SMR - tracking languages : ");
         Arrays.asList(FollowProperties.targetProperties.getLanguage()).forEach(System.out::println);
 
         if(client==null || client.isDone()){
@@ -97,11 +100,11 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
         while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
             if(queue.size()>0){
-                System.out.println("SMR - queue > 0");
+                LOGGER.info(()->"SMR - queue > 0");
                 try{
                     String queueString = queue.take();
                     Tweet foundedTweet = JsonHelper.OBJECT_MAPPER.readValue(queueString, Tweet.class);
-                    System.out.println("SMR - analysing tweet from " + foundedTweet.getUser().getUsername() + " : "
+                    LOGGER.info(()->"SMR - analysing tweet from " + foundedTweet.getUser().getUsername() + " : "
                             + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
                     if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.targetProperties.getUnwantedKeywords()))){
                         this.doActions(foundedTweet);
@@ -123,13 +126,13 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 && followedRecently.indexOf(user.getId())==-1
                 && potentialFollowers.indexOf(user)==-1
                 && user.shouldBeFollowed(this.getOwnerName())){
-            System.out.println("SMR - checking language...");
+            LOGGER.info(()->"SMR - checking language...");
             if(user.isLanguageOK()){
                 // this.likeTweet(tweet.getId());
                 boolean result = false;
                 if(this.isFollow()) {
                     result = this.follow(user.getId());
-                    System.out.println(user.getUsername() + " followed " + result);
+                    LOGGER.info(user.getUsername() + " followed " + result);
                 }
                 if (result || !this.isFollow()) {
                     user.setDateOfFollowNow();
@@ -138,10 +141,10 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                         this.getIOHelper().addNewFollowerLine(user);
                     }
                 } else {
-                    System.err.println("error following " + user.getUsername());
+                    LOGGER.severe(()->"error following " + user.getUsername());
                 }
-                System.out.println(tweet.getText());
-                System.out.println("\n-------------");
+                LOGGER.info(()->tweet.getText());
+                LOGGER.info(()->"\n-------------");
             } else{
 
             }

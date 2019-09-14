@@ -1,5 +1,6 @@
 package com.socialMediaRaiser.twitter.scoring;
 
+import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.AbstractUser;
 import com.socialMediaRaiser.twitter.properties.ScoringProperty;
@@ -7,17 +8,19 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.logging.Logger;
 
 @Getter
 public class UserScoringEngine {
 
+    private static final Logger LOGGER = Logger.getLogger(UserScoringEngine.class.getName());
     private int limit;
 
     public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
             this.limit = FollowProperties.scoringProperties.getTotalMaxPoints()*minimumPercentMatch/100;
         } else{
-            System.err.println("argument should be between 0 & 100");
+            LOGGER.severe(()->"argument should be between 0 & 100");
             this.limit = 100;
         }
     }
@@ -74,7 +77,7 @@ public class UserScoringEngine {
                             modifValue = getCommonFollowersScore((int) prop.getValue());
                             break;
                         default:
-                            System.err.println("no function found for " + prop.getCriterion());
+                            LOGGER.severe(()->"no function found for " + prop.getCriterion());
                     }
                     if (modifValue == 0 && prop.isBlocking()) {
                         return 0;
@@ -145,7 +148,7 @@ public class UserScoringEngine {
         String[] descriptionSplitted = description.split(" ");
         for(String s :descriptionSplitted){
             if(Arrays.stream(words).anyMatch(s.toLowerCase()::contains)){
-                System.out.print(" matches description with '" + s +"'");
+                LOGGER.fine(" matches description with '" + s +"'");
                 return maxPoints;
             }
         }

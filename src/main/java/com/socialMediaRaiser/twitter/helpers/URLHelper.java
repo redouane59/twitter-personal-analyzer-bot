@@ -1,11 +1,15 @@
 package com.socialMediaRaiser.twitter.helpers;
 
+import com.socialMediaRaiser.AbstractBot;
 import lombok.Data;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Data
 public class URLHelper {
+
+    private static final Logger LOGGER = Logger.getLogger(URLHelper.class.getName());
 
     private final String ROOT_URL = "https://api.twitter.com/1.1";
     private final String ROOT_URL_V2 = "https://api.twitter.com/labs/1";
@@ -82,7 +86,7 @@ public class URLHelper {
     public String getFriendshipUrl(String sourceId, String targetId) {
         this.friendshipCount++;
         if(friendshipCount%50==0){
-       //     System.out.println("friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
+       //     LOGGER.info(()->"friendship : " + friendshipCount + " / " + FRIENDSHIP_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDSHIPS)
@@ -96,7 +100,7 @@ public class URLHelper {
 
     public String getRetweetersUrl(String tweetId){
         this.retweeterCount++;
-        System.out.println("Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
+        LOGGER.info(()->"Retweeters : " + retweeterCount + " / " + RETWEETER_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(RETWEETERS)
@@ -111,7 +115,7 @@ public class URLHelper {
     public String getFollowerIdsUrl(String userId){
         this.followersCount++;
         if(followersCount%5==0) {
-            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+            LOGGER.info(()->"Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
@@ -125,7 +129,7 @@ public class URLHelper {
     public String getFollowerUsersUrl(String userId){
         this.followersCount++;
         if(followersCount%5==0) {
-            System.out.println("Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+            LOGGER.info(()->"Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
@@ -139,7 +143,7 @@ public class URLHelper {
 
     public String getFollowingIdsUrl(String userId){
         this.followingCount++;
-        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
+        LOGGER.info(()->"Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDS)
                 .append(IDS_JSON)
@@ -149,7 +153,7 @@ public class URLHelper {
 
     public String getFollowingUsersUrl(String userId){
         this.followingCount++;
-        System.out.println("Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
+        LOGGER.info(()->"Followings : " + followingCount + " / " + FOLLOWING_MAX_CALLS);
         return new StringBuilder(ROOT_URL)
                 .append(FRIENDS)
                 .append(LIST_JSON)
@@ -169,7 +173,7 @@ public class URLHelper {
     public String getUserUrl(String userId) {
         this.userCount++;
         if(userCount%50==0) {
-          //  System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+          //  LOGGER.info(()->"Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL_V2)
                 .append(USERS)
@@ -184,7 +188,7 @@ public class URLHelper {
     public String getUserUrlFromName(String username) {
         this.userCount++;
         if(userCount%50==0) {
-           // System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+           // LOGGER.info(()->"Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL_V2)
                 .append(USERS)
@@ -200,7 +204,7 @@ public class URLHelper {
     public String getUsersUrlbyNames(List<String> names) {
         this.userCount++;
         if(userCount%50==0) {
-          //  System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+          //  LOGGER.info(()->"Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         StringBuilder result = new StringBuilder(ROOT_URL)
                 .append(USERS)
@@ -220,7 +224,7 @@ public class URLHelper {
     public String getUsersUrlbyIds(List<String> ids) {
         this.userCount++;
         if(userCount%50==0) {
-          //  System.out.println("Users : " + userCount + " / " + USER_MAX_CALLS);
+          //  LOGGER.info(()->"Users : " + userCount + " / " + USER_MAX_CALLS);
         }
         StringBuilder result = new StringBuilder(ROOT_URL)
                 .append(USERS)
@@ -248,9 +252,6 @@ public class URLHelper {
     @Deprecated
     public String getTweetInfoUrl(String tweetId) {
         this.tweetInfoCount++;
-        if(this.tweetInfoCount%10==0){
-            System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
-        }
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(SHOW_JSON)
@@ -261,9 +262,6 @@ public class URLHelper {
 
     public String getUserTweetsUrl(String userId, int count){
         this.tweetInfoCount++;
-        if(this.tweetInfoCount%10==0){
-            System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
-        }
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(USER_TIMELINE)
@@ -279,9 +277,6 @@ public class URLHelper {
     // https://api.twitter.com/labs/1/tweets?ids=1067094924124872705
     public String getUserTweetsUrlV2(String userId, int count){
         this.tweetInfoCount++;
-        if(this.tweetInfoCount%10==0){
-            System.out.println("*** tweetInfoCount : " + tweetInfoCount + " / " + TWEET_INFO_MAX_CALLS + " ***");
-        }
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
                 .append(USER_TIMELINE)
@@ -348,7 +343,7 @@ public class URLHelper {
                 .append(" | ")
                 .append("user : ")
                 .append(userCount);
-        System.out.println("current rates : " + s);
+        LOGGER.info(()->"current rates : " + s);
     }
 
 

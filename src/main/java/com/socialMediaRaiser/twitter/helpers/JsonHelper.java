@@ -3,6 +3,7 @@ package com.socialMediaRaiser.twitter.helpers;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.json.Json;
 import com.socialMediaRaiser.twitter.Tweet;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.helpers.dto.getUser.*;
@@ -16,10 +17,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 public class JsonHelper {
 
     public static ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private static final Logger LOGGER = Logger.getLogger(Json.class.getName());
 
     @Deprecated
     private static final String STATUSES_COUNT = "statuses_count";
@@ -117,7 +120,7 @@ public class JsonHelper {
     @Deprecated
     public Long getLongFromCursorObject(JsonNode response){
         if(response==null){
-            System.err.println("result null");
+            LOGGER.severe(()->"result null");
             return null;
         }
         return response.get(NEXT_CURSOR).asLong();

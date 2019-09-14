@@ -8,21 +8,23 @@ import io.vavr.control.Option;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Logger;
 
 public class UnfollowLauncher {
 
     private static AbstractTwitterBot twitterBot;
+    private static final Logger LOGGER = Logger.getLogger(UnfollowLauncher.class.getName());
 
     public static void main(String[] args) {
         if(args.length<1){
-            System.err.println("missing arguments, expecting 1 : ownerName[String]");
+            LOGGER.severe(()->"missing arguments, expecting 1 : ownerName[String]");
         } else{
             String ownerName = args[0];
             int nbDays = Integer.valueOf(Option.of(args[1]).getOrElse("1"));
-            System.out.println("start working for " + ownerName + " for unfollows. ");
+            LOGGER.info(()->"start working for " + ownerName + " for unfollows. ");
             twitterBot = new TwitterBotByInfluencers(ownerName);
             twitterBot.checkNotFollowBack(ownerName,true, true, yesterday(nbDays), false);
-            System.out.println("end program");
+            LOGGER.info(()->"end program");
         }
     }
 

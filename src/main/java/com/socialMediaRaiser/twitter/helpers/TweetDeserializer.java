@@ -12,6 +12,8 @@ import java.io.IOException;
 
 public class TweetDeserializer extends JsonDeserializer<Tweet>
 {
+
+    private final String createdAt = "created_at";
     @Override
     public Tweet deserialize(JsonParser parser, DeserializationContext context)
             throws IOException, JsonProcessingException
@@ -28,8 +30,8 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .favouritesCount(userNode.get("favourites_count").asInt())
                 .location(userNode.get("location").asText())
                 .description(userNode.get("description").asText())
-                .dateOfCreation(JsonHelper.getDateFromTwitterString(userNode.get("created_at").asText()))
-                .lastUpdate(JsonHelper.getDateFromTwitterString(tweetNode.get("created_at").asText()))
+                .dateOfCreation(JsonHelper.getDateFromTwitterString(userNode.get(createdAt).asText()))
+                .lastUpdate(JsonHelper.getDateFromTwitterString(tweetNode.get(createdAt).asText()))
                 .lang(tweetNode.get("lang").asText())
                 .build();
 
@@ -41,7 +43,7 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .retweet_count(tweetNode.get("retweet_count").asInt())
                 .reply_count(tweetNode.get("reply_count").asInt())
                 .user(user)
-                .created_at(JsonHelper.getDateFromTwitterString(tweetNode.get("created_at").asText()))
+                .created_at(JsonHelper.getDateFromTwitterString(tweetNode.get(createdAt).asText()))
                 .build();
 
         return tweet;

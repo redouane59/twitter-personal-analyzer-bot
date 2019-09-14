@@ -50,7 +50,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         return chain.proceed(signRequest(chain.request()));
     }
 
-    public Request signRequest(Request request) throws IOException {
+    public Request signRequest(Request request) {
         String consumerKeyValue = ESCAPER.escape(consumerKey);
         String accessTokenValue = ESCAPER.escape(accessToken);
 
@@ -71,7 +71,12 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         if(request.body()!=null) {
             RequestBody requestBody = request.body();
             Buffer body = new Buffer();
-            requestBody.writeTo(body);
+            try {
+                requestBody.writeTo(body);
+            } catch (IOException e) {
+                e.printStackTrace();
+                body.close();
+            }
 
      /*       while (!body.exhausted()) {
                 long keyEnd = body.indexOf((byte) '=');
@@ -87,7 +92,8 @@ public final class Oauth1SigningInterceptor implements Interceptor {
             }*/
         }
 
-        Buffer base = new Buffer();
+        try (Buffer base = new Buffer()){
+
         String method = request.method();
         base.writeUtf8(method);
         base.writeByte('&');
@@ -129,6 +135,9 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         return request.newBuilder()
                 .addHeader("Authorization", authorization)
                 .build();
+
+        }
+
     }
 
     public static final class Builder {

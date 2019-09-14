@@ -3,6 +3,7 @@ package com.socialMediaRaiser.twitter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.socialMediaRaiser.AbstractBot;
 import com.socialMediaRaiser.twitter.helpers.JsonHelper;
 import com.socialMediaRaiser.twitter.properties.*;
 import lombok.Data;
@@ -14,11 +15,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Data
 public class FollowProperties {
 
-    //public static String USER_NAME = "RedouaneBali";
+    private static final Logger LOGGER = Logger.getLogger(FollowProperties.class.getName());
+
     public static TargetProperties targetProperties;
     public static ScoringProperties scoringProperties;
     public static InfluencerProperties influencerProperties;
@@ -36,7 +39,7 @@ public class FollowProperties {
         try {
             URL yamlFile = FollowProperties.class.getResource("/"+userName+".yaml");
             if(yamlFile==null){
-                System.err.println("yaml file not found at /"+userName+".yaml");
+                LOGGER.severe(()->"yaml file not found at /"+userName+".yaml");
                 return false;
             }
             Map<String,Object> yaml = mapper.readValue(yamlFile, HashMap.class);
@@ -53,10 +56,10 @@ public class FollowProperties {
             googleCredentials = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
             influencerProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("influencer"),InfluencerProperties.class);
             ioProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("io"), IOProperties.class);
-            System.out.println("properties loaded correctly");
+            LOGGER.info(()->"properties loaded correctly");
             return true;
         } catch (IOException ex) {
-            System.err.println("properties could not be loaded (" + ex.getMessage()+")");
+            LOGGER.severe(()->"properties could not be loaded (" + ex.getMessage()+")");
             return false;
         }
     }

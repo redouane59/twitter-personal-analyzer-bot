@@ -4,6 +4,7 @@ import com.socialMediaRaiser.twitter.FollowProperties;
 import com.socialMediaRaiser.twitter.User;
 import com.socialMediaRaiser.twitter.scoring.Criterion;
 import com.socialMediaRaiser.twitter.scoring.UserScoringEngine;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -16,9 +17,14 @@ public class ScoringTest {
 
     private static String ownerName = "RedTheOne";
 
+    @BeforeEach
+    void init(){
+        FollowProperties.load(ownerName);
+        FollowProperties.scoringProperties.getProperty(Criterion.LAST_UPDATE).setBlocking(false);
+    }
+
     @Test
     void testScoringZero(){
-        FollowProperties.load(ownerName);
         User user = new User();
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertEquals(0,scoring.getUserScore(user));
@@ -26,7 +32,6 @@ public class ScoringTest {
 
     @Test
     void testScoringOneMatchDescription(){
-        FollowProperties.load(ownerName);
         FollowProperties.targetProperties.setDescription("a,b,c");
         User user = new User();
         user.setDescription("a");
@@ -42,7 +47,6 @@ public class ScoringTest {
 
     @Test
     void testScoringSeveralMatchesDescription(){
-        FollowProperties.load(ownerName);
         User user = new User();
         user.setDescription("a b c ");
         FollowProperties.targetProperties.setDescription("a,b,c");
@@ -57,7 +61,6 @@ public class ScoringTest {
                         "100, 1000, 0," +
                         "1000, 100, 0"})
     void testScoringMinMaxRatio(String nbFollowers, String nbFollowings, String exceptedResult){
-        FollowProperties.load(ownerName);
         User user = new User();
         user.setFollowersCount(Integer.valueOf(nbFollowers));
         user.setFollowingCount(Integer.valueOf(nbFollowings));
@@ -90,7 +93,6 @@ public class ScoringTest {
             "100, 0," +
             "10000, 0"})
     void testScoringMinMaxFollowings(String nbFollowings, String exceptedResult){
-        FollowProperties.load(ownerName);
         User user = new User();
         user.setFollowingCount(Integer.valueOf(nbFollowings));
         FollowProperties.targetProperties.setMinNbFollowings(500);
@@ -102,14 +104,12 @@ public class ScoringTest {
 
     @Test
     void testLimit(){
-        FollowProperties.load(ownerName);
         UserScoringEngine scoring = new UserScoringEngine(100);
         assertNotEquals(0, scoring.getLimit());
     }
 
     @Test
     void testBlockingProperty(){
-        FollowProperties.load(ownerName);
         User user = new User();
         user.setDescription("x");
         user.setLang("fr");

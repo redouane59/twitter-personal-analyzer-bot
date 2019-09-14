@@ -40,7 +40,7 @@ public class StartStreamingHandler implements RequestHandler<String, String> {
         String ownerId = "1120050519182016513";
       //  int count = Integer.valueOf(map.get(COUNT));
         int count = 300;
-        System.out.println("start working with " + ownerId + " for " + count + " followers...");
+        this.logger.log("start working with " + ownerId + " for " + count + " followers...");
         bot.getPotentialFollowers(ownerId, count,true,true);
         return "Succeeded";
     }

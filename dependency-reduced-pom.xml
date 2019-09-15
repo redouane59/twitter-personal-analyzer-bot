@@ -21,7 +21,7 @@
           <transformers>
             <transformer>
               <manifestEntries>
-                <Main-Class>com.socialMediaRaiser.FollowLauncher</Main-Class>
+                <Main-Class>com.socialmediaraiser.FollowLauncher</Main-Class>
               </manifestEntries>
             </transformer>
           </transformers>

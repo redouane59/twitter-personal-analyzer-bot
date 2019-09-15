@@ -1,0 +1,34 @@
+package com.socialmediaraiser;
+
+import com.socialmediaraiser.twitter.AbstractTwitterBot;
+import com.socialmediaraiser.twitter.FollowProperties;
+import com.socialmediaraiser.twitter.RandomForestAlgoritm;
+import com.socialmediaraiser.twitter.impl.TwitterBotByInfluencers;
+
+import java.util.logging.Logger;
+
+// @todo dev followback hour reception
+
+public class FollowLauncher {
+
+    private static final Logger LOGGER = Logger.getLogger(FollowLauncher.class.getName());
+
+    public static void main(String[] args) throws Exception {
+        if(args.length<2){
+            LOGGER.severe(()->"missing arguments, expecting 2 : ownerName[String], number of needed followers[int]. Args :");
+            for(String arg : args){
+                LOGGER.info(()->arg);
+            }
+        } else{
+            String ownerName = args[0];
+            int nbNeededFollowers = Integer.parseInt(args[1]);
+                LOGGER.info(()->"Start working on @" + ownerName + " for "+nbNeededFollowers + " followers.");
+            AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName);
+            //twitterBot = new TwitterBotByLiveKeyWords(ownerName); // @TODO in arg
+            RandomForestAlgoritm.process();
+            FollowProperties.load(ownerName);
+            twitterBot.getPotentialFollowers(ownerName, nbNeededFollowers, true, true);
+            LOGGER.info(()->"end program");
+        }
+    }
+}

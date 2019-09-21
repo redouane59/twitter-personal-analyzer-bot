@@ -23,11 +23,11 @@ public class FollowLauncher {
             String ownerName = args[0];
             int nbNeededFollowers = Integer.parseInt(args[1]);
                 LOGGER.info(()->"Start working on @" + ownerName + " for "+nbNeededFollowers + " followers.");
-            AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName);
+            AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, true, true);
             //twitterBot = new TwitterBotByLiveKeyWords(ownerName); // @TODO in arg
             RandomForestAlgoritm.process();
             FollowProperties.load(ownerName);
-            twitterBot.getPotentialFollowers(ownerName, nbNeededFollowers, true, true);
+            twitterBot.getPotentialFollowers(ownerName, nbNeededFollowers);
             LOGGER.info(()->"end program");
         }
     }

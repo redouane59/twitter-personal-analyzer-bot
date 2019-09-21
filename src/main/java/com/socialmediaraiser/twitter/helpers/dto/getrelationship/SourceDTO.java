@@ -1,23 +1,36 @@
 package com.socialmediaraiser.twitter.helpers.dto.getrelationship;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class SourceDTO {
-    private boolean can_dm;
-    private boolean all_replies;
-    private boolean following_requested;
-    private boolean marked_spam;
-    private boolean notifications_enabled;
-    private boolean live_following;
-    private boolean followed_by;
+    @JsonProperty("can_dm")
+    private boolean canDm;
+    @JsonProperty("all_replies")
+    private boolean allReplies;
+    @JsonProperty("following_requested")
+    private boolean followingRequested;
+    @JsonProperty("marked_spam")
+    private boolean markedSpam;
+    @JsonProperty("notifications_enabled")
+    private boolean notificationsEnabled;
+    @JsonProperty("live_following")
+    private boolean liveFollowing;
+    @JsonProperty("followed_by")
+    private boolean followedBy;
     private boolean muting;
-    private String screen_name;
+    @JsonProperty("screen_name")
+    private String screenName;
     private boolean blocking;
-    private boolean blocked_by;
-    private boolean want_retweets;
-    private String id_str;
+    @JsonProperty("blocked_by")
+    private boolean blockedBy;
+    @JsonProperty("want_retweets")
+    private boolean wantRetweets;
+    @JsonProperty("id_str")
+    private String idStr;
     private boolean following;
     private Long id;
-    private boolean following_received;
+    @JsonProperty("following_received")
+    private boolean followingReceived;
 }

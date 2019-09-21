@@ -28,30 +28,25 @@ import java.util.logging.Logger;
 public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
     private static final Logger LOGGER = Logger.getLogger(TwitterBotByLiveKeyWords.class.getName());
-    private List<AbstractUser> potentialFollowers = new ArrayList<>();
-    List<String> followedRecently;
-    List<String> ownerFollowingIds;
     private int maxFriendship = 390;
-    private int QUEUE_SIZE = 100;
+    private int queueSize = 100;
     private int iterations = 0;
     private boolean saveResults;
     private Client client;
 
-    public TwitterBotByLiveKeyWords(String ownerName) {
-        super(ownerName);
+    public TwitterBotByLiveKeyWords(String ownerName, boolean follow, boolean saveResults) {
+        super(ownerName, follow, saveResults);
     }
 
     @Override
-    public List<AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults){
-        this.setFollow(follow);
+    public List<AbstractUser> getPotentialFollowers(String ownerId, int count){
         this.saveResults = saveResults;
 
         if(count>maxFriendship){
             count = maxFriendship;
         }
 
-        this.followedRecently = this.getIoHelper().getPreviouslyFollowedIds();
-        this.ownerFollowingIds = this.getFollowingIds(ownerId);
+        this.setOwnerFollowingIds(this.getFollowingIds(ownerId));
 
         try {
             this.collect(count);
@@ -60,16 +55,16 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         }
 
         LOGGER.info(()->"********************************");
-        LOGGER.info(()->potentialFollowers.size() + " followers followed / " + iterations + " ("+(potentialFollowers.size()*100)/iterations + "%)");
+        LOGGER.info(()->this.getPotentialFollowers().size() + " followers followed / " + iterations + " ("+(this.getPotentialFollowers().size()*100)/iterations + "%)");
         LOGGER.info(()->"********************************");
 
-        return potentialFollowers;
+        return this.getPotentialFollowers();
     }
 
 
     public void collect(int count){
 
-        final BlockingQueue<String> queue = new LinkedBlockingQueue<>(QUEUE_SIZE);
+        final BlockingQueue<String> queue = new LinkedBlockingQueue<>(queueSize);
         final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
 
         endpoint.trackTerms(Arrays.asList(FollowProperties.getTargetProperties().getKeywords()));
@@ -96,7 +91,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
 
         int nbFollows = new GoogleSheetHelper(this.getOwnerName()).getPreviouslyFollowedIds(true, true, new Date()).size();
 
-        while (!client.isDone() && (nbFollows+potentialFollowers.size())<count) {
+        while (!client.isDone() && (nbFollows+this.getPotentialFollowers().size())<count) {
             if(!queue.isEmpty()){
                 LOGGER.info(()->"SMR - queue > 0");
                 try{
@@ -131,7 +126,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 }
                 if (result || !this.isFollow()) {
                     user.setDateOfFollowNow();
-                    potentialFollowers.add(user);
+                    this.getPotentialFollowers().add(user);
                     if(this.saveResults){
                         this.getIoHelper().addNewFollowerLine(user);
                     }
@@ -144,11 +139,6 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
         }
     }
 
-    public boolean shouldFollow(AbstractUser user){
-        return (ownerFollowingIds.indexOf(user.getId())==-1
-                && followedRecently.indexOf(user.getId())==-1
-                && potentialFollowers.indexOf(user)==-1
-                && user.shouldBeFollowed(this.getOwnerName()));
-    }
+
 
 }

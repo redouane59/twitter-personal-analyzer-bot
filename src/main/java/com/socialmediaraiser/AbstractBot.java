@@ -19,7 +19,7 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
     private AbstractIOHelper ioHelper;
     private static final Logger LOGGER = Logger.getLogger(AbstractBot.class.getName());
 
-    public abstract List<AbstractUser> getPotentialFollowers(String ownerId, int count, boolean follow, boolean saveResults);
+    public abstract List<AbstractUser> getPotentialFollowers(String ownerId, int count);
 
     protected LinkedHashMap<String, Boolean> areFriends(String userId, List<String> otherIds, boolean unfollow, boolean writeOnSheet){
         LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
@@ -66,4 +66,5 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
             }
         }
     }
+
 }

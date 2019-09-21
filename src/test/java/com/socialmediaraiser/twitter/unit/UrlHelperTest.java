@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UrlHelperTest {
 
     private static String ownerName = "RedTheOne";
-    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName);
+    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
 
     @BeforeAll
     public static void init(){

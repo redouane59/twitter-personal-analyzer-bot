@@ -1,5 +1,6 @@
 package com.socialmediaraiser.twitter.helpers.dto.getuser;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -7,6 +8,8 @@ public class TwitterUrl {
     private int start;
     private int end;
     private String url;
-    private String expanded_url;
-    private String display_url;
+    @JsonProperty("expanded_url")
+    private String expandedUrl;
+    @JsonProperty("display_url")
+    private String displayUrl;
 }

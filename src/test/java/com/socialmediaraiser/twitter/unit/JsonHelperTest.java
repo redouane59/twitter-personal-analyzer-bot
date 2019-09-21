@@ -36,10 +36,10 @@ public class JsonHelperTest {
         assertNotNull(result.getLang());
         assertNotNull(result.getId());
         assertNotNull(result.getUser());
-        assertNotNull(result.getCreated_at());
-        assertNotNull(result.getFavorite_count());
-        assertNotNull(result.getRetweet_count());
-        assertNotNull(result.getReply_count());
+        assertNotNull(result.getCreatedAt());
+        assertNotNull(result.getFavoriteCount());
+        assertNotNull(result.getRetweetCount());
+        assertNotNull(result.getReplyCount());
         assertNotNull(result.getText());
     }
 
@@ -139,8 +139,8 @@ public class JsonHelperTest {
         assertNotNull(objectInterpretation);
         assertNotNull(objectInterpretation.getData());
         assertNotNull(objectInterpretation.getIncludes());
-        assertEquals(6279, objectInterpretation.getData().get(0).getStats().getFollowers_count());
-        assertTrue("92073489".equals(objectInterpretation.getIncludes().getTweets().get(0).getAuthor_id()));
+        assertEquals(6279, objectInterpretation.getData().get(0).getStats().getFollowersCount());
+        assertTrue("92073489".equals(objectInterpretation.getIncludes().getTweets().get(0).getAuthorId()));
         IUser user = jsonHelper.jsonResponseToUserV2(stringResponse);
         assertTrue("92073489".equals(user.getId()));
         assertTrue("RedTheOne".equals(user.getUsername()));

@@ -1,5 +1,6 @@
 package com.socialmediaraiser.twitter.helpers.dto.getuser;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
@@ -8,14 +9,19 @@ import java.util.List;
 @Data
 public class TweetDTO {
     private String id;
-    private String created_at;
+    @JsonProperty("created_at")
+    private String createdAt;
     private String text;
-    private String author_id;
-    private String in_reply_to_user_id;
-    private List<ReferencedTweetDTO> referenced_tweets;
+    @JsonProperty("author_id")
+    private String authorId;
+    @JsonProperty("in_reply_to_user_id")
+    private String inReplyToUserId;
+    @JsonProperty("referenced_tweets")
+    private List<ReferencedTweetDTO> referencedTweets;
     private JsonNode entities;
     private TwitterStatsDTO stats;
-    private boolean possibly_sensitive;
+    @JsonProperty("possibly_sensitive")
+    private boolean possiblySensitive;
     private String lang;
     private String source;
     private String format;

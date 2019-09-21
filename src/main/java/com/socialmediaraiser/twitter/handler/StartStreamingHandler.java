@@ -26,13 +26,13 @@ public class StartStreamingHandler implements RequestHandler<String, String> {
             return "Failed";
         } */
         this.logger.log("\ninputObject : " + map);
-        TwitterBotByLiveKeyWords bot = new TwitterBotByLiveKeyWords("RedouaneBali");
+        TwitterBotByLiveKeyWords bot = new TwitterBotByLiveKeyWords("RedouaneBali", true, true);
        // String ownerId = Long.valueOf(map.get(OWNER_ID));
         String ownerId = "1120050519182016513";
       //  int count = Integer.parseInt(map.get(COUNT));
         int count = 300;
         this.logger.log("start working with " + ownerId + " for " + count + " followers...");
-        bot.getPotentialFollowers(ownerId, count,true,true);
+        bot.getPotentialFollowers(ownerId, count);
         return "Succeeded";
     }
 }

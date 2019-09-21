@@ -9,6 +9,7 @@ import com.socialmediaraiser.twitter.User;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.RequestTokenDTO;
 import com.socialmediaraiser.twitter.impl.TwitterBotByInfluencers;
+import com.socialmediaraiser.twitter.scoring.Criterion;
 import com.socialmediaraiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AbstractTwitterBotTest {
 
     private static String ownerName = "RedTheOne";
-    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName);
+    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
 
     @BeforeAll
     public static void init() {
@@ -368,5 +369,11 @@ class AbstractTwitterBotTest {
         RequestTokenDTO result = this.twitterBot.getRequestHelper().executeTokenRequest();
         assertTrue(result.getOauthToken().length()>1);
         assertTrue(result.getOauthTokenSecret().length()>1);
+    }
+
+    // @todo to test
+    @Test
+    public void testunfollowFromLastUpdateDifference(){
+        this.twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE,30, true);
     }
 }

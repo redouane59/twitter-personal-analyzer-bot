@@ -1,14 +1,20 @@
 package com.socialmediaraiser.twitter.helpers.dto.getrelationship;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class TargetDTO {
-    private boolean followed_by;
-    private String screen_name;
-    private String id_str;
+    @JsonProperty("followed_by")
+    private boolean followedBy;
+    @JsonProperty("screen_name")
+    private String screenName;
+    @JsonProperty("id_str")
+    private String idStr;
     private boolean following;
-    private boolean following_requested;
+    @JsonProperty("following_requested")
+    private boolean followingRequested;
     private Long id;
-    private boolean following_received;
+    @JsonProperty("following_received")
+    private boolean followingReceived;
 }

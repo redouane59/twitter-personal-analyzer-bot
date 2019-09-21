@@ -3,7 +3,6 @@ package com.socialmediaraiser.twitter.helpers;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.json.Json;
 import com.socialmediaraiser.twitter.Tweet;
 import com.socialmediaraiser.twitter.User;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.*;
@@ -55,7 +54,8 @@ public class JsonHelper {
     public List<AbstractUser> jsonUserArrayToList(JsonNode jsonObject){
         ArrayList<AbstractUser> users = new ArrayList<>();
         for(JsonNode node : jsonObject){
-            users.add(this.jsonResponseToUser(node));
+            AbstractUser user = this.jsonResponseToUser(node);
+            if(user!=null) users.add(user);
         }
         return users;
     }
@@ -67,8 +67,8 @@ public class JsonHelper {
         String screenName = Option.of(jsonObject.get(SCREEN_NAME)).map(s -> jsonObject.get(SCREEN_NAME).asText()).getOrNull();
         int followersCount = Option.of(jsonObject.get(FOLLOWER_COUNT)).map(s -> jsonObject.get(FOLLOWER_COUNT).asInt()).getOrElse(0);
         int friendsCount = Option.of(jsonObject.get(FRIENDS_COUNT)).map(s -> jsonObject.get(FRIENDS_COUNT).asInt()).getOrElse(0);
-        int statuses_count = Option.of(jsonObject.get(STATUSES_COUNT)).map(s -> jsonObject.get(STATUSES_COUNT).asInt()).getOrElse(0);
-        String created_at = Option.of(jsonObject.get(CREATED_AT)).map(s -> jsonObject.get(CREATED_AT).asText()).getOrNull();
+        int statusesCount = Option.of(jsonObject.get(STATUSES_COUNT)).map(s -> jsonObject.get(STATUSES_COUNT).asInt()).getOrElse(0);
+        String createdAt = Option.of(jsonObject.get(CREATED_AT)).map(s -> jsonObject.get(CREATED_AT).asText()).getOrNull();
         String description = Option.of(jsonObject.get(DESCRIPTION)).map(s -> jsonObject.get(DESCRIPTION).asText()).getOrNull();
         String location = Option.of(jsonObject.get(LOCATION)).map(s -> jsonObject.get(LOCATION).asText()).getOrElse("");
         String lastUpdate = Option.of(jsonObject.get(STATUS)).map(s -> (jsonObject.get(STATUS)).get(CREATED_AT).asText()).getOrNull();
@@ -77,8 +77,8 @@ public class JsonHelper {
                 .userName(screenName)
                 .followersCout(followersCount)
                 .followingCount(friendsCount)
-                .statusesCount(statuses_count)
-                .dateOfCreation(getDateFromTwitterString(created_at))
+                .statusesCount(statusesCount)
+                .dateOfCreation(getDateFromTwitterString(createdAt))
                 .description(description)
                 .dateOfFollow(null)
                 .lastUpdate(getDateFromTwitterString(lastUpdate))
@@ -97,15 +97,15 @@ public class JsonHelper {
         if(!data.isProtectedAccount() && includes!=null){
             mostRecentTweet = includes.getTweets();
             lang = includes.getTweets().get(0).getLang();
-            lastUpdate = getDateFromTwitterDateV2(includes.getTweets().get(0).getCreated_at());
+            lastUpdate = getDateFromTwitterDateV2(includes.getTweets().get(0).getCreatedAt());
         }
         return User.builder()
                 .id(data.getId())
                 .userName(data.getUsername())
-                .followersCout(data.getStats().getFollowers_count())
-                .followingCount(data.getStats().getFollowing_count())
-                .statusesCount(data.getStats().getTweet_count())
-                .dateOfCreation(getDateFromTwitterDateV2(data.getCreated_at()))
+                .followersCout(data.getStats().getFollowersCount())
+                .followingCount(data.getStats().getFollowingCount())
+                .statusesCount(data.getStats().getTweetCount())
+                .dateOfCreation(getDateFromTwitterDateV2(data.getCreatedAt()))
                 .description(data.getDescription())
                 .dateOfFollow(null)
                 .location(data.getLocation())
@@ -158,11 +158,11 @@ public class JsonHelper {
                 }
                 Tweet tweet = Tweet.builder()
                         .id(id)
-                        .retweet_count(retweetsCount)
-                        .favorite_count(favourites_count)
+                        .retweetCount(retweetsCount)
+                        .favoriteCount(favourites_count)
                         .text(text)
                         .lang(lang)
-                        .created_at(createdAtDate)
+                        .createdAt(createdAtDate)
                         .user(user)
                         .build();
                 tweets.add(tweet);

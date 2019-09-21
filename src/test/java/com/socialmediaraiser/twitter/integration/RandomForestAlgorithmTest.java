@@ -25,7 +25,7 @@ public class RandomForestAlgorithmTest {
     }
     @Test
     void testFalse() {
-        AbstractUser user = new TwitterBotByInfluencers(userName).getUserFromUserName("blevy90");
+        AbstractUser user = new TwitterBotByInfluencers(userName, false, false).getUserFromUserName("blevy90");
         assertEquals(false, user.getRandomForestPrediction());
     }
 

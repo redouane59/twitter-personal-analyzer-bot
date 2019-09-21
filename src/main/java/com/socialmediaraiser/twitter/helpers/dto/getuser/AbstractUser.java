@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.socialmediaraiser.twitter.FollowProperties;
 import com.socialmediaraiser.twitter.RandomForestAlgoritm;
 import com.socialmediaraiser.twitter.helpers.dto.IUser;
+import com.socialmediaraiser.twitter.scoring.Criterion;
 import com.socialmediaraiser.twitter.scoring.UserScoringEngine;
 import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
@@ -13,11 +14,14 @@ import lombok.NoArgsConstructor;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class AbstractUser implements IUser {
+
+    private static final Logger LOGGER = Logger.getLogger(AbstractUser.class.getName());
 
     private String id;
     private String username;
@@ -99,24 +103,45 @@ public abstract class AbstractUser implements IUser {
                 && matchLocation
                 && this.getFollowersRatio() > FollowProperties.getInfluencerProperties().getMinRatio()
                 && this.getFollowersCount()> FollowProperties.getInfluencerProperties().getMinNbFollowers());
-
-       /* if(this.getFollowersRatio()> followConfiguration.getMinRatio()
-                && this.getFollowersCount()> followConfiguration.getInfluencerMinNbFollowers()
-                && this.description.contains(followConfiguration.getDescription()[0]) */
-        /*&& this.lang!=null && this.lang.equals(followConfiguration.getLanguage())*//*){
-            return true;
-        } else{
-            return false;
-        } */
     }
 
-
-    // @odo remove argument ?
     public boolean shouldBeFollowed(String ownerName){
         if(this.getUsername()!=null && this.getUsername().equals(ownerName)){
             return false;
         }
         return this.scoringEngine.shouldBeFollowed(this);
+    }
+
+    public boolean shouldBeUnfollowed(Criterion criterion, int value){
+        switch (criterion){
+            case LAST_UPDATE:
+                if(this.getLastUpdate()!=null) {
+                    long nbDaysSinceLastUpdate = (new Date().getTime() - this.getLastUpdate().getTime()) / (24 * 60 * 60 * 1000);
+                    if(nbDaysSinceLastUpdate>value){
+                        LOGGER.info(this.getUsername() + " should be unfollowed because "
+                                + nbDaysSinceLastUpdate + ">" + value);
+                        return true;
+                    }
+                }
+                return false;
+            case RATIO:
+                if(this.getFollowersRatio()<value){
+                    LOGGER.info(this.getUsername() + " should be unfollowed because "
+                            + this.getFollowersRatio() + "<" + value);
+                    return true;
+                }
+                return false;
+            case NB_FOLLOWERS:
+                if(this.getFollowersCount()<value){
+                    LOGGER.info(this.getUsername() + " should be unfollowed because "
+                            + this.getFollowersCount() + "<" + value);
+                    return true;
+                }
+                return false;
+            default:
+                LOGGER.severe("Criterion " + criterion.name() + " not found");
+                return false;
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.socialmediaraiser.twitter;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.socialmediaraiser.twitter.helpers.TweetDeserializer;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
@@ -20,11 +21,15 @@ import java.util.List;
 public class Tweet {
     private String id;
     private String lang;
-    private int retweet_count;
-    private int favorite_count;
-    private int reply_count;
+    @JsonProperty("retweet_count")
+    private int retweetCount;
+    @JsonProperty("favorite_count")
+    private int favoriteCount;
+    @JsonProperty("reply_count")
+    private int replyCount;
     private String text;
-    private Date created_at;
+    @JsonProperty("created_at")
+    private Date createdAt;
     private AbstractUser user;
 
     public boolean matchWords(List<String> words){

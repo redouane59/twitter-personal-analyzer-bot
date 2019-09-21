@@ -1,7 +1,6 @@
 package com.socialmediaraiser.twitter.helpers;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,17 +34,15 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .lang(tweetNode.get("lang").asText())
                 .build();
 
-        Tweet tweet = Tweet.builder()
+        return Tweet.builder()
                 .id(tweetNode.get("id").asText())
                 .text(tweetNode.get("text").asText())
                 .lang(tweetNode.get("lang").asText())
-                .favorite_count(tweetNode.get("favorite_count").asInt())
-                .retweet_count(tweetNode.get("retweet_count").asInt())
-                .reply_count(tweetNode.get("reply_count").asInt())
+                .favoriteCount(tweetNode.get("favorite_count").asInt())
+                .retweetCount(tweetNode.get("retweet_count").asInt())
+                .replyCount(tweetNode.get("reply_count").asInt())
                 .user(user)
-                .created_at(JsonHelper.getDateFromTwitterString(tweetNode.get(createdAt).asText()))
+                .createdAt(JsonHelper.getDateFromTwitterString(tweetNode.get(createdAt).asText()))
                 .build();
-
-        return tweet;
     }
 }

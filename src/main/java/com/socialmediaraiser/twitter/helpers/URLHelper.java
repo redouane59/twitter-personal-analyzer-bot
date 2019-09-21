@@ -41,7 +41,7 @@ public class URLHelper {
     private static final String USER_FORMAT_DETAILED= "user.format=detailed";
     private static final String TWEET_FORMAT_DETAILED= "tweet.format=detailed";
     private static final String EXPANSIONS_RECENT_TWEET= "expansions=most_recent_tweet_id";
-    private static final int maxCount = 200;
+    private static final int MAX_COUNT = 200;
     private int retweeterCount = 0;
     private int followersCount = 0;
     private int followingCount = 0;
@@ -134,7 +134,7 @@ public class URLHelper {
                 .append(USER_ID + "=")
                 .append(userId)
                 .append("&"+COUNT+"=")
-                .append(maxCount)
+                .append(MAX_COUNT)
                 .toString();
     }
 
@@ -157,14 +157,14 @@ public class URLHelper {
                 .append(USER_ID + "=")
                 .append(userId)
                 .append("&"+COUNT+"=")
-                .append(maxCount)
+                .append(MAX_COUNT)
                 .toString();
     }
 
     public String getLastTweetListUrl(){
         return new StringBuilder(ROOT_URL)
                 .append(STATUSES)
-                .append("/user_timeline.json?").toString();
+                .append(USER_TIMELINE).toString();
     }
 
     public String getUserUrl(String userId) {

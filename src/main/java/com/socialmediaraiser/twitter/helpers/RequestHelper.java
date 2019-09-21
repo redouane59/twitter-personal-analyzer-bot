@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -46,7 +45,7 @@ public class RequestHelper {
                 LOGGER.severe(()->"(GET) not calling " + url + " 200 return null " + response.message() + " - " + response.code());
             }
         } catch(Exception e){
-            LOGGER.severe(e.getMessage());
+            LOGGER.severe("exception in executeGetRequest " + e.getMessage());
         }
         return null;
     }

@@ -19,8 +19,8 @@ public class UnfollowLauncher {
             String ownerName = args[0];
             int nbDays = Integer.parseInt(Option.of(args[1]).getOrElse("1"));
             LOGGER.info(()->"start working for " + ownerName + " for unfollows. ");
-            AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName);
-            twitterBot.checkNotFollowBack(ownerName,true, true, yesterday(nbDays), false);
+            AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, true, true);
+            twitterBot.checkNotFollowBack(ownerName,yesterday(nbDays), false);
             LOGGER.info(()->"end program");
         }
     }

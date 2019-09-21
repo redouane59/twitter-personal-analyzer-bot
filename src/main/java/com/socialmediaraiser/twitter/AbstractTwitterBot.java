@@ -10,6 +10,7 @@ import com.socialmediaraiser.twitter.helpers.URLHelper;
 import com.socialmediaraiser.twitter.helpers.dto.getrelationship.RelationshipDTO;
 import com.socialmediaraiser.twitter.helpers.dto.getrelationship.RelationshipObjectResponseDTO;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
+import com.socialmediaraiser.twitter.scoring.Criterion;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
@@ -23,7 +24,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     private static final Logger LOGGER = Logger.getLogger(AbstractTwitterBot.class.getName());
     private String ownerName;
+    private List<AbstractUser> potentialFollowers = new ArrayList<>();
+    List<String> followedRecently = this.getIoHelper().getPreviouslyFollowedIds();
+    List<String> ownerFollowingIds;
     private boolean follow; // if try will follow users
+    private boolean saveResults;
     private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
     private JsonHelper jsonHelper = new JsonHelper();
@@ -38,9 +43,12 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private static final String SOURCE = "source";
     private static final int MAX_GET_F_CALLS = 30;
 
-    public AbstractTwitterBot(String ownerName){
+    public AbstractTwitterBot(String ownerName, boolean follow, boolean saveResults){
         super(new GoogleSheetHelper(ownerName));
         this.ownerName = ownerName;
+        this.follow = follow;
+        this.saveResults = saveResults;
+        this.ownerFollowingIds = this.getFollowingIds(this.getUserFromUserName(ownerName).getId());
     }
 
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
@@ -58,6 +66,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
                 }
             } else{
                 LOGGER.severe(()->"response null or ids not found !");
+                return result;
             }
 
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
@@ -136,7 +145,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         if(response!=null) {
             try {
                 RelationshipDTO relationshipDTO = JsonHelper.OBJECT_MAPPER.readValue(this.getRequestHelper().executeGetRequestV2(url), RelationshipObjectResponseDTO.class).getRelationship();
-                Boolean followedBy = relationshipDTO.getSource().isFollowed_by();
+                Boolean followedBy = relationshipDTO.getSource().isFollowedBy();
                 Boolean following = relationshipDTO.getSource().isFollowing();
                 if (followedBy && following){
                     return RelationType.FRIENDS;
@@ -244,11 +253,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return this.getRequestHelper().executeGetRequestV2(url);
     }
 
-    public void checkNotFollowBack(String ownerName, boolean unfollow, boolean writeInSheet, Date date, boolean override) {
+    public void checkNotFollowBack(String ownerName, Date date, boolean override) {
         List<String> followedPreviously = this.getIoHelper().getPreviouslyFollowedIds(override, override, date);
         if(followedPreviously!=null && !followedPreviously.isEmpty()){
             AbstractUser user = this.getUserFromUserName(ownerName);
-            this.areFriends(user.getId(), followedPreviously, unfollow, writeInSheet);
+            this.areFriends(user.getId(), followedPreviously, this.isFollow(), this.isSaveResults());
         } else{
             LOGGER.severe(()->"no followers found at this date");
         }
@@ -286,11 +295,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
     }
 
-    public AbstractUser followNewUser(AbstractUser potentialFollower, boolean saveResults){
+    public AbstractUser followNewUser(AbstractUser potentialFollower){
         boolean result = this.follow(potentialFollower.getId());
         if (result) {
             potentialFollower.setDateOfFollowNow();
-            if (saveResults) {
+            if (this.saveResults) {
                 this.getIoHelper().addNewFollowerLine(potentialFollower);
             }
             return potentialFollower;
@@ -359,5 +368,28 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         LOGGER.severe(() -> e.getMessage() + " response = " + response);
     }
 
-    //@todo unfollow from lastupdate method
+    public void unfollowAllUsersFromCriterion(Criterion criterion, int value, boolean unfollow){
+        int maxUnfollows = 400;
+        int nbUnfollows = 0;
+        for(String id : this.ownerFollowingIds){
+            AbstractUser user = this.getUserFromUserId(id);
+            if(nbUnfollows>=maxUnfollows) break;
+            if(unfollow && user.shouldBeUnfollowed(criterion, value)){
+                boolean result = this.unfollow(user.getId());
+                nbUnfollows++;
+                LOGGER.info(()-> user.getUsername() + " -> to unfollow");
+                if(!result){
+                    LOGGER.severe(() -> "error unfollowing " + user.getUsername());
+                }
+            }
+        }
+        LOGGER.info(nbUnfollows + " users unfollowed");
+    }
+
+    public boolean shouldFollow(AbstractUser user){
+        return (ownerFollowingIds.indexOf(user.getId())==-1
+                && followedRecently.indexOf(user.getId())==-1
+                && potentialFollowers.indexOf(user)==-1
+                && user.shouldBeFollowed(this.getOwnerName()));
+    }
 }

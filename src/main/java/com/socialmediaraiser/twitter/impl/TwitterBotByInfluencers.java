@@ -106,7 +106,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         }
     }
 
-    private List<AbstractUser> getInfluencersFromUsers(List<AbstractUser> users, int count){
+    private List<AbstractUser> getInfluencersFromUsers(List<AbstractUser> users, int count, boolean shuffle){
         List<AbstractUser> followersInfluencers = new ArrayList<>();
         AbstractUser user;
         int i=0;
@@ -118,7 +118,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
             }
             i++;
         }
-
+        if(shuffle) Collections.shuffle(followersInfluencers);
         return followersInfluencers;
     }
 
@@ -132,19 +132,17 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         List<String> influencersFollowersIds = new ArrayList<>();
         AbstractUser influencer;
         int i=0;
-        // @todo add raw list of incluencers in config
-        List<AbstractUser> influencers = new ArrayList<>();
-        influencers.addAll(this.getInfluencersFromUsers(ownerFollowers, 150));
-        Collections.shuffle(influencers);
+        List<AbstractUser> influencers = this.getInfluencersFromConfig();
+        influencers.addAll(this.getInfluencersFromUsers(ownerFollowers, nbFollowersMaxtoWatch*10, true));
         while(i<influencers.size() && i<nbFollowersMaxtoWatch){
             influencer = influencers.get(i);
-            List<String> currentFollowersInfluencersFollowersId = this.getFollowerIds(influencer.getId());
-            for(String userId : currentFollowersInfluencersFollowersId){
+            List<String> influencerFollowersId = this.getFollowerIds(influencer.getId());
+            for(String userId : influencerFollowersId){
                 if(this.getOwnerFollowingIds().indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1) {
                     influencersFollowersIds.add(userId);
                 }
             }
-            LOGGER.info(influencer.getUsername() + " (" + currentFollowersInfluencersFollowersId.size() + " followers)");
+            LOGGER.info(influencer.getUsername() + " (" + influencerFollowersId.size() + " followers)");
             i++;
         }
         Map<String, Long> sortedPotentialFollowersMap = influencersFollowersIds.stream()
@@ -160,6 +158,18 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
     }
 
     public List<AbstractUser> getInfluencersFromConfig(){
-        return new ArrayList<>();
+        String[] baseList = Option.of(FollowProperties.getInfluencerProperties().getBaseList())
+                .map(x -> x.split(FollowProperties.getArraySeparator()))
+                .getOrElse(new String[0]);
+        List<AbstractUser> influencers = new ArrayList<>();
+        for(String s : baseList){
+            AbstractUser user = this.getUserFromUserName(s);
+            if(user!=null){
+                influencers.add(user);
+            } else{
+              LOGGER.severe("user " + s + " not found");
+            }
+        }
+        return influencers ;
     }
 }

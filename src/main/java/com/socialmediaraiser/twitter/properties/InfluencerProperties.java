@@ -6,4 +6,5 @@ import lombok.Data;
 public class InfluencerProperties {
     private float minRatio;
     private int minNbFollowers;
+    private String baseList;
 }

@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AbstractTwitterBotTest {
 
-    private static String ownerName = "RedTheOne";
+    private static String ownerName = "RedouaneBali";
     private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
 
     @BeforeAll
@@ -371,9 +371,8 @@ class AbstractTwitterBotTest {
         assertTrue(result.getOauthTokenSecret().length()>1);
     }
 
-    // @todo to test
     @Test
     public void testunfollowFromLastUpdateDifference(){
-        this.twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE,30, true);
+        this.twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE,30, false);
     }
 }

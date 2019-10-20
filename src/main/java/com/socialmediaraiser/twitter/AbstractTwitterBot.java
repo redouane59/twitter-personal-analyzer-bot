@@ -377,7 +377,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             if(unfollow && user.shouldBeUnfollowed(criterion, value)){
                 boolean result = this.unfollow(user.getId());
                 nbUnfollows++;
-                LOGGER.info(()-> user.getUsername() + " -> to unfollow");
+                LOGGER.info(()-> user.getUsername() + " -> unfollowed");
                 if(!result){
                     LOGGER.severe(() -> "error unfollowing " + user.getUsername());
                 }

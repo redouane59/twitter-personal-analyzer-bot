@@ -203,18 +203,6 @@ class AbstractTwitterBotTest {
         assertFalse(engine.shouldBeFollowed(user));
     }
 
-    @Test
-    public void testShouldBeFollowBadLastUpdate2() {
-        UserScoringEngine engine = new UserScoringEngine(100);
-        User user = new User();
-        user.setFollowersCount(1500);
-        user.setFollowingCount(1000);
-        user.setLang("fr");
-        user.setLastUpdate(UnfollowLauncher.yesterday(50));
-        user.setScoringEngine(engine);
-        assertEquals(false, user.shouldBeFollowed(ownerName));
-        assertFalse(engine.shouldBeFollowed(user));
-    }
 
     @Test
     public void testShouldBeFollowedOk() {
@@ -231,12 +219,6 @@ class AbstractTwitterBotTest {
         assertTrue(engine.shouldBeFollowed(user));
     }
 
-    @Test
-    public void testHashCode() {
-        User user = User.builder().id("12345").build();
-        User user2 = User.builder().id("23456").build();
-        assertNotEquals(user.hashCode(), user2.hashCode());
-    }
 
     @Test
     public void testRelationBetweenUsersIdFriends() {
@@ -296,26 +278,6 @@ class AbstractTwitterBotTest {
 
 
     @Test
-    public void testUserDiffDate0() {
-        User user = User.builder()
-                .dateOfFollow(new Date())
-                .lastUpdate(new Date())
-                .build();
-        assertEquals(0, user.getDaysBetweenFollowAndLastUpdate());
-    }
-
-    @Test
-    public void testUserDiffDate7() {
-        final Calendar lastUpdate = Calendar.getInstance();
-        lastUpdate.add(Calendar.DATE, -7);
-        User user = User.builder()
-                .dateOfFollow(new Date())
-                .lastUpdate(lastUpdate.getTime())
-                .build();
-        assertEquals(7, user.getDaysBetweenFollowAndLastUpdate());
-    }
-
-    @Test
     public void testGetLastTweetByUserName() {
         String userName = "RedTheOne";
         List<Tweet> response = twitterBot.getUserLastTweets(userName, 2);
@@ -344,35 +306,7 @@ class AbstractTwitterBotTest {
         assertTrue(results.size() == count);
     }
 
-    @Test
-    public void testIsUserInfluencer(){
-        FollowProperties.getTargetProperties().setDescription("java");
-        FollowProperties.getTargetProperties().setLocation("France");
-        User user = User.builder().location("France").description("java")
-                .followersCout(10000)
-                .followingCount(100)
-                .build();
-        assertTrue(user.isInfluencer());
-        user = User.builder().location("Senegal").description("java").build();
-        assertFalse(user.isInfluencer());
-        user = User.builder().location("Senegal").description("cool").build();
-        assertFalse(user.isInfluencer());
-        user = User.builder().location("France").description("cool").build();
-        assertFalse(user.isInfluencer());
-    }
 
 
-    @Test
-    public void testGetTokens(){
-        FollowProperties.getTwitterCredentials().setAccessToken("");
-        FollowProperties.getTwitterCredentials().setSecretToken("");
-        RequestTokenDTO result = this.twitterBot.getRequestHelper().executeTokenRequest();
-        assertTrue(result.getOauthToken().length()>1);
-        assertTrue(result.getOauthTokenSecret().length()>1);
-    }
 
-    @Test
-    public void testunfollowFromLastUpdateDifference(){
-        this.twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE,30, false);
-    }
 }

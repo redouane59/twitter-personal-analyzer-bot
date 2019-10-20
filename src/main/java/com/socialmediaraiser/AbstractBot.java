@@ -58,8 +58,8 @@ public abstract class AbstractBot implements InfoGetter, ActionPerformer  {
     private void temporiseUnfollows(int nbUnfollows){
         if(nbUnfollows%5==0){
             try {
-                LOGGER.info(()->"Sleeping 30sec");
-                TimeUnit.SECONDS.sleep(30);
+                LOGGER.info(()->"Sleeping 5sec");
+                TimeUnit.SECONDS.sleep(5);
             } catch (InterruptedException e) {
                 LOGGER.severe(e.getMessage());
                 Thread.currentThread().interrupt();

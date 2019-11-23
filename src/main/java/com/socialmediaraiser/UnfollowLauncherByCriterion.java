@@ -21,7 +21,7 @@ public class UnfollowLauncherByCriterion {
             int nbDays = Integer.parseInt(Option.of(args[1]).getOrElse("30"));
             LOGGER.info(()->"start working for " + ownerName + " for unfollows. ");
             AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, true, true);
-            twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE, nbDays, false);
+            twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE, nbDays, true);
             LOGGER.info(()->"end program");
         }
     }

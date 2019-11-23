@@ -118,23 +118,17 @@ public abstract class AbstractUser implements IUser {
                 if(this.getLastUpdate()!=null) {
                     long nbDaysSinceLastUpdate = (new Date().getTime() - this.getLastUpdate().getTime()) / (24 * 60 * 60 * 1000);
                     if(nbDaysSinceLastUpdate>value){
-                        LOGGER.info(this.getUsername() + " should be unfollowed because "
-                                + nbDaysSinceLastUpdate + ">" + value);
                         return true;
                     }
                 }
                 return false;
             case RATIO:
                 if(this.getFollowersRatio()<value){
-                    LOGGER.info(this.getUsername() + " should be unfollowed because "
-                            + this.getFollowersRatio() + "<" + value);
                     return true;
                 }
                 return false;
             case NB_FOLLOWERS:
                 if(this.getFollowersCount()<value){
-                    LOGGER.info(this.getUsername() + " should be unfollowed because "
-                            + this.getFollowersCount() + "<" + value);
                     return true;
                 }
                 return false;

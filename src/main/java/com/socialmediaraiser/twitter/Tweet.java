@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonDeserialize(using = TweetDeserializer.class)
+@JsonDeserialize(using = TweetDeserializer.class) // @todo to clean
 
 public class Tweet {
     private String id;
@@ -31,6 +31,8 @@ public class Tweet {
     @JsonProperty("created_at")
     private Date createdAt;
     private AbstractUser user;
+    @JsonProperty("in_reply_to_status_id_str")
+    private String inReplyToStatusId;
 
     public boolean matchWords(List<String> words){
         for(String word : words){

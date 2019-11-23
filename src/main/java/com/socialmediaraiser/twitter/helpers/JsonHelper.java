@@ -1,5 +1,6 @@
 package com.socialmediaraiser.twitter.helpers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -139,6 +140,25 @@ public class JsonHelper {
         return Option.of(date).map(d -> Date.from(Instant.parse(date))).getOrNull();
     }
 
+    public List<Tweet> jsonResponseToTweetListV2(JsonNode jsonArray){
+        List<Tweet> tweets = new ArrayList<>();
+        if(jsonArray!=null){
+            for(JsonNode node : jsonArray){
+                try {
+                    Tweet tweet = new ObjectMapper().treeToValue(node, Tweet.class);
+                    User user = jsonResponseToUser(node.get(USER));
+                    user.setLastUpdate(tweet.getCreatedAt());
+                    tweet.setUser(user);
+                    tweets.add(tweet);
+                } catch (JsonProcessingException e) {
+                    LOGGER.severe(e.getMessage());
+                }
+            }
+        }
+        return tweets;
+    }
+
+    @Deprecated
     public List<Tweet> jsonResponseToTweetList(JsonNode jsonArray) {
         List<Tweet> tweets = new ArrayList<>();
         if(jsonArray!=null){

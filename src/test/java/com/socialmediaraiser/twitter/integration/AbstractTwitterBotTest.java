@@ -1,25 +1,21 @@
 package com.socialmediaraiser.twitter.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.socialmediaraiser.RelationType;
-import com.socialmediaraiser.UnfollowLauncher;
 import com.socialmediaraiser.twitter.AbstractTwitterBot;
 import com.socialmediaraiser.twitter.FollowProperties;
 import com.socialmediaraiser.twitter.Tweet;
 import com.socialmediaraiser.twitter.User;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
-import com.socialmediaraiser.twitter.helpers.dto.getuser.RequestTokenDTO;
+import com.socialmediaraiser.twitter.impl.FollowerAnalyzer;
 import com.socialmediaraiser.twitter.impl.TwitterBotByInfluencers;
-import com.socialmediaraiser.twitter.scoring.Criterion;
 import com.socialmediaraiser.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -194,9 +190,9 @@ class AbstractTwitterBotTest {
         UserScoringEngine engine = new UserScoringEngine(100);
         User user = User.builder()
                 .followersCout(1500)
-        .followingCount(1000)
-        .lang("fr")
-        .lastUpdate(null)
+                .followingCount(1000)
+                .lang("fr")
+                .lastUpdate(null)
                 .build();
         user.setScoringEngine(new UserScoringEngine(65));
         assertEquals(false, user.shouldBeFollowed(ownerName));
@@ -306,7 +302,110 @@ class AbstractTwitterBotTest {
         assertTrue(results.size() == count);
     }
 
+    @Test
+    public void testFollowerAnalyzer(){
+        FollowerAnalyzer bot = new FollowerAnalyzer("laurentbouvet", false, false);
+        Map<String, Integer> result = bot.analyzeBios("RedouaneBali", 100);
+        assertNotNull(result);
+    }
 
+    @Test
+    public void testFollowerAnalyzer2(){
+        FollowerAnalyzer bot = new FollowerAnalyzer("RedTheOne", false, false);
+       /* String user1 = "LaurentBouvet";
+        String user2 = "DamienRieu";
+        int nbCommons = bot.countCommonUsers(user1,user2);
+        System.out.println(nbCommons + " commons followers between " + user1 + " " + user2);
+        assertTrue(nbCommons>0);*/
+
+        List<String> userNames1 = Arrays.asList("LaurentBouvet","ZinebElRhazoui","Amk84000","GillesClavreul","printempsrepub","ZohraBitan"
+                ,"Jo_delb","Nicolaszeminus","ivanrioufol","AgagBoudjahlat","Bobig");
+        List<String> userNames2 = Arrays.asList("T_Bouhafs","MadjidFalastine","_MarwanMuhammad","FeizaBM","edwyplenel","ccif");
+        List<String> droite = Arrays.asList("lesRepublicains","nadine__morano","LydiaGuirous","ECiotti");
+        List<String> extremeDroite = Arrays.asList("MarionMarechal","J_Bardella","JulienOdoul"
+                ,"f_philippot", "DamienRieu", "F_Desouche","JeanMessiha","RobertMenardFR","RNational_off","MLP_officiel");
+        List<String> gauche = Arrays.asList("partisocialiste","benoithamon","MartineAubry","GenerationsMvt","rglucks1",
+                "faureolivier","BalasGuillaume","Juanico","Isabel_thomasEU");
+        List<String> extremeGauche = Arrays.asList("FranceInsoumise","JLMelenchon","Clem_Autain","Deputee_Obono","alexiscorbiere",
+                "IanBrossat","pcf","fabien_gay","PartiIndigenes");
+
+        for(String s : extremeDroite){
+            bot.countCommonUsers(s, userNames1);
+        }
+
+        for(String s : extremeGauche){
+            bot.countCommonUsers(s, userNames1);
+        }
+
+        for(String s : gauche){
+            bot.countCommonUsers(s, userNames1);
+        }
+
+        for(String s : droite){
+            bot.countCommonUsers(s, userNames1);
+        }
+    }
+
+    @Test
+    public void testJsonScript() throws JsonProcessingException {
+        FollowerAnalyzer bot = new FollowerAnalyzer("RedouaneBali", false, false);
+
+        HashSet<FollowerAnalyzer.UserGraph> users = new HashSet<>();
+        users.add(new FollowerAnalyzer.UserGraph("LaurentBouvet",1));
+        users.add(new FollowerAnalyzer.UserGraph("Amk84000",1));
+        users.add(new FollowerAnalyzer.UserGraph("GillesClavreul",1));
+        users.add(new FollowerAnalyzer.UserGraph("ZinebElRhazoui",2));
+        users.add(new FollowerAnalyzer.UserGraph("printempsrepub",1));
+        users.add(new FollowerAnalyzer.UserGraph("ZohraBitan",2));
+        users.add(new FollowerAnalyzer.UserGraph("Jo_delb",1));
+        users.add(new FollowerAnalyzer.UserGraph("Nicolaszeminus",1));
+        users.add(new FollowerAnalyzer.UserGraph("ivanrioufol",2));
+        users.add(new FollowerAnalyzer.UserGraph("RenaudCamus",2));
+        users.add(new FollowerAnalyzer.UserGraph("Valeurs",2));
+        users.add(new FollowerAnalyzer.UserGraph("GWGoldnadel",2));
+        users.add(new FollowerAnalyzer.UserGraph("edwyplenel",2));
+        users.add(new FollowerAnalyzer.UserGraph("AgagBoudjahlat",2));
+        users.add(new FollowerAnalyzer.UserGraph("RNational_off",3));
+        users.add(new FollowerAnalyzer.UserGraph("MLP_officiel",3));
+        users.add(new FollowerAnalyzer.UserGraph("MarionMarechal",3));
+        users.add(new FollowerAnalyzer.UserGraph("J_Bardella",3));
+        users.add(new FollowerAnalyzer.UserGraph("DamienRieu",3));
+        users.add(new FollowerAnalyzer.UserGraph("JeanMessiha",3));
+        users.add(new FollowerAnalyzer.UserGraph("F_Desouche",3));
+        users.add(new FollowerAnalyzer.UserGraph("RobertMenardFR",3));
+        users.add(new FollowerAnalyzer.UserGraph("JulienOdoul",3));
+        users.add(new FollowerAnalyzer.UserGraph("FranceInsoumise",4));
+        users.add(new FollowerAnalyzer.UserGraph("JLMelenchon",4));
+        users.add(new FollowerAnalyzer.UserGraph("Clem_Autain",4));
+        users.add(new FollowerAnalyzer.UserGraph("Deputee_Obono",4));
+        users.add(new FollowerAnalyzer.UserGraph("alexiscorbiere",4));
+        users.add(new FollowerAnalyzer.UserGraph("IanBrossat",4));
+        users.add(new FollowerAnalyzer.UserGraph("pcf",4));
+        users.add(new FollowerAnalyzer.UserGraph("fabien_gay",4));
+        users.add(new FollowerAnalyzer.UserGraph("MadjidFalastine",4));
+        users.add(new FollowerAnalyzer.UserGraph("PartiIndigenes",4));
+        users.add(new FollowerAnalyzer.UserGraph("partisocialiste",5));
+        users.add(new FollowerAnalyzer.UserGraph("benoithamon",5));
+        users.add(new FollowerAnalyzer.UserGraph("MartineAubry",5));
+        users.add(new FollowerAnalyzer.UserGraph("GenerationsMvt",5));
+        users.add(new FollowerAnalyzer.UserGraph("rglucks1",5));
+        users.add(new FollowerAnalyzer.UserGraph("faureolivier",5));
+        users.add(new FollowerAnalyzer.UserGraph("BalasGuillaume",5));
+        users.add(new FollowerAnalyzer.UserGraph("Juanico",5));
+        users.add(new FollowerAnalyzer.UserGraph("Isabel_thomasEU",5));
+        users.add(new FollowerAnalyzer.UserGraph("lesRepublicains",6));
+        users.add(new FollowerAnalyzer.UserGraph("nadine__morano",6));
+        users.add(new FollowerAnalyzer.UserGraph("LydiaGuirous",6));
+        users.add(new FollowerAnalyzer.UserGraph("ECiotti",6));
+        users.add(new FollowerAnalyzer.UserGraph("ChJacob77",6));
+        users.add(new FollowerAnalyzer.UserGraph("T_Bouhafs",7));
+        users.add(new FollowerAnalyzer.UserGraph("_MarwanMuhammad",7));
+        users.add(new FollowerAnalyzer.UserGraph("FeizaBM",7));
+        users.add(new FollowerAnalyzer.UserGraph("ccif",7));
+        users.add(new FollowerAnalyzer.UserGraph("s_assbague",7));
+
+        bot.getJsonGraph(users);
+    }
 
 
 }

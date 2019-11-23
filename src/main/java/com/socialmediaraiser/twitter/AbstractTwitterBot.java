@@ -307,6 +307,17 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         return null;
     }
 
+    public List<Tweet> searchForTweetAnswers(String tweetId, String userName, String fromDate, String toDate){
+
+        List<Tweet> all = this.searchForTweets("@"+userName, 10000, fromDate, toDate);
+        List<Tweet> result = new ArrayList<>();
+        for(Tweet tweet : all){
+            if(tweet.getId().equals(tweetId)){
+                result.add(tweet);
+            }
+        }
+        return result;
+    }
     // @todo remove count
     // date with yyyyMMddHHmm format
     @Override
@@ -340,7 +351,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             }
 
             if(response!=null && response.size()>0){
-                result.addAll(this.getJsonHelper().jsonResponseToTweetList(responseArray));
+                result.addAll(this.getJsonHelper().jsonResponseToTweetListV2(responseArray));
             } else{
                 LOGGER.severe(()->"response null or ids not found !");
             }

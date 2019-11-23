@@ -35,7 +35,8 @@ public class RequestHelper {
             Response response = this.getHttpClient(url)
                     .newCall(this.getSignedRequest(this.getRequest(url), this.getNonce(), this.getTimestamp()))
                     .execute();
-            JsonNode node = JsonHelper.OBJECT_MAPPER.readTree(response.body().string());
+            String stringResponse = response.body().string();
+            JsonNode node = JsonHelper.OBJECT_MAPPER.readTree(stringResponse);
             if(response.code()==200){
                 return node;
             } else if (response.code()==429){
@@ -226,7 +227,7 @@ public class RequestHelper {
         } else if (url.contains("/friendships")){
             defaultCache = 0;
         } else if (url.contains("/followers")){
-            defaultCache = 72;
+            defaultCache = 672;
         } else if (url.contains("/users")){
             defaultCache = 168;
         } else if (url.contains("/user_timeline")){

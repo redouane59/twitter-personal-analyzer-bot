@@ -112,7 +112,7 @@ public class URLHelper {
     public String getFollowerIdsUrl(String userId){
         this.followersCount++;
         if(followersCount%5==0) {
-            LOGGER.info(()->"Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+       //     LOGGER.info(()->"Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)
@@ -126,7 +126,7 @@ public class URLHelper {
     public String getFollowerUsersUrl(String userId){
         this.followersCount++;
         if(followersCount%5==0) {
-            LOGGER.info(()->"Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
+          //  LOGGER.info(()->"Followers : " + followersCount + " / " + FOLLOWER_MAX_CALLS);
         }
         return new StringBuilder(ROOT_URL)
                 .append(FOLLOWERS)

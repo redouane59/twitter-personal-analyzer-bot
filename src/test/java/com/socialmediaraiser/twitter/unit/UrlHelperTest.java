@@ -2,12 +2,14 @@ package com.socialmediaraiser.twitter.unit;
 
 import com.socialmediaraiser.twitter.AbstractTwitterBot;
 import com.socialmediaraiser.twitter.FollowProperties;
+import com.socialmediaraiser.twitter.Tweet;
+import com.socialmediaraiser.twitter.User;
+import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twitter.impl.TwitterBotByInfluencers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

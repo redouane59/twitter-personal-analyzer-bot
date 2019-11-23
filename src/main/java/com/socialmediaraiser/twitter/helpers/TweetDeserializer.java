@@ -14,6 +14,7 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
 
     private static final String createdAt = "created_at";
 
+    @Deprecated
     @Override
     public Tweet deserialize(JsonParser parser, DeserializationContext context) throws IOException
     {
@@ -41,6 +42,7 @@ public class TweetDeserializer extends JsonDeserializer<Tweet>
                 .favoriteCount(tweetNode.get("favorite_count").asInt())
                 .retweetCount(tweetNode.get("retweet_count").asInt())
                 .replyCount(tweetNode.get("reply_count").asInt())
+                .inReplyToStatusId(tweetNode.get("in_reply_to_status_id_str").asText())
                 .user(user)
                 .createdAt(JsonHelper.getDateFromTwitterString(tweetNode.get(createdAt).asText()))
                 .build();

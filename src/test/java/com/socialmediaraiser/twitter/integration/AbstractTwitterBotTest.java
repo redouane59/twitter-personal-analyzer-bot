@@ -355,56 +355,161 @@ class AbstractTwitterBotTest {
         users.add(new FollowerAnalyzer.UserGraph("Amk84000",1));
         users.add(new FollowerAnalyzer.UserGraph("GillesClavreul",1));
         users.add(new FollowerAnalyzer.UserGraph("ZinebElRhazoui",2));
-        users.add(new FollowerAnalyzer.UserGraph("printempsrepub",1));
+      //  users.add(new FollowerAnalyzer.UserGraph("printempsrepub",1));
         users.add(new FollowerAnalyzer.UserGraph("ZohraBitan",2));
-        users.add(new FollowerAnalyzer.UserGraph("Jo_delb",1));
-        users.add(new FollowerAnalyzer.UserGraph("Nicolaszeminus",1));
+      //  users.add(new FollowerAnalyzer.UserGraph("Jo_delb",1));
+      //  users.add(new FollowerAnalyzer.UserGraph("Nicolaszeminus",1));
         users.add(new FollowerAnalyzer.UserGraph("ivanrioufol",2));
         users.add(new FollowerAnalyzer.UserGraph("RenaudCamus",2));
-        users.add(new FollowerAnalyzer.UserGraph("Valeurs",2));
+      //  users.add(new FollowerAnalyzer.UserGraph("Valeurs",2));
         users.add(new FollowerAnalyzer.UserGraph("GWGoldnadel",2));
         users.add(new FollowerAnalyzer.UserGraph("edwyplenel",2));
-        users.add(new FollowerAnalyzer.UserGraph("AgagBoudjahlat",2));
-        users.add(new FollowerAnalyzer.UserGraph("RNational_off",3));
-        users.add(new FollowerAnalyzer.UserGraph("MLP_officiel",3));
+        users.add(new FollowerAnalyzer.UserGraph("fabricearfi",2));
+        users.add(new FollowerAnalyzer.UserGraph("davidperrotin",2));
+        users.add(new FollowerAnalyzer.UserGraph("carolinedehaas",2));
+        users.add(new FollowerAnalyzer.UserGraph("RokhayaDiallo",2));
+     //   users.add(new FollowerAnalyzer.UserGraph("BHL",2));
+        users.add(new FollowerAnalyzer.UserGraph("Enthoven_R",2));
+     //   users.add(new FollowerAnalyzer.UserGraph("AgagBoudjahlat",2));
+    //    users.add(new FollowerAnalyzer.UserGraph("RNational_off",3));
+   //     users.add(new FollowerAnalyzer.UserGraph("MLP_officiel",3));
         users.add(new FollowerAnalyzer.UserGraph("MarionMarechal",3));
         users.add(new FollowerAnalyzer.UserGraph("J_Bardella",3));
         users.add(new FollowerAnalyzer.UserGraph("DamienRieu",3));
         users.add(new FollowerAnalyzer.UserGraph("JeanMessiha",3));
-        users.add(new FollowerAnalyzer.UserGraph("F_Desouche",3));
+      //  users.add(new FollowerAnalyzer.UserGraph("F_Desouche",3));
         users.add(new FollowerAnalyzer.UserGraph("RobertMenardFR",3));
         users.add(new FollowerAnalyzer.UserGraph("JulienOdoul",3));
-        users.add(new FollowerAnalyzer.UserGraph("FranceInsoumise",4));
-        users.add(new FollowerAnalyzer.UserGraph("JLMelenchon",4));
+      //  users.add(new FollowerAnalyzer.UserGraph("FranceInsoumise",4));
+      //  users.add(new FollowerAnalyzer.UserGraph("JLMelenchon",4));
+        users.add(new FollowerAnalyzer.UserGraph("Francois_Ruffin",4));
         users.add(new FollowerAnalyzer.UserGraph("Clem_Autain",4));
         users.add(new FollowerAnalyzer.UserGraph("Deputee_Obono",4));
         users.add(new FollowerAnalyzer.UserGraph("alexiscorbiere",4));
         users.add(new FollowerAnalyzer.UserGraph("IanBrossat",4));
-        users.add(new FollowerAnalyzer.UserGraph("pcf",4));
+     //   users.add(new FollowerAnalyzer.UserGraph("pcf",4));
         users.add(new FollowerAnalyzer.UserGraph("fabien_gay",4));
         users.add(new FollowerAnalyzer.UserGraph("MadjidFalastine",4));
-        users.add(new FollowerAnalyzer.UserGraph("PartiIndigenes",4));
-        users.add(new FollowerAnalyzer.UserGraph("partisocialiste",5));
+    //    users.add(new FollowerAnalyzer.UserGraph("PartiIndigenes",4));
+    //    users.add(new FollowerAnalyzer.UserGraph("partisocialiste",5));
         users.add(new FollowerAnalyzer.UserGraph("benoithamon",5));
         users.add(new FollowerAnalyzer.UserGraph("MartineAubry",5));
-        users.add(new FollowerAnalyzer.UserGraph("GenerationsMvt",5));
+      //  users.add(new FollowerAnalyzer.UserGraph("GenerationsMvt",5));
         users.add(new FollowerAnalyzer.UserGraph("rglucks1",5));
         users.add(new FollowerAnalyzer.UserGraph("faureolivier",5));
         users.add(new FollowerAnalyzer.UserGraph("BalasGuillaume",5));
         users.add(new FollowerAnalyzer.UserGraph("Juanico",5));
         users.add(new FollowerAnalyzer.UserGraph("Isabel_thomasEU",5));
-        users.add(new FollowerAnalyzer.UserGraph("lesRepublicains",6));
+        users.add(new FollowerAnalyzer.UserGraph("EstherBenbassa",5));
+     //   users.add(new FollowerAnalyzer.UserGraph("lesRepublicains",6));
         users.add(new FollowerAnalyzer.UserGraph("nadine__morano",6));
         users.add(new FollowerAnalyzer.UserGraph("LydiaGuirous",6));
         users.add(new FollowerAnalyzer.UserGraph("ECiotti",6));
         users.add(new FollowerAnalyzer.UserGraph("ChJacob77",6));
+        users.add(new FollowerAnalyzer.UserGraph("cestrosi",6));
         users.add(new FollowerAnalyzer.UserGraph("T_Bouhafs",7));
         users.add(new FollowerAnalyzer.UserGraph("_MarwanMuhammad",7));
         users.add(new FollowerAnalyzer.UserGraph("FeizaBM",7));
-        users.add(new FollowerAnalyzer.UserGraph("ccif",7));
+      //  users.add(new FollowerAnalyzer.UserGraph("ccif",7));
         users.add(new FollowerAnalyzer.UserGraph("s_assbague",7));
+     /*   users.add(new FollowerAnalyzer.UserGraph("MarleneSchiappa",8));
+        users.add(new FollowerAnalyzer.UserGraph("RichardFerrand",8));
+        users.add(new FollowerAnalyzer.UserGraph("EPhilippePM",8));
+        users.add(new FollowerAnalyzer.UserGraph("CCastaner",8));
+        users.add(new FollowerAnalyzer.UserGraph("EmmanuelMacron",8));
+        users.add(new FollowerAnalyzer.UserGraph("mounir",8)); */
+     // Thinker_View
 
         bot.getJsonGraph(users);
+    }
+
+    @Test
+    public void testLinks(){
+        FollowerAnalyzer.Link link = new FollowerAnalyzer.Link("A","B",0);
+        FollowerAnalyzer.Link link2 = new FollowerAnalyzer.Link("B","A",1);
+        assertTrue(link.equals(link2));
+        assertTrue(link2.equals(link));
+        Set<FollowerAnalyzer.Link> links = new HashSet<>();
+        links.add(link);
+        links.add(link2);
+        assertTrue(links.contains(new FollowerAnalyzer.Link("A","B",-1)));
+        assertTrue(links.contains(new FollowerAnalyzer.Link("B","A",-1)));
+    }
+
+
+    @Test
+    public void testArray() {
+        FollowerAnalyzer bot = new FollowerAnalyzer("RedouaneBali", false, false);
+
+        List<String> users = new ArrayList<>();
+        users.add("LaurentBouvet");
+        users.add("Amk84000");
+      users.add("GillesClavreul");
+        users.add("ZinebElRhazoui");
+          //  users.add("printempsrepub");
+        users.add("ZohraBitan");
+        //  users.add("Jo_delb");
+        //  users.add("Nicolaszeminus");
+        users.add("ivanrioufol");
+        users.add("RenaudCamus");
+        //  users.add("Valeurs");
+        users.add("GWGoldnadel");
+        users.add("edwyplenel");
+        users.add("fabricearfi");
+        users.add("davidperrotin");
+        users.add("carolinedehaas");
+        //   users.add("BHL");
+        users.add("Enthoven_R");
+        //   users.add("AgagBoudjahlat");
+        //    users.add("RNational_off");
+        //     users.add("MLP_officiel");
+        users.add("MarionMarechal");
+        users.add("J_Bardella");
+        users.add("DamienRieu");
+        users.add("JeanMessiha");
+        //  users.add("F_Desouche");
+        users.add("RobertMenardFR");
+        users.add("JulienOdoul");
+        //  users.add("FranceInsoumise");
+        //  users.add("JLMelenchon");
+        users.add("Francois_Ruffin");
+        users.add("Clem_Autain");
+        users.add("Deputee_Obono");
+        users.add("alexiscorbiere");
+        users.add("IanBrossat");
+        //   users.add("pcf");
+        users.add("fabien_gay");
+        users.add("MadjidFalastine");
+        //    users.add("PartiIndigenes");
+        //    users.add("partisocialiste");
+        users.add("benoithamon");
+        users.add("MartineAubry");
+        //  users.add("GenerationsMvt");
+        users.add("rglucks1");
+        users.add("faureolivier");
+        users.add("BalasGuillaume");
+        users.add("Juanico");
+        users.add("Isabel_thomasEU");
+        users.add("EstherBenbassa");
+        //   users.add("lesRepublicains");
+        users.add("nadine__morano");
+        users.add("LydiaGuirous");
+        users.add("ECiotti");
+        users.add("ChJacob77");
+        users.add("cestrosi");
+        users.add("T_Bouhafs");
+        users.add("_MarwanMuhammad");
+        users.add("FeizaBM");
+        //  users.add("ccif");
+        users.add("s_assbague");
+     /*   users.add("MarleneSchiappa");
+        users.add("RichardFerrand");
+        users.add("EPhilippePM");
+        users.add("CCastaner");
+        users.add("EmmanuelMacron");
+        users.add("mounir"); */
+// Thinker_View
+        bot.getArray(users);
     }
 
 

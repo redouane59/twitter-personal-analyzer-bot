@@ -7,9 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.socialmediaraiser.twitter.AbstractTwitterBot;
 import com.socialmediaraiser.twitter.User;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import sun.security.tools.keytool.Main;
 
 import java.io.File;
@@ -88,30 +86,31 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         JsonGraph graph = new JsonGraph();
         graph.setNodes(users);
 
-        Map<String, String> edges = new HashMap<>();
+        Set<Link> studiedLinks = new HashSet<>();
         for(UserGraph user1 : users){
-            int minMatching = 25;
+            int minMatching = 20 ;
             for(UserGraph user2 : users) {
-                if (user1!=user2
-                        && !(edges.containsKey(user1.getId()) && edges.get(user1.getId()).equals(user2.getId()))
-                        && !(edges.containsKey(user2.getId()) && edges.get(user2.getId()).equals(user1.getId()))){
+                if (user1!=user2 && !studiedLinks.contains(new Link(user1.getId(), user2.getId(),0))){
                     HashSet followers1 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user1.getId()).getId()))
                             .orElse(new ArrayList<>()));
                     HashSet followers2 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user2.getId()).getId()))
                             .orElse(new ArrayList<>()));
                     HashSet<String> common = new HashSet<>(followers1);
                     common.retainAll(followers2);
+                    if(followers1.size()>145000 || followers2.size()>145000){
+                        System.out.println("WARNING > 5000");
+                    }
                     int value = 100 * common.size() / Math.min(followers1.size(), followers2.size());
                     if (value > minMatching) {
-                        edges.put(user1.getId(), user2.getId());
-                        System.out.println("***\nlinks added between " + user1.getId() + " & " + user2.getId()
-                                + " (" + (value) + "%)\n***");
+                        System.out.println("*** links added between " + user1.getId() + " & " + user2.getId()
+                                + " (" + (value) + "%) ***");
                         graph.getLinks().add(new Link(user1.getId(), user2.getId(), 1+(value - minMatching)/5));
                     } else{
                         System.out.println("links NOT added between " + user1.getId() + " & " + user2.getId()
                                 + " (" + (value) + "%)");
                     }
                 }
+                studiedLinks.add(new Link(user1.getId(), user2.getId(), 0));
             }
             System.out.println(mapper.writeValueAsString(graph));
         }
@@ -123,6 +122,38 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public void getArray(List<String> users) {
+        int[][] result = new int[users.size()][users.size()];
+//        Set<Link> studiedLinks = new HashSet<>();
+        for(int i=0; i<users.size(); i++){
+            int minMatching = 20 ;
+            for(int j=0;j<users.size(); j++) {
+                String user1 = users.get(i);
+                String user2 = users.get(j);
+                if (!user1.equals(user2) /*&& !studiedLinks.contains(new Link(user1, user2,0))*/){
+                    HashSet followers1 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user1).getId()))
+                            .orElse(new ArrayList<>()));
+                    HashSet followers2 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user2).getId()))
+                            .orElse(new ArrayList<>()));
+                    HashSet<String> common = new HashSet<>(followers1);
+                    common.retainAll(followers2);
+                    if(followers1.size()>145000 || followers2.size()>145000){
+                        System.out.println("WARNING > 5000");
+                    }
+                    int value = 100 * common.size() / Math.min(followers1.size(), followers2.size());
+                        System.out.println("*** links added between " + user1 + " & " + user2
+                                + " (" + (value) + "%) ***");
+                        result[i][j] = value;
+                }
+                //studiedLinks.add(new Link(user1, user2, 0));
+            }
+            System.out.println(result);
+        }
+
+        System.out.println(getList(result, users,";",""));
+
     }
 
     @Override
@@ -144,11 +175,58 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         private HashSet<Link> links = new HashSet<>();
     }
 
-    @Data
+    @Getter
+    @Setter
     @AllArgsConstructor
-    public class Link{
+    public static class Link implements Comparable<Link>{
         private String source;
         private String target;
         private int value;
+
+        @Override
+        public boolean equals(Object o){
+            Link other = (Link)o;
+            return source.equals(other.getSource()) && target.equals(other.getTarget())
+                    || source.equals(other.getTarget()) && target.equals(other.getSource());
+        }
+
+        @Override
+        public int hashCode() {
+            return source.hashCode() + target.hashCode();
+        }
+
+        @Override
+        public int compareTo(Link link) {
+            return Integer.compare(value, link.getValue());
+        }
+    }
+
+    public static String getList(int[][] s, List<String> names, String separator,
+                                 String quote) {
+
+        int          len = s.length;
+        StringBuffer sb   = new StringBuffer(len * 16);
+        sb.append(separator);
+        for(int i=0;i<names.size();i++){
+            sb.append(quote);
+            sb.append(names.get(i));
+            sb.append(quote);
+            sb.append(separator);
+        }
+        sb.append("\n");
+
+        for (int i = 0; i < len; i++) {
+            sb.append(names.get(i));
+            sb.append(separator);
+            for(int j=0; j<len; j++){
+                sb.append(quote);
+                sb.append(s[i][j]);
+                sb.append(quote);
+                sb.append(separator);
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }

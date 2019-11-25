@@ -1,20 +1,20 @@
 package com.socialmediaraiser.twitter.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.socialmediaraiser.twitter.AbstractTwitterBot;
 import com.socialmediaraiser.twitter.User;
 import com.socialmediaraiser.twitter.helpers.dto.getuser.AbstractUser;
 import lombok.*;
-import sun.security.tools.keytool.Main;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class FollowerAnalyzer extends AbstractTwitterBot {
+
+    private static final Logger LOGGER = Logger.getLogger(FollowerAnalyzer.class.getName());
 
     private List<String> unwantedWords = Arrays.asList("aaa", "les", "de", "des", "and", "www","http",
             "https","pour","est","que","par","sur","for","own","chez","com","compte","qui","une","are","dans","pas",
@@ -42,7 +42,7 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         }
 
         Object[] a = map.entrySet().toArray();
-        Arrays.sort(a, (Comparator) (o1, o2) -> ((Map.Entry<String, Integer>) o2).getValue()
+        Arrays.sort(a, (Comparator<Object>) (o1, o2) -> ((Map.Entry<String, Integer>) o2).getValue()
                 .compareTo(((Map.Entry<String, Integer>) o1).getValue()));
         int currentResults = 0;
 
@@ -50,7 +50,7 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
 
         for (Object e : a) {
             Map.Entry<String, Integer> entry = (Map.Entry<String, Integer>) e;
-            System.out.println(entry.getKey() + " : " + entry.getValue());
+            LOGGER.info(entry.getKey() + " : " + entry.getValue());
             result.put(entry.getKey(), entry.getValue());
             currentResults++;
             if(currentResults>=nbResults) break;
@@ -59,13 +59,9 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         return result;
     }
 
-    public int countCommonUsers(String userName1, String userName2){
-        List<String> followers1 = this.getFollowerIds(this.getUserFromUserName(userName1).getId());
-        List<String> followers2 = this.getFollowerIds(this.getUserFromUserName(userName2).getId());
-
-        List<String> common = new ArrayList<>(followers1);
-        common.retainAll(followers2);
-
+    public int countCommonUsers(Set<String> users1, Set<String> users2){
+        Set<String> common = new HashSet<>(users1);
+        common.retainAll(users2);
         return common.size();
     }
 
@@ -80,7 +76,6 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         }
     }
 
-
     public String getJsonGraph(HashSet<UserGraph> users) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonGraph graph = new JsonGraph();
@@ -89,24 +84,19 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         Set<Link> studiedLinks = new HashSet<>();
         for(UserGraph user1 : users){
             int minMatching = 20 ;
+            Set<String> followers1 = this.getUserFollowersIds(this.getUserFromUserName(user1.getId()).getId());
             for(UserGraph user2 : users) {
                 if (user1!=user2 && !studiedLinks.contains(new Link(user1.getId(), user2.getId(),0))){
-                    HashSet followers1 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user1.getId()).getId()))
-                            .orElse(new ArrayList<>()));
-                    HashSet followers2 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user2.getId()).getId()))
-                            .orElse(new ArrayList<>()));
-                    HashSet<String> common = new HashSet<>(followers1);
-                    common.retainAll(followers2);
-                    if(followers1.size()>145000 || followers2.size()>145000){
-                        System.out.println("WARNING > 5000");
-                    }
-                    int value = 100 * common.size() / Math.min(followers1.size(), followers2.size());
+                    Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2.getId()).getId());
+                    int value = computeValue(followers1, followers2);
                     if (value > minMatching) {
-                        System.out.println("*** links added between " + user1.getId() + " & " + user2.getId()
-                                + " (" + (value) + "%) ***");
+                        LOGGER.info("*** links added between "
+                                + user1.getId() + " ("+followers1.size()+" followers) & "
+                                + user2.getId() + " ("+followers2.size() + " followers)" +
+                                " --> " + (value) + "% ***");
                         graph.getLinks().add(new Link(user1.getId(), user2.getId(), 1+(value - minMatching)/5));
                     } else{
-                        System.out.println("links NOT added between " + user1.getId() + " & " + user2.getId()
+                        LOGGER.info("links NOT added between " + user1.getId() + " & " + user2.getId()
                                 + " (" + (value) + "%)");
                     }
                 }
@@ -115,7 +105,6 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
             System.out.println(mapper.writeValueAsString(graph));
         }
         String result = mapper.writeValueAsString(graph);
-        System.out.println(result);
         try {
             mapper.writeValue(new File("twitterGraph.json"), result);
         } catch (IOException e) {
@@ -124,35 +113,29 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         return result;
     }
 
+    private int computeValue(Set<String> followers1, Set<String> followers2){
+        return 100 * countCommonUsers(followers1, followers2) / Math.min(followers1.size(), followers2.size());
+    }
+
     public void getArray(List<String> users) {
         int[][] result = new int[users.size()][users.size()];
-//        Set<Link> studiedLinks = new HashSet<>();
         for(int i=0; i<users.size(); i++){
-            int minMatching = 20 ;
+            String user1 = users.get(i);
+            Set<String> followers1 = this.getUserFollowersIds(this.getUserFromUserName(user1).getId());
             for(int j=0;j<users.size(); j++) {
-                String user1 = users.get(i);
                 String user2 = users.get(j);
-                if (!user1.equals(user2) /*&& !studiedLinks.contains(new Link(user1, user2,0))*/){
-                    HashSet followers1 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user1).getId()))
-                            .orElse(new ArrayList<>()));
-                    HashSet followers2 = new HashSet(Optional.of(this.getFollowerIds(this.getUserFromUserName(user2).getId()))
-                            .orElse(new ArrayList<>()));
-                    HashSet<String> common = new HashSet<>(followers1);
-                    common.retainAll(followers2);
-                    if(followers1.size()>145000 || followers2.size()>145000){
-                        System.out.println("WARNING > 5000");
-                    }
-                    int value = 100 * common.size() / Math.min(followers1.size(), followers2.size());
-                        System.out.println("*** links added between " + user1 + " & " + user2
-                                + " (" + (value) + "%) ***");
-                        result[i][j] = value;
+                if (!user1.equals(user2)){
+                    Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2).getId());
+                    int value = computeValue(followers1, followers2);
+                    LOGGER.info("*** links added between " + user1 + " ("+followers1.size()+") & " + user2
+                            + "(" + followers2.size() +") -> " + (value) + "% ***");
+                    result[i][j] = value;
                 }
-                //studiedLinks.add(new Link(user1, user2, 0));
             }
-            System.out.println(result);
+            LOGGER.info(result.toString());
         }
 
-        System.out.println(getList(result, users,";",""));
+        LOGGER.info(getList(result, users,";",""));
 
     }
 

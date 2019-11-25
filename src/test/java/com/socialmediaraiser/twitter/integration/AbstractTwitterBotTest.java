@@ -349,7 +349,7 @@ class AbstractTwitterBotTest {
     @Test
     public void testJsonScript() throws JsonProcessingException {
         FollowerAnalyzer bot = new FollowerAnalyzer("RedouaneBali", false, false);
-
+        List<String> mel = bot.getFollowerIds(bot.getUserFromUserName("JLMelenchon").getId());
         HashSet<FollowerAnalyzer.UserGraph> users = new HashSet<>();
         users.add(new FollowerAnalyzer.UserGraph("LaurentBouvet",1));
         users.add(new FollowerAnalyzer.UserGraph("Amk84000",1));
@@ -368,11 +368,13 @@ class AbstractTwitterBotTest {
         users.add(new FollowerAnalyzer.UserGraph("davidperrotin",2));
         users.add(new FollowerAnalyzer.UserGraph("carolinedehaas",2));
         users.add(new FollowerAnalyzer.UserGraph("RokhayaDiallo",2));
-     //   users.add(new FollowerAnalyzer.UserGraph("BHL",2));
+        users.add(new FollowerAnalyzer.UserGraph("epelboin",2));
+        users.add(new FollowerAnalyzer.UserGraph("BHL",2));
         users.add(new FollowerAnalyzer.UserGraph("Enthoven_R",2));
+        users.add(new FollowerAnalyzer.UserGraph("PascalPraud",2));
      //   users.add(new FollowerAnalyzer.UserGraph("AgagBoudjahlat",2));
     //    users.add(new FollowerAnalyzer.UserGraph("RNational_off",3));
-   //     users.add(new FollowerAnalyzer.UserGraph("MLP_officiel",3));
+        users.add(new FollowerAnalyzer.UserGraph("MLP_officiel",3));
         users.add(new FollowerAnalyzer.UserGraph("MarionMarechal",3));
         users.add(new FollowerAnalyzer.UserGraph("J_Bardella",3));
         users.add(new FollowerAnalyzer.UserGraph("DamienRieu",3));
@@ -381,7 +383,7 @@ class AbstractTwitterBotTest {
         users.add(new FollowerAnalyzer.UserGraph("RobertMenardFR",3));
         users.add(new FollowerAnalyzer.UserGraph("JulienOdoul",3));
       //  users.add(new FollowerAnalyzer.UserGraph("FranceInsoumise",4));
-      //  users.add(new FollowerAnalyzer.UserGraph("JLMelenchon",4));
+        users.add(new FollowerAnalyzer.UserGraph("JLMelenchon",4));
         users.add(new FollowerAnalyzer.UserGraph("Francois_Ruffin",4));
         users.add(new FollowerAnalyzer.UserGraph("Clem_Autain",4));
         users.add(new FollowerAnalyzer.UserGraph("Deputee_Obono",4));

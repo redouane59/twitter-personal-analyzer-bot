@@ -41,7 +41,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private static final String FOLLOWING = "following";
     private static final String FOLLOWED_BY = "followed_by";
     private static final String SOURCE = "source";
-    private static final int MAX_GET_F_CALLS = 30;
+ //   private static final int MAX_GET_F_CALLS = 30;
 
     public AbstractTwitterBot(String ownerName, boolean follow, boolean saveResults){
         super(new GoogleSheetHelper(ownerName));
@@ -50,6 +50,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         this.saveResults = saveResults;
         this.ownerFollowingIds = this.getFollowingIds(this.getUserFromUserName(ownerName).getId());
     }
+
 
     // can manage up to 5000 results / call . Max 15 calls / 15min ==> 75.000 results max. / 15min
     private List<String> getUserIdsByRelation(String url){
@@ -72,7 +73,31 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
         }
-        while (cursor != null && cursor != 0 && nbCalls < MAX_GET_F_CALLS);
+        while (cursor != null && cursor != 0 /*&& nbCalls < MAX_GET_F_CALLS*/);
+        return result;
+    }
+
+    private Set<String> getUserIdsByRelationSet(String url){
+        Long cursor = -1L;
+        Set<String> result = new HashSet<>();
+        int nbCalls = 1;
+        do {
+            String urlWithCursor = url + "&"+CURSOR+"=" + cursor;
+            JsonNode response = this.getRequestHelper().executeGetRequest(urlWithCursor);
+            if(response!=null && response.has(IDS)){
+                List<String> ids = this.getJsonHelper().jsonLongArrayToList(response);
+                if(ids!=null){
+                    result.addAll(ids);
+                }
+            } else{
+                LOGGER.severe(()->"response null or ids not found !");
+                return result;
+            }
+
+            cursor = this.getJsonHelper().getLongFromCursorObject(response);
+            nbCalls++;
+        }
+        while (cursor != null && cursor != 0 /*&& nbCalls < MAX_GET_F_CALLS*/);
         return result;
     }
 
@@ -93,7 +118,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
             LOGGER.info(result.size() + " | ");
-        } while (cursor != 0 && cursor!=null && nbCalls < MAX_GET_F_CALLS);
+        } while (cursor != 0 && cursor!=null /*&& nbCalls < MAX_GET_F_CALLS*/);
         LOGGER.info("\n");
         return result;
     }
@@ -107,6 +132,11 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
         }
         return this.getUserIdsByRelation(url);
     }
+
+    public Set<String> getUserFollowersIds(String userId){
+        return this.getUserIdsByRelationSet(this.urlHelper.getFollowerIdsUrl(userId));
+    }
+
 
     private List<AbstractUser> getUsersInfoByRelation(String userId, RelationType relationType) {
         String url = null;
@@ -363,7 +393,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             parameters.put(NEXT, next);
             nbCalls++;
         }
-        while (next!= null && nbCalls < MAX_GET_F_CALLS && result.size()<count);
+        while (next!= null /*&& nbCalls < MAX_GET_F_CALLS*/ && result.size()<count);
         return result;
     }
 

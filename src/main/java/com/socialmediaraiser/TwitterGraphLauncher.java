@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.socialmediaraiser.twitter.impl.FollowerAnalyzer;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.logging.Logger;
 
-import static com.socialmediaraiser.twitter.impl.FollowerAnalyzer.*;
+import static com.socialmediaraiser.twitter.impl.FollowerAnalyzer.UserGraph;
 
 public class TwitterGraphLauncher {
 
@@ -33,6 +32,11 @@ public class TwitterGraphLauncher {
         users.add(new UserGraph("BHL",2));
         users.add(new UserGraph("Enthoven_R",2));
         users.add(new UserGraph("PascalPraud",2));
+        users.add(new UserGraph("AlexDevecchio",2));
+        users.add(new UserGraph("T_Bouhafs",2));
+        users.add(new UserGraph("_MarwanMuhammad",2));
+        users.add(new UserGraph("FeizaBM",2));
+        users.add(new UserGraph("s_assbague",2));
         //   users.add(new UserGraph("AgagBoudjahlat",2));
         users.add(new UserGraph("MLP_officiel",3));
         users.add(new UserGraph("MarionMarechal",3));
@@ -49,6 +53,7 @@ public class TwitterGraphLauncher {
         users.add(new UserGraph("IanBrossat",4));
         users.add(new UserGraph("fabien_gay",4));
         users.add(new UserGraph("MadjidFalastine",4));
+        users.add(new UserGraph("EstherBenbassa",4));
         users.add(new UserGraph("benoithamon",5));
         users.add(new UserGraph("MartineAubry",5));
         users.add(new UserGraph("rglucks1",5));
@@ -56,21 +61,18 @@ public class TwitterGraphLauncher {
         users.add(new UserGraph("BalasGuillaume",5));
         users.add(new UserGraph("Juanico",5));
         users.add(new UserGraph("Isabel_thomasEU",5));
-        users.add(new UserGraph("EstherBenbassa",5));
         users.add(new UserGraph("nadine__morano",6));
         users.add(new UserGraph("LydiaGuirous",6));
         users.add(new UserGraph("ECiotti",6));
         users.add(new UserGraph("ChJacob77",6));
         users.add(new UserGraph("cestrosi",6));
-        users.add(new UserGraph("T_Bouhafs",7));
-        users.add(new UserGraph("_MarwanMuhammad",7));
-        users.add(new UserGraph("FeizaBM",7));
-        users.add(new UserGraph("s_assbague",7));
-        users.add(new UserGraph("MarleneSchiappa",8));
-        users.add(new UserGraph("RichardFerrand",8));
-        users.add(new UserGraph("EPhilippePM",8));
-        users.add(new UserGraph("CCastaner",8));
-        users.add(new UserGraph("mounir",8));
+        users.add(new UserGraph("MarleneSchiappa",7));
+        users.add(new UserGraph("RichardFerrand",7));
+        users.add(new UserGraph("EPhilippePM",7));
+        users.add(new UserGraph("CCastaner",7));
+        users.add(new UserGraph("mounir",7));
+        users.add(new UserGraph("StanGuerini",7));
+        users.add(new UserGraph("BGriveaux",7));
         // Thinker_View
         bot.getJsonGraph(users);
     }

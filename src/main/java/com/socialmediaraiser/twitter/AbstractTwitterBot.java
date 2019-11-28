@@ -56,7 +56,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
     private List<String> getUserIdsByRelation(String url){
         Long cursor = -1L;
         List<String> result = new ArrayList<>();
-        int nbCalls = 1;
         do {
             String urlWithCursor = url + "&"+CURSOR+"=" + cursor;
             JsonNode response = this.getRequestHelper().executeGetRequest(urlWithCursor);
@@ -71,16 +70,14 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             }
 
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
-            nbCalls++;
         }
-        while (cursor != null && cursor != 0 /*&& nbCalls < MAX_GET_F_CALLS*/);
+        while (cursor != null && cursor != 0);
         return result;
     }
 
     private Set<String> getUserIdsByRelationSet(String url){
         Long cursor = -1L;
         Set<String> result = new HashSet<>();
-        int nbCalls = 1;
         do {
             String urlWithCursor = url + "&"+CURSOR+"=" + cursor;
             JsonNode response = this.getRequestHelper().executeGetRequest(urlWithCursor);
@@ -95,9 +92,8 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             }
 
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
-            nbCalls++;
         }
-        while (cursor != null && cursor != 0 /*&& nbCalls < MAX_GET_F_CALLS*/);
+        while (cursor != null && cursor != 0);
         return result;
     }
 
@@ -118,7 +114,7 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             cursor = this.getJsonHelper().getLongFromCursorObject(response);
             nbCalls++;
             LOGGER.info(result.size() + " | ");
-        } while (cursor != 0 && cursor!=null /*&& nbCalls < MAX_GET_F_CALLS*/);
+        } while (cursor != 0 && cursor!=null);
         LOGGER.info("\n");
         return result;
     }
@@ -370,7 +366,6 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
 
         String next;
         List<Tweet> result = new ArrayList<>();
-        int nbCalls = 1;
         do {
             JsonNode response = this.getRequestHelper().executePostRequest(url,parameters);
             JsonNode responseArray = null;
@@ -391,9 +386,8 @@ public abstract class AbstractTwitterBot extends AbstractBot implements ITwitter
             }
             next = response.get(NEXT).toString();
             parameters.put(NEXT, next);
-            nbCalls++;
         }
-        while (next!= null /*&& nbCalls < MAX_GET_F_CALLS*/ && result.size()<count);
+        while (next!= null && result.size()<count);
         return result;
     }
 

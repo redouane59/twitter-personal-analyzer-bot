@@ -87,9 +87,9 @@ public class JsonHelper {
                 .build();
     }
 
+    // @todo use custom serializer ?
     public AbstractUser jsonResponseToUserV2(String response) throws IOException {
-        ObjectMapper objectMapper = JsonHelper.OBJECT_MAPPER;
-        UserObjectResponseDTO obj = objectMapper.readValue(response, UserObjectResponseDTO.class);
+        UserObjectResponseDTO obj = JsonHelper.OBJECT_MAPPER.readValue(response, UserObjectResponseDTO.class);
         UserDTO data = obj.getData().get(0);
         IncludesDTO includes = obj.getIncludes();
         List<TweetDTO> mostRecentTweet = null;

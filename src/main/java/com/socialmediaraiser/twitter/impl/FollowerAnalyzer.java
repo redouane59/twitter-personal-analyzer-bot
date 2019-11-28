@@ -65,17 +65,6 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
         return common.size();
     }
 
-    public void countCommonUsers(String userName1, List<String> userNames){
-        List<String> followers1 = this.getFollowerIds(this.getUserFromUserName(userName1).getId());
-
-        for(String userName : userNames){
-            List<String> followers2 = this.getFollowerIds(this.getUserFromUserName(userName).getId());
-            List<String> common = new ArrayList<>(followers1);
-            common.retainAll(followers2);
-            System.out.println(userName1 + " + " + userName + " = " + common.size());
-        }
-    }
-
     public String getJsonGraph(HashSet<UserGraph> users) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonGraph graph = new JsonGraph();
@@ -88,15 +77,18 @@ public class FollowerAnalyzer extends AbstractTwitterBot {
             for(UserGraph user2 : users) {
                 if (user1!=user2 && !studiedLinks.contains(new Link(user1.getId(), user2.getId(),0))){
                     Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2.getId()).getId());
+                    if(followers2==null) continue;
                     int value = computeValue(followers1, followers2);
                     if (value > minMatching) {
                         LOGGER.info("*** links added between "
                                 + user1.getId() + " ("+followers1.size()+" followers) & "
-                                + user2.getId() + " ("+followers2.size() + " followers)" +
-                                " --> " + (value) + "% ***");
+                                + user2.getId() + " ("+followers2.size() + " followers)"
+                                + " --> " + (value) + "% ***");
                         graph.getLinks().add(new Link(user1.getId(), user2.getId(), 1+(value - minMatching)/5));
                     } else{
-                        LOGGER.info("links NOT added between " + user1.getId() + " & " + user2.getId()
+                        LOGGER.info("links NOT added between "
+                                + user1.getId() + " ("+followers1.size()+" followers) & "
+                                + user2.getId() + " ("+followers2.size() + " followers)"
                                 + " (" + (value) + "%)");
                     }
                 }

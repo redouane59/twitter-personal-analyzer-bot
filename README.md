@@ -28,7 +28,7 @@ Based on your last days activities, this bot will search for all users you were 
 Using the Twitter Stream API, this bot will look for live tweets speaking about some keywords you defined previously and will create relation with their authors.
 
 # Core
-Core functions
+Core functions used to call Twitter API.
 
 ## Resources :
 - [Twitter API](https://developer.twitter.com/en/docs) : used to get users or tweets infos, follow & unfollow users, etc.

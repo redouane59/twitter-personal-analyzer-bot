@@ -13,7 +13,7 @@ public class TwitterGraphLauncher {
     private static final Logger LOGGER = Logger.getLogger(TwitterGraphLauncher.class.getName());
 
     public static void main(String[] args) throws JsonProcessingException {
-        FollowerAnalyzer bot = new FollowerAnalyzer("RedTheOne");
+        FollowerAnalyzer bot = new FollowerAnalyzer("RedouaneBali");
         HashSet<UserGraph> users = new HashSet<>();
         users.add(new UserGraph("MarleneSchiappa",3));
         users.add(new UserGraph("RichardFerrand",3));

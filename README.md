@@ -1,4 +1,4 @@
-# Social Media Raiser
+# Bot
 Use API & IA to bring growth to your twitter account !
 
 ## List of available criteria to filter profiles
@@ -31,3 +31,9 @@ Using the Twitter Stream API, this bot will look for live tweets speaking about 
 - [Twitter API](https://developer.twitter.com/en/docs) : used to get users or tweets infos, follow & unfollow users, etc.
 - [Google Sheets API](https://developers.google.com/sheets/api/) : used to write followed users information & statistics on an online google sheet document
 - [Twitter4j](http://twitter4j.org/en/) : used to consume live streaming twitter API
+
+# Core
+Core functions
+
+# Social-graph
+Available here : https://twitter-social-graph.firebaseapp.com/index.html

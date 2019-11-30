@@ -3,6 +3,7 @@
 *.iml
 *.class
 src/main/resources/*
+twitter-core/src/main/resources*
 target/
 */target/**
 */target/*

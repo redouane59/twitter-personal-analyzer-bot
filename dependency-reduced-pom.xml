@@ -21,7 +21,7 @@
           <transformers>
             <transformer>
               <manifestEntries>
-                <Main-Class>com.socialmediaraiser.FollowLauncher</Main-Class>
+                <Main-Class>FollowLauncher</Main-Class>
               </manifestEntries>
             </transformer>
           </transformers>
@@ -54,12 +54,12 @@
     </dependency>
   </dependencies>
   <properties>
-    <appengine-maven-plugin-version>1.3.2</appengine-maven-plugin-version>
+    <maven.compiler.target>11</maven.compiler.target>
     <appengine.target.version>1.9.71</appengine.target.version>
+    <maven.compiler.source>11</maven.compiler.source>
     <appengine.app.version>1</appengine.app.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <appengine-maven-plugin-version>1.3.2</appengine-maven-plugin-version>
   </properties>
 </project>
 

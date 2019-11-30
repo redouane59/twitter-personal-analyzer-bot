@@ -27,13 +27,15 @@ Based on your last days activities, this bot will search for all users you were 
 ### TwitterBotByLiveKeyWords
 Using the Twitter Stream API, this bot will look for live tweets speaking about some keywords you defined previously and will create relation with their authors.
 
+# Core
+Core functions
+
 ## Resources :
 - [Twitter API](https://developer.twitter.com/en/docs) : used to get users or tweets infos, follow & unfollow users, etc.
 - [Google Sheets API](https://developers.google.com/sheets/api/) : used to write followed users information & statistics on an online google sheet document
 - [Twitter4j](http://twitter4j.org/en/) : used to consume live streaming twitter API
 
-# Core
-Core functions
-
 # Social-graph
 Available here : https://twitter-social-graph.firebaseapp.com/index.html
+## Resources :
+- [D3JS](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

@@ -38,4 +38,4 @@ Core functions used to call Twitter API.
 # Social-graph
 Available here : https://twitter-social-graph.firebaseapp.com/index.html
 ## Resources :
-- [D3JS](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.
+- [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

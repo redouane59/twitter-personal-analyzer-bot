@@ -1,4 +1,4 @@
-# Bot
+# bot
 Use API & IA to bring growth to your twitter account !
 
 ## List of available criteria to filter profiles
@@ -27,7 +27,7 @@ Based on your last days activities, this bot will search for all users you were 
 ### TwitterBotByLiveKeyWords
 Using the Twitter Stream API, this bot will look for live tweets speaking about some keywords you defined previously and will create relation with their authors.
 
-# Core
+# core
 Core functions used to call Twitter API.
 
 ## Resources :
@@ -35,7 +35,7 @@ Core functions used to call Twitter API.
 - [Google Sheets API](https://developers.google.com/sheets/api/) : used to write followed users information & statistics on an online google sheet document
 - [Twitter4j](http://twitter4j.org/en/) : used to consume live streaming twitter API
 
-# Social-graph
+# social-graph
 Available here : https://twitter-social-graph.firebaseapp.com/index.html
 ## Resources :
 - [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

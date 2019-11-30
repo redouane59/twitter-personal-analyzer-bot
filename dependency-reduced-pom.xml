@@ -54,16 +54,16 @@
     </dependency>
   </dependencies>
   <properties>
-    <appengine.target.version>1.9.71</appengine.target.version>
-    <sonar.organization>redouane59</sonar.organization>
-    <sonar.login>6a610dc3d5e247beff11113f803c87f12247f1ec</sonar.login>
-    <appengine-maven-plugin-version>1.3.2</appengine-maven-plugin-version>
-    <appengine.app.version>1</appengine.app.version>
-    <sonar.projectKey>redouane59_social-media-raiser</sonar.projectKey>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <maven.compiler.target>11</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <appengine.target.version>1.9.71</appengine.target.version>
+    <sonar.projectKey>redouane59_social-media-raiser</sonar.projectKey>
     <maven.compiler.source>11</maven.compiler.source>
+    <appengine.app.version>1</appengine.app.version>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.login>6a610dc3d5e247beff11113f803c87f12247f1ec</sonar.login>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <sonar.organization>redouane59</sonar.organization>
+    <appengine-maven-plugin-version>1.3.2</appengine-maven-plugin-version>
   </properties>
 </project>
 

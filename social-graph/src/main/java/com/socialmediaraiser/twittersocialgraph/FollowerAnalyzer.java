@@ -2,8 +2,6 @@ package com.socialmediaraiser.twittersocialgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.socialmediaraiser.core.twitter.AbstractTwitterBot;
-import com.socialmediaraiser.core.twitter.FollowProperties;
 import com.socialmediaraiser.core.twitter.TwitterHelper;
 import com.socialmediaraiser.core.twitter.User;
 import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
@@ -97,7 +95,7 @@ public class FollowerAnalyzer extends TwitterHelper {
                 }
                 studiedLinks.add(new Link(user1.getId(), user2.getId(), 0));
             }
-            System.out.println(mapper.writeValueAsString(graph));
+            LOGGER.info(mapper.writeValueAsString(graph));
         }
         String result = mapper.writeValueAsString(graph);
         try {
@@ -130,7 +128,7 @@ public class FollowerAnalyzer extends TwitterHelper {
                     result[i][j] = value;
                 }
             }
-            LOGGER.info(result.toString());
+            LOGGER.info(Arrays.toString(result));
         }
 
         LOGGER.info(getList(result, users,";",""));
@@ -161,6 +159,7 @@ public class FollowerAnalyzer extends TwitterHelper {
 
         @Override
         public boolean equals(Object o){
+            if (o==null || this.getClass() != o.getClass()) return false;
             Link other = (Link)o;
             return source.equals(other.getSource()) && target.equals(other.getTarget())
                     || source.equals(other.getTarget()) && target.equals(other.getSource());

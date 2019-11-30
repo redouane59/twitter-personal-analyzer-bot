@@ -46,6 +46,7 @@ public class TwitterGraphLauncher {
         users.add(new UserGraph("ECiotti",5));
         users.add(new UserGraph("ChJacob77",5));
         users.add(new UserGraph("cestrosi",5));
+        users.add(new UserGraph("vpecresse",5));
         users.add(new UserGraph("MLP_officiel",6));
         users.add(new UserGraph("MarionMarechal",6));
         users.add(new UserGraph("J_Bardella",6));

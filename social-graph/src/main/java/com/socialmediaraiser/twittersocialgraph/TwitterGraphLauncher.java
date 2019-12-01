@@ -2,7 +2,9 @@ package com.socialmediaraiser.twittersocialgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static com.socialmediaraiser.twittersocialgraph.FollowerAnalyzer.*;
@@ -14,6 +16,14 @@ public class TwitterGraphLauncher {
 
     public static void main(String[] args) throws JsonProcessingException {
         FollowerAnalyzer bot = new FollowerAnalyzer("RedouaneBali");
+
+        List<String> user1 = new ArrayList<>();
+        user1.add("LaurentBouvet");
+        List<String> user2 = new ArrayList<>();
+        user2.add("benj_808");
+        user2.add("Jo_delb");
+
+        bot.getCsvArray(user1, user2);
         HashSet<UserGraph> users = new HashSet<>();
         users.add(new UserGraph("MarleneSchiappa",3));
         users.add(new UserGraph("RichardFerrand",3));

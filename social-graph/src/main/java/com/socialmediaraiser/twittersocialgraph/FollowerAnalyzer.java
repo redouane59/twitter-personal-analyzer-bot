@@ -3,8 +3,6 @@ package com.socialmediaraiser.twittersocialgraph;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmediaraiser.core.twitter.TwitterHelper;
-import com.socialmediaraiser.core.twitter.User;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import lombok.*;
 
 import java.io.File;
@@ -16,48 +14,8 @@ public class FollowerAnalyzer extends TwitterHelper {
 
     private static final Logger LOGGER = Logger.getLogger(FollowerAnalyzer.class.getName());
 
-    private List<String> unwantedWords = Arrays.asList("aaa", "les", "de", "des", "and", "www","http",
-            "https","pour","est","que","par","sur","for","own","chez","com","compte","qui","une","are","dans","pas",
-            "the","vous","mes","moi","with","about", "tweets","votre","suis","mon","tout","you","vie","mais","plus","comme",
-            "nous","ans","your","not","non","one","avec","rien","sont","but","tous","bien","ici","son","fais","parle","toi",
-            "quand","aux","sans","être","ses","ils","depuis","avant","ceux","aime","engagent","faire","autres", "com/socialmediaraiser/core/twitter",
-            "nos","notre","même","entre");
-
     public FollowerAnalyzer(String userName) {
         super(userName);
-    }
-
-    public Map<String, Integer> analyzeBios(String userName, int nbResults){
-        List<AbstractUser> users = this.getFollowerUsers(this.getUserFromUserName(userName).getId());
-        HashMap<String, Integer> map = new HashMap<>();
-
-        for(AbstractUser user : users){
-            User u = (User)user;
-            String[] words  = u.getDescription().replace("-","").replaceAll("[^\\p{L}]", " ")
-                    .toLowerCase().split("\\s+");
-            for(String word : words){
-                if(word.length()>2 && !unwantedWords.contains(word)) {
-                    map.put(word, map.getOrDefault(word, 0) + 1);
-                }
-            }
-        }
-
-        Object[] a = map.entrySet().toArray();
-        Arrays.sort(a, (Comparator<Object>) (o1, o2) -> ((Map.Entry<String, Integer>) o2).getValue()
-                .compareTo(((Map.Entry<String, Integer>) o1).getValue()));
-        int currentResults = 0;
-
-        Map<String, Integer> result = new HashMap<>();
-
-        for (Object e : a) {
-            Map.Entry<String, Integer> entry = (Map.Entry<String, Integer>) e;
-            LOGGER.info(entry.getKey() + " : " + entry.getValue());
-            result.put(entry.getKey(), entry.getValue());
-            currentResults++;
-            if(currentResults>=nbResults) break;
-        }
-
-        return result;
     }
 
     public int countCommonUsers(Set<String> users1, Set<String> users2){
@@ -101,7 +59,7 @@ public class FollowerAnalyzer extends TwitterHelper {
         try {
             mapper.writeValue(new File("twitterGraph.json"), result);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.severe(e.toString());
         }
         return result;
     }
@@ -110,10 +68,9 @@ public class FollowerAnalyzer extends TwitterHelper {
         int ratio1 = 100 * countCommonUsers(followers1, followers2) / followers1.size();
         int ratio2 = 100 * countCommonUsers(followers1, followers2) / followers2.size();
         return (ratio1+ratio2)/2;
-        //  return 100 * countCommonUsers(followers1, followers2) / Math.min(followers1.size(), followers2.size());
     }
 
-    public void getArray(List<String> users) {
+    public void getCsvArray(List<String> users) {
         int[][] result = new int[users.size()][users.size()];
         for(int i=0; i<users.size(); i++){
             String user1 = users.get(i);
@@ -130,9 +87,27 @@ public class FollowerAnalyzer extends TwitterHelper {
             }
             LOGGER.info(Arrays.toString(result));
         }
+        LOGGER.info(arrayToCsvString(result, users,";",""));
+    }
 
-        LOGGER.info(getList(result, users,";",""));
-
+    public void getCsvArray(List<String> users, List<String> others){
+        int[][] result = new int[users.size()][users.size()];
+        for(int i=0; i<users.size(); i++){
+            String user1 = users.get(i);
+            Set<String> followers1 = this.getUserFollowersIds(this.getUserFromUserName(user1).getId());
+            for(int j=0;j<others.size(); j++) {
+                String user2 = others.get(j);
+                if (!user1.equals(user2)){
+                    Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2).getId());
+                    int value = computeValue(followers1, followers2);
+                    LOGGER.info("*** links added between " + user1 + " ("+followers1.size()+") & " + user2
+                            + "(" + followers2.size() +") -> " + (value) + "% ***");
+                    result[i][j] = value;
+                }
+            }
+            LOGGER.info(Arrays.toString(result));
+        }
+        LOGGER.info(arrayToCsvString(result, users,";",""));
     }
 
     @Data
@@ -176,8 +151,8 @@ public class FollowerAnalyzer extends TwitterHelper {
         }
     }
 
-    public static String getList(int[][] s, List<String> names, String separator,
-                                 String quote) {
+    public static String arrayToCsvString(int[][] s, List<String> names, String separator,
+                                          String quote) {
 
         int len = s.length;
         StringBuffer sb   = new StringBuffer(len * 16);

@@ -41,17 +41,15 @@ public class FollowProperties {
     }
 
     public static boolean load(String userName) {
-
         if(userName==null) return false;
-
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         try {
             URL yamlFile = FollowProperties.class.getResource("/"+userName+".yaml");
             if(yamlFile==null){
                 LOGGER.severe(()->"yaml file not found at /"+userName+".yaml");
                 return false;
             }
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             Map<String,Object> yaml = mapper.readValue(yamlFile, HashMap.class);
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
             List<ScoringProperty> scoringPropertyList = new ArrayList<>();

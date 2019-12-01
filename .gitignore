@@ -3,7 +3,9 @@
 *.iml
 *.class
 src/main/resources/*
-twitter-core/src/main/resources*
+core/src/main/resources*
+twitter-graph/src/main/resources*
+bot/src/main/resources*
 target/
 */target/**
 */target/*

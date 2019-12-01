@@ -56,7 +56,7 @@
   <properties>
     <maven.compiler.target>11</maven.compiler.target>
     <appengine.target.version>1.9.71</appengine.target.version>
-    <sonar.projectKey>redouane59_social-media-raiser</sonar.projectKey>
+    <sonar.projectKey>redouane59_social-media-raiser-core</sonar.projectKey>
     <maven.compiler.source>11</maven.compiler.source>
     <appengine.app.version>1</appengine.app.version>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>

@@ -3,7 +3,7 @@ package com.socialmediaraiser.twittersocialgraph;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmediaraiser.core.twitter.TwitterHelper;
-import lombok.*;
+import com.socialmediaraiser.twittersocialgraph.impl.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class FollowerAnalyzer extends TwitterHelper {
     }
 
     public void getCsvArray(List<String> users, List<String> others){
-        int[][] result = new int[users.size()][users.size()];
+        int[][] result = new int[users.size()][others.size()];
         for(int i=0; i<users.size(); i++){
             String user1 = users.get(i);
             Set<String> followers1 = this.getUserFollowersIds(this.getUserFromUserName(user1).getId());
@@ -107,55 +107,43 @@ public class FollowerAnalyzer extends TwitterHelper {
             }
             LOGGER.info(Arrays.toString(result));
         }
-        LOGGER.info(arrayToCsvString(result, users,";",""));
+        LOGGER.info(arrayToCsvString(result, users, others,";",""));
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class UserGraph{
-        private String id;
-        private int group;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public class JsonGraph{
-        private HashSet<UserGraph> nodes = new HashSet<>();
-        private HashSet<Link> links = new HashSet<>();
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class Link implements Comparable<Link>{
-        private String source;
-        private String target;
-        private int value;
-
-        @Override
-        public boolean equals(Object o){
-            if (o==null || this.getClass() != o.getClass()) return false;
-            Link other = (Link)o;
-            return source.equals(other.getSource()) && target.equals(other.getTarget())
-                    || source.equals(other.getTarget()) && target.equals(other.getSource());
+    public Map<GroupEnum, Integer> analyzeUser(String user, List<UserGraph> users){
+        Map<GroupEnum, MatchingNumber> map = new HashMap<>();
+        // init map
+        map.put(GroupEnum.EX_GAUCHE, new MatchingNumber(0,0)); // first = sum of %, second = sum of profiles
+        map.put(GroupEnum.PS, new MatchingNumber(0,0));
+        map.put(GroupEnum.LREM, new MatchingNumber(0,0));
+        map.put(GroupEnum.PR, new MatchingNumber(0,0));
+        map.put(GroupEnum.LR, new MatchingNumber(0,0));
+        map.put(GroupEnum.EX_DROITE, new MatchingNumber(0,0));
+        Set<String> userFollowersIds = this.getUserFollowersIds(this.getUserFromUserName(user).getId());
+        for(UserGraph userGraph : users){
+            Set<String> followers = this.getUserFollowersIds(this.getUserFromUserName(userGraph.getId()).getId());
+            int value = this.computeValue(userFollowersIds, followers);
+            map.get(userGraph.getGroupEnum()).incrementMatchingSum(value);
+            map.get(userGraph.getGroupEnum()).incrementNbElements();
         }
 
-        @Override
-        public int hashCode() {
-            return source.hashCode() + target.hashCode();
+        Map<GroupEnum, Integer> result = new HashMap<>();
+        for(Map.Entry<GroupEnum, MatchingNumber> element : map.entrySet()){
+            result.put(element.getKey(), element.getValue().getAverage());
         }
-
-        @Override
-        public int compareTo(Link link) {
-            return Integer.compare(value, link.getValue());
-        }
+        return result;
     }
 
-    public static String arrayToCsvString(int[][] s, List<String> names, String separator,
-                                          String quote) {
+
+
+
+
+
+
+    public static String arrayToCsvString(int[][] s, List<String> names, String separator, String quote) {
 
         int len = s.length;
-        StringBuffer sb   = new StringBuffer(len * 16);
+        StringBuffer sb = new StringBuffer(len * 16);
         sb.append(separator);
         for(int i=0;i<names.size();i++){
             sb.append(quote);
@@ -169,6 +157,35 @@ public class FollowerAnalyzer extends TwitterHelper {
             sb.append(names.get(i));
             sb.append(separator);
             for(int j=0; j<len; j++){
+                sb.append(quote);
+                sb.append(s[i][j]);
+                sb.append(quote);
+                sb.append(separator);
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    public static String arrayToCsvString(int[][] s, List<String> names1, List<String> names2, String separator,
+                                          String quote) {
+
+        int len = s.length;
+        StringBuffer sb = new StringBuffer(len * 16);
+        sb.append(separator);
+        for(int i=0;i<names2.size();i++){
+            sb.append(quote);
+            sb.append(names2.get(i));
+            sb.append(quote);
+            sb.append(separator);
+        }
+        sb.append("\n");
+
+        for (int i = 0; i < len; i++) {
+            sb.append(names1.get(i));
+            sb.append(separator);
+            for(int j=0; j<s[i].length; j++){
                 sb.append(quote);
                 sb.append(s[i][j]);
                 sb.append(quote);

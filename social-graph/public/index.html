@@ -62,7 +62,7 @@ d3.json("profiles.json", function(error, graph) {
     
   var circles = node.append("circle")
       .attr("r", 5)
-      .attr("fill", function(d) { return color(d.group); })
+      .attr("fill", function(d) { return color(d.groupEnum); })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)

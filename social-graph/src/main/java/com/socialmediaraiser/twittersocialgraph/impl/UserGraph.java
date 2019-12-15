@@ -15,6 +15,13 @@ import java.io.IOException;
 public class UserGraph{
     private String id;
     private GroupEnum groupEnum;
+    private int size;
+
+    public UserGraph(String id, GroupEnum groupEnum){
+        this.id = id;
+        this.groupEnum = groupEnum;
+        this.size = 5;
+    }
 
     public static class GroupSerializer extends JsonSerializer<UserGraph> {
 
@@ -25,6 +32,7 @@ public class UserGraph{
             jgen.writeStartObject();
             jgen.writeStringField("id", userGraph.getId());
             jgen.writeNumberField("group", userGraph.getGroupEnum().getGroupId());
+            jgen.writeNumberField("size", userGraph.getSize());
             jgen.writeEndObject();
         }
 

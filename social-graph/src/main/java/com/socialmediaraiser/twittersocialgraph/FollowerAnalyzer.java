@@ -1,18 +1,24 @@
 package com.socialmediaraiser.twittersocialgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmediaraiser.core.twitter.TwitterHelper;
+import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twittersocialgraph.impl.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
 
 public class FollowerAnalyzer extends TwitterHelper {
 
     private static final Logger LOGGER = Logger.getLogger(FollowerAnalyzer.class.getName());
+    private int minMatching = 20 ;
 
     public FollowerAnalyzer(String userName) {
         super(userName);
@@ -24,37 +30,48 @@ public class FollowerAnalyzer extends TwitterHelper {
         return common.size();
     }
 
-    public String getJsonGraph(HashSet<UserGraph> users) throws JsonProcessingException {
+    public String getJsonGraph(HashSet<UserGraph> users) throws IOException, URISyntaxException {
         ObjectMapper mapper = new ObjectMapper();
         JsonGraph graph = new JsonGraph();
         graph.setNodes(users);
 
         Set<Link> studiedLinks = new HashSet<>();
         for(UserGraph user1 : users){
-            int minMatching = 20 ;
-            Set<String> followers1 = this.getUserFollowersIds(this.getUserFromUserName(user1.getId()).getId());
+            LOGGER.info("analyzing " + user1.getId() + " ... ");
+            Set<String> followers1 = loadFollowers(user1.getId());
+            for (Iterator<UserGraph> it = graph.getNodes().iterator(); it.hasNext(); ) {
+                UserGraph f = it.next();
+                if (f.getId() == user1.getId())
+                    f.setSize(this.computeSize(followers1.size()));
+            }
             for(UserGraph user2 : users) {
                 if (user1!=user2 && !studiedLinks.contains(new Link(user1.getId(), user2.getId(),0))){
-                    Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2.getId()).getId());
-                    if(followers2==null) continue;
-                    int value = computeValue(followers1, followers2);
-                    if (value >= minMatching) {
-                        LOGGER.info("*** links added between "
-                                + user1.getId() + " ("+followers1.size()+" followers) & "
-                                + user2.getId() + " ("+followers2.size() + " followers)"
-                                + " --> " + (value) + "% ***");
-                        graph.getLinks().add(new Link(user1.getId(), user2.getId(), 1+(value - minMatching)/5));
+                    AbstractUser user = this.getUserFromUserName(user2.getId());
+                    if(user!=null){
+                        Set<String> followers2 = loadFollowers(user2.getId());
+                        if(followers2==null) continue;
+                        int value = computeValue(followers1, followers2);
+                        if (value >= minMatching) {
+                            LOGGER.info("*** links added between "
+                                    + user1.getId() + " ("+followers1.size()+" followers) & "
+                                    + user2.getId() + " ("+followers2.size() + " followers)"
+                                    + " --> " + (value) + "% ***");
+                            graph.getLinks().add(new Link(user1.getId(), user2.getId(), this.computeLinkValue(value, minMatching)));
+                        } else{
+                           /* LOGGER.info("links NOT added between "
+                                    + user1.getId() + " ("+followers1.size()+" followers) & "
+                                    + user2.getId() + " ("+followers2.size() + " followers)"
+                                    + " (" + (value) + "%)");*/
+                        }
                     } else{
-                        LOGGER.info("links NOT added between "
-                                + user1.getId() + " ("+followers1.size()+" followers) & "
-                                + user2.getId() + " ("+followers2.size() + " followers)"
-                                + " (" + (value) + "%)");
+                        LOGGER.severe("user null");
                     }
                 }
                 studiedLinks.add(new Link(user1.getId(), user2.getId(), 0));
             }
-            LOGGER.info(mapper.writeValueAsString(graph));
         }
+        LOGGER.info("\n"+mapper.writeValueAsString(graph));
+
         String result = mapper.writeValueAsString(graph);
         try {
             mapper.writeValue(new File("twitterGraph.json"), result);
@@ -64,10 +81,56 @@ public class FollowerAnalyzer extends TwitterHelper {
         return result;
     }
 
+    private Set<String> loadFollowers(String userName) throws IOException, URISyntaxException {
+        String fileName = userName+".json";
+        File file = new File("src/main/resources/users/"+fileName);
+        ObjectMapper mapper = new ObjectMapper();
+        if (file.exists()) {
+            try {
+                return mapper.readValue(file, HashSet.class);
+            } catch (Exception e) {
+                LOGGER.severe(userName + " KO!!");
+            }
+        }
+        AbstractUser user = this.getUserFromUserName(userName);
+        if(user==null){
+            LOGGER.severe(userName + "not found");
+            return null;
+        }
+        Set<String> followers = this.getUserFollowersIds(user.getId());
+        File resourcesDirectory = new File("src/main/resources/users/"+fileName);
+        mapper.writeValue(resourcesDirectory, followers);
+        return followers;
+    }
+
     private int computeValue(Set<String> followers1, Set<String> followers2){
         int ratio1 = 100 * countCommonUsers(followers1, followers2) / followers1.size();
         int ratio2 = 100 * countCommonUsers(followers1, followers2) / followers2.size();
         return (ratio1+ratio2)/2;
+   //     int nbTotalFollowers = followers1.size() + followers2.size() - countCommonUsers(followers1, followers2);
+   //     return 100*countCommonUsers(followers1, followers2)/nbTotalFollowers;
+    }
+
+    private int computeLinkValue(int value, int minMatching){
+        return 1+(value - minMatching)/5;
+    }
+
+    private int computeSize(int nbFollowers){
+        if(nbFollowers<50000){
+            return 5;
+        } else if (nbFollowers<100000){
+            return 6;
+        } else if (nbFollowers<150000){
+            return 8;
+        }else if (nbFollowers<200000){
+            return 7;
+        } else if (nbFollowers<250000){
+            return 8;
+        } else if (nbFollowers<500000){
+            return 9;
+        } else{
+            return 10;
+        }
     }
 
     public void getCsvArray(List<String> users) {
@@ -133,12 +196,6 @@ public class FollowerAnalyzer extends TwitterHelper {
         }
         return result;
     }
-
-
-
-
-
-
 
     public static String arrayToCsvString(int[][] s, List<String> names, String separator, String quote) {
 

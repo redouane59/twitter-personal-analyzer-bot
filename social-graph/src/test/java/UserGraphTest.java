@@ -33,7 +33,7 @@ public class UserGraphTest {
         toCompare.add(new UserGraph("GabrielAttal", GroupEnum.LREM));
         toCompare.add(new UserGraph("EPhilippePM", GroupEnum.LREM));
         toCompare.add(new UserGraph("J_Bardella", GroupEnum.EX_DROITE));
-        Map<GroupEnum, Integer> result = analyzer.analyzeUser("LaurentBouvet",toCompare);
+        Map<GroupEnum, Double> result = analyzer.analyzeUser("LaurentBouvet",toCompare);
         assertNotNull(result);
     }
 }

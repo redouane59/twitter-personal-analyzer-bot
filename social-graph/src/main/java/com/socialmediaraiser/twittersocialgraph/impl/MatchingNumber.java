@@ -6,10 +6,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MatchingNumber {
-    private int matchingSum;
+    private double matchingSum;
     private int nbElements;
 
-    public void incrementMatchingSum(int value){
+    public void incrementMatchingSum(double value){
         matchingSum+=value;
     }
 
@@ -17,7 +17,7 @@ public class MatchingNumber {
         nbElements++;
     }
 
-    public int getAverage(){
+    public double getAverage(){
         if(nbElements==0){
             return 0;
         }

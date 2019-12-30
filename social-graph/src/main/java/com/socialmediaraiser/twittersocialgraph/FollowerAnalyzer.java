@@ -1,24 +1,21 @@
 package com.socialmediaraiser.twittersocialgraph;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmediaraiser.core.twitter.TwitterHelper;
 import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twittersocialgraph.impl.*;
-
+import lombok.Data;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.*;
 import java.util.logging.Logger;
 
+@Data
 public class FollowerAnalyzer extends TwitterHelper {
 
     private static final Logger LOGGER = Logger.getLogger(FollowerAnalyzer.class.getName());
-    private int minMatching = 20 ;
+    private double minRatioSimpleMatching = 0.2 ; // if one of the two user has this % of common, draw a 1 minimum link
+    private double minRatioDoubleMatching = 0.1 ; // if the product of the two ratio > this, draw a wider link
 
     public FollowerAnalyzer(String userName) {
         super(userName);
@@ -50,13 +47,16 @@ public class FollowerAnalyzer extends TwitterHelper {
                     if(user!=null){
                         Set<String> followers2 = loadFollowers(user2.getId());
                         if(followers2==null) continue;
-                        int value = computeValue(followers1, followers2);
-                        if (value >= minMatching) {
+                        int commonUsers = countCommonUsers(followers1, followers2);
+                        double value1 = getRatioRelativeValue(followers1, followers2, commonUsers);
+                        double value2 = getRatioRelativeValue(followers2, followers1, commonUsers);
+                        if(shouldDrawLink(value1, value2)){
                             LOGGER.info("*** links added between "
                                     + user1.getId() + " ("+followers1.size()+" followers) & "
-                                    + user2.getId() + " ("+followers2.size() + " followers)"
-                                    + " --> " + (value) + "% ***");
-                            graph.getLinks().add(new Link(user1.getId(), user2.getId(), this.computeLinkValue(value, minMatching)));
+                                    + user2.getId() + " ("+followers2.size() + " followers) | "
+                                    + value1 + " , " + value2 + " ***");
+                            graph.getLinks().add(new Link(user1.getId(), user2.getId(),
+                                    this.computeLinkValue(followers1, followers2)));
                         } else{
                            /* LOGGER.info("links NOT added between "
                                     + user1.getId() + " ("+followers1.size()+" followers) & "
@@ -81,7 +81,7 @@ public class FollowerAnalyzer extends TwitterHelper {
         return result;
     }
 
-    private Set<String> loadFollowers(String userName) throws IOException, URISyntaxException {
+    private Set<String> loadFollowers(String userName) throws IOException {
         String fileName = userName+".json";
         File file = new File("src/main/resources/users/"+fileName);
         ObjectMapper mapper = new ObjectMapper();
@@ -103,16 +103,42 @@ public class FollowerAnalyzer extends TwitterHelper {
         return followers;
     }
 
-    private int computeValue(Set<String> followers1, Set<String> followers2){
-        int ratio1 = 100 * countCommonUsers(followers1, followers2) / followers1.size();
-        int ratio2 = 100 * countCommonUsers(followers1, followers2) / followers2.size();
-        return (ratio1+ratio2)/2;
-   //     int nbTotalFollowers = followers1.size() + followers2.size() - countCommonUsers(followers1, followers2);
-   //     return 100*countCommonUsers(followers1, followers2)/nbTotalFollowers;
+    private boolean shouldDrawLink(Set<String> followers1, Set<String> followers2){
+        int commonUsers = countCommonUsers(followers1, followers2);
+        double value1 = getRatioRelativeValue(followers1, followers2, commonUsers);
+        double value2 = getRatioRelativeValue(followers2, followers1, commonUsers);
+        return shouldDrawLink(value1, value2);
     }
 
-    private int computeLinkValue(int value, int minMatching){
-        return 1+(value - minMatching)/5;
+    private boolean shouldDrawLink(double value1, double value2){
+        return (value1>= minRatioSimpleMatching || value2>= minRatioSimpleMatching);
+    }
+
+    public double getRatioRelativeValue(Set<String> followers1, Set<String> followers2, int commonUsers){
+        double ratio1 = commonUsers / (double)followers1.size();
+        double higherNbFollowers = Math.max(followers1.size(), followers2.size());
+        double lowerNbFollowers = Math.min(followers1.size(), followers2.size());
+        double diffSize = (higherNbFollowers-lowerNbFollowers)/higherNbFollowers;
+        double coeff = 1.95;
+        if(followers1.size()>followers2.size()){
+            return ratio1*(1+coeff*diffSize);
+        } else{
+            return ratio1/(1+coeff*diffSize);
+        }
+    }
+
+    private int computeLinkValue(Set<String> followers1, Set<String> followers2){
+        int commonUsers = countCommonUsers(followers1, followers2);
+        double ratio1 = commonUsers / (double)followers1.size();
+        double ratio2 = commonUsers / (double)followers2.size();
+
+        if ((ratio1*ratio2)>minRatioDoubleMatching){
+            int nbTotalFollowers = followers1.size() + followers2.size() - commonUsers;
+            double value = commonUsers/(double)nbTotalFollowers;
+            return (int)(1+(value - minRatioDoubleMatching)*100);
+        } else{
+            return 1;
+        }
     }
 
     private int computeSize(int nbFollowers){
@@ -121,34 +147,39 @@ public class FollowerAnalyzer extends TwitterHelper {
         } else if (nbFollowers<100000){
             return 6;
         } else if (nbFollowers<150000){
-            return 8;
-        }else if (nbFollowers<200000){
             return 7;
-        } else if (nbFollowers<250000){
+        }else if (nbFollowers<200000){
             return 8;
-        } else if (nbFollowers<500000){
+        } else if (nbFollowers<250000){
             return 9;
+        } else if (nbFollowers<500000){
+            return 11;
+        } else if (nbFollowers<750000){
+            return 13;
+        } else if (nbFollowers<1000000){
+            return 15;
         } else{
-            return 10;
+            return 17;
         }
     }
 
-    public void getCsvArray(List<String> users) {
+    public void getCsvArray(List<UserGraph> users) throws IOException, URISyntaxException {
         int[][] result = new int[users.size()][users.size()];
         for(int i=0; i<users.size(); i++){
-            String user1 = users.get(i);
-            Set<String> followers1 = this.getUserFollowersIds(this.getUserFromUserName(user1).getId());
+            String userName1 = users.get(i).getId();
+            LOGGER.info("*** analysing " +userName1);
+            Set<String> followers1 = this.loadFollowers(userName1);
             for(int j=0;j<users.size(); j++) {
-                String user2 = users.get(j);
-                if (!user1.equals(user2)){
-                    Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2).getId());
-                    int value = computeValue(followers1, followers2);
-                    LOGGER.info("*** links added between " + user1 + " ("+followers1.size()+") & " + user2
-                            + "(" + followers2.size() +") -> " + (value) + "% ***");
+                String userName2 = users.get(j).getId();
+                if (!userName1.equals(userName2)){
+                    Set<String> followers2 = this.loadFollowers(userName2);
+                    int commonFollowers = this.countCommonUsers(followers1, followers2);
+                    int value = 100*commonFollowers/followers1.size();
+                    /*LOGGER.info("*** links added between " + user1 + " ("+followers1.size()+") & " + user2
+                            + "(" + followers2.size() +") -> " + (value) + "% ***");*/
                     result[i][j] = value;
                 }
             }
-            LOGGER.info(Arrays.toString(result));
         }
         LOGGER.info(arrayToCsvString(result, users,";",""));
     }
@@ -162,7 +193,8 @@ public class FollowerAnalyzer extends TwitterHelper {
                 String user2 = others.get(j);
                 if (!user1.equals(user2)){
                     Set<String> followers2 = this.getUserFollowersIds(this.getUserFromUserName(user2).getId());
-                    int value = computeValue(followers1, followers2);
+                    int commonFollowers = this.countCommonUsers(followers1, followers2);
+                    int value = 100*followers1.size()/commonFollowers;
                     LOGGER.info("*** links added between " + user1 + " ("+followers1.size()+") & " + user2
                             + "(" + followers2.size() +") -> " + (value) + "% ***");
                     result[i][j] = value;
@@ -173,9 +205,8 @@ public class FollowerAnalyzer extends TwitterHelper {
         LOGGER.info(arrayToCsvString(result, users, others,";",""));
     }
 
-    public Map<GroupEnum, Integer> analyzeUser(String user, List<UserGraph> users){
+    public Map<GroupEnum, Double> analyzeUser(String user, List<UserGraph> users){
         Map<GroupEnum, MatchingNumber> map = new HashMap<>();
-        // init map
         map.put(GroupEnum.EX_GAUCHE, new MatchingNumber(0,0)); // first = sum of %, second = sum of profiles
         map.put(GroupEnum.PS, new MatchingNumber(0,0));
         map.put(GroupEnum.LREM, new MatchingNumber(0,0));
@@ -185,33 +216,33 @@ public class FollowerAnalyzer extends TwitterHelper {
         Set<String> userFollowersIds = this.getUserFollowersIds(this.getUserFromUserName(user).getId());
         for(UserGraph userGraph : users){
             Set<String> followers = this.getUserFollowersIds(this.getUserFromUserName(userGraph.getId()).getId());
-            int value = this.computeValue(userFollowersIds, followers);
+            double value = 1; //this.computeValue(userFollowersIds, followers);
             map.get(userGraph.getGroupEnum()).incrementMatchingSum(value);
             map.get(userGraph.getGroupEnum()).incrementNbElements();
         }
 
-        Map<GroupEnum, Integer> result = new HashMap<>();
+        Map<GroupEnum, Double> result = new HashMap<>();
         for(Map.Entry<GroupEnum, MatchingNumber> element : map.entrySet()){
             result.put(element.getKey(), element.getValue().getAverage());
         }
         return result;
     }
 
-    public static String arrayToCsvString(int[][] s, List<String> names, String separator, String quote) {
+    public static String arrayToCsvString(int[][] s, List<UserGraph> names, String separator, String quote) {
 
         int len = s.length;
         StringBuffer sb = new StringBuffer(len * 16);
         sb.append(separator);
         for(int i=0;i<names.size();i++){
             sb.append(quote);
-            sb.append(names.get(i));
+            sb.append(names.get(i).getId());
             sb.append(quote);
             sb.append(separator);
         }
         sb.append("\n");
 
         for (int i = 0; i < len; i++) {
-            sb.append(names.get(i));
+            sb.append(names.get(i).getId());
             sb.append(separator);
             for(int j=0; j<len; j++){
                 sb.append(quote);

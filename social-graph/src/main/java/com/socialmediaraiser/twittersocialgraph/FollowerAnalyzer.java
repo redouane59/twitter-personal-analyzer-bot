@@ -18,7 +18,7 @@ public class FollowerAnalyzer extends TwitterHelper {
     private double minRatioDoubleMatching = 0.1 ; // if the product of the two ratio > this, draw a wider link
 
     public FollowerAnalyzer() {
-        super("twitter-credentials.yaml");
+        super("twitter-credentials");
     }
 
     public int countCommonUsers(Set<String> users1, Set<String> users2){

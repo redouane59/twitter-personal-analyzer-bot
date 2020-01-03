@@ -30,7 +30,10 @@ public class User extends AbstractUser {
     User(String id, String userName, int followersCout, int followingCount, String lang, int statusesCount, Date dateOfCreation,
          int commonFollowers, Date dateOfFollow, Date dateOfFollowBack, String description, int favouritesCount,
          Date lastUpdate, String location, List<TweetDTO> mostRecentTweet, boolean protectedAccount){
-        super(id, userName, mostRecentTweet, description, dateOfFollow, protectedAccount, commonFollowers, dateOfFollowBack, new UserScoringEngine(FollowProperties.getTargetProperties().getMinimumPercentMatch()));
+        super(id, userName, mostRecentTweet, description, dateOfFollow, protectedAccount, commonFollowers, dateOfFollowBack, null);
+        if(FollowProperties.getTargetProperties()!=null) {
+            this.setScoringEngine(new UserScoringEngine(FollowProperties.getTargetProperties().getMinimumPercentMatch()));
+        }
         this.followersCount = followersCout;
         this.followingCount = followingCount;
         this.lang = lang;

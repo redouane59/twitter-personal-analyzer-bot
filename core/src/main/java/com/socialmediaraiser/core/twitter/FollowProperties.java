@@ -52,13 +52,16 @@ public class FollowProperties {
             JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             Map<String,Object> yaml = mapper.readValue(yamlFile, HashMap.class);
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
-            List<ScoringProperty> scoringPropertyList = new ArrayList<>();
-            for(Map.Entry<String, Object> p : scoringList.entrySet()){
-                ScoringProperty sp =  JsonHelper.OBJECT_MAPPER.convertValue(p.getValue(), ScoringProperty.class);
-                sp.setCriterion(p.getKey());
-                scoringPropertyList.add(sp);
-            }
+            if(scoringList!=null){
+
+                List<ScoringProperty> scoringPropertyList = new ArrayList<>();
+                for(Map.Entry<String, Object> p : scoringList.entrySet()){
+                    ScoringProperty sp =  JsonHelper.OBJECT_MAPPER.convertValue(p.getValue(), ScoringProperty.class);
+                    sp.setCriterion(p.getKey());
+                    scoringPropertyList.add(sp);
+                }
             scoringProperties = new ScoringProperties(scoringPropertyList);
+            }
             targetProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("target"),TargetProperties.class);
             twitterCredentials = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("twitter-credentials"), TwitterCredentials.class);
             googleCredentials = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);

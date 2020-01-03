@@ -4,6 +4,7 @@ import com.socialmediaraiser.twittersocialgraph.FollowerAnalyzer;
 import com.socialmediaraiser.twittersocialgraph.impl.GroupEnum;
 import com.socialmediaraiser.twittersocialgraph.impl.MatchingNumber;
 import com.socialmediaraiser.twittersocialgraph.impl.UserGraph;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class UserGraphTest {
         assertTrue(json.contains(String.valueOf(GroupEnum.JOURNALISTES_GAUCHE.getGroupId())));
     }
 
-    @Test
+   /* @Test
+    @Disabled
     public void testAnalyzeUser(){
         FollowerAnalyzer analyzer = new FollowerAnalyzer();
         List<UserGraph> toCompare = new ArrayList<>();
@@ -35,5 +37,5 @@ public class UserGraphTest {
         toCompare.add(new UserGraph("J_Bardella", GroupEnum.EX_DROITE));
         Map<GroupEnum, Double> result = analyzer.analyzeUser("LaurentBouvet",toCompare);
         assertNotNull(result);
-    }
+    } */
 }

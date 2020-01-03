@@ -10,6 +10,7 @@ twitter-credentials:
   secretToken: xxx
 ```
 Launch first `mvn clean install` in social-graph repository then launch `com.socialmediaraiser.twittersocialgraph.Launcher`, editing inside the class the accounts you want to analyse.
+The generated json file has to be paste in `social-media-raiser/social-graph/public/profiles.json` to be visualized, launching the `index.html`
 
 ## Resources :
 - [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

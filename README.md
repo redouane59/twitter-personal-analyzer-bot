@@ -1,3 +1,20 @@
+# social-graph
+Demo available here : https://twitter-social-graph.firebaseapp.com/index.html
+
+To use it with your own [twitter developper account](https://developer.twitter.com/en/apply-for-access), add a .yaml file in `social-graph/src/main/resources/<YourUserName>.yaml` of this type 
+```$xslt
+twitter-credentials:
+  consumerKey: xxx
+  consumerSecret: xxx
+  accessToken: xxx
+  secretToken: xxx
+```
+Then launch `com.socialmediaraiser.twittersocialgraph.Launcher` with your userName as argument, editing inside the class the accounts you want to analyse.
+
+## Resources :
+- [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.
+
+
 # bot
 Use API & IA to bring growth to your twitter account !
 
@@ -35,18 +52,3 @@ Core functions used to call Twitter API.
 - [Google Sheets API](https://developers.google.com/sheets/api/) : used to write followed users information & statistics on an online google sheet document
 - [Twitter4j](http://twitter4j.org/en/) : used to consume live streaming twitter API
 
-# social-graph
-Demo available here : https://twitter-social-graph.firebaseapp.com/index.html
-
-To use it with your own [twitter developper account](https://developer.twitter.com/en/apply-for-access), add a .yaml file in `social-graph/src/main/resources/<YourUserName>.yaml` of this type 
-```$xslt
-twitter-credentials:
-  consumerKey: xxx
-  consumerSecret: xxx
-  accessToken: xxx
-  secretToken: xxx
-```
-Then launch `com.socialmediaraiser.twittersocialgraph.Launcher` with your userName as argument, editing inside the class the accounts you want to analyse.
-
-## Resources :
-- [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

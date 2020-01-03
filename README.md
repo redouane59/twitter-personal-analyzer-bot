@@ -36,6 +36,15 @@ Core functions used to call Twitter API.
 - [Twitter4j](http://twitter4j.org/en/) : used to consume live streaming twitter API
 
 # social-graph
-Available here : https://twitter-social-graph.firebaseapp.com/index.html
+Demo available here : https://twitter-social-graph.firebaseapp.com/index.html
+
+To use it with your own twitter developper account, add a .yaml file in `social-graph/src/main/resources/<YourUserName>.yaml`
+```$xslt
+twitter-credentials:
+  consumerKey: xxx
+  consumerSecret: xxx
+  accessToken: xxx
+  secretToken: xxx
+```
 ## Resources :
 - [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

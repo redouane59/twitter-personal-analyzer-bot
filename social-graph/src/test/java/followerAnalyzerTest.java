@@ -10,7 +10,7 @@ public class followerAnalyzerTest {
 
     @Test
     public void testRelativeRatioWithSameSize(){
-        FollowerAnalyzer followerAnalyzer = new FollowerAnalyzer("RedouaneBali");
+        FollowerAnalyzer followerAnalyzer = new FollowerAnalyzer();
         Set<String> followers1 = new HashSet<>();
         followers1.add("1");
         followers1.add("2");
@@ -28,7 +28,7 @@ public class followerAnalyzerTest {
 
     @Test
     public void testRelativeRatioWithDifferentSize(){
-        FollowerAnalyzer followerAnalyzer = new FollowerAnalyzer("RedouaneBali");
+        FollowerAnalyzer followerAnalyzer = new FollowerAnalyzer();
         Set<String> followers1 = new HashSet<>();
         followers1.add("1");
         followers1.add("2");

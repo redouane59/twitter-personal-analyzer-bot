@@ -24,7 +24,7 @@ public class UserGraphTest {
 
     @Test
     public void testAnalyzeUser(){
-        FollowerAnalyzer analyzer = new FollowerAnalyzer("RedouaneBali");
+        FollowerAnalyzer analyzer = new FollowerAnalyzer();
         List<UserGraph> toCompare = new ArrayList<>();
         toCompare.add(new UserGraph("fabien_gay", GroupEnum.EX_GAUCHE));
         toCompare.add(new UserGraph("rglucks1", GroupEnum.PS));

@@ -17,12 +17,7 @@ public class Launcher {
     private static final Logger LOGGER = Logger.getLogger(Launcher.class.getName());
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        if(args.length==0){
-            LOGGER.severe(()->"missing arguments, expecting 1 : ownerName[String]");
-            return;
-        }
-        String ownerName = args[0];
-        FollowerAnalyzer bot = new FollowerAnalyzer(ownerName);
+        FollowerAnalyzer bot = new FollowerAnalyzer();
         HashSet<UserGraph> users = new HashSet<>();
        // List<UserGraph> users = new ArrayList<>();
         users.add(new UserGraph("MarleneSchiappa", GroupEnum.LREM));

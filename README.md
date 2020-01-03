@@ -1,7 +1,7 @@
 # social-graph
 Demo available here : https://twitter-social-graph.firebaseapp.com/index.html
 
-To use it with your own [twitter developper account](https://developer.twitter.com/en/apply-for-access), add a .yaml file in `social-graph/src/main/resources/<YourUserName>.yaml` of this type 
+To use it with your own [twitter developper account](https://developer.twitter.com/en/apply-for-access), add a .yaml file in `social-graph/src/main/resources/twitter-credentials.yaml` of this type 
 ```$xslt
 twitter-credentials:
   consumerKey: xxx
@@ -9,7 +9,7 @@ twitter-credentials:
   accessToken: xxx
   secretToken: xxx
 ```
-Then launch `com.socialmediaraiser.twittersocialgraph.Launcher` with your userName as argument, editing inside the class the accounts you want to analyse.
+Then launch `com.socialmediaraiser.twittersocialgraph.Launcher`, editing inside the class the accounts you want to analyse.
 
 ## Resources :
 - [D3JS (Force Directed Graph with Labels)](https://bl.ocks.org/heybignick/3faf257bbbbc7743bb72310d03b86ee8) : Graph representation.

@@ -17,8 +17,8 @@ public class FollowerAnalyzer extends TwitterHelper {
     private double minRatioSimpleMatching = 0.2 ; // if one of the two user has this % of common, draw a 1 minimum link
     private double minRatioDoubleMatching = 0.1 ; // if the product of the two ratio > this, draw a wider link
 
-    public FollowerAnalyzer(String userName) {
-        super(userName);
+    public FollowerAnalyzer() {
+        super("twitter-credentials.yaml");
     }
 
     public int countCommonUsers(Set<String> users1, Set<String> users2){

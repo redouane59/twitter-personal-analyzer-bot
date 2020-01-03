@@ -17,13 +17,15 @@ public class Launcher {
     private static final Logger LOGGER = Logger.getLogger(Launcher.class.getName());
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        FollowerAnalyzer bot = new FollowerAnalyzer("RedouaneBali");
+        if(args.length==0){
+            LOGGER.severe(()->"missing arguments, expecting 1 : ownerName[String]");
+            return;
+        }
+        String ownerName = args[0];
+        FollowerAnalyzer bot = new FollowerAnalyzer(ownerName);
         HashSet<UserGraph> users = new HashSet<>();
        // List<UserGraph> users = new ArrayList<>();
-      users.add(new UserGraph("Red1", GroupEnum.LREM));
-      users.add(new UserGraph("Karim", GroupEnum.LREM));
-
-       /* users.add(new UserGraph("MarleneSchiappa", GroupEnum.LREM));
+        users.add(new UserGraph("MarleneSchiappa", GroupEnum.LREM));
         users.add(new UserGraph("GabrielAttal", GroupEnum.LREM));
         users.add(new UserGraph("RichardFerrand", GroupEnum.LREM));
         users.add(new UserGraph("EPhilippePM", GroupEnum.LREM));
@@ -137,7 +139,7 @@ public class Launcher {
         //users.add(new UserGraph("BHL", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("CarolineFourest", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("W_Alhusseini", GroupEnum.JOURNALISTES_DROITE));
-        users.add(new UserGraph("alexdelvalle3", GroupEnum.JOURNALISTES_DROITE));*/
+        users.add(new UserGraph("alexdelvalle3", GroupEnum.JOURNALISTES_DROITE));
         bot.getJsonGraph(users);
         //bot.getCsvArray(users);
         return;

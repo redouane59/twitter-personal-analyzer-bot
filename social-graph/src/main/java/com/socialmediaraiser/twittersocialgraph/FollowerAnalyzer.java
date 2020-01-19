@@ -104,7 +104,7 @@ public class FollowerAnalyzer extends TwitterHelper {
                     LOGGER.info("*** links added between "
                             + user1.getId() + " ("+followers1.size()+" followers) & "
                             + user2.getId() + " ("+followers2.size() + " followers) | "
-                            + value1 + " , " + value2 + " ***"); 
+                            + value1 + " , " + value2 + " ***");
                     graph.getLinks().add(new Link(user1.getId(), user2.getId(),
                             this.computeLinkValue(followers1, followers2)));
                     for (UserGraph f : graph.getNodes()) {

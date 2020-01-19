@@ -1,0 +1,53 @@
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+body {
+    min-width: fit-content;
+}
+
+text {
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.bt{
+  background: #333;
+  color: #fdfdfd;
+  min-height: 35px;
+  margin: 0;
+  border-radius: 3px;
+  border: 0;
+  line-height: 35px;
+  text-align: center;
+  margin: .5em 0 .5em 0;
+
+}
+
+a.bt{
+  display: inline;
+  padding: 7px 10px 7px 10px;
+}
+
+.bt:hover{
+  background: #000;
+}
+
+@media only screen and (max-width:480px) {
+  .bt {
+    width: 100%;
+  }
+
+  a.bt{
+    display: block;
+    padding: 0;
+  }
+}
+

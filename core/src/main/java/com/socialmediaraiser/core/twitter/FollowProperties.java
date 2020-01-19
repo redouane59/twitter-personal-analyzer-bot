@@ -8,6 +8,7 @@ import com.socialmediaraiser.core.twitter.properties.*;
 import lombok.Data;
 import lombok.Getter;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,7 +44,8 @@ public class FollowProperties {
     public static boolean load(String userName) {
         if(userName==null) return false;
         try {
-            URL yamlFile = FollowProperties.class.getResource("/"+userName+".yaml");
+           URL yamlFile = FollowProperties.class.getResource("/"+userName+".yaml");
+            //URL yamlFile = new File("/"+userName+".yaml").toURI().toURL();
             if(yamlFile==null){
                 LOGGER.severe(()->"yaml file not found at /"+userName+".yaml");
                 return false;
@@ -74,4 +76,5 @@ public class FollowProperties {
             return false;
         }
     }
+
 }

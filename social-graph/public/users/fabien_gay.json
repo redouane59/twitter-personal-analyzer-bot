@@ -1,0 +1,1 @@
+{"nodes":[{"id":"MaximeCochard_","group":"red","size":5},{"id":"EstherBenbassa","group":"red","size":6},{"id":"fabien_gay","group":"red","size":20},{"id":"IanBrossat","group":"red","size":7}],"links":[{"source":"fabien_gay","target":"MaximeCochard_","value":1},{"source":"fabien_gay","target":"IanBrossat","value":1},{"source":"fabien_gay","target":"EstherBenbassa","value":1}]}

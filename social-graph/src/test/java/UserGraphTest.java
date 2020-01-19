@@ -20,7 +20,7 @@ public class UserGraphTest {
     public void testCustomSerialization() throws JsonProcessingException {
         UserGraph userGraph = new UserGraph("test", GroupEnum.JOURNALISTES_GAUCHE);
         String json = new ObjectMapper().writeValueAsString(userGraph);
-        assertTrue(json.contains(String.valueOf(GroupEnum.JOURNALISTES_GAUCHE.getGroupId())));
+        assertTrue(json.contains(String.valueOf(GroupEnum.JOURNALISTES_GAUCHE.getColor())));
     }
 
    /* @Test

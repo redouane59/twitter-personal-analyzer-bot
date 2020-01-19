@@ -4,18 +4,18 @@ import lombok.Getter;
 
 public enum GroupEnum {
 
-    EX_GAUCHE(1),
-    PS(2),
-    LREM(3),
-    PR(4),
-    LR(5),
-    EX_DROITE(6),
-    JOURNALISTES_DROITE(7),
-    JOURNALISTES_GAUCHE(8);
+    EX_GAUCHE("red"),
+    PS("HotPink"),
+    LREM("Gold"),
+    PR("DarkRed"),
+    LR("DodgerBlue"),
+    EX_DROITE("darkblue"),
+    JOURNALISTES_DROITE("darkgreen"),
+    JOURNALISTES_GAUCHE("green");
 
     @Getter
-    private int groupId;
-    GroupEnum(int groupId) {
-        this.groupId = groupId;
+    private String color;
+    GroupEnum(String color) {
+        this.color = color;
     }
 }

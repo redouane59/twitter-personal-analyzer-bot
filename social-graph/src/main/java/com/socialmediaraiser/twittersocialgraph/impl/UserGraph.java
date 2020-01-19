@@ -31,7 +31,7 @@ public class UserGraph{
                 throws IOException {
             jgen.writeStartObject();
             jgen.writeStringField("id", userGraph.getId());
-            jgen.writeNumberField("group", userGraph.getGroupEnum().getGroupId());
+            jgen.writeStringField("group", userGraph.getGroupEnum().getColor());
             jgen.writeNumberField("size", userGraph.getSize());
             jgen.writeEndObject();
         }

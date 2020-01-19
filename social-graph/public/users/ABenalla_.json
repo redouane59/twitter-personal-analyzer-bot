@@ -1,0 +1,1 @@
+{"nodes":[{"id":"sonjoachim","group":"DodgerBlue","size":7},{"id":"ABenalla_","group":"Gold","size":20},{"id":"EmmanuelMacron","group":"Gold","size":17}],"links":[{"source":"ABenalla_","target":"EmmanuelMacron","value":1},{"source":"ABenalla_","target":"sonjoachim","value":1}]}

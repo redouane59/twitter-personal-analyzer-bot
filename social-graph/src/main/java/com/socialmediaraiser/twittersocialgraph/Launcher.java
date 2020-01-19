@@ -1,9 +1,12 @@
 package com.socialmediaraiser.twittersocialgraph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmediaraiser.twittersocialgraph.impl.GroupEnum;
+import com.socialmediaraiser.twittersocialgraph.impl.JsonGraph;
 import com.socialmediaraiser.twittersocialgraph.impl.UserGraph;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -19,7 +22,7 @@ public class Launcher {
     public static void main(String[] args) throws IOException, URISyntaxException {
         FollowerAnalyzer bot = new FollowerAnalyzer();
         HashSet<UserGraph> users = new HashSet<>();
-       // List<UserGraph> users = new ArrayList<>();
+        // List<UserGraph> users = new ArrayList<>();
         users.add(new UserGraph("MarleneSchiappa", GroupEnum.LREM));
         users.add(new UserGraph("GabrielAttal", GroupEnum.LREM));
         users.add(new UserGraph("RichardFerrand", GroupEnum.LREM));
@@ -28,7 +31,7 @@ public class Launcher {
         users.add(new UserGraph("mounir", GroupEnum.LREM));
         users.add(new UserGraph("StanGuerini", GroupEnum.LREM));
         users.add(new UserGraph("BGriveaux", GroupEnum.LREM));
-      //  users.add(new UserGraph("AgnesCerighelli", GroupEnum.LREM));
+        //  users.add(new UserGraph("AgnesCerighelli", GroupEnum.LREM));
         users.add(new UserGraph("delevoye", GroupEnum.LREM));
         users.add(new UserGraph("agnesbuzyn", GroupEnum.LREM));
         users.add(new UserGraph("SibethNdiaye", GroupEnum.LREM));
@@ -103,30 +106,30 @@ public class Launcher {
         users.add(new UserGraph("ellensalvi", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("IdrissSihamedi", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("RomainCaillet", GroupEnum.JOURNALISTES_GAUCHE));
-       //users.add(new UserGraph("SAbdelhamid", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("clemovitch", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("LeBjrTristesse", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("ncadene", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("J_Rodrigues_Off", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("AnasseKazib", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("askolovitchC", GroupEnum.JOURNALISTES_GAUCHE));
-       //users.add(new UserGraph("TariqRamadan", GroupEnum.JOURNALISTES_GAUCHE));
+        users.add(new UserGraph("jmaphatie", GroupEnum.JOURNALISTES_GAUCHE));
+        //users.add(new UserGraph("TariqRamadan", GroupEnum.JOURNALISTES_GAUCHE));
         users.add(new UserGraph("ZinebElRhazoui", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("ZohraBitan", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("ivanrioufol", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("RenaudCamus", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("GWGoldnadel", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("Enthoven_R", GroupEnum.JOURNALISTES_DROITE));
-      // users.add(new UserGraph("PascalPraud", GroupEnum.JOURNALISTES_DROITE));
+        // users.add(new UserGraph("PascalPraud", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("AlexDevecchio", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("MajidOukacha", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("SJallamion", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("Sifaoui", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("AgagBoudjahlat", GroupEnum.JOURNALISTES_DROITE));
-        users.add(new UserGraph("AlloucheNader", GroupEnum.JOURNALISTES_DROITE));
+        // users.add(new UserGraph("AlloucheNader", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("julienbahloul", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("arnoklarsfeld", GroupEnum.JOURNALISTES_DROITE));
-       users.add(new UserGraph("lauhaim", GroupEnum.JOURNALISTES_DROITE));
+        users.add(new UserGraph("lauhaim", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("ELevyCauseur", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("LeaSalame", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("FrancisKalifat", GroupEnum.JOURNALISTES_DROITE));
@@ -135,8 +138,17 @@ public class Launcher {
         users.add(new UserGraph("CarolineFourest", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("W_Alhusseini", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("alexdelvalle3", GroupEnum.JOURNALISTES_DROITE));
-        bot.getJsonGraph(users);
-        //bot.getCsvArray(users);
+
+        HashSet<UserGraph> others;
+        for(UserGraph user : users){
+            others = new HashSet<>();
+            others.add(user);
+            JsonGraph result = bot.getJsonGraph(others, users);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(new File("public/users/"+user.getId()+".json"), result);
+        }
+
+        //   bot.getCsvArray(users);
         return;
     }
 }

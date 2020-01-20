@@ -51,6 +51,8 @@ public class Launcher {
         users.add(new UserGraph("UPR_Asselineau", GroupEnum.EX_GAUCHE));
         users.add(new UserGraph("MaximeCochard_", GroupEnum.EX_GAUCHE));
         users.add(new UserGraph("olbesancenot", GroupEnum.EX_GAUCHE));
+        users.add(new UserGraph("GuiraudInd", GroupEnum.EX_GAUCHE));
+        users.add(new UserGraph("ericcoquerel", GroupEnum.EX_GAUCHE));
         users.add(new UserGraph("benoithamon", GroupEnum.PS));
         users.add(new UserGraph("MartineAubry", GroupEnum.PS));
         users.add(new UserGraph("rglucks1", GroupEnum.PS));
@@ -138,8 +140,8 @@ public class Launcher {
         users.add(new UserGraph("CarolineFourest", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("W_Alhusseini", GroupEnum.JOURNALISTES_DROITE));
         users.add(new UserGraph("alexdelvalle3", GroupEnum.JOURNALISTES_DROITE));
-/*
-        HashSet<UserGraph> others;
+
+   /*     HashSet<UserGraph> others;
         for(UserGraph user : users){
             others = new HashSet<>();
             others.add(user);
@@ -148,14 +150,16 @@ public class Launcher {
             mapper.writeValue(new File("public/users/"+user.getId()+".json"), result);
         } */
 
-        HashSet<UserGraph> others = new HashSet<>();
-        UserGraph user = new UserGraph("AlloucheNader", GroupEnum.JOURNALISTES_DROITE);
+       /* HashSet<UserGraph> others = new HashSet<>();
+        UserGraph user = new UserGraph("GuiraudInd", GroupEnum.JOURNALISTES_DROITE);
         others.add(user);
         JsonGraph result = bot.getJsonGraph(others, users);
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(new File("public/users/"+user.getId()+".json"), result);
 
-        bot.getJsonGraph(others, users);
+        bot.getJsonGraph(others, users);*/
+
+       bot.getJsonGraph(users);
         //   bot.getCsvArray(users);
         return;
     }

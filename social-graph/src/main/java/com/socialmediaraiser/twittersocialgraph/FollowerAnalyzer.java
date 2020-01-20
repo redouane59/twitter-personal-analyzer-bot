@@ -27,7 +27,7 @@ public class FollowerAnalyzer extends TwitterHelper {
         return common.size();
     }
 
-    public String getJsonGraph(HashSet<UserGraph> users) throws IOException {
+    public JsonGraph getJsonGraph(HashSet<UserGraph> users) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonGraph graph = new JsonGraph();
         graph.setNodes(users);
@@ -78,7 +78,8 @@ public class FollowerAnalyzer extends TwitterHelper {
         } catch (IOException e) {
             LOGGER.severe(e.toString());
         }
-        return result;
+        mapper.writeValue(new File("public/profiles.json"), graph);
+        return graph;
     }
 
     public JsonGraph getJsonGraph(HashSet<UserGraph> usersToAnalyze, HashSet<UserGraph> users) throws IOException {
@@ -124,6 +125,7 @@ public class FollowerAnalyzer extends TwitterHelper {
         } catch (IOException e) {
             LOGGER.severe(e.toString());
         }
+
         return graph;
     }
 

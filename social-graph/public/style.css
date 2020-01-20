@@ -3,6 +3,20 @@
   stroke-opacity: 0.6;
 }
 
+#main{
+
+}
+
+svg{
+    width:100%;
+    height:1400px;
+}
+
+.nodes{
+width:100%
+margin-top:10px;
+}
+
 .nodes circle {
   stroke: #fff;
   stroke-width: 1.5px;
@@ -31,6 +45,12 @@ text {
 
 }
 
+body{
+display: flex;
+  flex-direction: column;
+
+}
+
 a.bt{
   display: inline;
   padding: 7px 10px 7px 10px;
@@ -43,6 +63,7 @@ a.bt{
 @media only screen and (max-width:480px) {
   .bt {
     width: 100%;
+    font-size: 30px;
   }
 
   a.bt{

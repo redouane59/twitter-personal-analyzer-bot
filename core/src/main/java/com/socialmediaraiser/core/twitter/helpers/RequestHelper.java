@@ -214,8 +214,8 @@ public class RequestHelper {
                 .consumerSecret(FollowProperties.getTwitterCredentials().getConsumerSecret())
                 .accessToken(FollowProperties.getTwitterCredentials().getAccessToken())
                 .accessSecret(FollowProperties.getTwitterCredentials().getSecretToken())
-               // .oauthNonce(nonce)
-               // .oauthTimeStamp(timestamp)
+             //   .oauthNonce(nonce)
+             //   .oauthTimeStamp(timestamp)
                 .build();
 
         try {

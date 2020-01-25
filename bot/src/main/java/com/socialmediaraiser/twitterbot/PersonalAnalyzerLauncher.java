@@ -36,7 +36,7 @@ public class PersonalAnalyzerLauncher {
                 TimeUnit.MILLISECONDS.sleep(700);
                 LOGGER.info("adding " + user.getUsername() + "...");
             }
-            bot.getIoHelper().addAllFollowers(followers);
+            LOGGER.info("finish with success");
         }
     }
 

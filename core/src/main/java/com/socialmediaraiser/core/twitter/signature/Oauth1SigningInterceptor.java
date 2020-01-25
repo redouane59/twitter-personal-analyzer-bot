@@ -1,5 +1,4 @@
 package com.socialmediaraiser.core.twitter.signature;
-
 /*
  * Copyright (C) 2015 Jake Wharton
  *
@@ -15,10 +14,14 @@ package com.socialmediaraiser.core.twitter.signature;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.google.common.escape.Escaper;
+import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.Clock;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
@@ -31,6 +34,8 @@ import okio.Buffer;
 import okio.ByteString;
 
 public final class Oauth1SigningInterceptor implements Interceptor {
+    private static final Escaper ESCAPER_FORM = UrlEscapers.urlFormParameterEscaper();
+    private static final Escaper ESCAPER_PATH = UrlEscapers.urlPathSegmentEscaper();
     private static final String OAUTH_CONSUMER_KEY = "oauth_consumer_key";
     private static final String OAUTH_NONCE = "oauth_nonce";
     private static final String OAUTH_SIGNATURE = "oauth_signature";
@@ -66,10 +71,10 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         byte[] nonce = new byte[32];
         random.nextBytes(nonce);
         String oauthNonce = ByteString.of(nonce).base64().replaceAll("\\W", "");
-        String oauthTimestamp = clock.millis();
+        String oauthTimestamp = String.valueOf(new Timestamp(System.currentTimeMillis()).getTime()).substring(0,10);
 
-        String consumerKeyValue = UrlEscapeUtils.escape(consumerKey);
-        String accessTokenValue = UrlEscapeUtils.escape(accessToken);
+        String consumerKeyValue = ESCAPER_FORM.escape(consumerKey);
+        String accessTokenValue = ESCAPER_FORM.escape(accessToken);
 
         SortedMap<String, String> parameters = new TreeMap<>();
         parameters.put(OAUTH_CONSUMER_KEY, consumerKeyValue);
@@ -81,16 +86,14 @@ public final class Oauth1SigningInterceptor implements Interceptor {
 
         HttpUrl url = request.url();
         for (int i = 0; i < url.querySize(); i++) {
-            parameters.put(UrlEscapeUtils.escape(url.queryParameterName(i)),
-                    UrlEscapeUtils.escape(url.queryParameterValue(i)));
+            parameters.put(ESCAPER_FORM.escape(url.queryParameterName(i)),
+                    ESCAPER_FORM.escape (url.queryParameterValue(i)));
         }
-
-        Buffer body = new Buffer();
 
         RequestBody requestBody = request.body();
-        if (requestBody != null) {
+        Buffer body = new Buffer();
+        if(requestBody!=null)
             requestBody.writeTo(body);
-        }
 
         while (!body.exhausted()) {
             long keyEnd = body.indexOf((byte) '=');
@@ -109,21 +112,20 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         String method = request.method();
         base.writeUtf8(method);
         base.writeByte('&');
-        base.writeUtf8(
-                UrlEscapeUtils.escape(request.url().newBuilder().query(null).build().toString()));
+        base.writeUtf8(ESCAPER_FORM.escape(request.url().newBuilder().query(null).build().toString()));
         base.writeByte('&');
 
         boolean first = true;
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
-            if (!first) base.writeUtf8(UrlEscapeUtils.escape("&"));
+            if (!first) base.writeUtf8(ESCAPER_FORM.escape("&"));
             first = false;
-            base.writeUtf8(UrlEscapeUtils.escape(entry.getKey()));
-            base.writeUtf8(UrlEscapeUtils.escape("="));
-            base.writeUtf8(UrlEscapeUtils.escape(entry.getValue()));
+            base.writeUtf8(ESCAPER_FORM.escape(entry.getKey()));
+            base.writeUtf8(ESCAPER_FORM.escape("="));
+            base.writeUtf8(ESCAPER_FORM.escape(entry.getValue().replace("+","%20")));
         }
 
         String signingKey =
-                UrlEscapeUtils.escape(consumerSecret) + "&" + UrlEscapeUtils.escape(accessSecret);
+                ESCAPER_FORM.escape(consumerSecret) + "&" + ESCAPER_FORM.escape(accessSecret);
 
         SecretKeySpec keySpec = new SecretKeySpec(signingKey.getBytes(), "HmacSHA1");
         Mac mac;
@@ -136,14 +138,18 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         byte[] result = mac.doFinal(base.readByteArray());
         String signature = ByteString.of(result).base64();
 
-        String authorization =
-                "OAuth " + OAUTH_CONSUMER_KEY + "=\"" + consumerKeyValue + "\", " + OAUTH_NONCE + "=\""
-                        + oauthNonce + "\", " + OAUTH_SIGNATURE + "=\"" + UrlEscapeUtils.escape(signature)
-                        + "\", " + OAUTH_SIGNATURE_METHOD + "=\"" + OAUTH_SIGNATURE_METHOD_VALUE + "\", "
-                        + OAUTH_TIMESTAMP + "=\"" + oauthTimestamp + "\", " + OAUTH_ACCESS_TOKEN + "=\""
-                        + accessTokenValue + "\", " + OAUTH_VERSION + "=\"" + OAUTH_VERSION_VALUE + "\"";
+        String authorization = "OAuth "
+                + OAUTH_CONSUMER_KEY + "=\"" + consumerKeyValue + "\", "
+                + OAUTH_NONCE + "=\"" + oauthNonce + "\", "
+                + OAUTH_SIGNATURE + "=\"" + ESCAPER_FORM.escape(signature) + "\", "
+                + OAUTH_SIGNATURE_METHOD + "=\"" + OAUTH_SIGNATURE_METHOD_VALUE + "\", "
+                + OAUTH_TIMESTAMP + "=\"" + oauthTimestamp + "\", "
+                + OAUTH_ACCESS_TOKEN + "=\"" + accessTokenValue + "\", "
+                + OAUTH_VERSION + "=\"" + OAUTH_VERSION_VALUE + "\"";
 
-        return request.newBuilder().addHeader("Authorization", authorization).build();
+        return request.newBuilder()
+                .addHeader("Authorization", authorization)
+                .build();
     }
 
     public static final class Builder {
@@ -152,7 +158,7 @@ public final class Oauth1SigningInterceptor implements Interceptor {
         private String accessToken;
         private String accessSecret;
         private Random random = new SecureRandom();
-        private Clock clock = new Clock();
+        private Clock clock = Clock.systemUTC();
 
         public Builder consumerKey(String consumerKey) {
             if (consumerKey == null) throw new NullPointerException("consumerKey = null");
@@ -195,16 +201,8 @@ public final class Oauth1SigningInterceptor implements Interceptor {
             if (consumerSecret == null) throw new IllegalStateException("consumerSecret not set");
             if (accessToken == null) throw new IllegalStateException("accessToken not set");
             if (accessSecret == null) throw new IllegalStateException("accessSecret not set");
-            return new Oauth1SigningInterceptor(consumerKey, consumerSecret, accessToken, accessSecret,
-                    random, clock);
-        }
-    }
-
-    /** Simple clock like class, to allow time mocking. */
-    static class Clock {
-        /** Returns the current time in milliseconds divided by 1K. */
-        public String millis() {
-            return Long.toString(System.currentTimeMillis() / 1000L);
+            return new Oauth1SigningInterceptor(consumerKey, consumerSecret, accessToken, accessSecret, random,
+                    clock);
         }
     }
 }

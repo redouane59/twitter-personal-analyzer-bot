@@ -296,7 +296,7 @@ class TwitterHelperTest {
 
     @Test
     public void testSearchForTweets() {
-        List<Tweet> results = twitterHelper.searchForLast100Tweets30days("@RedTheOne has:mentions");
+        List<Tweet> results = twitterHelper.searchForLast100Tweets30days("@RedTheOne -RT");
         assertNotNull(results);
         assertTrue(results.size() > 0);
     }

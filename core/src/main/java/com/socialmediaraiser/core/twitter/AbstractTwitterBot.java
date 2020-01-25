@@ -239,9 +239,11 @@ public abstract class AbstractTwitterBot {
             }
         }
         // checking the reploy other gave me (40 days)
-        List<Tweet> tweetWithReplies = this.getTwitterHelper().searchForLast100Tweets30days("@"+userName);
+        List<Tweet> tweetWithReplies = this.getTwitterHelper().searchForLast100Tweets30days("@"+userName); // @todo to edit with has:mentions
         for(Tweet tweet : tweetWithReplies){
-            result.put(tweet.getUser().getId(), 1+result.getOrDefault(tweet.getUser().getId(), 0));
+            if(!tweet.getText().contains("RT")){
+                result.put(tweet.getUser().getId(), 1+result.getOrDefault(tweet.getUser().getId(), 0));
+            }
         }
         return result;
     }

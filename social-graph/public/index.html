@@ -49,15 +49,20 @@ var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
+var xCenter = screen.width/2;
+if(screen.width<500){
+    xCenter = 120+screen.width;
+}
+var yCenter = 500;
 var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function(d) { return d.id; }))
 	.force("charge",
 	d3.forceManyBody()
-	.strength(function(){return -45})
+	.strength(function(){return -40})
 	.theta(function(){return 0.9})
 	)
-    .force("collide", d3.forceCollide(45))
-    .force("center", d3.forceCenter(50+screen.width/2, 500));
+    .force("collide", d3.forceCollide(38))
+    .force("center", d3.forceCenter(xCenter, 500));
 
 var url = new URL(window.location.href);
 var userParam = url.searchParams.get("user");
@@ -66,7 +71,8 @@ var jsonFile = "profiles.json";
 if(userParam!=null){
    jsonFile = "users/"+userParam+".json";
    console.log(jsonFile);
-   simulation.force("center", d3.forceCenter(50+screen.width/2, 300));
+   simulation.force("center", d3.forceCenter(xCenter, 300))
+   .force("collide", d3.forceCollide(50));
 }
 d3.json(jsonFile, function(error, graph) {
   if (error) throw error;

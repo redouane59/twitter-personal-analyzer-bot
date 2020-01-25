@@ -30,6 +30,7 @@ public class URLHelper {
     private static final String TWEETS = "/tweets";
     private static final String SEARCH = "/search";
     private static final String THIRTY_DAYS = "/30day";
+    private static final String FULL_ARCHIVE = "/fullarchive";
     private static final String DEV_ENV_NAME = "/dev"; // @todo config
     private static final String ACCOUNT_ACTIVITY = "/account_activity/all";
     private static final String WEBHOOKS = "/webhooks";
@@ -278,12 +279,30 @@ public class URLHelper {
         return null;
     }
 
-    public String getSearchTweetsUrl() {
+    public String getSearchTweets30daysUrl() {
         return new StringBuilder(ROOT_URL)
                 .append(TWEETS)
                 .append(SEARCH)
                 .append(THIRTY_DAYS)
                 .append(DEV_ENV_NAME)
+                .append(".json")
+                .toString();
+    }
+
+    public String getSearchTweetsUrlFull() {
+        return new StringBuilder(ROOT_URL)
+                .append(TWEETS)
+                .append(SEARCH)
+                .append(FULL_ARCHIVE)
+                .append(DEV_ENV_NAME)
+                .append(".json")
+                .toString();
+    }
+
+    public String getSearchTweetUrlStandard(){
+        return new StringBuilder(ROOT_URL)
+                .append(SEARCH)
+                .append(TWEETS)
                 .append(".json")
                 .toString();
     }

@@ -33,6 +33,7 @@ public abstract class AbstractUser implements IUser {
     private int commonFollowers; // nb of occurrences in followers search
     private Date dateOfFollowBack;
     private UserScoringEngine scoringEngine;
+    private int nbInteractions;
 
     @Override
     public boolean equals(Object o) {

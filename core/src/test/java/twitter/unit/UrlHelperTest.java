@@ -102,8 +102,25 @@ public class UrlHelperTest {
     public void testSearchTweetsUrl(){
         //https://api.twitter.com/1.1/tweets/search/30day/DevImproveMyTwitter.json
         assertEquals("https://api.twitter.com/1.1/tweets/search/30day/dev.json",
-                urlHelper.getSearchTweetsUrl());
+                urlHelper.getSearchTweets30daysUrl());
     }
+
+    @Test
+    public void testSearchTweetsUrlFull(){
+        // /search/fullarchive/:label.json
+        assertEquals("https://api.twitter.com/1.1/tweets/search/fullarchive/dev.json",
+                urlHelper.getSearchTweetsUrlFull());
+    }
+
+    @Test
+    public void testSearchTweetsUrlStandard(){
+        https://api.twitter.com/1.1/search/tweets.json
+        assertEquals("https://api.twitter.com/1.1/search/tweets.json",
+                urlHelper.getSearchTweetUrlStandard());
+    }
+
+
+
 
     @Test
     public void testLiveEventUrl(){

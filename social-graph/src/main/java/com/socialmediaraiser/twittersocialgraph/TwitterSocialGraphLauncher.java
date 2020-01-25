@@ -1,23 +1,17 @@
 package com.socialmediaraiser.twittersocialgraph;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmediaraiser.twittersocialgraph.impl.GroupEnum;
-import com.socialmediaraiser.twittersocialgraph.impl.JsonGraph;
 import com.socialmediaraiser.twittersocialgraph.impl.UserGraph;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.logging.Logger;
 
 
-public class Launcher {
+public class TwitterSocialGraphLauncher {
 
-    private static final Logger LOGGER = Logger.getLogger(Launcher.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TwitterSocialGraphLauncher.class.getName());
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         FollowerAnalyzer bot = new FollowerAnalyzer();
@@ -161,7 +155,6 @@ public class Launcher {
 
        bot.getJsonGraph(users);
         //   bot.getCsvArray(users);
-        return;
     }
 }
 

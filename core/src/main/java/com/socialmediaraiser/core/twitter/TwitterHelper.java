@@ -7,6 +7,7 @@ import com.socialmediaraiser.core.RelationType;
 import com.socialmediaraiser.core.twitter.helpers.JsonHelper;
 import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
 import com.socialmediaraiser.core.twitter.helpers.URLHelper;
+import com.socialmediaraiser.core.twitter.helpers.dto.ConverterHelper;
 import com.socialmediaraiser.core.twitter.helpers.dto.getrelationship.RelationshipDTO;
 import com.socialmediaraiser.core.twitter.helpers.dto.getrelationship.RelationshipObjectResponseDTO;
 import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
@@ -293,7 +294,7 @@ public class TwitterHelper implements ITwitterBot, InfoGetter, ActionPerformer {
 
     public List<Tweet> searchForTweetAnswers(String tweetId, String userName, String fromDate, String toDate){
 
-        List<Tweet> all = this.searchForTweets("@"+userName, 10000, fromDate, toDate);
+        List<Tweet> all = this.searchForTweets("@"+userName, 10000, fromDate, toDate, this.getUrlHelper().getSearchTweets30daysUrl());
         List<Tweet> result = new ArrayList<>();
         for(Tweet tweet : all){
             if(tweet.getId().equals(tweetId)){
@@ -302,11 +303,44 @@ public class TwitterHelper implements ITwitterBot, InfoGetter, ActionPerformer {
         }
         return result;
     }
-    // @todo remove count
+    // @todo remove count + add default function fort last 30 days
     // date with yyyyMMddHHmm format
-    @Override
-    public List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate){
+    public List<Tweet> searchForLast100Tweets30days(String query){
+        int count = 100;
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("query",query);
+        parameters.put("maxResults",String.valueOf(count));
+        parameters.put("fromDate",ConverterHelper.getStringFromDate(ConverterHelper.dayBefore(30)));
+        parameters.put("toDate", ConverterHelper.getStringFromDate(ConverterHelper.minutesBefore(75)));
 
+        String next;
+        List<Tweet> result = new ArrayList<>();
+        do {
+            JsonNode response = this.getRequestHelper().executeGetRequestWithParameters(this.getUrlHelper().getSearchTweets30daysUrl(),parameters);
+            JsonNode responseArray = null;
+            try {
+                responseArray = JsonHelper.OBJECT_MAPPER.readTree(response.get("results").toString());
+            } catch (IOException e) {
+                LOGGER.severe(e.getMessage());
+            }
+
+            if(response!=null && response.size()>0){
+                result.addAll(this.getJsonHelper().jsonResponseToTweetListV2(responseArray));
+            } else{
+                LOGGER.severe(()->"response null or ids not found !");
+            }
+
+            if(!response.has(NEXT)){
+                break;
+            }
+            next = response.get(NEXT).toString();
+            parameters.put(NEXT, next);
+        }
+        while (next!= null && result.size()<count);
+        return result;
+    }
+    @Override
+    public List<Tweet> searchForTweets(String query, int count, String fromDate, String toDate, String url){
         if(count<10){
             count = 10;
             LOGGER.severe(()->"count minimum = 10");
@@ -315,7 +349,6 @@ public class TwitterHelper implements ITwitterBot, InfoGetter, ActionPerformer {
             count = 100;
             LOGGER.severe(()->"count maximum = 100");
         }
-        String url = this.getUrlHelper().getSearchTweetsUrl();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("query",query);
         parameters.put("maxResults",String.valueOf(count));
@@ -325,7 +358,12 @@ public class TwitterHelper implements ITwitterBot, InfoGetter, ActionPerformer {
         String next;
         List<Tweet> result = new ArrayList<>();
         do {
-            JsonNode response = this.getRequestHelper().executePostRequest(url,parameters);
+            JsonNode response;
+            if(url.equals(this.getUrlHelper().getSearchTweetUrlStandard())){
+                response = this.getRequestHelper().executeGetRequestWithParameters(url,parameters);
+            } else{
+                response = this.getRequestHelper().executePostRequest(url,parameters);
+            }
             JsonNode responseArray = null;
             try {
                 responseArray = JsonHelper.OBJECT_MAPPER.readTree(response.get("results").toString());

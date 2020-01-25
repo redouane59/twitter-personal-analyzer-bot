@@ -3,7 +3,6 @@ package integration;
 import com.socialmediaraiser.core.RelationType;
 import com.socialmediaraiser.core.twitter.*;
 import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
-import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
 import com.socialmediaraiser.core.twitter.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TwitterHelperTest {
 
-    private static String ownerName = "RedouaneBali";
+    private static String ownerName = "RedTheOne";
     private TwitterHelper twitterHelper = new TwitterHelper(ownerName);
 
     @BeforeAll
@@ -29,7 +28,6 @@ class TwitterHelperTest {
         List<String> followings = twitterHelper.getFollowingIds("882266619115864066");
         assertTrue(followings.size() > 200);
     }
-
 
     @Test
     @Disabled
@@ -285,15 +283,22 @@ class TwitterHelperTest {
     }
 
     @Test
-    @Disabled
-    public void testSearchForTweets() {
-        int count = 10;
+    public void testSearchForTweetsFull() {
         SimpleDateFormat dateformat = new SimpleDateFormat("yyyyMMddHHmm");
-        String strdate1 = "201906010000";
-        String strdate2 = "201906011200";
+        String strdate1 = "201901010000";
+        String strdate2 = "202001010000";
         List<Tweet> results = null;
-        results = twitterHelper.searchForTweets("redtheone", count, strdate1, strdate2);
+        results = twitterHelper.searchForTweets("@redtheone @demi_sword", 10, strdate1, strdate2,
+                this.twitterHelper.getUrlHelper().getSearchTweetsUrlFull());
         assertNotNull(results);
-        assertTrue(results.size() == count);
+        assertTrue(results.size() > 0);
     }
+
+    @Test
+    public void testSearchForTweets() {
+        List<Tweet> results = twitterHelper.searchForLast100Tweets30days("@RedTheOne has:mentions");
+        assertNotNull(results);
+        assertTrue(results.size() > 0);
+    }
+
 }

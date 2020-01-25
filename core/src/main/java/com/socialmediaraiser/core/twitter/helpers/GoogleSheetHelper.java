@@ -6,11 +6,13 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import com.socialmediaraiser.core.twitter.FollowProperties;
 import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import lombok.Data;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Data
@@ -157,6 +159,48 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         List<String> ids = this.getPreviouslyFollowedIds(true, true);
         for(int i=0; i<ids.size(); i++){
             this.userRows.put(ids.get(i), i+startIndex);
+        }
+    }
+
+    public void addAllFollowers(List<AbstractUser> users){
+        for(AbstractUser user : users){
+            this.addNewFollowerLineSimple(user);
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                LOGGER.severe(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public void addNewFollowerLineSimple(AbstractUser user){
+        DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+        Date date = user.getLastUpdate();
+        long nbDaysSinceLastUpdate = 99999;
+        if(date!=null) nbDaysSinceLastUpdate = (new Date().getTime() - date.getTime()) / (24 * 60 * 60 * 1000);
+        ValueRange body = new ValueRange()
+                .setValues(Arrays.asList(Arrays.asList(
+                        String.valueOf(user.getId()),
+                        user.getUsername(),
+                        user.getFollowersCount(),
+                        user.getFollowingCount(),
+                        user.getTweetCount(),
+                        user.getDescription().
+                                replace("\""," ")
+                                .replace(";"," ")
+                                .replace("\n"," "),
+                        Optional.ofNullable(user.getLocation()).orElse(""),
+                        user.getNbInteractions(),
+                        nbDaysSinceLastUpdate
+                )));
+        try{
+            Sheets.Spreadsheets.Values.Append request =
+                    sheetsService.spreadsheets().values().append(this.sheetId, this.tabName+"!A1", body);
+            request.setValueInputOption("RAW");
+            request.execute();
+        } catch(Exception e){
+            LOGGER.severe(e.getMessage());
         }
     }
 }

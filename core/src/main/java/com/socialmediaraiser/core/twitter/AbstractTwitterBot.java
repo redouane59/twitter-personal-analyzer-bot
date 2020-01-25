@@ -4,12 +4,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.socialmediaraiser.core.RelationType;
 import com.socialmediaraiser.core.twitter.helpers.*;
 import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
+import com.socialmediaraiser.core.twitter.helpers.dto.getuser.TweetDTO;
+import com.socialmediaraiser.core.twitter.helpers.dto.getuser.TweetDataDTO;
 import com.socialmediaraiser.core.twitter.scoring.Criterion;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Data;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -86,7 +91,7 @@ public abstract class AbstractTwitterBot {
             count = 100;
             LOGGER.severe(()->"count maximum = 100");
         }
-        String url = this.getUrlHelper().getSearchTweetsUrl();
+        String url = this.getUrlHelper().getSearchTweets30daysUrl();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("query",query);
         parameters.put("maxResults",String.valueOf(count));
@@ -201,6 +206,44 @@ public abstract class AbstractTwitterBot {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    //2020-01-01
+    public Map<String, Integer> getNbInterractions(String fromDate, String userName) throws IOException, ParseException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("tweet.json").getFile());
+        TweetDataDTO[] tweets = JsonHelper.OBJECT_MAPPER.readValue(file, TweetDataDTO[].class);
+
+        SimpleDateFormat sdformat = new SimpleDateFormat("yyyy-MM-dd");
+
+        Map<String, Integer> result = new HashMap<>();
+        Date tweetDate;
+        Date limitDate = sdformat.parse(fromDate);
+        for(TweetDataDTO tweetDataDTO : tweets){
+            // checking the reply I gave to other users
+            String inReplyUserId = tweetDataDTO.getTweet().getInReplyToUserId();
+            tweetDate = JsonHelper.getDateFromTwitterString(tweetDataDTO.getTweet().getCreatedAt());
+            if(inReplyUserId!=null){
+                if(tweetDate!=null && tweetDate.compareTo(limitDate)>0) {
+                    result.put(inReplyUserId, 1+result.getOrDefault(inReplyUserId, 0));
+                }
+            }
+            if(tweetDate!=null && tweetDate.compareTo(limitDate)>0){
+                // checking the user who retweeted me
+                if(tweetDataDTO.getTweet().getRetweetCount()>0){
+                    List<String> retweeterIds = this.getTwitterHelper().getRetweetersId(tweetDataDTO.getTweet().getId());
+                    for(String retweeterId : retweeterIds){
+                        result.put(retweeterId, 1+result.getOrDefault(retweeterId, 0));
+                    }
+                }
+            }
+        }
+        // checking the reploy other gave me (40 days)
+        List<Tweet> tweetWithReplies = this.getTwitterHelper().searchForLast100Tweets30days("@"+userName);
+        for(Tweet tweet : tweetWithReplies){
+            result.put(tweet.getUser().getId(), 1+result.getOrDefault(tweet.getUser().getId(), 0));
+        }
+        return result;
     }
 
 }

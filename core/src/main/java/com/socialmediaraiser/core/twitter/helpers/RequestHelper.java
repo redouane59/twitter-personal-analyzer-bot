@@ -52,6 +52,36 @@ public class RequestHelper {
         return null;
     }
 
+    public JsonNode executeGetRequestWithParameters(String url, Map<String, String> parameters) {
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(url).newBuilder();
+            if (parameters != null) {
+                for(Map.Entry<String, String> param : parameters.entrySet()) {
+                    httpBuilder.addQueryParameter(param.getKey(),param.getValue());
+                }
+            }
+            String newUrl = httpBuilder.build().url().toString();
+            Request requesthttp = this.getSignedRequest(this.getRequest(httpBuilder), this.getNonce(), this.getTimestamp());
+
+            Response response = this.getHttpClient(newUrl)
+                    .newCall(requesthttp)
+                    .execute();
+            String stringResponse = response.body().string();
+            JsonNode node = new ObjectMapper().readTree(stringResponse);
+            if(response.code()==200){
+                return node;
+            } else if (response.code()==429){
+                this.wait(sleepTime, response, url);
+                return this.executeGetRequest(url);
+            } else{
+                LOGGER.severe(()->"(GET) not calling " + url + " 200 return null " + stringResponse + " - " + response.code());
+            }
+        } catch(Exception e){
+            LOGGER.severe("exception in executeGetRequest " + e.getMessage());
+        }
+        return null;
+    }
+
     public String executeGetRequestV2(String url) {
         try {
             Response response = this.getHttpClient(url)
@@ -72,6 +102,8 @@ public class RequestHelper {
         }
         return null;
     }
+
+
 
     public JsonNode executePostRequest(String url, Map<String, String> parameters) {
         try {
@@ -182,11 +214,16 @@ public class RequestHelper {
                 .consumerSecret(FollowProperties.getTwitterCredentials().getConsumerSecret())
                 .accessToken(FollowProperties.getTwitterCredentials().getAccessToken())
                 .accessSecret(FollowProperties.getTwitterCredentials().getSecretToken())
-                .oauthNonce(nonce)
-                .oauthTimeStamp(timestamp)
+               // .oauthNonce(nonce)
+               // .oauthTimeStamp(timestamp)
                 .build();
 
-        return oauth.signRequest(request);
+        try {
+            return oauth.signRequest(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private Request getRequest(String url){
@@ -194,6 +231,10 @@ public class RequestHelper {
                 .url(url)
                 .get()
                 .build();
+    }
+
+    private Request getRequest(HttpUrl.Builder httpBuilder){
+        return new Request.Builder().get().url(httpBuilder.build()).build();
     }
 
     private OkHttpClient getHttpClient(String url){
@@ -208,8 +249,7 @@ public class RequestHelper {
                 .build();
     }
 
-    private void wait(int sleepTime, Response response, String url){
-        LocalDateTime now = LocalDateTime.now();
+    public static void wait(int sleepTime, Response response, String url){
         LOGGER.info(()->"\n" + response.message() +" Waiting ... " + url); // do a wait and return this function recursively
         try {
             TimeUnit.MINUTES.sleep(sleepTime);
@@ -223,15 +263,17 @@ public class RequestHelper {
     private int getCacheTimeoutFromUrl(String url){
         int defaultCache = 48;
         if(url.contains("/friends")){
-            defaultCache = 12;
+            defaultCache = 672; // to put back
         } else if (url.contains("/friendships")){
-            defaultCache = 0;
+            defaultCache = 672; // to put back
         } else if (url.contains("/followers")){
-            defaultCache = 672;
+            defaultCache = 672; // to put back
         } else if (url.contains("/users")){
             defaultCache = 168;
         } else if (url.contains("/user_timeline")){
             defaultCache = 168;
+        } else if (url.contains("30days")){
+            defaultCache = 672;
         }
         return defaultCache;
     }

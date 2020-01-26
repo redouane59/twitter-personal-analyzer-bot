@@ -1,1 +1,0 @@
-{"nodes":[{"id":"Juanico","group":"HotPink","size":5},{"id":"Isabel_thomasEU","group":"HotPink","size":20},{"id":"BalasGuillaume","group":"HotPink","size":5}],"links":[{"source":"Isabel_thomasEU","target":"Juanico","value":1},{"source":"Isabel_thomasEU","target":"BalasGuillaume","value":16}]}

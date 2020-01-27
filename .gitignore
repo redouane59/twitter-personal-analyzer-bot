@@ -2,6 +2,7 @@
 /.target
 *.iml
 *.class
+*.jar
 src/main/resources/*
 core/src/main/resources/*
 social-graph/src/main/resources/*

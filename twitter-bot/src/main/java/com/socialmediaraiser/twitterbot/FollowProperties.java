@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 @Data
 public class FollowProperties {
 
-    private static final Logger LOGGER = Logger.getLogger(com.socialmediaraiser.core.twitter.FollowProperties.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(com.socialmediaraiser.twitterbot.FollowProperties.class.getName());
 
     @Getter
     private static TargetProperties targetProperties;
@@ -34,8 +34,6 @@ public class FollowProperties {
     private static InfluencerProperties influencerProperties;
     @Getter
     private static IOProperties ioProperties;
-    @Getter
-    private static TwitterCredentials twitterCredentials;
     @Getter
     private static GoogleCredentials googleCredentials;
     @Getter
@@ -48,7 +46,7 @@ public class FollowProperties {
     public static boolean load(String userName) {
         if(userName==null) return false;
         try {
-           URL yamlFile = com.socialmediaraiser.core.twitter.FollowProperties.class.getResource("/"+userName+".yaml");
+           URL yamlFile = com.socialmediaraiser.twitterbot.FollowProperties.class.getResource("/"+userName+".yaml");
             //URL yamlFile = new File("/"+userName+".yaml").toURI().toURL();
             if(yamlFile==null){
                 LOGGER.severe(()->"yaml file not found at /"+userName+".yaml");
@@ -69,7 +67,6 @@ public class FollowProperties {
             scoringProperties = new ScoringProperties(scoringPropertyList);
             }
             targetProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("target"), TargetProperties.class);
-            twitterCredentials = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("twitter-credentials"), TwitterCredentials.class);
             googleCredentials = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
             influencerProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("influencer"), InfluencerProperties.class);
             ioProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("io"), IOProperties.class);

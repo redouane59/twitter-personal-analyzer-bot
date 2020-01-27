@@ -46,7 +46,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 String userId = entry.getKey();
                 time1 = System.currentTimeMillis();
                 /* retrieving the user information */
-                AbstractUser potentialFollower = getTwitterHelper().getUserFromUserId(userId); // criticity here (900/15min)
+                AbstractUser potentialFollower = getTwitterClient().getUserFromUserId(userId); // criticity here (900/15min)
                 time1 = (System.currentTimeMillis()-time1);
                 time2 = System.currentTimeMillis();
                 /* checking if user exist and language is ok */
@@ -126,7 +126,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
 
     // id, occurencies
     private Map<String, Long> getAllFollowerIdsFromUsersSortedByOccurence(String ownerId, int nbFollowersMaxtoWatch, int minOccurence){
-        List<AbstractUser> ownerFollowers = getTwitterHelper().getFollowerUsers(ownerId);
+        List<AbstractUser> ownerFollowers = getTwitterClient().getFollowerUsers(ownerId);
         this.getOwnerFollowingIds().add(ownerId);
         List<String> followedRecently = this.getIoHelper().getPreviouslyFollowedIds();
         // building influencers followers list
@@ -137,7 +137,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
         influencers.addAll(this.getInfluencersFromUsers(ownerFollowers, nbFollowersMaxtoWatch*10, true));
         while(i<influencers.size() && i<nbFollowersMaxtoWatch){
             influencer = influencers.get(i);
-            List<String> influencerFollowersId = getTwitterHelper().getFollowerIds(influencer.getId());
+            List<String> influencerFollowersId = getTwitterClient().getFollowerIds(influencer.getId());
             for(String userId : influencerFollowersId){
                 if(this.getOwnerFollowingIds().indexOf(userId)==-1 && followedRecently.indexOf(userId)==-1) {
                     influencersFollowersIds.add(userId);
@@ -164,7 +164,7 @@ public class TwitterBotByInfluencers extends AbstractTwitterBot {
                 .getOrElse(new String[0]);
         List<AbstractUser> influencers = new ArrayList<>();
         for(String s : baseList){
-            AbstractUser user = getTwitterHelper().getUserFromUserName(s);
+            AbstractUser user = getTwitterClient().getUserFromUserName(s);
             if(user!=null){
                 influencers.add(user);
             } else{

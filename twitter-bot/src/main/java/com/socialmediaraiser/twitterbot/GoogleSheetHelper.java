@@ -114,7 +114,6 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         user.getFollowersCount(),
                         user.getFollowingCount(),
                         user.getTweetCount(),
-                        /*user.getFavouritesCount()*/ " ",
                         user.getDescription().
                                 replace("\""," ")
                                 .replace(";"," ")
@@ -175,7 +174,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
     }
 
     public void addNewFollowerLineSimple(AbstractUser user){
-        DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+
         Date date = user.getLastUpdate();
         long nbDaysSinceLastUpdate = 99999;
         if(date!=null) nbDaysSinceLastUpdate = (new Date().getTime() - date.getTime()) / (24 * 60 * 60 * 1000);

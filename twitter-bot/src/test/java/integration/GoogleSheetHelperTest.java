@@ -1,5 +1,7 @@
 package integration;
 
+import com.socialmediaraiser.core.twitter.User;
+import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.RandomForestAlgoritm;
@@ -19,6 +21,20 @@ public class GoogleSheetHelperTest {
     @BeforeAll
     static void init(){
         FollowProperties.load(ownerName);
+    }
+
+    @Test
+    void testAddNewFollowerLineSimple(){
+        User user = User.builder()
+                .id("12345")
+                .followersCout(10)
+                .followingCount(50)
+                .userName("Red")
+                .description("just me")
+                .statusesCount(1000)
+                .location("Roubaix").build();
+        googleSheetHelper.addNewFollowerLineSimple(user);
+        //@todo remove line
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
 import com.socialmediaraiser.twitterbot.AbstractTwitterBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.core.twitter.Tweet;
@@ -12,6 +13,7 @@ import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
+import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,7 +47,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
             count = maxFriendship;
         }
 
-        this.setOwnerFollowingIds(this.getTwitterHelper().getFollowingIds(ownerId));
+        this.setOwnerFollowingIds(this.getTwitterClient().getFollowingIds(ownerId));
 
         try {
             this.collect(count);
@@ -80,7 +82,11 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
             client = new ClientBuilder()
                     .hosts(Constants.STREAM_HOST)
                     .endpoint(endpoint)
-                    .authentication(this.getAuthentication())
+                    .authentication(new OAuth1(
+                            RequestHelper.TWITTER_CREDENTIALS.getConsumerKey(),
+                            RequestHelper.TWITTER_CREDENTIALS.getConsumerSecret(),
+                            RequestHelper.TWITTER_CREDENTIALS.getAccessToken(),
+                            RequestHelper.TWITTER_CREDENTIALS.getSecretToken()))
                     .processor(new StringDelimitedProcessor(queue))
                     .build();
             client.connect();
@@ -120,7 +126,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
                 // this.likeTweet(tweet.getId());
                 boolean result = false;
                 if(this.isFollow()) {
-                    result = getTwitterHelper().follow(user.getId());
+                    result = getTwitterClient().follow(user.getId());
                     LOGGER.info(user.getUsername() + " followed " + result);
                 }
                 if (result || !this.isFollow()) {

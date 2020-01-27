@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.socialmediaraiser.core.RelationType;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.core.twitter.Tweet;
-import com.socialmediaraiser.core.twitter.TwitterHelper;
+import com.socialmediaraiser.core.twitter.TwitterClient;
 import com.socialmediaraiser.core.twitter.User;
 import com.socialmediaraiser.core.twitter.helpers.*;
 import com.socialmediaraiser.core.twitter.helpers.dto.ConverterHelper;
@@ -39,7 +39,7 @@ public abstract class AbstractTwitterBot {
     private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
     private JsonHelper jsonHelper = new JsonHelper();
-    private TwitterHelper twitterHelper;
+    private TwitterClient TwitterClient;
     private static final String IDS = "ids";
     private static final String USERS = "users";
     private static final String CURSOR = "cursor";
@@ -54,17 +54,17 @@ public abstract class AbstractTwitterBot {
     public AbstractTwitterBot(String ownerName, boolean follow, boolean saveResults) {
         this.ioHelper = new GoogleSheetHelper(ownerName);
         this.ownerName = ownerName;
-        this.twitterHelper = new TwitterHelper(ownerName);
+        this.TwitterClient = new TwitterClient();
         this.follow = follow;
         this.saveResults = saveResults;
         this.followedRecently = this.getIoHelper().getPreviouslyFollowedIds();
-        this.ownerFollowingIds = getTwitterHelper().getFollowingIds(getTwitterHelper().getUserFromUserName(ownerName).getId());
+        this.ownerFollowingIds = getTwitterClient().getFollowingIds(getTwitterClient().getUserFromUserName(ownerName).getId());
     }
 
     public void checkNotFollowBack(String ownerName, Date date, boolean override) {
         List<String> followedPreviously = this.getIoHelper().getPreviouslyFollowedIds(override, override, date);
         if(followedPreviously!=null && !followedPreviously.isEmpty()){
-            AbstractUser user = getTwitterHelper().getUserFromUserName(ownerName);
+            AbstractUser user = getTwitterClient().getUserFromUserName(ownerName);
             this.areFriends(user.getId(), followedPreviously, this.isFollow(), this.isSaveResults());
         } else{
             LOGGER.severe(()->"no followers found at this date");
@@ -72,7 +72,7 @@ public abstract class AbstractTwitterBot {
     }
 
     public AbstractUser followNewUser(AbstractUser potentialFollower){
-        boolean result = getTwitterHelper().follow(potentialFollower.getId());
+        boolean result = getTwitterClient().follow(potentialFollower.getId());
         if (result) {
             potentialFollower.setDateOfFollowNow();
             if (this.saveResults) {
@@ -129,14 +129,6 @@ public abstract class AbstractTwitterBot {
         return result;
     }
 
-    protected Authentication getAuthentication(){
-        return new OAuth1(
-                FollowProperties.getTwitterCredentials().getConsumerKey(),
-                FollowProperties.getTwitterCredentials().getConsumerSecret(),
-                FollowProperties.getTwitterCredentials().getAccessToken(),
-                FollowProperties.getTwitterCredentials().getSecretToken());
-    }
-
     private void logError(Exception e, String response){
         LOGGER.severe(() -> e.getMessage() + " response = " + response);
     }
@@ -145,10 +137,10 @@ public abstract class AbstractTwitterBot {
         int maxUnfollows = 400;
         int nbUnfollows = 0;
         for(String id : this.ownerFollowingIds){
-            AbstractUser user = getTwitterHelper().getUserFromUserId(id);
+            AbstractUser user = getTwitterClient().getUserFromUserId(id);
             if(nbUnfollows>=maxUnfollows) break;
             if(unfollow && this.shouldBeUnfollowed(user, criterion, value)){
-                boolean result = getTwitterHelper().unfollow(user.getId());
+                boolean result = getTwitterClient().unfollow(user.getId());
                 nbUnfollows++;
                 LOGGER.info(()-> user.getUsername() + " -> unfollowed");
                 if(!result){
@@ -172,7 +164,7 @@ public abstract class AbstractTwitterBot {
         for(String otherId : otherIds){
             boolean userShouldBeUnfollowed = shouldBeUnfollowed(userId, otherId, writeOnSheet);
             if(unfollow && userShouldBeUnfollowed){
-                boolean unfollowResult = this.getTwitterHelper().unfollow(otherId);
+                boolean unfollowResult = this.getTwitterClient().unfollow(otherId);
                 if(unfollowResult) {
                     nbUnfollows++;
                     this.temporiseUnfollows(nbUnfollows);
@@ -185,7 +177,7 @@ public abstract class AbstractTwitterBot {
     }
 
     private boolean shouldBeUnfollowed(String userId, String otherId, boolean writeOnSheet){
-        RelationType relation = this.getTwitterHelper().getRelationType(userId, otherId);
+        RelationType relation = this.getTwitterClient().getRelationType(userId, otherId);
         if(relation==null) LOGGER.severe(() -> "null value for" + otherId);
 
         Boolean userFollowsBack = false;
@@ -212,7 +204,7 @@ public abstract class AbstractTwitterBot {
         }
     }
 
-    public Map<String, Integer> getNbInterractions(Date limitDate, String userName) throws IOException, ParseException {
+    public Map<String, Integer> getNbInterractions(Date fromDate, String userName) throws IOException, ParseException {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource("tweet.json").getFile());
         TweetDataDTO[] tweets = JsonHelper.OBJECT_MAPPER.readValue(file, TweetDataDTO[].class);
@@ -225,14 +217,14 @@ public abstract class AbstractTwitterBot {
             String inReplyUserId = tweetDataDTO.getTweet().getInReplyToUserId();
             tweetDate = JsonHelper.getDateFromTwitterString(tweetDataDTO.getTweet().getCreatedAt());
             if(inReplyUserId!=null){
-                if(tweetDate!=null && tweetDate.compareTo(limitDate)>0) {
+                if(tweetDate!=null && tweetDate.compareTo(fromDate)>0) {
                     result.put(inReplyUserId, 1+result.getOrDefault(inReplyUserId, 0));
                 }
             }
-            if(tweetDate!=null && tweetDate.compareTo(limitDate)>0){
+            if(tweetDate!=null && tweetDate.compareTo(fromDate)>0){
                 // checking the user who retweeted me
                 if(tweetDataDTO.getTweet().getRetweetCount()>0){
-                    List<String> retweeterIds = this.getTwitterHelper().getRetweetersId(tweetDataDTO.getTweet().getId());
+                    List<String> retweeterIds = this.getTwitterClient().getRetweetersId(tweetDataDTO.getTweet().getId());
                     for(String retweeterId : retweeterIds){
                         result.put(retweeterId, 1+result.getOrDefault(retweeterId, 0));
                     }
@@ -244,7 +236,7 @@ public abstract class AbstractTwitterBot {
         // 10 requests for 10 weeks
         for(int i=1; i<=10;i++){
             // checking the reploy other gave me (40 days)
-            List<Tweet> tweetWithReplies = this.getTwitterHelper().searchForLast100Tweets30days("@"+userName,
+            List<Tweet> tweetWithReplies = this.getTwitterClient().searchForLast100Tweets30days("@"+userName,
                     ConverterHelper.getStringFromDate(currentDate)
             );
             for(Tweet tweet : tweetWithReplies){

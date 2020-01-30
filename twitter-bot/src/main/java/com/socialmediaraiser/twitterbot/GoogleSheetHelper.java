@@ -3,10 +3,8 @@ package com.socialmediaraiser.twitterbot;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.socialmediaraiser.twitterbot.FollowProperties;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
+import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
 import lombok.Data;
-import okhttp3.Response;
 
 import java.io.IOException;
 import java.text.DateFormat;

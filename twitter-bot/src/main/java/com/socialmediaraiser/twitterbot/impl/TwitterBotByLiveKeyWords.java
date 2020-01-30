@@ -1,13 +1,13 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
-import com.socialmediaraiser.twitterbot.AbstractTwitterBot;
-import com.socialmediaraiser.twitterbot.FollowProperties;
-import com.socialmediaraiser.core.twitter.Tweet;
-import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.core.twitter.helpers.JsonHelper;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
+import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
+import com.socialmediaraiser.core.twitter.helpers.dto.tweet.Tweet;
+import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
+import com.socialmediaraiser.twitterbot.FollowProperties;
+import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 
 @Setter
 @Getter
-public class TwitterBotByLiveKeyWords extends AbstractTwitterBot {
+public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
 
     private static final Logger LOGGER = Logger.getLogger(TwitterBotByLiveKeyWords.class.getName());
     private int maxFriendship = 390;

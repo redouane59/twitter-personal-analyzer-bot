@@ -1,7 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
+import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;

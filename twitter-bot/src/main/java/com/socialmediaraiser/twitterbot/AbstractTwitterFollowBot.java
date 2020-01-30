@@ -2,17 +2,15 @@ package com.socialmediaraiser.twitterbot;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.socialmediaraiser.core.RelationType;
-import com.socialmediaraiser.twitterbot.FollowProperties;
-import com.socialmediaraiser.core.twitter.Tweet;
 import com.socialmediaraiser.core.twitter.TwitterClient;
-import com.socialmediaraiser.core.twitter.User;
-import com.socialmediaraiser.core.twitter.helpers.*;
+import com.socialmediaraiser.core.twitter.helpers.JsonHelper;
+import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
+import com.socialmediaraiser.core.twitter.helpers.URLHelper;
 import com.socialmediaraiser.core.twitter.helpers.dto.ConverterHelper;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.TweetDataDTO;
+import com.socialmediaraiser.core.twitter.helpers.dto.tweet.Tweet;
+import com.socialmediaraiser.core.twitter.helpers.dto.tweet.TweetDataDTO;
+import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
-import com.twitter.hbc.httpclient.auth.Authentication;
-import com.twitter.hbc.httpclient.auth.OAuth1;
 import io.vavr.control.Option;
 import lombok.Data;
 
@@ -24,9 +22,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Data
-public abstract class AbstractTwitterBot {
+public abstract class AbstractTwitterFollowBot {
 
-    private static final Logger LOGGER = Logger.getLogger(com.socialmediaraiser.twitterbot.AbstractTwitterBot.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AbstractTwitterFollowBot.class.getName());
     private AbstractIOHelper ioHelper;
 
     public abstract List<AbstractUser> getPotentialFollowers(String ownerId, int count);
@@ -51,7 +49,7 @@ public abstract class AbstractTwitterBot {
     private static final String SOURCE = "source";
     //   private static final int MAX_GET_F_CALLS = 30;
 
-    public AbstractTwitterBot(String ownerName, boolean follow, boolean saveResults) {
+    public AbstractTwitterFollowBot(String ownerName, boolean follow, boolean saveResults) {
         this.ioHelper = new GoogleSheetHelper(ownerName);
         this.ownerName = ownerName;
         this.TwitterClient = new TwitterClient();

@@ -1,5 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
+import com.socialmediaraiser.twitterbot.impl.PersonalAnalyzerBot;
 import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
 
 import java.io.IOException;
@@ -16,33 +17,23 @@ public class PersonalAnalyzerLauncher {
             LOGGER.severe(()->"missing arguments, expecting 1 : ownerName[String]");
         } else{
             String userName = args[0];
-            TwitterBotByInfluencers bot = new TwitterBotByInfluencers(userName, false, true);
-        /*    Map<String, Integer> interractions = bot.getNbInterractions("2019-09-24", userName);
-            List<AbstractUser> followers = bot.getTwitterClient().getFollowingsUsers(bot.getTwitterClient().getUserFromUserName(userName).getId());
-            for(AbstractUser user : followers){
-                user.setNbInteractions(interractions.getOrDefault(user.getId(),0));
-                // add RT and/or likes
-                bot.getIoHelper().addNewFollowerLineSimple(user);
-                TimeUnit.MILLISECONDS.sleep(700);
-                LOGGER.info("adding " + user.getUsername() + "...");
-            }
-            LOGGER.info("finish with success");*/
+            PersonalAnalyzerBot bot = new PersonalAnalyzerBot(userName);
+         //   bot.launch();
 
-
-            String[] toUnfollow = {"moonlvghtt","BroSalifKilla","massi934","sarah_tffr","xavyflor","AZouzou69","Jey_kosi243","selooumaa","lbenbnine","user_yass","jmenblcptdr","IvoirienSympa","_dlrxacrgl_","DiMachaviel21","Safwane212","ynaiamaya","wildwolfnews","Inapercue","efoulon1","ZonujaySan_2p","cestdz","Bnfyou","tissemeboss","Zak_man93","JndIchetraki","54Yanbar","mohamed_elhajj","Myriame630","christian300658","LeilaXHunter","13010H","baljeetkaur900","Anne_L0rii","meguyyyyy","xi_IMPULSE","myrabeelle","unez19","saaaliiihaaa","fatselzr","SpriXIII","ab_djigal","destailleurs","soraya1eredunom","Moha2Ketama","Pepitaslamd","ar_Riffi","Lawbna","ComteMaintenon","KndD_","soudjzr06","Navy4Liiife","AbdoulayeSall01","LaigleDuNorth","_porlanoche","randakbch","losako243","mlkmnl31","DanielSoulama","Ludo9498","Mehboula_","gaambass","LeCommentateu12","youyou2A","ThaRealMitch","SALIOU6_M","nadial2511","3amoTony","mike_cdl","riam_ad","wildeandciea","raayaane75","widadm212","Hillamba","fatima_bent","DabreIsm","jibijumbo","jsmnzk","nxrova_2","DwayneSama","shaneservr","lenaa_soso","tnss__","biib_06","JeromeAttalOff","EditionSpecial2","SebNormand76","Davilson93i","rimkvss","hugwharold","AlexisNoiron","_Carine_C","agadiroisee","cedric_4real","putainzebi_","Younsbou","MiniiBN_","Turkoss_","3labalek","tifosi76","Hassouuuun","stl_gbr","DMougeon","abde_alg","ImenLaDanse","Ymbld92","asmakzrn","mahautldz","katsaandeye","anth30o","le_sslyn","_chahinezeDz","leilooooooo","petimiti","tuconnaispsliza","yohan375","Tama_Frasich","Jikzer","T_Malvezin","DalBndl","Chems_Sahili","jfgangsta","san0ou","Samyra_PECORY","Fatchouha71","nina92tn","Rodouawn","DhikronEnsemble","Nami_zle","RizouC2t","larouquiineGi","Sorayaaa_216","jocelynedongoh","Docey6","onlyeds","alban_yoann","yellanamontana","medlihtam__","aysianj_","Jacxson__","TropViive","So_Abiba","mhb2_i","arsene_baley","iamdcrz","Words_failed","carrel_tob9","tvnisiana","aymenGTAV","kelahlws","AllhassaneSimon","fiers2nous","flm2tt","faithendek","afo_galle","S_Kbreizh","iissm35","ousseynou__baye","SUSIC2CS","sam_ray07","fatimakk_","Mehdicament28","Serrrawin","sovndes","RobZabra","enkaa_b","hype72","mohamed_abdoul","marianamndes","MMassiMM","ShaeCald1","Mamounette0512","balla_221","amrovic_","ITACHIDZ38","3arbi69","iProtego","212weldRbat","ninaa2107","NepheritesRain","36cerveau","TiParisien440","Josi_Jaber","stz216","Mirouche_","loubna78700","madein986","Baswa_","Lenalvtt","soumnarif_","Jordaan4real","ouardiadz13","bellavita__","bnlaes","2h13_","Alfoussen_94","98DRUGOFSHAWN","mcdoftdiego","LAsBarcelonaise","HlcChariisme","gbhjkv","AngeNabil","JLng_84","inaaDjb","Cro__co","snkm_","LenPharaon","ineessshm","alainparis142","sss_sirine","nwlkrt","lulaurent13","lc_pinknbt","mwbloem","Tounsia__93","seroplex_5mg","Kvdy00","Naza_Congolais_","Sbl_xb","jspencoretg","_westernie","Fumier_10","Hamzooo_Amg","Sombre__Negro","NisSouCote","sademaf","TDOH666","YeahCallSiggy","DzPower_28","i_morotsir","Thib_LP","93_220","ryanafoutre","Jahestbon","Gxlx_","OneThugOneStyle","Auroraaa_972","johnsonights","nawel_pxris","Alg_00213","Bigheart357","Sarraa____","Igirly_","S_OUKii","james_honore","_IsmaDar","bilkis__","chameau213","migo931","sxlxfxx","YChaumien","wyslaurent","KayiTurk_fr","wshci","youboox","Marine_Onfroy","ctricot","MelLmne","JsuisPasLa_"};
+            String[] toUnfollow = {"amiinedz78","josko3s","RiynK","Faridb59","9Madriida","SarahLdyHnz","_Niniiiiiiiii","ptitcafebrioche","CamilleKyrie2","WhiteKumaaa","clandestins_","sanaaells","sudiste213","El_P0w","Nadiaa_trore01","FaisEnUnAutre","bahweles","mrslindachibani","Dow_Jones2","da_wood7","hb_213","riihaaabk","arbitkt","Qatar_Happiness","EdouardBeyeme","fatimezzzahrae","mel79117","NassDurkio93","Mlle_batata","MarvinLakeers","jal___","Txrzan__","Coline_prchnt","Rv_Mathoux","94kg__","CaptainBooz7","dzzz_35","NassiBrown","graaldeuf","samyra75","tantinekimberly","ALGERIENNEDP","NB_Rp59","alalgerienneee","shhhut_","R0LK","OrLiliane","sslipknoot","BLLVCKSCARAIBES","BillionBix","Abdel_hz93","sheikas4","bulane20","PoetryLifeTimes","vivbrillant","IsYVEVO","sarabndry","Inaaya_93","fromMarsToPluto","ccldiaz","tiefadaouquoi","Le_FeuFoullet","InitialsDD_","Mio_Karaa","MystHumain24046","HappyYoSmile","IamYankeeBoy","risMOrisMO","plutonnique","PpaulBasse","Channel_sah","MorganeDns","Meliza_Elvz","baydou","na2s____","apresmarxavril","sameclc","ZacNasra","marine77290","NikiLaarson","elyyssa__1","wild4James","ia_sa66","otracopadevino","NamoryCoulibal2","IamNormanZ","MoussaXXVIIV","marinaa_77","Madison_gmty","ines86_","Vacensii","CarlaBZH","kriskonan","Mhra_57","grrmymy","LopezLibongo","kelsy_","vinsmooke_","TRK03BSN","henenetlb","Mlle_Ninoush","YacineMahfoufi","Sfrediin","MedMierda","amneziia91","SoxnaSi_","yasminemost","KToTheeN","ccbyeesh","IamMad__","Mchaumier","DatBoyKayLo","pmontp19","m2ldu952","moufiane1","Busoo_Joop","GazouilleurFou","missssjuriste","Ndoyamy","byminaaaa","Happy_Gnanchou","_vivelapolska_","Adam_Amrane","lunaameelo","kabylee21369","braulio_jcz","linamrni","HerBijiKurdi","sbnh___","Fuetardo_243","FranckCyril_","YenigunSevim","BoHamzouz17","MelissaPabisz","flanaa94","PRAISEDA8IGHT","AmiraDreams","lindamez2","dturotte","Ablaze191","jdereg13","Nicolas_WISSER","TheDrzy","thehaankee","libertashio_","bonbouaz","ziasiam","iya_mouhamed","jujuulagarce","fiaso78","demi_sword","JurgenTgt","Djzr__","21Draxlaaaa","pactu10","adriencuchet","Amandinee_prr","Dabebi_","MaryDedeur","nicco_tbo","WechHamzHamz","WhoTFYouR","_OncleDom","_izzb__","francksman","pluto299","africaanwhite"};
             int nbUnfollows = 0;
             for(String unfollowName : toUnfollow){
                 boolean result = bot.getTwitterClient().unfollowByName(unfollowName);
                 if(result){
                     nbUnfollows++;
-                    LOGGER.info(unfollowName + " unfollowed...");
+
                 } else{
                     LOGGER.severe(unfollowName + " not unfollowed !!");
                 }
                 TimeUnit.MILLISECONDS.sleep(500);
             }
 
-            LOGGER.info(nbUnfollows + " users unfollowed with success !");
+            LOGGER.info(nbUnfollows + " users unfollowed with success !"); 
 
         }
     }

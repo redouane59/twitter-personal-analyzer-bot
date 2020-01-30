@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
+import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
 
 import java.util.Date;
 import java.util.List;

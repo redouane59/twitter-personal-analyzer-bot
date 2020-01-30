@@ -1,8 +1,5 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitterbot.AbstractTwitterBot;
-import com.socialmediaraiser.twitterbot.FollowProperties;
-import com.socialmediaraiser.twitterbot.RandomForestAlgoritm;
 import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
 
 import java.util.logging.Logger;
@@ -23,7 +20,7 @@ public class FollowLauncher {
             String ownerName = args[0];
             int nbNeededFollowers = Integer.parseInt(args[1]);
                 LOGGER.info(()->"Start working on @" + ownerName + " for "+nbNeededFollowers + " followers.");
-            AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, true, true);
+            AbstractTwitterFollowBot twitterBot = new TwitterBotByInfluencers(ownerName, true, true);
             //twitterBot = new TwitterBotByLiveKeyWords(ownerName); // @TODO in arg
             RandomForestAlgoritm.process();
             FollowProperties.load(ownerName);

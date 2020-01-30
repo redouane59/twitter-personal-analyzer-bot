@@ -1,8 +1,8 @@
 package com.socialmediaraiser.twitterbot.impl;
 
+import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
-import com.socialmediaraiser.twitterbot.AbstractTwitterBot;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class TwitterBotByInfluencers extends AbstractTwitterBot {
+public class TwitterBotByInfluencers extends AbstractTwitterFollowBot {
 
     private int maxFriendship = 390;
     private static final Logger LOGGER = Logger.getLogger(TwitterBotByInfluencers.class.getName());

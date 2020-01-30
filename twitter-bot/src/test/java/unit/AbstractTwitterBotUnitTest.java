@@ -1,10 +1,7 @@
 package unit;
 
-import com.socialmediaraiser.core.twitter.User;
-import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
 import com.socialmediaraiser.core.twitter.helpers.dto.ConverterHelper;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.RequestTokenDTO;
-import com.socialmediaraiser.twitterbot.AbstractTwitterBot;
+import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
@@ -14,15 +11,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class AbstractTwitterBotUnitTest {
 
     private static String ownerName = "RedTheOne";
-    private AbstractTwitterBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
+    private AbstractTwitterFollowBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
 
     @BeforeAll
     public static void init(){

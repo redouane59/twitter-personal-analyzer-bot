@@ -1,18 +1,8 @@
 package integration;
 
-import com.socialmediaraiser.core.twitter.User;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.RandomForestAlgoritm;
-import com.socialmediaraiser.twitterbot.UnfollowLauncher;
-import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Calendar;
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RandomForestAlgorithmTest {
 
@@ -25,7 +15,7 @@ public class RandomForestAlgorithmTest {
     }
   /*  @Test
     void testFalse() {
-        AbstractUser user = new TwitterBotByInfluencers(userName, false, false).getTwitterClient().getUserFromUserName("blevy90");
+        IUser user = new TwitterBotByInfluencers(userName, false, false).getTwitterClient().getUserFromUserName("blevy90");
         assertEquals(false, user.getRandomForestPrediction());
     } */
 

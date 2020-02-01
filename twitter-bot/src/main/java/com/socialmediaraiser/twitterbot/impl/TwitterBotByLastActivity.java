@@ -1,7 +1,7 @@
 package com.socialmediaraiser.twitterbot.impl;
 
-import com.socialmediaraiser.core.twitter.helpers.dto.tweet.Tweet;
-import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,26 +20,26 @@ public class TwitterBotByLastActivity extends AbstractTwitterFollowBot {
     }
 
     @Override
-    public List<AbstractUser> getPotentialFollowers(String ownerId, int count){
+    public List<IUser> getPotentialFollowers(String ownerId, int count){
         if(count>maxFriendship){
             count = maxFriendship;
         }
 
-        List<Tweet> lastTweets = null;
+        List<ITweet> lastTweets = null;
         String startDate = "201907200000";
         String endDate = "201907221000";
         lastTweets = this.searchForTweets("@"+this.getOwnerName(), 100, startDate, endDate);
         int iteration=0;
         while(iteration<lastTweets.size() && this.getPotentialFollowers().size() < count){
-            Tweet tweet = lastTweets.get(iteration);
-            AbstractUser potentialFollower = tweet.getUser();
+            ITweet tweet = lastTweets.get(iteration);
+            IUser potentialFollower = tweet.getUser();
             // @todo how to not count commonFollowers in scoring ?
             if(this.shouldFollow(potentialFollower)) {
                 if (this.isFollow()) {
-                    AbstractUser user = this.followNewUser(potentialFollower);
+                    IUser user = this.followNewUser(potentialFollower);
                     if(user!=null) this.getPotentialFollowers().add(user);
                 } else {
-                    LOGGER.info(()->"potentialFollowers added : " + potentialFollower.getUsername());
+                    LOGGER.info(()->"potentialFollowers added : " + potentialFollower.getName());
                     this.getPotentialFollowers().add(potentialFollower);
                 }
             }

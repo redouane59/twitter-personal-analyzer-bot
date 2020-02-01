@@ -1,6 +1,6 @@
 package unit;
 
-import com.socialmediaraiser.core.twitter.helpers.dto.ConverterHelper;
+import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
@@ -61,7 +61,7 @@ public class AbstractTwitterBotUnitTest {
     @Test
     @Disabled
     public void getNbInterractionsTest() throws IOException, ParseException {
-        this.twitterBot.getNbInterractions(ConverterHelper.getDateFromString("20200101"), ownerName);
+        //this.twitterBot.getNbInterractions(ConverterHelper.getDateFromString("20200101"), ownerName);
     }
 
 }

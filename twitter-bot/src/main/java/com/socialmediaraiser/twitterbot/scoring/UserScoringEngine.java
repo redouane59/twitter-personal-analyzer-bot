@@ -1,10 +1,8 @@
 package com.socialmediaraiser.twitterbot.scoring;
 
-import com.socialmediaraiser.twitterbot.scoring.ScoringProperty;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twitterbot.FollowProperties;
+import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -17,7 +15,7 @@ public class UserScoringEngine {
 
     private static final Logger LOGGER = Logger.getLogger(UserScoringEngine.class.getName());
     private int limit;
-    private AbstractUser user;
+    private User user;
 
     public UserScoringEngine(int minimumPercentMatch){
         if(minimumPercentMatch<=100 && minimumPercentMatch>=0){
@@ -28,21 +26,21 @@ public class UserScoringEngine {
         }
     }
 
-    public boolean shouldBeFollowed(AbstractUser user){
+    public boolean shouldBeFollowed(User user){
         int score = getUserScore(user);
         return score >= limit;
     }
 
-    public int getUserScore(AbstractUser user){
+    public int getUserScore(User user){
         FollowProperties.getScoringProperties().getProperty(NB_FOLLOWERS).setValue(user.getFollowersCount());
         FollowProperties.getScoringProperties().getProperty(NB_FOLLOWINGS).setValue(user.getFollowingCount());
         FollowProperties.getScoringProperties().getProperty(RATIO).setValue(user.getFollowersRatio());
         String description = user.getDescription();
         // @odo only if public account
-        if(!user.isProtectedAccount() && user.getMostRecentTweet()!=null
+      /*  if(!user.isProtectedAccount() && user.getMostRecentTweet()!=null
                 && !user.getMostRecentTweet().isEmpty()){ // adding the last tweet to description
             description = description.concat(user.getMostRecentTweet().get(0).getText());
-        }
+        }*/
         FollowProperties.getScoringProperties().getProperty(DESCRIPTION).setValue(description);
         FollowProperties.getScoringProperties().getProperty(LOCATION).setValue(user.getLocation());
         FollowProperties.getScoringProperties().getProperty(COMMON_FOLLOWERS).setValue(user.getCommonFollowers());

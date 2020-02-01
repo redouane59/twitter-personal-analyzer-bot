@@ -1,6 +1,7 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitterbot.impl.User;
 
 import java.util.Date;
 import java.util.List;
@@ -19,8 +20,8 @@ public abstract class AbstractIOHelper {
 
     public abstract List<String> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date);
     public abstract void updateFollowBackInformation(String userId, Boolean result);
-    public abstract void addNewFollowerLine(AbstractUser user);
-    public abstract void addNewFollowerLineSimple(AbstractUser user);
-    public abstract void addAllFollowers(List<AbstractUser> user);
+    public abstract void addNewFollowerLine(User user);
+    public abstract void addNewFollowerLineSimple(User user);
+    public abstract void addAllFollowers(List<User> user);
 
 }

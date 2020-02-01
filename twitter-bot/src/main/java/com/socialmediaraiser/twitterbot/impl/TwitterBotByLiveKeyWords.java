@@ -1,10 +1,10 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.socialmediaraiser.core.twitter.helpers.JsonHelper;
-import com.socialmediaraiser.core.twitter.helpers.RequestHelper;
-import com.socialmediaraiser.core.twitter.helpers.dto.tweet.Tweet;
-import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitter.helpers.JsonHelper;
+import com.socialmediaraiser.twitter.helpers.RequestHelper;
+import com.socialmediaraiser.twitter.dto.tweet.ITweet;
+import com.socialmediaraiser.twitter.IUser;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
@@ -40,7 +40,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
     }
 
     @Override
-    public List<AbstractUser> getPotentialFollowers(String ownerId, int count){
+    public List<IUser> getPotentialFollowers(String ownerId, int count){
         this.saveResults = saveResults;
 
         if(count>maxFriendship){
@@ -101,10 +101,10 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
                 LOGGER.info(()->"SMR - queue > 0");
                 try{
                     String queueString = queue.take();
-                    Tweet foundedTweet = JsonHelper.OBJECT_MAPPER.readValue(queueString, Tweet.class);
-                    LOGGER.info(()->"SMR - analysing tweet from " + foundedTweet.getUser().getUsername() + " : "
+                    ITweet foundedTweet = JsonHelper.OBJECT_MAPPER.readValue(queueString, ITweet.class);
+                    LOGGER.info(()->"SMR - analysing tweet from " + foundedTweet.getUser().getName() + " : "
                             + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
-                    if(!foundedTweet.matchWords(Arrays.asList(FollowProperties.getTargetProperties().getUnwantedKeywords()))){
+                    if(!this.matchWords(foundedTweet,Arrays.asList(FollowProperties.getTargetProperties().getUnwantedKeywords()))){
                         this.doActions(foundedTweet);
                     }
                 } catch(Exception e){
@@ -117,8 +117,8 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
         client.stop();
     }
 
-    private void doActions(Tweet tweet){
-        AbstractUser user = tweet.getUser();
+    private void doActions(ITweet tweet){
+        User user = new User(tweet.getUser());
         iterations++;
         if(this.shouldFollow(user)){
             LOGGER.info(()->"SMR - checking language...");
@@ -127,7 +127,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
                 boolean result = false;
                 if(this.isFollow()) {
                     result = getTwitterClient().follow(user.getId());
-                    LOGGER.info(user.getUsername() + " followed " + result);
+                    LOGGER.info(user.getName() + " followed " + result);
                 }
                 if (result || !this.isFollow()) {
                     user.setDateOfFollowNow();
@@ -136,7 +136,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
                         this.getIoHelper().addNewFollowerLine(user);
                     }
                 } else {
-                    LOGGER.severe(()->"error following " + user.getUsername());
+                    LOGGER.severe(()->"error following " + user.getName());
                 }
                 LOGGER.info(tweet.getText());
                 LOGGER.info(()->"\n-------------");

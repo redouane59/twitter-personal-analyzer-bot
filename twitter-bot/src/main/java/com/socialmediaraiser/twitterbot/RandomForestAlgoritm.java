@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitter.IUser;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
@@ -9,8 +9,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -94,11 +92,11 @@ public class RandomForestAlgoritm {
         return fvWekaAttributes;
     }
 
-    public static boolean getPrediction(AbstractUser user) {
+    public static boolean getPrediction(IUser user) {
          Instances dataset = new Instances("whatever", getAttributes(), 0);
         //Followers	Followings	NbDaySinceLastTweet	CommonFollowers	DateOfFollow	Tweets	YearsSinceCreation	FollowBack
         double[] attValues = new double[0];
-        try {
+     /*   try {
             attValues = new double[]{user.getFollowersCount(),
                     user.getFollowingCount(),
                     user.getDaysBetweenFollowAndLastUpdate()
@@ -109,7 +107,7 @@ public class RandomForestAlgoritm {
         } catch (ParseException e) {
             LOGGER.severe(e.getMessage());
         }
-
+       */
 
         Instance i1 = new DenseInstance(1.0, attValues);
         dataset.add(i1);

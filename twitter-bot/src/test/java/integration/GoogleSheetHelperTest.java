@@ -1,7 +1,5 @@
 package integration;
 
-import com.socialmediaraiser.core.twitter.User;
-import com.socialmediaraiser.core.twitter.helpers.dto.getuser.AbstractUser;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.RandomForestAlgoritm;
@@ -23,7 +21,7 @@ public class GoogleSheetHelperTest {
         FollowProperties.load(ownerName);
     }
 
-    @Test
+  /*  @Test
     void testAddNewFollowerLineSimple(){
         User user = User.builder()
                 .id("12345")
@@ -35,7 +33,7 @@ public class GoogleSheetHelperTest {
                 .location("Roubaix").build();
         googleSheetHelper.addNewFollowerLineSimple(user);
         //@todo remove line
-    }
+    } */
 
     @Test
     void testGetPreviouslyFollowedIdsAll(){

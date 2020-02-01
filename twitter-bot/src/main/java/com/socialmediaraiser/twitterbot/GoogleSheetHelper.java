@@ -3,7 +3,8 @@ package com.socialmediaraiser.twitterbot;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.socialmediaraiser.core.twitter.helpers.dto.user.AbstractUser;
+import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Data;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         } catch(Exception e){
             LOGGER.severe(e.getMessage());
         }
-        this.setAllUserRows();
+      //  this.setAllUserRows(); @todo to call explicitely
     }
 
     public List<String> getPreviouslyFollowedIds(boolean showFalse, boolean showTrue, Date date) {
@@ -94,7 +95,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void addNewFollowerLine(AbstractUser user){
+    public void addNewFollowerLine(User user){
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date followDate = user.getDateOfFollow();
         if(followDate==null){
@@ -108,7 +109,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         ValueRange body = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(
                         String.valueOf(user.getId()),
-                        user.getUsername(),
+                        user.getName(),
                         user.getFollowersCount(),
                         user.getFollowingCount(),
                         user.getTweetCount(),
@@ -159,8 +160,8 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void addAllFollowers(List<AbstractUser> users){
-        for(AbstractUser user : users){
+    public void addAllFollowers(List<User> users){
+        for(User user : users){
             this.addNewFollowerLineSimple(user);
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
@@ -171,7 +172,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         }
     }
 
-    public void addNewFollowerLineSimple(AbstractUser user){
+    public void addNewFollowerLineSimple(User user){
 
         Date date = user.getLastUpdate();
         long nbDaysSinceLastUpdate = 99999;
@@ -179,7 +180,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
         ValueRange body = new ValueRange()
                 .setValues(Arrays.asList(Arrays.asList(
                         String.valueOf(user.getId()),
-                        user.getUsername(),
+                        user.getName(),
                         user.getFollowersCount(),
                         user.getFollowingCount(),
                         user.getTweetCount(),

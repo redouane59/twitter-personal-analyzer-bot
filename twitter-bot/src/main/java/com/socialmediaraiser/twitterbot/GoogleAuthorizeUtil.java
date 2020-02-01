@@ -2,7 +2,7 @@ package com.socialmediaraiser.twitterbot;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.socialmediaraiser.core.twitter.helpers.JsonHelper;
+import com.socialmediaraiser.twitter.helpers.JsonHelper;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 
 import java.io.ByteArrayInputStream;

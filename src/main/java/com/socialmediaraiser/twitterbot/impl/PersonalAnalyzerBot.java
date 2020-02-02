@@ -91,7 +91,7 @@ public class PersonalAnalyzerBot {
         for(int i=1; i<=10;i++){
             Date fromDate = DateUtils.addDays(currentDate,-2);
             // checking the reply other gave me (40 days)
-            List<ITweet> tweetWithReplies = this.twitterClient.searchForTweets("@"+userName,
+            List<ITweet> tweetWithReplies = this.twitterClient.searchForTweetsWithin30days("@"+userName,
                     DateUtils.truncate(fromDate, Calendar.HOUR),
                     DateUtils.truncate(currentDate, Calendar.HOUR));
             for(ITweet tweet : tweetWithReplies){

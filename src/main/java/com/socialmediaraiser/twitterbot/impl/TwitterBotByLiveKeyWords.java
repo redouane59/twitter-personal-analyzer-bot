@@ -1,7 +1,7 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.socialmediaraiser.twitter.helpers.JsonHelper;
+import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.helpers.RequestHelper;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.IUser;
@@ -83,16 +83,16 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
                     .hosts(Constants.STREAM_HOST)
                     .endpoint(endpoint)
                     .authentication(new OAuth1(
-                            RequestHelper.TWITTER_CREDENTIALS.getConsumerKey(),
-                            RequestHelper.TWITTER_CREDENTIALS.getConsumerSecret(),
+                            RequestHelper.TWITTER_CREDENTIALS.getApiKey(),
+                            RequestHelper.TWITTER_CREDENTIALS.getApiSecretKey(),
                             RequestHelper.TWITTER_CREDENTIALS.getAccessToken(),
-                            RequestHelper.TWITTER_CREDENTIALS.getSecretToken()))
+                            RequestHelper.TWITTER_CREDENTIALS.getAccessTokenSecret()))
                     .processor(new StringDelimitedProcessor(queue))
                     .build();
             client.connect();
         }
 
-        JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         int nbFollows = new GoogleSheetHelper(this.getOwnerName()).getPreviouslyFollowedIds(true, true, new Date()).size();
 
@@ -101,7 +101,7 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
                 LOGGER.info(()->"SMR - queue > 0");
                 try{
                     String queueString = queue.take();
-                    ITweet foundedTweet = JsonHelper.OBJECT_MAPPER.readValue(queueString, ITweet.class);
+                    ITweet foundedTweet = TwitterClient.OBJECT_MAPPER.readValue(queueString, ITweet.class);
                     LOGGER.info(()->"SMR - analysing tweet from " + foundedTweet.getUser().getName() + " : "
                             + foundedTweet.getText() + " ("+foundedTweet.getLang()+")");
                     if(!this.matchWords(foundedTweet,Arrays.asList(FollowProperties.getTargetProperties().getUnwantedKeywords()))){

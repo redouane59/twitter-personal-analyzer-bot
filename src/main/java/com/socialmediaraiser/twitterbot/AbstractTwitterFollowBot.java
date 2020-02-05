@@ -2,22 +2,18 @@ package com.socialmediaraiser.twitterbot;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.socialmediaraiser.RelationType;
+import com.socialmediaraiser.twitter.IUser;
 import com.socialmediaraiser.twitter.TwitterClient;
-import com.socialmediaraiser.twitter.helpers.JsonHelper;
+import com.socialmediaraiser.twitter.dto.tweet.ITweet;
+import com.socialmediaraiser.twitter.dto.tweet.TweetSearchV1DTO;
 import com.socialmediaraiser.twitter.helpers.RequestHelper;
 import com.socialmediaraiser.twitter.helpers.URLHelper;
-import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitter.dto.tweet.ITweet;
-import com.socialmediaraiser.twitter.dto.tweet.TweetDataDTO;
-import com.socialmediaraiser.twitter.IUser;
 import com.socialmediaraiser.twitterbot.impl.User;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
 import io.vavr.control.Option;
 import lombok.Data;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -35,9 +31,7 @@ public abstract class AbstractTwitterFollowBot {
     List<String> ownerFollowingIds;
     private boolean follow; // if try will follow users
     private boolean saveResults;
-    private URLHelper urlHelper = new URLHelper();
     private RequestHelper requestHelper = new RequestHelper();
-    private JsonHelper jsonHelper = new JsonHelper();
     private TwitterClient TwitterClient;
     private static final String IDS = "ids";
     private static final String USERS = "users";
@@ -81,52 +75,6 @@ public abstract class AbstractTwitterFollowBot {
             return user;
         }
         return null;
-    }
-
-    // @todo remove count
-    // date with yyyyMMddHHmm format
-    public List<ITweet> searchForTweets(String query, int count, String fromDate, String toDate){
-
-        if(count<10){
-            count = 10;
-            LOGGER.severe(()->"count minimum = 10");
-        }
-        if(count>100){
-            count = 100;
-            LOGGER.severe(()->"count maximum = 100");
-        }
-        String url = this.getUrlHelper().getSearchTweets30daysUrl();
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("query",query);
-        parameters.put("maxResults",String.valueOf(count));
-        parameters.put("fromDate",fromDate);
-        parameters.put("toDate",toDate);
-
-        String next;
-        List<ITweet> result = new ArrayList<>();
-        do {
-            JsonNode response = this.getRequestHelper().executePostRequest(url,parameters);
-            JsonNode responseArray = null;
-            try {
-                responseArray = JsonHelper.OBJECT_MAPPER.readTree(response.get("results").toString());
-            } catch (IOException e) {
-                LOGGER.severe(e.getMessage());
-            }
-
-            if(response!=null && response.size()>0){
-                result.addAll(this.getJsonHelper().jsonResponseToTweetListV2(responseArray));
-            } else{
-                LOGGER.severe(()->"response null or ids not found !");
-            }
-
-            if(!response.has(NEXT)){
-                break;
-            }
-            next = response.get(NEXT).toString();
-            parameters.put(NEXT, next);
-        }
-        while (next!= null && result.size()<count);
-        return result;
     }
 
     private void logError(Exception e, String response){

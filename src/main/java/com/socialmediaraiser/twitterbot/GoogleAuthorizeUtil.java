@@ -2,9 +2,7 @@ package com.socialmediaraiser.twitterbot;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.socialmediaraiser.twitter.helpers.JsonHelper;
-import com.socialmediaraiser.twitterbot.FollowProperties;
-
+import com.socialmediaraiser.twitter.TwitterClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +17,7 @@ public class GoogleAuthorizeUtil {
 
     public static GoogleCredential authorize() throws IOException {
 
-        String jsonInString = JsonHelper.OBJECT_MAPPER.writeValueAsString(FollowProperties.getGoogleCredentials());
+        String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(FollowProperties.getGoogleCredentials());
 
         InputStream inputStream = new ByteArrayInputStream(jsonInString.getBytes());
 

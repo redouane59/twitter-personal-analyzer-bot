@@ -2,10 +2,12 @@ package com.socialmediaraiser.twitterbot.impl;
 
 import com.socialmediaraiser.twitter.IUser;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
+import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,9 +28,9 @@ public class TwitterBotByLastActivity extends AbstractTwitterFollowBot {
         }
 
         List<ITweet> lastTweets = null;
-        String startDate = "201907200000";
-        String endDate = "201907221000";
-        lastTweets = this.searchForTweets("@"+this.getOwnerName(), 100, startDate, endDate);
+        Date startDate = ConverterHelper.getDateFromString( "201907200000");
+        Date endDate = ConverterHelper.getDateFromString("201907221000");
+        lastTweets = this.getTwitterClient().searchForTweetsWithin30days("@"+this.getOwnerName(), startDate, endDate);
         int iteration=0;
         while(iteration<lastTweets.size() && this.getPotentialFollowers().size() < count){
             ITweet tweet = lastTweets.get(iteration);

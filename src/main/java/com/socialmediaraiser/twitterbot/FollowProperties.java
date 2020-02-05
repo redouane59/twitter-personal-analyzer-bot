@@ -3,7 +3,7 @@ package com.socialmediaraiser.twitterbot;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.socialmediaraiser.twitter.helpers.JsonHelper;
+import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitterbot.properties.GoogleCredentials;
 import com.socialmediaraiser.twitterbot.properties.IOProperties;
 import com.socialmediaraiser.twitterbot.properties.InfluencerProperties;
@@ -52,23 +52,23 @@ public class FollowProperties {
                 return false;
             }
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            JsonHelper.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+            TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
             Map<String,Object> yaml = mapper.readValue(yamlFile, HashMap.class);
             Map<String, Object> scoringList = (Map<String, Object>)yaml.get("scoring");
             if(scoringList!=null){
 
                 List<ScoringProperty> scoringPropertyList = new ArrayList<>();
                 for(Map.Entry<String, Object> p : scoringList.entrySet()){
-                    ScoringProperty sp =  JsonHelper.OBJECT_MAPPER.convertValue(p.getValue(), ScoringProperty.class);
+                    ScoringProperty sp =  TwitterClient.OBJECT_MAPPER.convertValue(p.getValue(), ScoringProperty.class);
                     sp.setCriterion(p.getKey());
                     scoringPropertyList.add(sp);
                 }
             scoringProperties = new ScoringProperties(scoringPropertyList);
             }
-            targetProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("target"), TargetProperties.class);
-            googleCredentials = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
-            influencerProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("influencer"), InfluencerProperties.class);
-            ioProperties = JsonHelper.OBJECT_MAPPER.convertValue(yaml.get("io"), IOProperties.class);
+            targetProperties = TwitterClient.OBJECT_MAPPER.convertValue(yaml.get("target"), TargetProperties.class);
+            googleCredentials = TwitterClient.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
+            influencerProperties = TwitterClient.OBJECT_MAPPER.convertValue(yaml.get("influencer"), InfluencerProperties.class);
+            ioProperties = TwitterClient.OBJECT_MAPPER.convertValue(yaml.get("io"), IOProperties.class);
             LOGGER.info(()->"properties loaded correctly");
             return true;
         } catch (IOException ex) {

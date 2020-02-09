@@ -9,18 +9,19 @@ import com.socialmediaraiser.twitter.IUser;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.PersonalAnalyzerLauncher;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang.time.DateUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-@Data
+@Getter
+@Setter
 public class PersonalAnalyzerBot {
 
     private String userName;
@@ -32,17 +33,18 @@ public class PersonalAnalyzerBot {
         this.userName = userName;
         this.ioHelper = new GoogleSheetHelper(userName);
     }
-    public void launch() throws IOException, ParseException, InterruptedException {
-        Map<String, Integer> interractions = this.getNbInterractions(ConverterHelper.getDateFromString("20200101"));
+
+    public void launch() throws IOException, InterruptedException {
+        UserInteractions interactions = this.getNbInterractions(ConverterHelper.dayBeforeNow(7));
         String userId = this.twitterClient.getUserFromUserName(userName).getId();
         List<IUser> followingsUsers = this.twitterClient.getFollowingsUsers(userId);
         for(IUser user : followingsUsers){
             User customUser = new User(user);
-            customUser.setNbInteractions(interractions.getOrDefault(user.getId(),0));
+            customUser.setNbInteractions(interactions.get(user.getId()).getTotalNbInteractions());
             // add RT and/or likes
             if(this.twitterClient.getRelationType(userId, customUser.getId()).equals(RelationType.FRIENDS)){
-                this.ioHelper.addNewFollowerLineSimple(customUser); // @todo how to manage better the limit ? Less calls to implement
-                TimeUnit.MILLISECONDS.sleep(600);
+                this.ioHelper.addNewFollowerLineSimple(customUser);
+                TimeUnit.MILLISECONDS.sleep(600); // @todo manage the limit better with Less calls but bigger objects
                 LOGGER.info("adding " + user.getName() + "...");
             } else{
                 LOGGER.info("NOT adding " + user.getName() + " (not following back)");
@@ -51,41 +53,38 @@ public class PersonalAnalyzerBot {
         LOGGER.info("finish with success");
     }
 
-    public Map<String, Integer> getNbInterractions(Date initDate) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("tweet.json").getFile());
-        List<TweetDataDTO> tweets = twitterClient.readTwitterDataFile(file);
-        // @todo add condition on followers
-        Map<String, Integer> result = new HashMap<>();
-        Date tweetDate;
-        int repliesGivenCount = 0;
-        int repliesReceivedCount = 0;
-        int retweetCount = 0;
-        for(TweetDataDTO tweetDataDTO : tweets){
-            ITweet tweet = tweetDataDTO.getTweet();
-            // checking the reply I gave to other users
-            String inReplyUserId = tweet.getInReplyToUserId();
-            tweetDate = tweet.getCreatedAt();
-            if(inReplyUserId!=null){
-                if(tweetDate!=null && tweetDate.compareTo(initDate)>0) {
-                    result.put(inReplyUserId, 1+result.getOrDefault(inReplyUserId, 0));
-                    repliesGivenCount++;
-                }
+    public UserInteractions getNbInterractions(Date initDate) throws IOException {
+        File file = new File(getClass().getClassLoader().getResource("tweet-history.json").getFile());
+        //  List<TweetDataDTO> tweets = twitterClient.readTwitterDataFile(file);
+        UserInteractions userInteractions = new UserInteractions();
+        // this.countRepliesAndRT(tweets, initDate, userInteractions);
+        this.countRecentRepliesFrom(userInteractions);
+        return userInteractions;
+    }
+
+    public void countRecentRepliesFrom(UserInteractions userInteractions) {
+        Date currentDate = ConverterHelper.minutesBeforeNow(60);
+        Date fromDate = currentDate;
+        Date minDate = DateUtils.addDays(currentDate, -7);
+        while(fromDate.compareTo(minDate)>0){
+            fromDate = DateUtils.addDays(currentDate,-1);
+            // checking the reply other gave me (40 days)
+            List<ITweet> tweetWithReplies = this.twitterClient.searchForTweetsWithin7days("@"+userName+" -is:retweet",
+                    DateUtils.truncate(fromDate, Calendar.HOUR),
+                    DateUtils.truncate(currentDate, Calendar.HOUR));
+            for(ITweet tweet : tweetWithReplies){
+                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                userInteraction.incrementNbRepliesFrom();
+                userInteractions.getValues().add(userInteraction);
+                currentDate = tweet.getCreatedAt();
             }
-            if(tweetDate!=null && tweetDate.compareTo(initDate)>0){
-                // checking the user who retweeted me
-                if(tweetDataDTO.getTweet().getRetweetCount()>0){
-                    List<String> retweeterIds = this.twitterClient.getRetweetersId(tweetDataDTO.getTweet().getId());
-                    for(String retweeterId : retweeterIds){
-                        result.put(retweeterId, 1+result.getOrDefault(retweeterId, 0));
-                        retweetCount++;
-                    }
-                }
+            if(tweetWithReplies.isEmpty()){
+                currentDate = DateUtils.addDays(currentDate,-1);
             }
         }
+    }
 
-        System.out.println(result.size() + " users found : " + repliesGivenCount + " given replies & " + retweetCount + " retweets");
-
+    public void countRepliesFrom(UserInteractions userInteractions){
         Date currentDate = ConverterHelper.minutesBeforeNow(60);
         // 10 requests for 10 weeks
         for(int i=1; i<=10;i++){
@@ -96,17 +95,43 @@ public class PersonalAnalyzerBot {
                     DateUtils.truncate(currentDate, Calendar.HOUR));
             for(ITweet tweet : tweetWithReplies){
                 if(!tweet.getText().contains("RT")){
-                    result.put(tweet.getUser().getId(), 1+result.getOrDefault(tweet.getUser().getId(), 0));
-                    repliesReceivedCount++;
+                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getUser().getId());
+                    userInteraction.incrementNbRepliesFrom();
                 }
                 currentDate = tweet.getCreatedAt();
             }
         }
-        System.out.println(result.size() + " users found : "
-                + repliesGivenCount + " given replies & "
-                + retweetCount + " retweets & "
-                + repliesReceivedCount + " received replies");
-        return result;
+    }
+
+    public void countRepliesAndRT(List<TweetDataDTO> tweets, Date initDate, UserInteractions userInteractions){
+        Date tweetDate;
+
+        for(TweetDataDTO tweetDataDTO : tweets){
+            ITweet tweet = tweetDataDTO.getTweet();
+            // checking the reply I gave to other users
+            String inReplyUserId = tweet.getInReplyToUserId();
+            tweetDate = tweet.getCreatedAt();
+            if(inReplyUserId!=null){
+                if(tweetDate!=null && tweetDate.compareTo(initDate)>0) {
+                    UserInteractions.UserInteraction userInteraction = userInteractions.get(inReplyUserId);
+                    userInteraction.incrementNbRepliesTo();
+                }
+            }
+
+            if(tweetDate!=null && tweetDate.compareTo(initDate)>0){
+                if(tweetDataDTO.getTweet().getRetweetCount()>0){
+                    this.countRetweets(tweetDataDTO, userInteractions);
+                }
+            }
+        }
+    }
+
+    public void countRetweets(TweetDataDTO tweetDataDTO, UserInteractions userInteractions){
+        List<String> retweeterIds = this.twitterClient.getRetweetersId(tweetDataDTO.getTweet().getId());
+        for(String retweeterId : retweeterIds){
+            UserInteractions.UserInteraction userInteraction = userInteractions.get(retweeterId);
+            userInteraction.incrementNbRetweets();
+        }
     }
 
     @SneakyThrows

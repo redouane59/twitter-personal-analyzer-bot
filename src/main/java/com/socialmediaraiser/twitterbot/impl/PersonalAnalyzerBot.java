@@ -12,7 +12,7 @@ import com.socialmediaraiser.twitterbot.PersonalAnalyzerLauncher;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,53 +57,32 @@ public class PersonalAnalyzerBot {
         File file = new File(getClass().getClassLoader().getResource("tweet-history.json").getFile());
         //  List<TweetDataDTO> tweets = twitterClient.readTwitterDataFile(file);
         UserInteractions userInteractions = new UserInteractions();
-        // this.countRepliesAndRT(tweets, initDate, userInteractions);
-        this.countRecentRepliesFrom(userInteractions);
+        // this.countRepliesToAndRT(tweets, initDate, userInteractions);
+        this.countRecentRepliesFrom(userInteractions, true);
         return userInteractions;
     }
 
-    public void countRecentRepliesFrom(UserInteractions userInteractions) {
-        Date currentDate = ConverterHelper.minutesBeforeNow(60);
-        Date fromDate = currentDate;
-        Date minDate = DateUtils.addDays(currentDate, -7);
-        while(fromDate.compareTo(minDate)>0){
-            fromDate = DateUtils.addDays(currentDate,-1);
-            // checking the reply other gave me (40 days)
-            List<ITweet> tweetWithReplies = this.twitterClient.searchForTweetsWithin7days("@"+userName+" -is:retweet",
-                    DateUtils.truncate(fromDate, Calendar.HOUR),
-                    DateUtils.truncate(currentDate, Calendar.HOUR));
-            for(ITweet tweet : tweetWithReplies){
-                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                userInteraction.incrementNbRepliesFrom();
-                userInteractions.getValues().add(userInteraction);
-                currentDate = tweet.getCreatedAt();
-            }
-            if(tweetWithReplies.isEmpty()){
-                currentDate = DateUtils.addDays(currentDate,-1);
-            }
+    public void countRecentRepliesFrom(UserInteractions userInteractions, boolean onlyRecent) {
+        Date toDate =  onlyRecent ? ConverterHelper.minutesBeforeNow(60) : ConverterHelper.dayBeforeNow(7);
+        toDate = DateUtils.truncate(toDate, Calendar.HOUR);
+        Date fromDate = onlyRecent ? DateUtils.addDays(toDate, -7) : DateUtils.addDays(toDate, -30);
+        fromDate = DateUtils.ceiling(fromDate, Calendar.HOUR);
+
+        List<ITweet> tweetWithReplies;
+        String query = "@"+userName+" -is:retweet";
+        if(onlyRecent){
+            tweetWithReplies= this.twitterClient.searchForTweetsWithin7days(query, fromDate, toDate);
+        } else{
+            tweetWithReplies= this.twitterClient.searchForTweetsWithin30days(query, fromDate, toDate);
+        }
+        for(ITweet tweet : tweetWithReplies){
+            UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+            userInteraction.incrementNbRepliesFrom();
+            userInteractions.getValues().add(userInteraction);
         }
     }
 
-    public void countRepliesFrom(UserInteractions userInteractions){
-        Date currentDate = ConverterHelper.minutesBeforeNow(60);
-        // 10 requests for 10 weeks
-        for(int i=1; i<=10;i++){
-            Date fromDate = DateUtils.addDays(currentDate,-2);
-            // checking the reply other gave me (40 days)
-            List<ITweet> tweetWithReplies = this.twitterClient.searchForTweetsWithin30days("@"+userName,
-                    DateUtils.truncate(fromDate, Calendar.HOUR),
-                    DateUtils.truncate(currentDate, Calendar.HOUR));
-            for(ITweet tweet : tweetWithReplies){
-                if(!tweet.getText().contains("RT")){
-                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getUser().getId());
-                    userInteraction.incrementNbRepliesFrom();
-                }
-                currentDate = tweet.getCreatedAt();
-            }
-        }
-    }
-
-    public void countRepliesAndRT(List<TweetDataDTO> tweets, Date initDate, UserInteractions userInteractions){
+    public void countRepliesToAndRT(List<TweetDataDTO> tweets, Date initDate, UserInteractions userInteractions){
         Date tweetDate;
 
         for(TweetDataDTO tweetDataDTO : tweets){

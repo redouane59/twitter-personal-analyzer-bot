@@ -2,10 +2,10 @@ package com.socialmediaraiser.twitterbot.impl;
 
 import com.socialmediaraiser.RelationType;
 import com.socialmediaraiser.twitter.TwitterClient;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetDataDTO;
-import com.socialmediaraiser.twitter.IUser;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.PersonalAnalyzerLauncher;
@@ -34,51 +34,83 @@ public class PersonalAnalyzerBot {
         this.ioHelper = new GoogleSheetHelper(userName);
     }
 
-    public void launch() throws IOException, InterruptedException {
-        UserInteractions interactions = this.getNbInterractions(ConverterHelper.dayBeforeNow(7));
+    public void launch(boolean showFollowers, boolean showFollowings) throws IOException, InterruptedException {
+        UserInteractions interactions = this.getNbInterractions(ConverterHelper.dayBeforeNow(60));
         String userId = this.twitterClient.getUserFromUserName(userName).getId();
-        List<IUser> followingsUsers = this.twitterClient.getFollowingsUsers(userId);
-        for(IUser user : followingsUsers){
-            User customUser = new User(user);
-            customUser.setNbInteractions(interactions.get(user.getId()).getTotalNbInteractions());
-            // add RT and/or likes
-            if(this.twitterClient.getRelationType(userId, customUser.getId()).equals(RelationType.FRIENDS)){
+        List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
+        // @todo use followers
+        List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
+        for(IUser user : followings){
+            if(hasToAddUser(user, followings, followers, showFollowings, showFollowers)){
+                User customUser = new User(user);
+                customUser.setNbRepliesFrom(interactions.get(user.getId()).getNbRepliesFrom());
+                customUser.setNbRepliesTo(interactions.get(user.getId()).getNbRepliesTo());
+                customUser.setNbRetweets(interactions.get(user.getId()).getNbRetweets());
                 this.ioHelper.addNewFollowerLineSimple(customUser);
                 TimeUnit.MILLISECONDS.sleep(600); // @todo manage the limit better with Less calls but bigger objects
                 LOGGER.info("adding " + user.getName() + "...");
-            } else{
-                LOGGER.info("NOT adding " + user.getName() + " (not following back)");
             }
         }
         LOGGER.info("finish with success");
     }
 
+    public boolean hasToAddUser(IUser user, List<IUser> followings, List<IUser> followers, boolean showFollowings, boolean showFollowers){
+        // case 1 : show all the people i'm following and all the user following me
+        if(!showFollowers && !showFollowings){
+            return true;
+        }
+        // case 2 : show all the people I'm following who are following me back
+        else if(showFollowers && showFollowings){
+            return (followings.contains(user) && followers.contains(user));
+        }
+        // case 3 : show all the people i'm following or all the people who are following me
+        else{
+            return ((followings.contains(user) && showFollowings) || followers.contains(user) && showFollowers);
+        }
+    }
+
     public UserInteractions getNbInterractions(Date initDate) throws IOException {
         File file = new File(getClass().getClassLoader().getResource("tweet-history.json").getFile());
-        //  List<TweetDataDTO> tweets = twitterClient.readTwitterDataFile(file);
+        List<TweetDataDTO> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
-        // this.countRepliesToAndRT(tweets, initDate, userInteractions);
+        this.countRepliesToAndRT(tweets, initDate, userInteractions);
         this.countRecentRepliesFrom(userInteractions, true);
+        this.countRecentRepliesFrom(userInteractions, false);
         return userInteractions;
     }
 
-    public void countRecentRepliesFrom(UserInteractions userInteractions, boolean onlyRecent) {
-        Date toDate =  onlyRecent ? ConverterHelper.minutesBeforeNow(60) : ConverterHelper.dayBeforeNow(7);
-        toDate = DateUtils.truncate(toDate, Calendar.HOUR);
-        Date fromDate = onlyRecent ? DateUtils.addDays(toDate, -7) : DateUtils.addDays(toDate, -30);
-        fromDate = DateUtils.ceiling(fromDate, Calendar.HOUR);
+    private List<TweetDataDTO> removeRTsFromTweetList(List<TweetDataDTO> tweetList){
+        List<TweetDataDTO> result = new ArrayList<>();
+        for(TweetDataDTO tweet : tweetList){
+            if(!tweet.getTweet().getText().startsWith("RT @")){
+                result.add(tweet);
+            }
+        }
+        return result;
+    }
+    public void countRecentRepliesFrom(UserInteractions userInteractions, boolean currentWeek) {
+        Date toDate;
+        Date fromDate;
+        if(currentWeek){
+            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(60), Calendar.HOUR);
+            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
+        } else{
+            toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7),Calendar.DAY_OF_MONTH);
+            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH);
+        }
 
         List<ITweet> tweetWithReplies;
-        String query = "@"+userName+" -is:retweet";
-        if(onlyRecent){
+        String query;
+        if(currentWeek){
+            query = "@"+userName+" -is:retweet";
             tweetWithReplies= this.twitterClient.searchForTweetsWithin7days(query, fromDate, toDate);
         } else{
+            query = "to:"+userName+" has:mentions"; // -is:retweet not working in sandbox, needs a premium account
             tweetWithReplies= this.twitterClient.searchForTweetsWithin30days(query, fromDate, toDate);
         }
         for(ITweet tweet : tweetWithReplies){
             UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
             userInteraction.incrementNbRepliesFrom();
-            userInteractions.getValues().add(userInteraction);
         }
     }
 
@@ -98,7 +130,7 @@ public class PersonalAnalyzerBot {
             }
 
             if(tweetDate!=null && tweetDate.compareTo(initDate)>0){
-                if(tweetDataDTO.getTweet().getRetweetCount()>0){
+                if(tweetDataDTO.getTweet().getRetweetCount()>0 && !tweetDataDTO.getTweet().getText().startsWith(("@"))){
                     this.countRetweets(tweetDataDTO, userInteractions);
                 }
             }

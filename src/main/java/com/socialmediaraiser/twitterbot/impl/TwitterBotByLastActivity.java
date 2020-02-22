@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot.impl;
 
-import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;

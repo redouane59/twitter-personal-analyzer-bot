@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot.impl;
 
-import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import io.vavr.control.Option;

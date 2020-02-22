@@ -2,7 +2,7 @@ package com.socialmediaraiser.twitterbot;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.socialmediaraiser.RelationType;
-import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetSearchV1DTO;

@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot.impl;
 
-import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.dto.user.UserDTOv1;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,9 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class User extends UserDTOv1 {
-    private int nbInteractions;
+    private int nbRetweets;
+    private int nbRepliesTo;
+    private int nbRepliesFrom;
     private Date dateOfFollow;
     private Date dateOfFollowBack;
     private int commonFollowers;
@@ -21,6 +23,9 @@ public class User extends UserDTOv1 {
                 u.getLang(), u.getTweetCount(), null, null, u.getLocation(), u.isFollowing());
     }
 
+    public int getNbInteractions(){
+        return this.nbRetweets + this.nbRepliesTo + this.nbRepliesFrom;
+    }
     public void setDateOfFollowNow(){
         this.dateOfFollow = new Date();
     }

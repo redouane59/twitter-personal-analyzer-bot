@@ -3,7 +3,7 @@ package com.socialmediaraiser.twitterbot;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.socialmediaraiser.twitter.IUser;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Data;
 
@@ -189,7 +189,9 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                                 .replace(";"," ")
                                 .replace("\n"," "),
                         Optional.ofNullable(user.getLocation()).orElse(""),
-                        user.getNbInteractions(),
+                        user.getNbRepliesFrom(),
+                        user.getNbRepliesTo(),
+                        user.getNbRetweets(),
                         nbDaysSinceLastUpdate
                 )));
         try{

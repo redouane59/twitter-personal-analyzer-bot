@@ -20,7 +20,9 @@ public class UserInteractions {
                 return userInteraction;
             }
         }
-        return new UserInteraction(userId);
+        UserInteraction userInteraction = new UserInteraction(userId);
+        this.values.add(userInteraction);
+        return userInteraction;
     }
 
     @Getter

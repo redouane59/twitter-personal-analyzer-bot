@@ -191,8 +191,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         Optional.ofNullable(user.getLocation()).orElse(""),
                         user.getNbRepliesFrom(),
                         user.getNbRepliesTo(),
-                        user.getNbRetweets(),
-                        nbDaysSinceLastUpdate
+                        user.getNbRetweets()
                 )));
         try{
             Sheets.Spreadsheets.Values.Append request =

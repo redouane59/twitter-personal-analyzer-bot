@@ -124,12 +124,11 @@ public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
             LOGGER.info(()->"SMR - checking language...");
             if(this.isLanguageOK(user)){
                 // this.likeTweet(tweet.getId());
-                boolean result = false;
                 if(this.isFollow()) {
-                    result = getTwitterClient().follow(user.getId());
-                    LOGGER.info(user.getName() + " followed " + result);
+                    getTwitterClient().follow(user.getId());
+                    LOGGER.info(user.getName() + " followed ");
                 }
-                if (result || !this.isFollow()) {
+                if (!this.isFollow()) {
                     user.setDateOfFollowNow();
                     this.getPotentialFollowers().add(user);
                     if(this.saveResults){

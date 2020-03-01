@@ -66,15 +66,12 @@ public abstract class AbstractTwitterFollowBot {
 
     public IUser followNewUser(IUser potentialFollower){
         User user = new User(potentialFollower);
-        boolean result = getTwitterClient().follow(user.getId());
-        if (result) {
-            user.setDateOfFollowNow();
-            if (this.saveResults) {
-                this.getIoHelper().addNewFollowerLine(user);
-            }
-            return user;
+        getTwitterClient().follow(user.getId());
+        user.setDateOfFollowNow();
+        if (this.saveResults) {
+            this.getIoHelper().addNewFollowerLine(user);
         }
-        return null;
+        return user;
     }
 
     private void logError(Exception e, String response){
@@ -88,12 +85,9 @@ public abstract class AbstractTwitterFollowBot {
             IUser user = getTwitterClient().getUserFromUserId(id);
             if(nbUnfollows>=maxUnfollows) break;
             if(unfollow && this.shouldBeUnfollowed((User)user, criterion, value)){
-                boolean result = getTwitterClient().unfollow(user.getId());
+                getTwitterClient().unfollow(user.getId());
                 nbUnfollows++;
                 LOGGER.info(()-> user.getName() + " -> unfollowed");
-                if(!result){
-                    LOGGER.severe(() -> "error unfollowing " + user.getName());
-                }
             }
         }
         LOGGER.info(nbUnfollows + " users unfollowed");
@@ -112,11 +106,9 @@ public abstract class AbstractTwitterFollowBot {
         for(String otherId : otherIds){
             boolean userShouldBeUnfollowed = shouldBeUnfollowed(userId, otherId, writeOnSheet);
             if(unfollow && userShouldBeUnfollowed){
-                boolean unfollowResult = this.getTwitterClient().unfollow(otherId);
-                if(unfollowResult) {
-                    nbUnfollows++;
-                    this.temporiseUnfollows(nbUnfollows);
-                }
+                this.getTwitterClient().unfollow(otherId);
+                nbUnfollows++;
+                this.temporiseUnfollows(nbUnfollows);
             }
             result.put(otherId, !userShouldBeUnfollowed);
         }

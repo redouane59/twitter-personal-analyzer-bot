@@ -1,10 +1,10 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 import com.socialmediaraiser.twitter.TwitterClient;
+import com.socialmediaraiser.twitter.dto.tweet.ITweet;
+import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitter.dto.tweet.ITweet;
-import com.socialmediaraiser.twitter.dto.tweet.TweetDataDTO;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.PersonalAnalyzerLauncher;
@@ -27,7 +27,7 @@ public class PersonalAnalyzerBot {
     private static final Logger LOGGER = Logger.getLogger(PersonalAnalyzerLauncher.class.getName());
     private AbstractIOHelper ioHelper;
     private TwitterClient twitterClient = new TwitterClient();
-    private final Date initRepliesDate = ConverterHelper.dayBeforeNow(30);
+    private final Date initRepliesToDate = ConverterHelper.dayBeforeNow(60);
     private final Date initRetweetsDate = ConverterHelper.dayBeforeNow(180);
 
     public PersonalAnalyzerBot(String userName){
@@ -76,19 +76,19 @@ public class PersonalAnalyzerBot {
 
     private UserInteractions getNbInterractions() throws IOException {
         File file = new File(getClass().getClassLoader().getResource("tweet-history.json").getFile());
-        List<TweetDataDTO> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
+        List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
         this.countRetweets(userInteractions, tweets, initRetweetsDate);
-        this.countRepliesTo(userInteractions, tweets, initRepliesDate);
+        this.countRepliesTo(userInteractions, tweets, initRepliesToDate);
         this.countRecentRepliesFrom(userInteractions, true); // D-7 -> D0
         this.countRecentRepliesFrom(userInteractions, false); // D-30 -> D-7
         return userInteractions;
     }
 
-    private List<TweetDataDTO> removeRTsFromTweetList(List<TweetDataDTO> tweetList){
-        List<TweetDataDTO> result = new ArrayList<>();
-        for(TweetDataDTO tweet : tweetList){
-            if(!tweet.getTweet().getText().startsWith("RT @")){
+    private List<TweetDTOv1> removeRTsFromTweetList(List<TweetDTOv1> tweetList){
+        List<TweetDTOv1> result = new ArrayList<>();
+        for(TweetDTOv1 tweet : tweetList){
+            if(!tweet.getText().startsWith("RT @")){
                 result.add(tweet);
             }
         }
@@ -96,6 +96,7 @@ public class PersonalAnalyzerBot {
     }
 
     public void countRecentRepliesFrom(UserInteractions userInteractions, boolean currentWeek) {
+        LOGGER.info("counting replies from...");
         Date toDate;
         Date fromDate;
         if(currentWeek){
@@ -119,10 +120,10 @@ public class PersonalAnalyzerBot {
         }
     }
 
-    private void countRepliesTo(UserInteractions userInteractions, List<TweetDataDTO> tweets, Date initDate){
+    private void countRepliesTo(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
+        LOGGER.info("counting replies to...");
         Date tweetDate;
-        for(TweetDataDTO tweetDataDTO : tweets){
-            ITweet tweet = tweetDataDTO.getTweet();
+        for(TweetDTOv1 tweet : tweets){
             // checking the reply I gave to other users
             String inReplyUserId = tweet.getInReplyToUserId();
             tweetDate = tweet.getCreatedAt();
@@ -133,21 +134,21 @@ public class PersonalAnalyzerBot {
         }
     }
 
-    private void countRetweets(UserInteractions userInteractions, List<TweetDataDTO> tweets, Date initDate){
+    private void countRetweets(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
         Date tweetDate;
-        for(TweetDataDTO tweetDataDTO : tweets){
-            ITweet tweet = tweetDataDTO.getTweet();
+        for(TweetDTOv1 tweet : tweets){
             tweetDate = tweet.getCreatedAt();
             if(tweetDate!=null && tweetDate.compareTo(initDate)>0){
-                if(tweetDataDTO.getTweet().getRetweetCount()>0 && !tweetDataDTO.getTweet().getText().startsWith(("@"))){
-                    this.countRetweetsOfTweet(tweetDataDTO, userInteractions);
+                if(tweet.getRetweetCount()>0 && !tweet.getText().startsWith(("@"))){
+                    this.countRetweetsOfTweet(tweet, userInteractions);
                 }
             }
         }
     }
 
-    private void countRetweetsOfTweet(TweetDataDTO tweetDataDTO, UserInteractions userInteractions){
-        List<String> retweeterIds = this.twitterClient.getRetweetersId(tweetDataDTO.getTweet().getId());
+    private void countRetweetsOfTweet(TweetDTOv1 tweet, UserInteractions userInteractions){
+        List<String> retweeterIds = this.twitterClient.getRetweetersId(tweet.getId());
+        LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
         for(String retweeterId : retweeterIds){
             UserInteractions.UserInteraction userInteraction = userInteractions.get(retweeterId);
             userInteraction.incrementNbRetweets();
@@ -155,20 +156,17 @@ public class PersonalAnalyzerBot {
     }
 
     @SneakyThrows
-    public void unfollow(String[] toUnfollow){
-        //String[] toUnfollow = {"amiinedz78","josko3s","RiynK","Faridb59","9Madriida","SarahLdyHnz","_Niniiiiiiiii","ptitcafebrioche","CamilleKyrie2","WhiteKumaaa","clandestins_","sanaaells","sudiste213","El_P0w","Nadiaa_trore01","FaisEnUnAutre","bahweles","mrslindachibani","Dow_Jones2","da_wood7","hb_213","riihaaabk","arbitkt","Qatar_Happiness","EdouardBeyeme","fatimezzzahrae","mel79117","NassDurkio93","Mlle_batata","MarvinLakeers","jal___","Txrzan__","Coline_prchnt","Rv_Mathoux","94kg__","CaptainBooz7","dzzz_35","NassiBrown","graaldeuf","samyra75","tantinekimberly","ALGERIENNEDP","NB_Rp59","alalgerienneee","shhhut_","R0LK","OrLiliane","sslipknoot","BLLVCKSCARAIBES","BillionBix","Abdel_hz93","sheikas4","bulane20","PoetryLifeTimes","vivbrillant","IsYVEVO","sarabndry","Inaaya_93","fromMarsToPluto","ccldiaz","tiefadaouquoi","Le_FeuFoullet","InitialsDD_","Mio_Karaa","MystHumain24046","HappyYoSmile","IamYankeeBoy","risMOrisMO","plutonnique","PpaulBasse","Channel_sah","MorganeDns","Meliza_Elvz","baydou","na2s____","apresmarxavril","sameclc","ZacNasra","marine77290","NikiLaarson","elyyssa__1","wild4James","ia_sa66","otracopadevino","NamoryCoulibal2","IamNormanZ","MoussaXXVIIV","marinaa_77","Madison_gmty","ines86_","Vacensii","CarlaBZH","kriskonan","Mhra_57","grrmymy","LopezLibongo","kelsy_","vinsmooke_","TRK03BSN","henenetlb","Mlle_Ninoush","YacineMahfoufi","Sfrediin","MedMierda","amneziia91","SoxnaSi_","yasminemost","KToTheeN","ccbyeesh","IamMad__","Mchaumier","DatBoyKayLo","pmontp19","m2ldu952","moufiane1","Busoo_Joop","GazouilleurFou","missssjuriste","Ndoyamy","byminaaaa","Happy_Gnanchou","_vivelapolska_","Adam_Amrane","lunaameelo","kabylee21369","braulio_jcz","linamrni","HerBijiKurdi","sbnh___","Fuetardo_243","FranckCyril_","YenigunSevim","BoHamzouz17","MelissaPabisz","flanaa94","PRAISEDA8IGHT","AmiraDreams","lindamez2","dturotte","Ablaze191","jdereg13","Nicolas_WISSER","TheDrzy","thehaankee","libertashio_","bonbouaz","ziasiam","iya_mouhamed","jujuulagarce","fiaso78","demi_sword","JurgenTgt","Djzr__","21Draxlaaaa","pactu10","adriencuchet","Amandinee_prr","Dabebi_","MaryDedeur","nicco_tbo","WechHamzHamz","WhoTFYouR","_OncleDom","_izzb__","francksman","pluto299","africaanwhite"};
+    public void unfollow(String[] toUnfollow, String[] whiteList){
+
         int nbUnfollows = 0;
         for(String unfollowName : toUnfollow){
-            boolean result = this.getTwitterClient().unfollowByName(unfollowName);
-            if(result){
+            if(!Arrays.asList(whiteList).contains(unfollowName)){
+                this.getTwitterClient().unfollowByName(unfollowName);
                 nbUnfollows++;
-
-            } else{
-                LOGGER.severe(unfollowName + " not unfollowed !!");
+                TimeUnit.MILLISECONDS.sleep(500);
+                System.out.println(unfollowName + " unfollowed");
             }
-            TimeUnit.MILLISECONDS.sleep(500);
         }
-
         LOGGER.info(nbUnfollows + " users unfollowed with success !");
     }
 }

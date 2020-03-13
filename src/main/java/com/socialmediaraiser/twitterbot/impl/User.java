@@ -18,7 +18,7 @@ public class User extends UserDTOv1 {
     private int commonFollowers;
 
     public User(IUser u){
-        super(u.getId(), u.getName(), u.getMostRecentTweet(), u.getDescription(),
+        super(u.getId(), u.getName(), null, u.getDescription(),
         u.isProtectedAccount(),  u.getFollowersCount(), u.getFollowingCount(),
                 u.getLang(), u.getTweetCount(), null, null, u.getLocation(), u.isFollowing());
     }

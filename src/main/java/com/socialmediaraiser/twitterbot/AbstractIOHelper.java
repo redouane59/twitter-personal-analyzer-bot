@@ -22,6 +22,7 @@ public abstract class AbstractIOHelper {
     public abstract void updateFollowBackInformation(String userId, Boolean result);
     public abstract void addNewFollowerLine(User user);
     public abstract void addNewFollowerLineSimple(User user);
+    public abstract void addNewFollowerLineSimple(List<User> user);
     public abstract void addAllFollowers(List<User> user);
 
 }

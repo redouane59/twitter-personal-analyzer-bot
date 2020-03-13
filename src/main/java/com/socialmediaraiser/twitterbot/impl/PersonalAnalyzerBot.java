@@ -45,17 +45,24 @@ public class PersonalAnalyzerBot {
                 addAll(followings);
                 addAll(followers);
             } };
+
+        List<User> userToWrite = new ArrayList<>();
+        int nbUsersToAdd = 10;
         for(IUser iUser : allUsers){
             if(hasToAddUser(iUser, followings, followers, showFollowings, showFollowers)){
                 User user = new User(iUser);
                 user.setNbRepliesFrom(interactions.get(iUser.getId()).getNbRepliesFrom());
                 user.setNbRepliesTo(interactions.get(iUser.getId()).getNbRepliesTo());
                 user.setNbRetweets(interactions.get(iUser.getId()).getNbRetweets());
-                this.ioHelper.addNewFollowerLineSimple(user);
-                TimeUnit.MILLISECONDS.sleep(600); // @todo manage the limit better with Less calls but bigger objects
-                LOGGER.info("adding " + iUser.getName() + "...");
+                userToWrite.add(user);
+                if(userToWrite.size()==nbUsersToAdd){
+                    this.ioHelper.addNewFollowerLineSimple(userToWrite);
+                    userToWrite = new ArrayList<>();
+                    LOGGER.info("adding 10");
+                }
             }
         }
+        this.ioHelper.addNewFollowerLineSimple(userToWrite);
         LOGGER.info("finish with success");
     }
 
@@ -108,10 +115,12 @@ public class PersonalAnalyzerBot {
         }
 
         List<ITweet> tweetWithReplies;
-        String query = "to:"+userName+" has:mentions";
+        String query;
         if(currentWeek){
+            query = "(to:"+userName+" has:mentions)" + "OR (url:redtheone -is:retweet)";
             tweetWithReplies= this.twitterClient.searchForTweetsWithin7days(query, fromDate, toDate);
         } else{
+            query = "to:"+userName+" has:mentions";
             tweetWithReplies= this.twitterClient.searchForTweetsWithin30days(query, fromDate, toDate);
         }
         for(ITweet tweet : tweetWithReplies){

@@ -188,7 +188,8 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         Optional.ofNullable(user.getLocation()).orElse(""),
                         user.getNbRepliesFrom(),
                         user.getNbRepliesTo(),
-                        user.getNbRetweets()
+                        user.getNbRetweets(),
+                        user.isFollowing()
                 )));
         try {
             Sheets.Spreadsheets.Values.Append request =
@@ -215,7 +216,8 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                     Optional.ofNullable(user.getLocation()).orElse(""),
                     user.getNbRepliesFrom(),
                     user.getNbRepliesTo(),
-                    user.getNbRetweets()));
+                    user.getNbRetweets(),
+                    user.isFollowing()));
         }
         ValueRange body = new ValueRange()
                 .setValues(values);
@@ -226,6 +228,13 @@ public class GoogleSheetHelper extends AbstractIOHelper {
             request.execute();
         } catch (Exception e) {
             LOGGER.severe(e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(10);
+                this.addNewFollowerLineSimple(users);
+            } catch (InterruptedException e2) {
+                LOGGER.severe(e2.getMessage());
+                Thread.currentThread().interrupt();
+            }
         }
 
     }

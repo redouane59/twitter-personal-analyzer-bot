@@ -35,8 +35,8 @@ public class PersonalAnalyzerBot {
         this.ioHelper = new GoogleSheetHelper(userName);
     }
 
-    public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers) throws IOException, InterruptedException {
-        UserInteractions interactions = this.getNbInterractions();
+    public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers, String ArchiveFileName) throws IOException, InterruptedException {
+        UserInteractions interactions = this.getNbInterractions(ArchiveFileName);
         String userId = this.twitterClient.getUserFromUserName(userName).getId();
         List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
         List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
@@ -88,11 +88,11 @@ public class PersonalAnalyzerBot {
         }
     }
 
-    private UserInteractions getNbInterractions() throws IOException {
-        File file = new File(getClass().getClassLoader().getResource("tweet-history.json").getFile());
+    private UserInteractions getNbInterractions(String archiveFileName) throws IOException {
+        File file = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
         List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
-        this.countRepliesToFromRecentSearch(userInteractions, tweets.get(0).getCreatedAt());
+        this.countRepliesToFromRecentSearch(userInteractions, tweets.get(0).getCreatedAt()); // @todo manage if null
         this.countRepliesToFromDataArchive(userInteractions, tweets, initRepliesToDate);
         this.countRecentRepliesFrom(userInteractions, true); // D-7 -> D0
         this.countRecentRepliesFrom(userInteractions, false); // D-30 -> D-7

@@ -46,6 +46,9 @@ public class FollowProperties {
         if(userName==null) return false;
         try {
            URL yamlFile = com.socialmediaraiser.twitterbot.FollowProperties.class.getResource("/"+userName+".yaml");
+           if(yamlFile==null){
+               yamlFile = com.socialmediaraiser.twitterbot.FollowProperties.class.getResource("/RedTheOne.yaml"); // @todo to clean
+           }
             //URL yamlFile = new File("/"+userName+".yaml").toURI().toURL();
             if(yamlFile==null){
                 LOGGER.severe(()->"yaml file not found at /"+userName+".yaml");

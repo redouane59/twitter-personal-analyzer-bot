@@ -13,6 +13,7 @@ public class User extends UserDTOv1 {
     private int nbRetweets;
     private int nbRepliesTo;
     private int nbRepliesFrom;
+    private int nbLikesTo;
     private Date dateOfFollow;
     private Date dateOfFollowBack;
     private int commonFollowers;
@@ -24,7 +25,7 @@ public class User extends UserDTOv1 {
     }
 
     public int getNbInteractions(){
-        return this.nbRetweets + this.nbRepliesTo + this.nbRepliesFrom;
+        return this.nbRetweets + this.nbRepliesTo + this.nbRepliesFrom + this.nbLikesTo;
     }
     public void setDateOfFollowNow(){
         this.dateOfFollow = new Date();

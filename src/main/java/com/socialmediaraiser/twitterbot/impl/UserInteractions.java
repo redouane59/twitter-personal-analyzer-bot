@@ -30,6 +30,7 @@ public class UserInteractions {
         private int nbRepliesTo = 0;
         private int nbRepliesFrom = 0;
         private int nbRetweets = 0;
+        private int nbLikesTo = 0;
 
         public UserInteraction(String userId){
             this.userId = userId;
@@ -43,11 +44,15 @@ public class UserInteractions {
             nbRepliesFrom++;
         }
 
+        public void incrementNbLikesTo(){
+            nbLikesTo++;
+        }
+
         public void incrementNbRetweets(){
             nbRetweets++;
         }
         public int getTotalNbInteractions(){
-            return this.nbRepliesTo+this.nbRepliesFrom+this.nbRetweets;
+            return this.nbRepliesTo+this.nbRepliesFrom+this.nbRetweets+nbLikesTo;
         }
 
         @Override

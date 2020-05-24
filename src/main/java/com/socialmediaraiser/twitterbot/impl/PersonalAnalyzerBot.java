@@ -29,15 +29,15 @@ public class PersonalAnalyzerBot {
     private TwitterClient twitterClient = new TwitterClient();
     private final Date initRepliesToDate = ConverterHelper.dayBeforeNow(60); // @todo to improve
     private final Date initRetweetsDate = ConverterHelper.dayBeforeNow(180);
-
+    private String userId;
     public PersonalAnalyzerBot(String userName){
         this.userName = userName;
         this.ioHelper = new GoogleSheetHelper(userName);
     }
 
     public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers, String ArchiveFileName) throws IOException, InterruptedException {
+        userId = this.twitterClient.getUserFromUserName(userName).getId();
         UserInteractions interactions = this.getNbInterractions(ArchiveFileName);
-        String userId = this.twitterClient.getUserFromUserName(userName).getId();
         List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
         List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
         Set<IUser> allUsers = new HashSet<>() {
@@ -54,6 +54,7 @@ public class PersonalAnalyzerBot {
                 user.setNbRepliesFrom(interactions.get(iUser.getId()).getNbRepliesFrom());
                 user.setNbRepliesTo(interactions.get(iUser.getId()).getNbRepliesTo());
                 user.setNbRetweets(interactions.get(iUser.getId()).getNbRetweets());
+                user.setNbLikesTo(interactions.get(iUser.getId()).getNbLikesTo());
                 usersToWrite.add(user);
                 if(usersToWrite.size()==nbUsersToAdd){
                     this.ioHelper.addNewFollowerLineSimple(usersToWrite);
@@ -79,7 +80,7 @@ public class PersonalAnalyzerBot {
             return true;
         }
         // case 2 : show all the people I'm following who are following me back
-        else if(showFollowers && showFollowings && onyFollowBackUsers){
+        else if(showFollowers && showFollowings && onyFollowBackUsers){ // @todo to fix
             return (followings.contains(user) && followers.contains(user));
         }
         // case 3 : show all the people i'm following or all the people who are following me
@@ -92,6 +93,7 @@ public class PersonalAnalyzerBot {
         File file = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
         List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
+        this.countGivenLikes(userInteractions);
         this.countRepliesToFromRecentSearch(userInteractions, tweets.get(0).getCreatedAt()); // @todo manage if null
         this.countRepliesToFromDataArchive(userInteractions, tweets, initRepliesToDate);
         this.countRecentRepliesFrom(userInteractions, true); // D-7 -> D0
@@ -115,7 +117,7 @@ public class PersonalAnalyzerBot {
         Date toDate;
         Date fromDate;
         if(currentWeek){
-            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(60), Calendar.HOUR);
+            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
             fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
         } else{
             toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7),Calendar.DAY_OF_MONTH);
@@ -160,10 +162,10 @@ public class PersonalAnalyzerBot {
         Date fromDate;
         query = "(to:"+userName+" has:mentions)" + "OR (url:redtheone -is:retweet)";
         if(delta>7){
-            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(60), Calendar.HOUR);
+            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
             fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
         } else{
-            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(60), Calendar.HOUR);
+            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
             fromDate = mostRecentArchiveTweetDate;
         }
         tweetWithReplies= this.twitterClient.searchForTweetsWithin7days(query, fromDate, toDate);
@@ -187,6 +189,18 @@ public class PersonalAnalyzerBot {
         }
     }
 
+    private void countGivenLikes(UserInteractions userInteractions){
+        LOGGER.info("counting given likes excluding answers...");
+        List<ITweet> likedTweets = this.twitterClient.getFavorites(userId, 5000);
+        for(ITweet tweet : likedTweets){
+            if(tweet.getInReplyToStatusId()==null) {
+                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                userInteraction.incrementNbLikesTo();
+            }
+        }
+        LOGGER.info(likedTweets.size() + " given liked tweets found");
+    }
+
     private void countRetweetsOfTweet(TweetDTOv1 tweet, UserInteractions userInteractions){
         List<String> retweeterIds = this.twitterClient.getRetweetersId(tweet.getId());
         LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
@@ -201,6 +215,7 @@ public class PersonalAnalyzerBot {
 
         int nbUnfollows = 0;
         for(String unfollowName : toUnfollow){
+            unfollowName.replace(" ","");
             if(!Arrays.asList(whiteList).contains(unfollowName)){
                 this.getTwitterClient().unfollowByName(unfollowName);
                 nbUnfollows++;

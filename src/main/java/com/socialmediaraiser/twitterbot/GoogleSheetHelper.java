@@ -189,6 +189,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                         user.getNbRepliesFrom(),
                         user.getNbRepliesTo(),
                         user.getNbRetweets(),
+                        user.getNbLikesTo(),
                         user.isFollowing()
                 )));
         try {
@@ -217,6 +218,7 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                     user.getNbRepliesFrom(),
                     user.getNbRepliesTo(),
                     user.getNbRetweets(),
+                    user.getNbLikesTo(),
                     user.isFollowing()));
         }
         ValueRange body = new ValueRange()

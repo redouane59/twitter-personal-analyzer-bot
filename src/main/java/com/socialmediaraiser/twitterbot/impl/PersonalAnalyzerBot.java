@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.time.DateUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -93,12 +92,12 @@ public class PersonalAnalyzerBot {
         File file = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
         List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
-        this.countGivenLikes(userInteractions);
-        this.countRepliesToFromRecentSearch(userInteractions, tweets.get(0).getCreatedAt()); // @todo manage if null
-        this.countRepliesToFromDataArchive(userInteractions, tweets, initRepliesToDate);
-        this.countRecentRepliesFrom(userInteractions, true); // D-7 -> D0
-        this.countRecentRepliesFrom(userInteractions, false); // D-30 -> D-7
+        this.countRepliesFromUserFromUserRecentSearch(userInteractions, tweets.get(0).getCreatedAt());
+        this.countRepliesFromUserFromUserDataArchive(userInteractions, tweets, initRepliesToDate);
+        this.countRecentRepliesToUser(userInteractions, true); // D-7 -> D0
+        this.countRecentRepliesToUser(userInteractions, false); // D-30 -> D-7
         this.countRetweets(userInteractions, tweets, initRetweetsDate);
+        this.countGivenLikes(userInteractions);
         return userInteractions;
     }
 
@@ -113,7 +112,7 @@ public class PersonalAnalyzerBot {
     }
 
     // @todo how to count each conversation only once ?
-    public void countRecentRepliesFrom(UserInteractions userInteractions, boolean currentWeek) {
+    public void countRecentRepliesToUser(UserInteractions userInteractions, boolean currentWeek) {
         LOGGER.info("counting replies from...");
         Date toDate;
         Date fromDate;
@@ -134,36 +133,61 @@ public class PersonalAnalyzerBot {
             query = "to:"+userName+" has:mentions";
             tweetWithReplies= this.twitterClient.searchForTweetsWithin30days(query, fromDate, toDate);
         }
+
+        Map<String, List<String>> statusesAndAnswers = new HashMap<>();
+        int savedAnswers = 0;
+
         for(ITweet tweet : tweetWithReplies){
-            UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-            userInteraction.incrementNbRepliesFrom();
+            System.out.print(".");
+            String initialTweetId = this.twitterClient.getInitialTweetId(tweet);
+            // if the initial tweet id is not on the map, we add it
+            if(!statusesAndAnswers.containsKey(initialTweetId)){
+                statusesAndAnswers.put(initialTweetId, new ArrayList<>());
+            }
+            if(!statusesAndAnswers.get(initialTweetId).contains(tweet.getAuthorId())) {
+                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                userInteraction.incrementNbRepliesFrom();
+                statusesAndAnswers.get(initialTweetId).add(tweet.getAuthorId());
+                savedAnswers++;
+            }
         }
+        LOGGER.info(tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
     }
 
-    // @todo how to count each conversation only once ?
-    private void countRepliesToFromDataArchive(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
-        LOGGER.info("counting replies to...");
+    // @todo how to count each conversation only once ? from ???
+    private void countRepliesFromUserFromUserDataArchive(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
+        LOGGER.info("counting replies from user (archive)...");
         Date tweetDate;
+        Set<String> answeredByUserTweets = new HashSet<>();
+        int repliesGiven = 0;
         for(TweetDTOv1 tweet : tweets){
             // checking the reply I gave to other users
             String inReplyUserId = tweet.getInReplyToUserId();
             tweetDate = tweet.getCreatedAt();
             if(inReplyUserId!=null && tweetDate!=null && tweetDate.compareTo(initDate)>0) {
+                repliesGiven++;
+                String initialTweetId = this.twitterClient.getInitialTweetId(tweet);
+                System.out.print(".");
+                if(!answeredByUserTweets.contains(initialTweetId)) {
                     UserInteractions.UserInteraction userInteraction = userInteractions.get(inReplyUserId);
                     userInteraction.incrementNbRepliesTo();
+                    answeredByUserTweets.add(initialTweetId);
+                }
             }
         }
+        LOGGER.info(repliesGiven + " replies given found, " + answeredByUserTweets.size() + " replies given saved");
     }
 
-    // @todo how to count each conversation only once ?
-    private void countRepliesToFromRecentSearch(UserInteractions userInteractions, Date mostRecentArchiveTweetDate){
+    // to correct to search FROM instead of TO
+    private void countRepliesFromUserFromUserRecentSearch(UserInteractions userInteractions, Date mostRecentArchiveTweetDate){
+        LOGGER.info("counting replies from user (API)...");
         long delta = (System.currentTimeMillis() - mostRecentArchiveTweetDate.getTime())/(1000*60*60*24);
         if(delta<1) return;
         List<ITweet> tweetWithReplies;
         String query;
         Date toDate;
         Date fromDate;
-        query = "(to:"+userName+" has:mentions)" + "OR (url:redtheone -is:retweet)";
+        query = "(from:"+userName+" has:mentions)";
         if(delta>7){
             toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
             fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
@@ -173,11 +197,19 @@ public class PersonalAnalyzerBot {
         }
         tweetWithReplies= this.twitterClient.searchForTweetsWithin7days(query, fromDate, toDate);
 
+        Set<String> answeredByUserTweets = new HashSet<>();
+
         for(ITweet tweet : tweetWithReplies){
-            UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-            userInteraction.incrementNbRepliesTo();
+            String initialTweetId = this.twitterClient.getInitialTweetId(tweet);
+            System.out.print(".");
+            // we only count the answer to a tweet once
+            if(!answeredByUserTweets.contains(initialTweetId)){
+                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                userInteraction.incrementNbRepliesTo();
+                answeredByUserTweets.add(initialTweetId);
+            }
         }
-        LOGGER.info(tweetWithReplies.size() + " replies given found");
+        LOGGER.info(tweetWithReplies.size() + " replies given found, " + answeredByUserTweets.size() + " saved");
     }
 
     private void countRetweets(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){

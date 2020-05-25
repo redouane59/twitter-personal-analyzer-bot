@@ -80,7 +80,7 @@ public class PersonalAnalyzerBot {
             return true;
         }
         // case 2 : show all the people I'm following who are following me back
-        else if(showFollowers && showFollowings && onyFollowBackUsers){ // @todo to fix
+        else if(showFollowers && showFollowings && onyFollowBackUsers){
             return (followings.contains(user) && followers.contains(user));
         }
         // case 3 : show all the people i'm following or all the people who are following me
@@ -112,6 +112,7 @@ public class PersonalAnalyzerBot {
         return result;
     }
 
+    // @todo how to count each conversation only once ?
     public void countRecentRepliesFrom(UserInteractions userInteractions, boolean currentWeek) {
         LOGGER.info("counting replies from...");
         Date toDate;
@@ -139,6 +140,7 @@ public class PersonalAnalyzerBot {
         }
     }
 
+    // @todo how to count each conversation only once ?
     private void countRepliesToFromDataArchive(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
         LOGGER.info("counting replies to...");
         Date tweetDate;
@@ -153,6 +155,7 @@ public class PersonalAnalyzerBot {
         }
     }
 
+    // @todo how to count each conversation only once ?
     private void countRepliesToFromRecentSearch(UserInteractions userInteractions, Date mostRecentArchiveTweetDate){
         long delta = (System.currentTimeMillis() - mostRecentArchiveTweetDate.getTime())/(1000*60*60*24);
         if(delta<1) return;

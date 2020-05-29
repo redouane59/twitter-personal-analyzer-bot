@@ -1,4 +1,4 @@
-package com.socialmediaraiser.twitterbot.impl;
+package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import lombok.Getter;
 import lombok.Setter;

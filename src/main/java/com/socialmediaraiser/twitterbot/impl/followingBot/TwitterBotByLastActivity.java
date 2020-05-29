@@ -1,4 +1,4 @@
-package com.socialmediaraiser.twitterbot.impl;
+package com.socialmediaraiser.twitterbot.impl.followingBot;
 
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;

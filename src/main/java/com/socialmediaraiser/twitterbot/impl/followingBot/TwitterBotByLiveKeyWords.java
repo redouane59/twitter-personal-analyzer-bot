@@ -1,4 +1,4 @@
-package com.socialmediaraiser.twitterbot.impl;
+package com.socialmediaraiser.twitterbot.impl.followingBot;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.socialmediaraiser.twitter.TwitterClient;
@@ -8,6 +8,7 @@ import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
+import com.socialmediaraiser.twitterbot.impl.User;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.Constants;

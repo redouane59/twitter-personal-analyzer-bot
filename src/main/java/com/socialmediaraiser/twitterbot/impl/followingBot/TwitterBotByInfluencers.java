@@ -1,8 +1,9 @@
-package com.socialmediaraiser.twitterbot.impl;
+package com.socialmediaraiser.twitterbot.impl.followingBot;
 
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
+import com.socialmediaraiser.twitterbot.impl.User;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
+import com.socialmediaraiser.twitterbot.impl.followingBot.TwitterBotByInfluencers;
 
 import java.util.logging.Logger;
 

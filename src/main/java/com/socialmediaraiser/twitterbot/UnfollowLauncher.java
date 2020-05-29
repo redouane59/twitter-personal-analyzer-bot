@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
+import com.socialmediaraiser.twitterbot.impl.followingBot.TwitterBotByInfluencers;
 import io.vavr.control.Option;
 
 import java.util.Calendar;

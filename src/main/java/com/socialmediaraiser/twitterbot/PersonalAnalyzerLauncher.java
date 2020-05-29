@@ -1,8 +1,7 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitterbot.impl.PersonalAnalyzerBot;
+import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.PersonalAnalyzerBot;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.logging.Logger;
 
 public class PersonalAnalyzerLauncher {

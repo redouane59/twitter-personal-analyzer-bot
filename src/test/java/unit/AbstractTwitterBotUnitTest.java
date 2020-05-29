@@ -1,9 +1,8 @@
 package unit;
 
-import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
-import com.socialmediaraiser.twitterbot.impl.TwitterBotByInfluencers;
+import com.socialmediaraiser.twitterbot.impl.followingBot.TwitterBotByInfluencers;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;

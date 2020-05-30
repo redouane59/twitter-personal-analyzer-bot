@@ -18,8 +18,8 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         super(userName);
     }
 
-    public void countRepliesFromUser(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
-        LOGGER.info("counting replies from user (archive)...");
+    public void countRepliesGiven(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
+        LOGGER.info("\ncounting replies from user (archive)...");
         Date tweetDate;
         Set<String> answeredByUserTweets = new HashSet<>();
         int repliesGiven = 0;
@@ -27,7 +27,8 @@ public class DataArchiveHelper extends AbstractSearchHelper {
             // checking the reply I gave to other users
             String inReplyUserId = tweet.getInReplyToUserId();
             tweetDate = tweet.getCreatedAt();
-            if(inReplyUserId!=null && tweetDate!=null && tweetDate.compareTo(initDate)>0) {
+            if(inReplyUserId!=null && tweetDate!=null && tweetDate.compareTo(initDate)>0
+            && this.isUserInList(tweet.getInReplyToUserId())) {
                 repliesGiven++;
                 String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
                 if(!answeredByUserTweets.contains(initialTweetId)) {
@@ -41,24 +42,30 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         LOGGER.info(repliesGiven + " replies given found, " + answeredByUserTweets.size() + " replies given saved");
     }
 
-    public void countRetweets(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
+    public void countRetweesReceived(UserInteractions userInteractions, List<TweetDTOv1> tweets, Date initDate){
+        LOGGER.info("\ncounting retweets (archive)...");
+        int rtCount = 0;
         Date tweetDate;
         for(TweetDTOv1 tweet : tweets){
             tweetDate = tweet.getCreatedAt();
             if(tweetDate!=null && tweetDate.compareTo(initDate)>0){
                 if(tweet.getRetweetCount()>0 && !tweet.getText().startsWith(("@"))){
                     this.countRetweetsOfTweet(tweet, userInteractions);
+                    rtCount++;
                 }
             }
         }
+        LOGGER.info(rtCount + " retweets found");
     }
 
     private void countRetweetsOfTweet(TweetDTOv1 tweet, UserInteractions userInteractions){
         List<String> retweeterIds = this.getTwitterClient().getRetweetersId(tweet.getId());
         LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
         for(String retweeterId : retweeterIds){
-            UserInteractions.UserInteraction userInteraction = userInteractions.get(retweeterId);
-            userInteraction.incrementNbRetweets();
+            if(this.isUserInList(retweeterId)){
+                UserInteractions.UserInteraction userInteraction = userInteractions.get(retweeterId);
+                userInteraction.incrementNbRetweets();
+            }
         }
     }
 }

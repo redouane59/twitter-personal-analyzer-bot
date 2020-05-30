@@ -27,7 +27,7 @@ public class PersonalAnalyzerBot {
     private AbstractIOHelper ioHelper;
     private TwitterClient twitterClient = new TwitterClient();
     private final Date initRepliesToDate = ConverterHelper.dayBeforeNow(60); // @todo to improve
-    private final Date initRetweetsDate = ConverterHelper.dayBeforeNow(180);
+    private final Date initRetweetsDate = ConverterHelper.dayBeforeNow(60);
     DataArchiveHelper dataArchiveHelper;
     ApiSearchHelper apiSearchHelper;
 
@@ -62,7 +62,7 @@ public class PersonalAnalyzerBot {
                 if(usersToWrite.size()==nbUsersToAdd){
                     this.ioHelper.addNewFollowerLineSimple(usersToWrite);
                     usersToWrite = new ArrayList<>();
-                    LOGGER.info("adding " + nbUsersToAdd);
+                    LOGGER.info("adding " + nbUsersToAdd + " users ...");
                     TimeUnit.MILLISECONDS.sleep(500);
                 }
             }
@@ -96,11 +96,15 @@ public class PersonalAnalyzerBot {
         File file = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
         List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
-        apiSearchHelper.countRepliesFromUser(userInteractions, tweets.get(0).getCreatedAt());
-        dataArchiveHelper.countRepliesFromUser(userInteractions, tweets, initRepliesToDate);
-        apiSearchHelper.countRepliesToUser(userInteractions, true); // D-7 -> D0
-        apiSearchHelper.countRepliesToUser(userInteractions, false); // D-30 -> D-7
-        dataArchiveHelper.countRetweets(userInteractions, tweets, initRetweetsDate);
+        // counts all the unique replies given by the user to others
+       dataArchiveHelper.countRepliesGiven(userInteractions, tweets, initRepliesToDate);
+        // counts all the retweets of user tweets done by others
+       dataArchiveHelper.countRetweesReceived(userInteractions, tweets, initRetweetsDate);
+        // counts all replies given recently to others
+       apiSearchHelper.countRecentRepliesGiven(userInteractions, tweets.get(0).getCreatedAt());
+        // counts all the replies received by others
+        apiSearchHelper.countRepliesReceived(userInteractions, true); // D-7 -> D0
+        apiSearchHelper.countRepliesReceived(userInteractions, false); // D-30 -> D-7
         apiSearchHelper.countGivenLikes(userInteractions);
         return userInteractions;
     }

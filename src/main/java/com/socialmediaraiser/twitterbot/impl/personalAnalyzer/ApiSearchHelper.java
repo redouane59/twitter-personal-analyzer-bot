@@ -19,8 +19,8 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
     // @todo mix adding query parameter
     // countRepliesFromUserFromUserRecentSearch
-    public void countRepliesFromUser(UserInteractions userInteractions, Date mostRecentArchiveTweetDate){
-        LOGGER.info("counting replies from user (API)...");
+    public void countRecentRepliesGiven(UserInteractions userInteractions, Date mostRecentArchiveTweetDate){
+        LOGGER.info("\nCounting replies from user (API)...");
         long delta = (System.currentTimeMillis() - mostRecentArchiveTweetDate.getTime())/(1000*60*60*24);
         if(delta<1) return;
         List<ITweet> tweetWithReplies;
@@ -41,21 +41,22 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         Set<String> answeredByUserTweets = new HashSet<>();
 
         for(ITweet tweet : tweetWithReplies){
-            String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
-            System.out.print(".");
-            // we only count the answer to a tweet once
-            if(!answeredByUserTweets.contains(initialTweetId)){
-                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                userInteraction.incrementNbRepliesTo();
-                answeredByUserTweets.add(initialTweetId);
+            if(this.isUserInList(tweet.getInReplyToUserId())){
+                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
+                System.out.print(".");
+                // we only count the answer to a tweet once
+                if(!answeredByUserTweets.contains(initialTweetId)){
+                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                    userInteraction.incrementNbRepliesTo();
+                    answeredByUserTweets.add(initialTweetId);
+                }
             }
         }
         LOGGER.info(tweetWithReplies.size() + " replies given found, " + answeredByUserTweets.size() + " saved");
     }
 
-    // @todo how to count each conversation only once ?
-    public void countRepliesToUser(UserInteractions userInteractions, boolean currentWeek) {
-        LOGGER.info("counting replies to user...");
+    public void countRepliesReceived(UserInteractions userInteractions, boolean currentWeek) {
+        LOGGER.info("\nCounting replies to user...");
         Date toDate;
         Date fromDate;
         if(currentWeek){
@@ -80,30 +81,38 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         int savedAnswers = 0;
 
         for(ITweet tweet : tweetWithReplies){
-            System.out.print(".");
-            String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
-            // if the initial tweet id is not on the map, we add it
-            if(!statusesAndAnswers.containsKey(initialTweetId)){
-                statusesAndAnswers.put(initialTweetId, new ArrayList<>());
+            if(this.isUserInList(tweet.getAuthorId())){
+                System.out.print(".");
+                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
+                // if the initial tweet id is not on the map, we add it
+                if(!statusesAndAnswers.containsKey(initialTweetId)){
+                    statusesAndAnswers.put(initialTweetId, new ArrayList<>());
+                }
+                if(!statusesAndAnswers.get(initialTweetId).contains(tweet.getAuthorId())) {
+                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                    userInteraction.incrementNbRepliesFrom();
+                    statusesAndAnswers.get(initialTweetId).add(tweet.getAuthorId());
+                    savedAnswers++;
+                }
             }
-            if(!statusesAndAnswers.get(initialTweetId).contains(tweet.getAuthorId())) {
-                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                userInteraction.incrementNbRepliesFrom();
-                statusesAndAnswers.get(initialTweetId).add(tweet.getAuthorId());
-                savedAnswers++;
-            }
+
         }
         LOGGER.info(tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
     }
 
     public void countGivenLikes(UserInteractions userInteractions){
-        LOGGER.info("counting given likes excluding answers...");
+        LOGGER.info("\nCounting given likes excluding answers...");
         String userId = this.getTwitterClient().getUserFromUserName(this.getUserName()).getId();
         List<ITweet> likedTweets = this.getTwitterClient().getFavorites(userId, 5000);
+        Set<String> analyzedLikes = new HashSet<>();
         for(ITweet tweet : likedTweets){
-            if(tweet.getInReplyToStatusId()==null) {
-                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                userInteraction.incrementNbLikesTo();
+            if(tweet.getInReplyToStatusId()==null && this.isUserInList(tweet.getAuthorId())) {
+                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
+                if(!analyzedLikes.contains(initialTweetId)){
+                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                    userInteraction.incrementNbLikesTo();
+                    analyzedLikes.add(initialTweetId);
+                }
             }
         }
         LOGGER.info(likedTweets.size() + " given liked tweets found");

@@ -42,7 +42,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
         for(ITweet tweet : tweetWithReplies){
             if(this.isUserInList(tweet.getInReplyToUserId())){
-                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
+                String initialTweetId = this.getTwitterClient().getInitialTweet(tweet, true).getId();
                 System.out.print(".");
                 // we only count the answer to a tweet once
                 if(!answeredByUserTweets.contains(initialTweetId)){
@@ -55,6 +55,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         LOGGER.info(tweetWithReplies.size() + " replies given found, " + answeredByUserTweets.size() + " saved");
     }
 
+    // @todo change it and mix with data
     public void countRepliesReceived(UserInteractions userInteractions, boolean currentWeek) {
         LOGGER.info("\nCounting replies to user...");
         Date toDate;
@@ -83,16 +84,18 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         for(ITweet tweet : tweetWithReplies){
             if(this.isUserInList(tweet.getAuthorId())){
                 System.out.print(".");
-                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
-                // if the initial tweet id is not on the map, we add it
-                if(!statusesAndAnswers.containsKey(initialTweetId)){
-                    statusesAndAnswers.put(initialTweetId, new ArrayList<>());
-                }
-                if(!statusesAndAnswers.get(initialTweetId).contains(tweet.getAuthorId())) {
-                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                    userInteraction.incrementNbRepliesFrom();
-                    statusesAndAnswers.get(initialTweetId).add(tweet.getAuthorId());
-                    savedAnswers++;
+                ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
+                if(this.getUserId().equals(initialTweet.getAuthorId())){ // @todo to test
+                    // if the initial tweet id is not on the map, we add it
+                    if(!statusesAndAnswers.containsKey(initialTweet.getId())){
+                        statusesAndAnswers.put(initialTweet.getId(), new ArrayList<>());
+                    }
+                    if(!statusesAndAnswers.get(initialTweet.getId()).contains(tweet.getAuthorId())) {
+                        UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                        userInteraction.incrementNbRepliesFrom();
+                        statusesAndAnswers.get(initialTweet.getId()).add(tweet.getAuthorId());
+                        savedAnswers++;
+                    }
                 }
             }
 
@@ -100,19 +103,15 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         LOGGER.info(tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
     }
 
-    public void countGivenLikes(UserInteractions userInteractions){
+    // excluding answers
+    public void countGivenLikesOnStatuses(UserInteractions userInteractions){
         LOGGER.info("\nCounting given likes excluding answers...");
         String userId = this.getTwitterClient().getUserFromUserName(this.getUserName()).getId();
         List<ITweet> likedTweets = this.getTwitterClient().getFavorites(userId, 5000);
-        Set<String> analyzedLikes = new HashSet<>();
         for(ITweet tweet : likedTweets){
             if(tweet.getInReplyToStatusId()==null && this.isUserInList(tweet.getAuthorId())) {
-                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
-                if(!analyzedLikes.contains(initialTweetId)){
-                    UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                    userInteraction.incrementNbLikesTo();
-                    analyzedLikes.add(initialTweetId);
-                }
+                UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+                userInteraction.incrementNbLikesTo();
             }
         }
         LOGGER.info(likedTweets.size() + " given liked tweets found");

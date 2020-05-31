@@ -97,15 +97,15 @@ public class PersonalAnalyzerBot {
         List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
         // counts all the unique replies given by the user to others
-       dataArchiveHelper.countRepliesGiven(userInteractions, tweets, initRepliesToDate);
+        dataArchiveHelper.countRepliesGiven(userInteractions, tweets, initRepliesToDate);
         // counts all the retweets of user tweets done by others
-       dataArchiveHelper.countRetweesReceived(userInteractions, tweets, initRetweetsDate);
+        dataArchiveHelper.countRetweesReceived(userInteractions, tweets, initRetweetsDate);
         // counts all replies given recently to others
-       apiSearchHelper.countRecentRepliesGiven(userInteractions, tweets.get(0).getCreatedAt());
+        apiSearchHelper.countRecentRepliesGiven(userInteractions, tweets.get(0).getCreatedAt());
         // counts all the replies received by others
         apiSearchHelper.countRepliesReceived(userInteractions, true); // D-7 -> D0
         apiSearchHelper.countRepliesReceived(userInteractions, false); // D-30 -> D-7
-        apiSearchHelper.countGivenLikes(userInteractions);
+        apiSearchHelper.countGivenLikesOnStatuses(userInteractions);
         return userInteractions;
     }
 

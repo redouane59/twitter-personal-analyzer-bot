@@ -30,7 +30,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
             if(inReplyUserId!=null && tweetDate!=null && tweetDate.compareTo(initDate)>0
             && this.isUserInList(tweet.getInReplyToUserId())) {
                 repliesGiven++;
-                String initialTweetId = this.getTwitterClient().getInitialTweetId(tweet);
+                String initialTweetId = this.getTwitterClient().getInitialTweet(tweet, true).getId();
                 if(!answeredByUserTweets.contains(initialTweetId)) {
                     System.out.print(".");
                     UserInteractions.UserInteraction userInteraction = userInteractions.get(inReplyUserId);

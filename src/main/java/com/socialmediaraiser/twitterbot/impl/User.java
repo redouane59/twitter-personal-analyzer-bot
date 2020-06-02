@@ -10,10 +10,11 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class User extends UserDTOv1 {
-    private int nbRetweets;
-    private int nbRepliesTo;
-    private int nbRepliesFrom;
-    private int nbLikesTo;
+    private int nbRetweetsReceived;
+    private int nbRepliesGiven;
+    private int nbRepliesReceived;
+    private int nbLikesGiven;
+    private int nbRetweetsGiven;
     private Date dateOfFollow;
     private Date dateOfFollowBack;
     private int commonFollowers;
@@ -24,9 +25,6 @@ public class User extends UserDTOv1 {
                 u.getLang(), u.getTweetCount(), null, null, u.getLocation(), u.isFollowing());
     }
 
-    public int getNbInteractions(){
-        return this.nbRetweets + this.nbRepliesTo + this.nbRepliesFrom + this.nbLikesTo;
-    }
     public void setDateOfFollowNow(){
         this.dateOfFollow = new Date();
     }

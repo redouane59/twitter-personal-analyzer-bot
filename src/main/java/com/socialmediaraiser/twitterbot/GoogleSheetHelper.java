@@ -3,7 +3,6 @@ package com.socialmediaraiser.twitterbot;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Data;
 
@@ -186,10 +185,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                                 .replace(";", " ")
                                 .replace("\n", " "),
                         Optional.ofNullable(user.getLocation()).orElse(""),
-                        user.getNbRepliesFrom(),
-                        user.getNbRepliesTo(),
-                        user.getNbRetweets(),
-                        user.getNbLikesTo(),
+                        user.getNbRepliesReceived(),
+                        user.getNbRetweetsReceived(),
+                        user.getNbRepliesGiven(),
+                        user.getNbRetweetsGiven(),
+                        user.getNbLikesGiven(),
                         user.isFollowing()
                 )));
         try {
@@ -215,10 +215,11 @@ public class GoogleSheetHelper extends AbstractIOHelper {
                             .replace(";", " ")
                             .replace("\n", " "),
                     Optional.ofNullable(user.getLocation()).orElse(""),
-                    user.getNbRepliesFrom(),
-                    user.getNbRepliesTo(),
-                    user.getNbRetweets(),
-                    user.getNbLikesTo(),
+                    user.getNbRepliesReceived(),
+                    user.getNbRetweetsReceived(),
+                    user.getNbRepliesGiven(),
+                    user.getNbRetweetsGiven(),
+                    user.getNbLikesGiven(),
                     user.isFollowing()));
         }
         ValueRange body = new ValueRange()

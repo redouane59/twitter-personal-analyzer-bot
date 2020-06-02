@@ -1,4 +1,4 @@
-package unit;
+package com.socialmediaraiser.twitterbot.unit;
 
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.impl.User;

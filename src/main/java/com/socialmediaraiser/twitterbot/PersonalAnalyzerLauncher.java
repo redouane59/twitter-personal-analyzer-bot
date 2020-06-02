@@ -1,8 +1,11 @@
 package com.socialmediaraiser.twitterbot;
 
+import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.DataArchiveHelper;
 import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.PersonalAnalyzerBot;
 import java.io.IOException;
 import java.util.logging.Logger;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PersonalAnalyzerLauncher {
 
@@ -14,7 +17,7 @@ public class PersonalAnalyzerLauncher {
         } else{
             String userName = args[0];
             boolean unfollowMode = Boolean.parseBoolean(args[1]);
-            PersonalAnalyzerBot bot = new PersonalAnalyzerBot(userName);
+            PersonalAnalyzerBot bot = new PersonalAnalyzerBot(userName, userName.toLowerCase()+"-tweet-history.json");
             if(!unfollowMode){
                 boolean includeFollowers = true;
                 boolean includeFollowings = true;

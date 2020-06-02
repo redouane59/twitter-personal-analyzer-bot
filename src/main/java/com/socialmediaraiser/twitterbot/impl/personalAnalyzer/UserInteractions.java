@@ -27,32 +27,34 @@ public class UserInteractions {
     @Setter
     public static class UserInteraction{
         private String userId;
-        private int nbRepliesTo = 0;
-        private int nbRepliesFrom = 0;
-        private int nbRetweets = 0;
-        private int nbLikesTo = 0;
+        private int nbRepliesGiven = 0;
+        private int nbRepliesReceived = 0;
+        private int nbRetweetsReceived = 0;
+        private int nbRetweetsGiven = 0;
+        private int nbLikesGiven = 0;
 
         public UserInteraction(String userId){
             this.userId = userId;
         }
 
-        public void incrementNbRepliesTo(){
-            nbRepliesTo++;
+        public void incrementNbRepliesGiven(){
+            nbRepliesGiven++;
         }
 
-        public void incrementNbRepliesFrom(){
-            nbRepliesFrom++;
+        public void incrementNbRepliesReceived(){
+            nbRepliesReceived++;
         }
 
-        public void incrementNbLikesTo(){
-            nbLikesTo++;
+        public void incrementNbLikesGiven(){
+            nbLikesGiven++;
         }
 
-        public void incrementNbRetweets(){
-            nbRetweets++;
+        public void incrementNbRetweetsReceived(){
+            nbRetweetsReceived++;
         }
-        public int getTotalNbInteractions(){
-            return this.nbRepliesTo+this.nbRepliesFrom+this.nbRetweets+nbLikesTo;
+
+        public void incrementNbRetweetsGiven(){
+            nbRetweetsGiven++;
         }
 
         @Override

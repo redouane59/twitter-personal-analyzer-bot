@@ -1,4 +1,4 @@
-package integration;
+package com.socialmediaraiser.twitterbot.integration;
 
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.RandomForestAlgoritm;

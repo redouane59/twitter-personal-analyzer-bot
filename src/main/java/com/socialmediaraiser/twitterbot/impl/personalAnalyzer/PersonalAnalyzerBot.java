@@ -1,7 +1,6 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.TwitterClient;
-import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
@@ -26,15 +25,14 @@ public class PersonalAnalyzerBot {
     private static final Logger LOGGER = Logger.getLogger(PersonalAnalyzerLauncher.class.getName());
     private AbstractIOHelper ioHelper;
     private TwitterClient twitterClient = new TwitterClient();
-    private final Date initRepliesToDate = ConverterHelper.dayBeforeNow(60); // @todo to improve
-    private final Date initRetweetsDate = ConverterHelper.dayBeforeNow(60);
+    private final Date iniDate = ConverterHelper.dayBeforeNow(30);
     DataArchiveHelper dataArchiveHelper;
     ApiSearchHelper apiSearchHelper;
 
-    public PersonalAnalyzerBot(String userName){
+    public PersonalAnalyzerBot(String userName, String archiveFileName){
         this.userName = userName;
         this.ioHelper = new GoogleSheetHelper(userName);
-        this.dataArchiveHelper = new DataArchiveHelper(userName);
+        this.dataArchiveHelper = new DataArchiveHelper(userName, archiveFileName, iniDate);
         this.apiSearchHelper = new ApiSearchHelper(userName);
     }
 
@@ -43,7 +41,7 @@ public class PersonalAnalyzerBot {
         UserInteractions interactions = this.getNbInterractions(ArchiveFileName);
         List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
         List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
-        Set<IUser> allUsers = new HashSet<>() {
+        Set<IUser> allUsers = new HashSet<>() { // @todo duplicate
             {
                 addAll(followings);
                 addAll(followers);
@@ -54,10 +52,11 @@ public class PersonalAnalyzerBot {
         for(IUser iUser : allUsers){
             if(hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)){
                 User user = new User(iUser);
-                user.setNbRepliesFrom(interactions.get(iUser.getId()).getNbRepliesFrom());
-                user.setNbRepliesTo(interactions.get(iUser.getId()).getNbRepliesTo());
-                user.setNbRetweets(interactions.get(iUser.getId()).getNbRetweets());
-                user.setNbLikesTo(interactions.get(iUser.getId()).getNbLikesTo());
+                user.setNbRepliesReceived(interactions.get(iUser.getId()).getNbRepliesReceived());
+                user.setNbRepliesGiven(interactions.get(iUser.getId()).getNbRepliesGiven());
+                user.setNbRetweetsReceived(interactions.get(iUser.getId()).getNbRetweetsReceived());
+                user.setNbLikesGiven(interactions.get(iUser.getId()).getNbLikesGiven());
+                user.setNbRetweetsGiven(interactions.get(iUser.getId()).getNbRetweetsGiven());
                 usersToWrite.add(user);
                 if(usersToWrite.size()==nbUsersToAdd){
                     this.ioHelper.addNewFollowerLineSimple(usersToWrite);
@@ -94,14 +93,15 @@ public class PersonalAnalyzerBot {
 
     private UserInteractions getNbInterractions(String archiveFileName) throws IOException {
         File file = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
-        List<TweetDTOv1> tweets = this.removeRTsFromTweetList(twitterClient.readTwitterDataFile(file));
         UserInteractions userInteractions = new UserInteractions();
+        // counts all retweets given to others
+        dataArchiveHelper.countGivenRetweets(userInteractions);
         // counts all the unique replies given by the user to others
-        dataArchiveHelper.countRepliesGiven(userInteractions, tweets, initRepliesToDate);
+        dataArchiveHelper.countRepliesGiven(userInteractions);
         // counts all the retweets of user tweets done by others
-        dataArchiveHelper.countRetweesReceived(userInteractions, tweets, initRetweetsDate);
+        dataArchiveHelper.countRetweesReceived(userInteractions);
         // counts all replies given recently to others
-        apiSearchHelper.countRecentRepliesGiven(userInteractions, tweets.get(0).getCreatedAt());
+        apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
         // counts all the replies received by others
         apiSearchHelper.countRepliesReceived(userInteractions, true); // D-7 -> D0
         apiSearchHelper.countRepliesReceived(userInteractions, false); // D-30 -> D-7
@@ -109,15 +109,7 @@ public class PersonalAnalyzerBot {
         return userInteractions;
     }
 
-    private List<TweetDTOv1> removeRTsFromTweetList(List<TweetDTOv1> tweetList){
-        List<TweetDTOv1> result = new ArrayList<>();
-        for(TweetDTOv1 tweet : tweetList){
-            if(!tweet.getText().startsWith("RT @")){
-                result.add(tweet);
-            }
-        }
-        return result;
-    }
+
 
     @SneakyThrows
     public void unfollow(String[] toUnfollow, String[] whiteList){

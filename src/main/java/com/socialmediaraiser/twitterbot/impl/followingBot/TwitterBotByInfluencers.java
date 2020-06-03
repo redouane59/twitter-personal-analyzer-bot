@@ -7,18 +7,19 @@ import com.socialmediaraiser.twitterbot.impl.User;
 import io.vavr.control.Option;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.CustomLog;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Logger;
+
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@CustomLog
 public class TwitterBotByInfluencers extends AbstractTwitterFollowBot {
 
     private int maxFriendship = 390;
-    private static final Logger LOGGER = Logger.getLogger(TwitterBotByInfluencers.class.getName());
 
     public TwitterBotByInfluencers(String ownerName, boolean follow, boolean saveResults) {
         super(ownerName, follow, saveResults);

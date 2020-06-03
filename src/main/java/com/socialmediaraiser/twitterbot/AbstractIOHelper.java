@@ -1,6 +1,5 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitterbot.impl.User;
 
 import java.util.Date;

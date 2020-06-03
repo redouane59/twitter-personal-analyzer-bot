@@ -3,17 +3,18 @@ package com.socialmediaraiser.twitterbot.scoring;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Data;
+import lombok.CustomLog;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Logger;
+
 
 import static com.socialmediaraiser.twitterbot.scoring.Criterion.*;
 
 @Data
+@CustomLog
 public class UserScoringEngine {
 
-    private static final Logger LOGGER = Logger.getLogger(UserScoringEngine.class.getName());
     private int limit;
     private User user;
 

@@ -2,14 +2,13 @@ package com.socialmediaraiser.twitterbot;
 
 import com.socialmediaraiser.twitterbot.impl.followingBot.TwitterBotByInfluencers;
 import io.vavr.control.Option;
+import lombok.CustomLog;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Logger;
 
+@CustomLog
 public class UnfollowLauncher {
-
-    private static final Logger LOGGER = Logger.getLogger(UnfollowLauncher.class.getName());
 
     public static void main(String[] args) {
         if(args.length<1){

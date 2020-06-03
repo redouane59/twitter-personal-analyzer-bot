@@ -5,19 +5,19 @@ import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Data;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
 
 @Data
+@CustomLog
 public class GoogleSheetHelper extends AbstractIOHelper {
-
-    private static final Logger LOGGER = Logger.getLogger(GoogleSheetHelper.class.getName());
-
+    
     private Sheets sheetsService;
     private String followedBackColumn;
     private String sheetId;

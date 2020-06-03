@@ -11,6 +11,7 @@ import com.socialmediaraiser.twitterbot.properties.TargetProperties;
 import com.socialmediaraiser.twitterbot.scoring.ScoringProperty;
 import lombok.Data;
 import lombok.Getter;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,12 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
 
 @Data
+@CustomLog
 public class FollowProperties {
-
-    private static final Logger LOGGER = Logger.getLogger(com.socialmediaraiser.twitterbot.FollowProperties.class.getName());
 
     @Getter
     private static TargetProperties targetProperties;

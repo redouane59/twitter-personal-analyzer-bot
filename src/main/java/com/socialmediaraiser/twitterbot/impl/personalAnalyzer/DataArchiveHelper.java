@@ -3,18 +3,15 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;
 import com.socialmediaraiser.twitter.dto.tweet.TweetType;
-import com.socialmediaraiser.twitter.dto.user.IUser;
-import lombok.NoArgsConstructor;
+import lombok.CustomLog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
 
+@CustomLog
 public class DataArchiveHelper extends AbstractSearchHelper {
 
-    // @todo use lombok logger
-    private static final Logger LOGGER = Logger.getLogger(DataArchiveHelper.class.getName());
     private List<TweetDTOv1> tweets = new ArrayList<>();
 
     public DataArchiveHelper(String userName){

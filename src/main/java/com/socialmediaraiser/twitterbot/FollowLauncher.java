@@ -1,14 +1,13 @@
 package com.socialmediaraiser.twitterbot;
 
 import com.socialmediaraiser.twitterbot.impl.followingBot.TwitterBotByInfluencers;
+import lombok.CustomLog;
 
-import java.util.logging.Logger;
 
 // @todo dev followback hour reception
 
+@CustomLog
 public class FollowLauncher {
-
-    private static final Logger LOGGER = Logger.getLogger(FollowLauncher.class.getName());
 
     public static void main(String[] args) throws Exception {
         if(args.length<2){

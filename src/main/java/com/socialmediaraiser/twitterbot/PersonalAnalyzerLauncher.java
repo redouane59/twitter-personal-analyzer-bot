@@ -2,14 +2,12 @@ package com.socialmediaraiser.twitterbot;
 
 import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.DataArchiveHelper;
 import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.PersonalAnalyzerBot;
+import lombok.CustomLog;
+
 import java.io.IOException;
-import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+@CustomLog
 public class PersonalAnalyzerLauncher {
-
-    private static final Logger LOGGER = Logger.getLogger(PersonalAnalyzerLauncher.class.getName());
 
     public static void main(String[] args) throws IOException, InterruptedException {
         if(args.length<2){

@@ -2,22 +2,21 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
+import lombok.CustomLog;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 
+@CustomLog
 public class ApiSearchHelper extends AbstractSearchHelper {
-
-    // @todo use lombok logger
-    private static final Logger LOGGER = Logger.getLogger(ApiSearchHelper.class.getName());
 
     public ApiSearchHelper(String userName){
         super(userName);
     }
 
     // @todo mix adding query parameter
+    // @todo to the same for given retweets
     // countRepliesFromUserFromUserRecentSearch
     public void countRecentRepliesGiven(UserInteractions userInteractions, Date mostRecentArchiveTweetDate){
         LOGGER.info("\nCounting replies from user (API)...");

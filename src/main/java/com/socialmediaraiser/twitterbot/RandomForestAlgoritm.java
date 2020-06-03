@@ -1,6 +1,7 @@
 package com.socialmediaraiser.twitterbot;
 
 import com.socialmediaraiser.twitter.dto.user.IUser;
+import lombok.CustomLog;
 import weka.classifiers.Evaluation;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
@@ -11,14 +12,12 @@ import weka.core.Instances;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+@CustomLog
 public class RandomForestAlgoritm {
 
     private static RandomForest forest;
     private static SecureRandom random = new SecureRandom();
-    private static final Logger LOGGER = Logger.getLogger(RandomForestAlgoritm.class.getName());
-
 
     private RandomForestAlgoritm() {
         throw new IllegalStateException("Utility class");

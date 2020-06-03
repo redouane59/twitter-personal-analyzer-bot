@@ -17,19 +17,20 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.CustomLog;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Logger;
+
 
 @Setter
 @Getter
+@CustomLog
 public class TwitterBotByLiveKeyWords extends AbstractTwitterFollowBot {
 
-    private static final Logger LOGGER = Logger.getLogger(TwitterBotByLiveKeyWords.class.getName());
     private int maxFriendship = 390;
     private int queueSize = 100;
     private int iterations = 0;

@@ -1,27 +1,22 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.socialmediaraiser.RelationType;
-import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
-import com.socialmediaraiser.twitter.dto.tweet.TweetSearchV1DTO;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.RequestHelper;
-import com.socialmediaraiser.twitter.helpers.URLHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
 import io.vavr.control.Option;
 import lombok.Data;
-
-import java.io.IOException;
+import lombok.CustomLog;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 @Data
+@CustomLog
 public abstract class AbstractTwitterFollowBot {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractTwitterFollowBot.class.getName());
     private AbstractIOHelper ioHelper;
 
     public abstract List<IUser> getPotentialFollowers(String ownerId, int count);

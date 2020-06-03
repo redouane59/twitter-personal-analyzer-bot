@@ -10,19 +10,20 @@ import com.socialmediaraiser.twitterbot.impl.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.CustomLog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
 
 @Getter
 @Setter
+@CustomLog
 public class PersonalAnalyzerBot {
 
     private String userName;
-    private static final Logger LOGGER = Logger.getLogger(PersonalAnalyzerLauncher.class.getName());
     private AbstractIOHelper ioHelper;
     private TwitterClient twitterClient = new TwitterClient();
     private final Date iniDate = ConverterHelper.dayBeforeNow(30);

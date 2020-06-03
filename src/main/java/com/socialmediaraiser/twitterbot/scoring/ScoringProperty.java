@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.CustomLog;
 
-import java.util.logging.Logger;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -16,8 +16,8 @@ import java.util.logging.Logger;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@CustomLog
 public class ScoringProperty {
-    private static final Logger LOGGER = Logger.getLogger(ScoringProperty.class.getName());
     private Criterion criterion;
     private boolean active;
     private int maxPoints;

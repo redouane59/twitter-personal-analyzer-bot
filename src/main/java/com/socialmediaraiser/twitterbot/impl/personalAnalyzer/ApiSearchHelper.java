@@ -102,6 +102,48 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         LOGGER.info("\n" + tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
     }
 
+    // new
+    public Map<String, TweetInteraction> countRepliesReceived(boolean currentWeek) {
+        LOGGER.info("\nCounting replies to user...");
+        Map<String, TweetInteraction> result = new HashMap<>();
+        Date toDate;
+        Date fromDate;
+        if(currentWeek){
+            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
+            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
+        } else{
+            toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7),Calendar.DAY_OF_MONTH);
+            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH);
+        }
+
+        List<ITweet> tweetWithReplies;
+        String query;
+        if(currentWeek){
+            query = "(to:"+this.getUserName()+" has:mentions)" + "OR (url:redtheone -is:retweet)";
+            tweetWithReplies= this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
+        } else{
+            query = "to:"+this.getUserName()+" has:mentions";
+            tweetWithReplies= this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate);
+        }
+
+        int savedAnswers = 0;
+
+        for(ITweet tweet : tweetWithReplies){
+            if(this.isUserInList(tweet.getAuthorId())){
+                ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
+                System.out.print(".");
+                if(!result.containsKey(initialTweet.getId())){
+                    result.put(initialTweet.getId(), new TweetInteraction());
+                }
+                result.get(initialTweet.getId()).getAnswererIds().add(tweet.getAuthorId());
+                savedAnswers++;
+            }
+        }
+        LOGGER.info("\n" + tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
+        return result;
+    }
+    // end new
+
     // excluding answers
     public void countGivenLikesOnStatuses(UserInteractions userInteractions){
         LOGGER.info("\nCounting given likes excluding answers...");

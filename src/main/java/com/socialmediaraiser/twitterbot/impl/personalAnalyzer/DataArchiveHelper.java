@@ -14,9 +14,6 @@ public class DataArchiveHelper extends AbstractSearchHelper {
 
     private List<TweetDTOv1> tweets = new ArrayList<>();
 
-    public DataArchiveHelper(String userName){
-        super(userName);
-    }
     public DataArchiveHelper(String userName, String archiveFileName, Date initDate) {
         super(userName);
         File file = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
@@ -55,7 +52,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         LOGGER.info(repliesGiven + " replies given found, " + answeredByUserTweets.size() + " replies given saved");
     }
 
-    public void countRetweesReceived(UserInteractions userInteractions){
+    public void countRetweetsReceived(UserInteractions userInteractions){
         LOGGER.info("\ncounting retweets received (archive)...");
         int rtCount = 0;
         for(TweetDTOv1 tweet : this.filterTweetsByRetweet(false)){
@@ -78,7 +75,35 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         }
     }
 
-    public void countGivenRetweets(UserInteractions userInteractions){
+    // new
+
+    public Map<String, TweetInteraction> countRetweetsReceived(){
+        LOGGER.info("\ncounting retweets received (archive)...");
+        Map<String, TweetInteraction> result = new HashMap<>();
+        int rtCount = 0;
+        for(TweetDTOv1 tweet : this.filterTweetsByRetweet(false)){ // @todo remove mentions
+            if(tweet.getRetweetCount()>0 && !tweet.getText().startsWith(("@"))){
+                result.put(tweet.getId(), this.countRetweetsOfTweet(tweet));
+                rtCount++;
+            }
+        }
+        LOGGER.info(rtCount + " retweets received found");
+        return result;
+    }
+
+    private TweetInteraction countRetweetsOfTweet(TweetDTOv1 tweet){
+        TweetInteraction result = new TweetInteraction();
+        List<String> retweeterIds = this.getTwitterClient().getRetweetersId(tweet.getId());
+        LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
+        for(String retweeterId : retweeterIds){
+            if(this.isUserInList(retweeterId)){
+                result.getRetweeterIds().add(retweeterId);
+            }
+        }
+        return result;
+    }
+    // end new
+    public void countRetweetsGiven(UserInteractions userInteractions){
         LOGGER.info("\ncounting retweets given (archive)...");
         List<TweetDTOv1> retweets = this.filterTweetsByRetweet(true);
         int rtCount = 0;
@@ -99,6 +124,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
 
     }
 
+    // @todo add mentions argument
     public List<TweetDTOv1> filterTweetsByRetweet(boolean onlyRetweets){
         List<TweetDTOv1> result = new ArrayList<>();
         for(TweetDTOv1 tweet : this.tweets){

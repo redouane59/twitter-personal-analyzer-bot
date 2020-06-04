@@ -104,8 +104,8 @@ public class PersonalAnalyzerBot {
 
     private Map<String, TweetInteraction> getReceivedInteractions(){
 
-        Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(false); // D-30 -> D-7
         Map<String, TweetInteraction> map1 = apiSearchHelper.countRepliesReceived(true); // D-7 -> D0
+        Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(false); // D-30 -> D-7
         Map<String, TweetInteraction> map3 = dataArchiveHelper.countRetweetsReceived();
 
         Map<String, TweetInteraction> allRepliesMap = this.mergeTweetInteractions(map1, map2);

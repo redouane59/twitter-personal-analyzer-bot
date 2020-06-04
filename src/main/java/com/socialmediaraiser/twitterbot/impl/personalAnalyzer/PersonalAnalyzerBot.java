@@ -1,22 +1,18 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.TwitterClient;
-import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import lombok.CustomLog;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Getter
@@ -115,9 +111,7 @@ public class PersonalAnalyzerBot {
 
         Map<String, TweetInteraction> map1 = apiSearchHelper.countRepliesReceived(true);
         Map<String, TweetInteraction> map2 = dataArchiveHelper.countRetweetsReceived();
-
         Map<String, TweetInteraction> result = new HashMap<>(map2);
-
         map1.forEach(
                 (key, value) -> result.merge( key, value, (value1, value2) -> new TweetInteraction(
                     new HashSet<>() {{

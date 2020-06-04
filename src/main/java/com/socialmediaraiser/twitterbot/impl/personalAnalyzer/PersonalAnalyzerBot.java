@@ -96,38 +96,41 @@ public class PersonalAnalyzerBot {
         dataArchiveHelper.countRetweetsGiven(userInteractions);
         // counts all the unique replies given by the user to others
         dataArchiveHelper.countRepliesGiven(userInteractions);
-        // counts all the retweets of user tweets done by others
-        dataArchiveHelper.countRetweetsReceived(userInteractions);
         // counts all replies given recently to others
         apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-        // counts all the replies received by others
-        apiSearchHelper.countRepliesReceived(userInteractions, true); // D-7 -> D0
-        apiSearchHelper.countRepliesReceived(userInteractions, false); // D-30 -> D-7
         apiSearchHelper.countGivenLikesOnStatuses(userInteractions);
         return userInteractions;
     }
 
     private Map<String, TweetInteraction> getReceivedInteractions(){
 
-        Map<String, TweetInteraction> map1 = apiSearchHelper.countRepliesReceived(true);
-        Map<String, TweetInteraction> map2 = dataArchiveHelper.countRetweetsReceived();
+        Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(false); // D-30 -> D-7
+        Map<String, TweetInteraction> map1 = apiSearchHelper.countRepliesReceived(true); // D-7 -> D0
+        Map<String, TweetInteraction> map3 = dataArchiveHelper.countRetweetsReceived();
+
+        Map<String, TweetInteraction> allRepliesMap = this.mergeTweetInteractions(map1, map2);
+
+        return this.mergeTweetInteractions(allRepliesMap, map3);
+    }
+
+    private Map<String, TweetInteraction> mergeTweetInteractions(Map<String, TweetInteraction> map1,
+                                                                Map<String, TweetInteraction> map2){
         Map<String, TweetInteraction> result = new HashMap<>(map2);
         map1.forEach(
                 (key, value) -> result.merge( key, value, (value1, value2) -> new TweetInteraction(
-                    new HashSet<>() {{
-                    addAll(value1.getAnswererIds());
-                    addAll(value2.getAnswererIds());
-                    }},
-                    new HashSet<>() {{
-                        addAll(value1.getRetweeterIds());
-                        addAll(value2.getRetweeterIds());
-                    }},
-                    new HashSet<>() {{
-                        addAll(value1.getLikersIds());
-                        addAll(value2.getLikersIds());
-                    }}))
+                        new HashSet<>() {{
+                            addAll(value1.getAnswererIds());
+                            addAll(value2.getAnswererIds());
+                        }},
+                        new HashSet<>() {{
+                            addAll(value1.getRetweeterIds());
+                            addAll(value2.getRetweeterIds());
+                        }},
+                        new HashSet<>() {{
+                            addAll(value1.getLikersIds());
+                            addAll(value2.getLikersIds());
+                        }}))
         );
-
         return result;
     }
 

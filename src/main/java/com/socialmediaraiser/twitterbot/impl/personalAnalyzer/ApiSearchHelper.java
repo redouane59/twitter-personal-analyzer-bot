@@ -131,12 +131,14 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         for(ITweet tweet : tweetWithReplies){
             if(this.isUserInList(tweet.getAuthorId())){
                 ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
-                System.out.print(".");
-                if(!result.containsKey(initialTweet.getId())){
-                    result.put(initialTweet.getId(), new TweetInteraction());
+                if(this.getUserId().equals(initialTweet.getAuthorId())){
+                    System.out.print(".");
+                    if(!result.containsKey(initialTweet.getId())){
+                        result.put(initialTweet.getId(), new TweetInteraction());
+                    }
+                    result.get(initialTweet.getId()).getAnswererIds().add(tweet.getAuthorId());
+                    savedAnswers++;
                 }
-                result.get(initialTweet.getId()).getAnswererIds().add(tweet.getAuthorId());
-                savedAnswers++;
             }
         }
         LOGGER.info("\n" + tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");

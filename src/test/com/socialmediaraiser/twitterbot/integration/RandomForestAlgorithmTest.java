@@ -6,13 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class RandomForestAlgorithmTest {
 
-    String userName = "RedouaneBali";
+  String userName = "RedouaneBali";
 
-    @BeforeEach
-    void init() throws Exception {
-        FollowProperties.load(userName);
-        RandomForestAlgoritm.process();
-    }
+  @BeforeEach
+  void init() throws Exception {
+    FollowProperties.load(userName);
+    RandomForestAlgoritm.process();
+  }
   /*  @Test
     void testFalse() {
         IUser user = new TwitterBotByInfluencers(userName, false, false).getTwitterClient().getUserFromUserName("blevy90");

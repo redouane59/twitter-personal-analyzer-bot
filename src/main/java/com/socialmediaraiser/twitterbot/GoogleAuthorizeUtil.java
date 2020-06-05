@@ -11,18 +11,18 @@ import java.util.Collections;
 
 public class GoogleAuthorizeUtil {
 
-    private GoogleAuthorizeUtil() {
-        throw new IllegalStateException("Utility class");
-    }
+  private GoogleAuthorizeUtil() {
+    throw new IllegalStateException("Utility class");
+  }
 
-    public static GoogleCredential authorize() throws IOException {
+  public static GoogleCredential authorize() throws IOException {
 
-        String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(FollowProperties.getGoogleCredentials());
+    String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(FollowProperties.getGoogleCredentials());
 
-        InputStream inputStream = new ByteArrayInputStream(jsonInString.getBytes());
+    InputStream inputStream = new ByteArrayInputStream(jsonInString.getBytes());
 
-        return GoogleCredential
-                .fromStream(inputStream)
-                .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
-    }
+    return GoogleCredential
+        .fromStream(inputStream)
+        .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
+  }
 }

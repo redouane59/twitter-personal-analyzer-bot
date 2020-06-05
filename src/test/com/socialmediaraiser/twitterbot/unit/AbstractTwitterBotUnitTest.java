@@ -4,22 +4,21 @@ import com.socialmediaraiser.twitterbot.AbstractTwitterFollowBot;
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.impl.followingBot.TwitterBotByInfluencers;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
+import java.io.IOException;
+import java.text.ParseException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.text.ParseException;
-
 public class AbstractTwitterBotUnitTest {
 
-    private static String ownerName = "RedTheOne";
-    private AbstractTwitterFollowBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
+  private static String                   ownerName  = "RedTheOne";
+  private        AbstractTwitterFollowBot twitterBot = new TwitterBotByInfluencers(ownerName, false, false);
 
-    @BeforeAll
-    public static void init(){
-        FollowProperties.load(ownerName);
-    }
+  @BeforeAll
+  public static void init() {
+    FollowProperties.load(ownerName);
+  }
 
    /* @Test
     public void testShouldBeFollowBadLastUpdate2() {
@@ -51,16 +50,16 @@ public class AbstractTwitterBotUnitTest {
         assertFalse(user.isInfluencer());
     } */
 
-    @Test
-    @Disabled
-    public void testunfollowFromLastUpdateDifference(){
-        this.twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE,30, false);
-    }
+  @Test
+  @Disabled
+  public void testunfollowFromLastUpdateDifference() {
+    this.twitterBot.unfollowAllUsersFromCriterion(Criterion.LAST_UPDATE, 30, false);
+  }
 
-    @Test
-    @Disabled
-    public void getNbInterractionsTest() throws IOException, ParseException {
-        //this.twitterBot.getNbInterractions(ConverterHelper.getDateFromString("20200101"), ownerName);
-    }
+  @Test
+  @Disabled
+  public void getNbInterractionsTest() throws IOException, ParseException {
+    //this.twitterBot.getNbInterractions(ConverterHelper.getDateFromString("20200101"), ownerName);
+  }
 
 }

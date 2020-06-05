@@ -1,5 +1,7 @@
 package com.socialmediaraiser.twitterbot.unit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.socialmediaraiser.twitterbot.FollowProperties;
 import com.socialmediaraiser.twitterbot.impl.User;
 import com.socialmediaraiser.twitterbot.scoring.Criterion;
@@ -7,25 +9,23 @@ import com.socialmediaraiser.twitterbot.scoring.UserScoringEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 public class ScoringTest {
 
-    private static String ownerName = "RedouaneBali";
+  private static String ownerName = "RedouaneBali";
 
-    @BeforeEach
-    void init(){
-        FollowProperties.load(ownerName);
-        FollowProperties.getScoringProperties().getProperty(Criterion.LAST_UPDATE).setBlocking(false);
-    }
+  @BeforeEach
+  void init() {
+    FollowProperties.load(ownerName);
+    FollowProperties.getScoringProperties().getProperty(Criterion.LAST_UPDATE).setBlocking(false);
+  }
 
-    @Test
-    void testScoringZero(){
-        User user = new User();
-        UserScoringEngine scoring = new UserScoringEngine(100);
-        assertEquals(0,scoring.getUserScore(user));
-    }
+  @Test
+  void testScoringZero() {
+    User              user    = new User();
+    UserScoringEngine scoring = new UserScoringEngine(100);
+    assertEquals(0, scoring.getUserScore(user));
+  }
 /*
     @Test
     void testScoringOneMatchDescription(){

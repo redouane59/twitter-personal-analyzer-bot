@@ -40,10 +40,10 @@ public class PersonalAnalyzerBot {
     this.apiSearchHelper   = new ApiSearchHelper(userName);
   }
 
-  public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers, String ArchiveFileName)
+  public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
   throws InterruptedException {
     String           userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    UserInteractions interactions = this.getNbInterractions(ArchiveFileName); // @todo to change
+    UserInteractions interactions = this.getNbInterractions(); // @todo to change
     List<IUser>      followings   = this.twitterClient.getFollowingUsers(userId);
     List<IUser>      followers    = this.twitterClient.getFollowerUsers(userId);
     Set<IUser> allUsers = new HashSet<>() { // @todo duplicate
@@ -97,25 +97,31 @@ public class PersonalAnalyzerBot {
     }
   }
 
-  private UserInteractions getNbInterractions(String archiveFileName) {
+  private UserInteractions getNbInterractions() {
     UserInteractions              userInteractions     = new UserInteractions();
     Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
-    // counts all retweets given to others
-    dataArchiveHelper.countRetweetsGiven(userInteractions);
-    // counts all the unique replies given by the user to others
-    dataArchiveHelper.countRepliesGiven(userInteractions);
-    // counts all replies given recently to others
-    apiSearchHelper.countRecentRepliesGiven(userInteractions,
-                                            dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-    apiSearchHelper.countGivenLikesOnStatuses(userInteractions);
+    receivedInteractions.forEach((s, tweetInteraction) -> LOGGER.info(
+        s + "-> RT : " + tweetInteraction.getRetweeterIds().size() + " | A : " + tweetInteraction.getAnswererIds().size()) );
+
+    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
+
+   // apiSearchHelper.countRecentRepliesGiven(userInteractions,
+   //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
     return userInteractions;
   }
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
-    return dataArchiveHelper.countRetweetsReceived()
-                          .merge(apiSearchHelper.countRepliesReceived(true),
-                                 TweetInteraction::merge)
-                          .merge(apiSearchHelper.countRepliesReceived(false)); // why not TweetInteraction::merge ?
+    Map<String, TweetInteraction> map1 = dataArchiveHelper.countRetweetsReceived();
+    //Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(true);
+    //Map<String, TweetInteraction> map3 = apiSearchHelper.countRepliesReceived(false);
+    return map1;
+    //return map1.merge(map2,TweetInteraction::merge).merge(map3,TweetInteraction::merge);
+  }
+
+  private Map<String, UserInteraction> getGivenInteractions(){
+    return dataArchiveHelper.countRetweetsGiven()
+                            .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
+                            .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);
   }
 
   @SneakyThrows

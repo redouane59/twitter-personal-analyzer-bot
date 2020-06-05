@@ -9,22 +9,22 @@ import lombok.Setter;
 @Setter
 public class UserInteractions {
 
-  List<UserInteraction> values = new ArrayList<>();
+  List<UserInteractionX> values = new ArrayList<>();
 
-  public UserInteraction get(String userId) {
-    for (UserInteraction userInteraction : values) {
+  public UserInteractionX get(String userId) {
+    for (UserInteractionX userInteraction : values) {
       if (userInteraction.getUserId().equals(userId)) {
         return userInteraction;
       }
     }
-    UserInteraction userInteraction = new UserInteraction(userId);
+    UserInteractionX userInteraction = new UserInteractionX(userId);
     this.values.add(userInteraction);
     return userInteraction;
   }
 
   @Getter
   @Setter
-  public static class UserInteraction {
+  public static class UserInteractionX {
 
     private String userId;
     private int    nbRepliesGiven     = 0;
@@ -33,7 +33,7 @@ public class UserInteractions {
     private int    nbRetweetsGiven    = 0;
     private int    nbLikesGiven       = 0;
 
-    public UserInteraction(String userId) {
+    public UserInteractionX(String userId) {
       this.userId = userId;
     }
 
@@ -62,7 +62,7 @@ public class UserInteractions {
         if (o == null || this.getClass() != o.getClass()) {
             return false;
         }
-      UserInteraction other = (UserInteraction) o;
+      UserInteractionX other = (UserInteractionX) o;
       return other.getUserId().equals(this.userId);
     }
 

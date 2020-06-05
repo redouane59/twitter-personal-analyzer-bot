@@ -3,6 +3,8 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;
 import com.socialmediaraiser.twitter.dto.tweet.TweetType;
+import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UserInteractions.UserInteractionX;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import java.io.File;
@@ -36,10 +38,9 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     }
   }
 
-  // @todo to remove
-  public void countRepliesGiven(UserInteractions userInteractions) {
+  public Map<String, UserInteraction> countRepliesGiven() {
     LOGGER.info("\ncounting replies from user (archive)...");
-    Set<String> answeredByUserTweets = new HashSet<>();
+    Map<String, UserInteraction> result = HashMap.empty();
     int         repliesGiven         = 0;
     for (TweetDTOv1 tweet : tweets) { // @todo check for retweets + exclude own answers
       // checking the reply I gave to other users
@@ -47,17 +48,23 @@ public class DataArchiveHelper extends AbstractSearchHelper {
       if (inReplyUserId != null && this.isUserInList(tweet.getInReplyToUserId())) {
         repliesGiven++;
         ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
-        if (!this.getUserId().equals(initialTweet.getAuthorId()) && !answeredByUserTweets.contains(initialTweet.getId())) {
+        if (!this.getUserId().equals(initialTweet.getAuthorId())) {
           System.out.print(".");
-          UserInteractions.UserInteraction userInteraction = userInteractions.get(inReplyUserId);
-          userInteraction.incrementNbRepliesGiven();
-          answeredByUserTweets.add(initialTweet.getId());
+          if(!result.containsKey(inReplyUserId)){
+            result = result.put(inReplyUserId, new UserInteraction());
+          }
+          result.get(inReplyUserId).get().addRetweet(initialTweet.getId());
         }
       }
     }
-    LOGGER.info(repliesGiven + " replies given found, " + answeredByUserTweets.size() + " replies given saved");
+    LOGGER.info(repliesGiven + " replies given found, " + result.size() + " replies given saved");
+    return result;
   }
 
+  /**
+   * Count the users who retweeted user tweets
+   * @return a map with tweet id as key and TweeteInteraction as value
+   */
   public Map<String, TweetInteraction> countRetweetsReceived() {
     LOGGER.info("\ncounting retweets received (archive)...");
     return Stream.ofAll(filterTweetsByRetweet(false))
@@ -78,9 +85,10 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     return result;
   }
 
-  // @to remove
-  public void countRetweetsGiven(UserInteractions userInteractions) {
+  public Map<String, UserInteraction> countRetweetsGiven() {
     LOGGER.info("\ncounting retweets given (archive)...");
+
+    Map<String, UserInteraction> result = HashMap.empty();
     List<TweetDTOv1> retweets = this.filterTweetsByRetweet(true);
     int              rtCount  = 0;
     for (TweetDTOv1 tweet : retweets) {
@@ -90,14 +98,17 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         ITweet retweetedTweet = this.getTwitterClient().getTweet(retweetedTweetId); // @todo check null
         String userId         = retweetedTweet.getAuthorId(); // because info missing in data archive
         if (this.isUserInList(userId)) {
-          UserInteractions.UserInteraction userInteraction = userInteractions.get(userId);
-          userInteraction.incrementNbRetweetsGiven();
+          if(!result.containsKey(userId) || result.get(userId).isEmpty()){
+            result = result.put(userId, new UserInteraction());
+          }
+          result.get(userId).get().addRetweet(retweetedTweetId);
+          System.out.println(".");
           rtCount++;
         }
       }
     }
     LOGGER.info(rtCount + " retweets given found");
-
+    return result;
   }
 
   // @todo add mentions argument

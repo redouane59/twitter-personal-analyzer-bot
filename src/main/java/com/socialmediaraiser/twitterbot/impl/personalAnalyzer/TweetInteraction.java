@@ -24,42 +24,48 @@ public class TweetInteraction {
 
   // Using VAVR collections everywhere would be much less noisy
   public TweetInteraction addAnswerer(String answerer) {
-    val withNewId = new HashSet<>(answererIds);
+    Set<String> withNewId = new HashSet<>(answererIds);
     withNewId.add(answerer);
     return this.withAnswererIds(withNewId);
   }
 
   public TweetInteraction addRetweeted(String retweeter) {
-    val withNewId = new HashSet<>(retweeterIds);
+    Set<String> withNewId = new HashSet<>(retweeterIds);
     withNewId.add(retweeter);
     return this.withRetweeterIds(withNewId);
   }
 
-  // Using VAVR collections everywhere would be much less noisy
-  public TweetInteraction merge(TweetInteraction that) {
-    return this.mergeAnswerers(that)
-               .mergeRetweeters(that)
-               .mergeLikers(that);
+  public TweetInteraction addLiked(String liked) {
+    Set<String> withNewId = new HashSet<>(likersIds);
+    withNewId.add(liked);
+    return this.withLikersIds(withNewId);
   }
 
-  private TweetInteraction mergeAnswerers(TweetInteraction that) {
-    val mergedAnswerers = io.vavr.collection.HashSet.ofAll(this.getAnswererIds())
-                                                    .addAll(that.getAnswererIds())
+  // Using VAVR collections everywhere would be much less noisy
+  public TweetInteraction merge(TweetInteraction other) {
+    return this.mergeAnswerers(other)
+               .mergeRetweeters(other)
+               .mergeLikers(other);
+  }
+
+  private TweetInteraction mergeAnswerers(TweetInteraction other) {
+    Set<String> mergedAnswerers = io.vavr.collection.HashSet.ofAll(this.getAnswererIds())
+                                                    .addAll(other.getAnswererIds())
                                                     .toJavaSet();
     return this.withAnswererIds(mergedAnswerers);
   }
 
-  private TweetInteraction mergeRetweeters(TweetInteraction that) {
-    val mergedRetweeters = io.vavr.collection.HashSet.ofAll(this.getRetweeterIds())
-                                                     .addAll(that.getRetweeterIds())
+  private TweetInteraction mergeRetweeters(TweetInteraction other) {
+    Set<String> mergedRetweeters = io.vavr.collection.HashSet.ofAll(this.getRetweeterIds())
+                                                     .addAll(other.getRetweeterIds())
                                                      .toJavaSet();
-    return this.withAnswererIds(mergedRetweeters);
+    return this.withRetweeterIds(mergedRetweeters);
   }
 
-  private TweetInteraction mergeLikers(TweetInteraction that) {
-    val mergedLikers = io.vavr.collection.HashSet.ofAll(this.getLikersIds())
-                                                 .addAll(that.getLikersIds())
+  private TweetInteraction mergeLikers(TweetInteraction other) {
+    Set<String> mergedLikers = io.vavr.collection.HashSet.ofAll(this.getLikersIds())
+                                                 .addAll(other.getLikersIds())
                                                  .toJavaSet();
-    return this.withAnswererIds(mergedLikers);
+    return this.withLikersIds(mergedLikers);
   }
 }

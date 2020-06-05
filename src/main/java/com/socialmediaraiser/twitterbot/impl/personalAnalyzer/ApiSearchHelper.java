@@ -1,9 +1,12 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
+import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
+import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UserInteractions.UserInteractionX;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import java.util.Calendar;
@@ -53,7 +56,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         // we only count the answer to a tweet once
         if (!this.getUserId().equals(initialTweet.getAuthorId()) && !answeredByUserTweets.contains(initialTweet.getId())) {
           System.out.print(".");
-          UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
+          UserInteractionX userInteraction = userInteractions.get(tweet.getAuthorId());
           userInteraction.incrementNbRepliesGiven();
           answeredByUserTweets.add(initialTweet.getId());
         }
@@ -64,26 +67,31 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
   /**
    * Count the replies received by the user from others
-   * @param currentWeek if true, use the labs2 endpoint to only count the last 7 days, otherwise classical search within 30 days until D-7
+   * @param currentWeek if true, from D-7 until D, otherwise from D-30 until D-7
    * @return a map with tweet id as key and TweetInteraction as value
    */
   public Map<String, TweetInteraction> countRepliesReceived(boolean currentWeek) {
     LOGGER.info("Counting replies received - currentWeek = " + currentWeek + " ...");
     Stream<ITweet> tweetWithReplies = getReceivedReplies(currentWeek);
     return tweetWithReplies.filter(tweet -> this.isUserInList(tweet.getAuthorId()))
-                           .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
-                           .filter(initialTweet -> this.getUserId().equals(initialTweet.getAuthorId()))
+                           .filter(tweet -> this.getUserId().equals(
+                               this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
                            .peek(initialTweet -> LOGGER.info("."))
-                           .groupBy(ITweet::getId)
+                           .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
                            .map(this::foldTweets);
   }
 
-  private Tuple2<String, TweetInteraction> foldTweets(String id, Stream<ITweet> tweets) {
-    return Tuple.of(id,
+  private Tuple2<String, TweetInteraction> foldTweets(String tweetId, Stream<ITweet> tweets) {
+    return Tuple.of(tweetId,
                     tweets.foldLeft(new TweetInteraction(),
                                     (interaction, tweet) -> interaction.addAnswerer(tweet.getAuthorId())));
   }
 
+  /**
+   * Get the replies tweets
+   * @param currentWeek if true, use the labs2 endpoint to only count the last 7 days, otherwise classical search within 30 days until D-7
+   * @return a stream if replies tweets
+   */
   private Stream<ITweet> getReceivedReplies(boolean currentWeek) {
     if (currentWeek) {
       Date toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
@@ -101,17 +109,20 @@ public class ApiSearchHelper extends AbstractSearchHelper {
   }
 
   // excluding answers
-  public void countGivenLikesOnStatuses(UserInteractions userInteractions) {
+  public Map<String, UserInteraction> countGivenLikesOnStatuses() {
     LOGGER.info("\nCounting given likes excluding answers...");
-    String       userId      = this.getTwitterClient().getUserFromUserName(this.getUserName()).getId();
-    List<ITweet> likedTweets = this.getTwitterClient().getFavorites(userId, 5000);
+    Map<String, UserInteraction> result = HashMap.empty();
+    List<ITweet> likedTweets = this.getTwitterClient().getFavorites(this.getUserId(), 5000);
     for (ITweet tweet : likedTweets) {
       if (tweet.getInReplyToStatusId() == null && this.isUserInList(tweet.getAuthorId())) {
         System.out.print(".");
-        UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-        userInteraction.incrementNbLikesGiven();
+        if(!result.containsKey(tweet.getAuthorId())){
+          result = result.put(tweet.getAuthorId(), new UserInteraction());
+        }
+        result.get(tweet.getAuthorId()).get().addLike(tweet.getId());
       }
     }
     LOGGER.info("\n" + likedTweets.size() + " given liked tweets found");
+    return result;
   }
 }

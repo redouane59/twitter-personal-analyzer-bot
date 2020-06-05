@@ -11,21 +11,21 @@ public class PersonalAnalyzerLauncher {
     if (args.length < 2) {
       LOGGER.severe(() -> "missing arguments, expecting 2 : ownerName[String], unfollowMode[boolean]");
     } else {
-      String              userName     = args[0];
-      boolean             unfollowMode = Boolean.parseBoolean(args[1]);
-      PersonalAnalyzerBot bot          = new PersonalAnalyzerBot(userName, userName.toLowerCase() + "-tweet-history.json");
+      String              userName         = args[0];
+      boolean             unfollowMode     = Boolean.parseBoolean(args[1]);
+      String              tweetArchivePath = userName.toLowerCase() + "-tweet-history.json";
+      PersonalAnalyzerBot bot              = new PersonalAnalyzerBot(userName, tweetArchivePath);
       if (!unfollowMode) {
         boolean includeFollowers        = true;
         boolean includeFollowings       = true;
         boolean onlyFollowBackFollowers = true;
-        String  tweetArchivePath        = userName.toLowerCase() + "-tweet-history.json";
         if (args.length > 5) {
           includeFollowers        = Boolean.parseBoolean(args[2]);
           includeFollowings       = Boolean.parseBoolean(args[3]);
           onlyFollowBackFollowers = Boolean.parseBoolean(args[4]);
           tweetArchivePath        = args[5];
         }
-        bot.launch(includeFollowers, includeFollowings, onlyFollowBackFollowers, tweetArchivePath);
+        bot.launch(includeFollowers, includeFollowings, onlyFollowBackFollowers);
       } else {
         String[] toUnfollow = {
             "sxrnek",

@@ -1,12 +1,10 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
-import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UserInteractions.UserInteractionX;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import java.util.Calendar;
@@ -108,21 +106,21 @@ public class ApiSearchHelper extends AbstractSearchHelper {
                                                          toDate));
   }
 
-  // excluding answers
+  /**
+   * Count the number of likes given to initial status (excluding answers)
+   * @return
+   */
   public Map<String, UserInteraction> countGivenLikesOnStatuses() {
     LOGGER.info("\nCounting given likes excluding answers...");
-    Map<String, UserInteraction> result = HashMap.empty();
-    List<ITweet> likedTweets = this.getTwitterClient().getFavorites(this.getUserId(), 5000);
-    for (ITweet tweet : likedTweets) {
-      if (tweet.getInReplyToStatusId() == null && this.isUserInList(tweet.getAuthorId())) {
-        System.out.print(".");
-        if(!result.containsKey(tweet.getAuthorId())){
-          result = result.put(tweet.getAuthorId(), new UserInteraction());
-        }
-        result.get(tweet.getAuthorId()).get().addLike(tweet.getId());
-      }
-    }
-    LOGGER.info("\n" + likedTweets.size() + " given liked tweets found");
-    return result;
+
+    Stream<ITweet> likedTweets = Stream.ofAll(this.getTwitterClient().getFavorites(this.getUserId(), 5000));
+    return likedTweets
+        .filter(tweet -> tweet.getInReplyToStatusId() == null)
+        .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+        .peek(tweet -> LOGGER.info("analyzing tweet : " + tweet.getText())) // @todo display userName?
+        .groupBy(ITweet::getAuthorId)
+        .map(this::getTurpleLike);
   }
+
+
 }

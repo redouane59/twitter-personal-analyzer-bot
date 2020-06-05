@@ -3,7 +3,6 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;
 import com.socialmediaraiser.twitter.dto.tweet.TweetType;
-import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UserInteractions.UserInteractionX;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
@@ -11,15 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.CustomLog;
 
 @CustomLog
 public class DataArchiveHelper extends AbstractSearchHelper {
 
-  private List<TweetDTOv1> tweets = new ArrayList<>();
+  private List<ITweet> tweets = new ArrayList<>();
 
   public DataArchiveHelper(String userName, String archiveFileName, Date initDate) {
     super(userName);
@@ -38,9 +35,21 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     }
   }
 
+  // @todo KO only one result
   public Map<String, UserInteraction> countRepliesGiven() {
     LOGGER.info("\ncounting replies from user (archive)...");
-    Map<String, UserInteraction> result = HashMap.empty();
+    Map<String, UserInteraction> result = Stream.ofAll(tweets)
+                                                .filter(tweet -> tweet.getInReplyToUserId()!=null)
+                                                .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
+                                                .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
+                                                .peek(tweet -> LOGGER.info("analyzing reply : " + tweet.getText())) // @todo display userName?
+                                                .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
+                                                .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
+                                                .groupBy(ITweet::getAuthorId)
+                                                .map(this::getTurpleAnswer);
+    return result;
+
+   /* Map<String, UserInteraction> result = HashMap.empty();
     int         repliesGiven         = 0;
     for (TweetDTOv1 tweet : tweets) { // @todo check for retweets + exclude own answers
       // checking the reply I gave to other users
@@ -58,7 +67,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
       }
     }
     LOGGER.info(repliesGiven + " replies given found, " + result.size() + " replies given saved");
-    return result;
+    return result;*/
   }
 
   /**
@@ -69,11 +78,12 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     LOGGER.info("\ncounting retweets received (archive)...");
     return Stream.ofAll(filterTweetsByRetweet(false))
                  .filter(tweet -> tweet.getRetweetCount() > 0 && !tweet.getText().startsWith(("@")))
-                 .toMap(TweetDTOv1::getId,
+                 .toMap(ITweet::getId,
                         this::countRetweetsOfTweet);
   }
 
-  private TweetInteraction countRetweetsOfTweet(TweetDTOv1 tweet) {
+  // @todo use Stream
+  private TweetInteraction countRetweetsOfTweet(ITweet tweet) {
     TweetInteraction result       = new TweetInteraction();
     List<String>     retweeterIds = this.getTwitterClient().getRetweetersId(tweet.getId());
     LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
@@ -85,13 +95,14 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     return result;
   }
 
+  // @todo use Stream
   public Map<String, UserInteraction> countRetweetsGiven() {
     LOGGER.info("\ncounting retweets given (archive)...");
-
+  //  Stream<ITweet> givenRetweets = Stream.ofAll(this.filterTweetsByRetweet(true));
     Map<String, UserInteraction> result = HashMap.empty();
-    List<TweetDTOv1> retweets = this.filterTweetsByRetweet(true);
+    List<ITweet> retweets = this.filterTweetsByRetweet(true);
     int              rtCount  = 0;
-    for (TweetDTOv1 tweet : retweets) {
+    for (ITweet tweet : retweets) {
       ITweet fullTweet        = this.getTwitterClient().getTweet(tweet.getId());
       String retweetedTweetId = fullTweet.getInReplyToStatusId(TweetType.RETWEETED);
       if (retweetedTweetId != null) {
@@ -112,9 +123,9 @@ public class DataArchiveHelper extends AbstractSearchHelper {
   }
 
   // @todo add mentions argument
-  public List<TweetDTOv1> filterTweetsByRetweet(boolean onlyRetweets) {
-    List<TweetDTOv1> result = new ArrayList<>();
-    for (TweetDTOv1 tweet : this.tweets) {
+  public List<ITweet> filterTweetsByRetweet(boolean onlyRetweets) {
+    List<ITweet> result = new ArrayList<>();
+    for (ITweet tweet : this.tweets) {
       if (tweet.getText().startsWith("RT @") == onlyRetweets) {
         result.add(tweet);
       }

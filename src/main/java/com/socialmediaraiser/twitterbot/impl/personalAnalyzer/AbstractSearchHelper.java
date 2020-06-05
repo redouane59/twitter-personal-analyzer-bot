@@ -1,8 +1,12 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.TwitterClient;
+import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.dto.user.UserDTOv1;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.Stream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,5 +41,17 @@ public abstract class AbstractSearchHelper {
       }
     UserDTOv1 retweeter = UserDTOv1.builder().id(userId).build();
     return (this.getAllUsers().contains(retweeter));
+  }
+
+  public Tuple2<String, UserInteraction> getTurpleLike(String userId, Stream<ITweet> tweets) {
+    return Tuple.of(userId,
+                    tweets.foldLeft(new UserInteraction(),
+                                    (interaction, tweet) -> interaction.addLike(tweet.getId())));
+  }
+
+  public Tuple2<String, UserInteraction> getTurpleAnswer(String userId, Stream<ITweet> tweets) {
+    return Tuple.of(userId,
+                    tweets.foldLeft(new UserInteraction(),
+                                    (interaction, tweet) -> interaction.addAnswer(tweet.getId())));
   }
 }

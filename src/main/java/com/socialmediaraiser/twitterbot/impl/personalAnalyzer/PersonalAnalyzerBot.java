@@ -1,5 +1,4 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
-
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
@@ -7,7 +6,6 @@ import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
 import io.vavr.collection.Map;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -99,29 +97,32 @@ public class PersonalAnalyzerBot {
 
   private UserInteractions getNbInterractions() {
     UserInteractions              userInteractions     = new UserInteractions();
+    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
+
     Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
     receivedInteractions.forEach((s, tweetInteraction) -> LOGGER.info(
         s + "-> RT : " + tweetInteraction.getRetweeterIds().size() + " | A : " + tweetInteraction.getAnswererIds().size()) );
 
-    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
 
-   // apiSearchHelper.countRecentRepliesGiven(userInteractions,
-   //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
+    // apiSearchHelper.countRecentRepliesGiven(userInteractions,
+    //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
     return userInteractions;
   }
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
     Map<String, TweetInteraction> map1 = dataArchiveHelper.countRetweetsReceived();
-    //Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(true);
-    //Map<String, TweetInteraction> map3 = apiSearchHelper.countRepliesReceived(false);
-    return map1;
-    //return map1.merge(map2,TweetInteraction::merge).merge(map3,TweetInteraction::merge);
+    Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(true);
+    Map<String, TweetInteraction> map3 = apiSearchHelper.countRepliesReceived(false);
+    return map1.merge(map2,TweetInteraction::merge).merge(map3,TweetInteraction::merge);
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
-    return dataArchiveHelper.countRetweetsGiven()
-                            .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
-                            .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);
+    Map map2 = dataArchiveHelper.countRepliesGiven();
+    Map map1 = apiSearchHelper.countGivenLikesOnStatuses();
+    return map2;
+    //   return dataArchiveHelper.countRetweetsGiven()
+    //                           .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
+    //                           .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);
   }
 
   @SneakyThrows

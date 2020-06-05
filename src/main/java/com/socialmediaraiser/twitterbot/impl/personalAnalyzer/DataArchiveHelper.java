@@ -3,11 +3,13 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;
 import com.socialmediaraiser.twitter.dto.tweet.TweetType;
+import io.vavr.collection.Stream;
 import lombok.CustomLog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import io.vavr.collection.Map;
 
 @CustomLog
 public class DataArchiveHelper extends AbstractSearchHelper {
@@ -78,17 +80,13 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     // new
 
     public Map<String, TweetInteraction> countRetweetsReceived(){
+
         LOGGER.info("\ncounting retweets received (archive)...");
-        Map<String, TweetInteraction> result = new HashMap<>();
-        int rtCount = 0;
-        for(TweetDTOv1 tweet : this.filterTweetsByRetweet(false)){ // @todo remove mentions
-            if(tweet.getRetweetCount()>0 && !tweet.getText().startsWith(("@"))){
-                result.put(tweet.getId(), this.countRetweetsOfTweet(tweet));
-                rtCount++;
-            }
-        }
-        LOGGER.info(rtCount + " retweets received found");
-        return result;
+
+        return Stream.ofAll(filterTweetsByRetweet(false))
+                     .filter(tweet -> tweet.getRetweetCount()>0 && !tweet.getText().startsWith(("@")))
+                     .toMap(TweetDTOv1::getId,
+                            this::countRetweetsOfTweet);
     }
 
     private TweetInteraction countRetweetsOfTweet(TweetDTOv1 tweet){

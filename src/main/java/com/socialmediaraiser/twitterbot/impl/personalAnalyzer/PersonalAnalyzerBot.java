@@ -6,6 +6,12 @@ import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +19,7 @@ import lombok.SneakyThrows;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import lombok.val;
 
 
 @Getter
@@ -22,9 +29,9 @@ public class PersonalAnalyzerBot {
 
     private String userName;
     private AbstractIOHelper ioHelper;
-    private TwitterClient twitterClient = new TwitterClient();
-    private final Date iniDate = ConverterHelper.dayBeforeNow(30);
-    private DataArchiveHelper dataArchiveHelper;
+    private       TwitterClient     twitterClient = new TwitterClient();
+    private final Date              iniDate       = ConverterHelper.dayBeforeNow(30);
+    private       DataArchiveHelper dataArchiveHelper;
     private ApiSearchHelper apiSearchHelper;
 
     public PersonalAnalyzerBot(String userName, String archiveFileName){
@@ -37,8 +44,8 @@ public class PersonalAnalyzerBot {
     public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers, String ArchiveFileName) throws IOException, InterruptedException {
         String userId = this.twitterClient.getUserFromUserName(userName).getId();
         UserInteractions interactions = this.getNbInterractions(ArchiveFileName); // @todo to change
-        List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
-        List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
+        List<IUser>      followings   = this.twitterClient.getFollowingUsers(userId);
+        List<IUser>      followers    = this.twitterClient.getFollowerUsers(userId);
         Set<IUser> allUsers = new HashSet<>() { // @todo duplicate
             {
                 addAll(followings);
@@ -103,38 +110,11 @@ public class PersonalAnalyzerBot {
     }
 
     private Map<String, TweetInteraction> getReceivedInteractions(){
-
-        Map<String, TweetInteraction> map1 = apiSearchHelper.countRepliesReceived(true); // D-7 -> D0
-        Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(false); // D-30 -> D-7
-        Map<String, TweetInteraction> map3 = dataArchiveHelper.countRetweetsReceived();
-
-        Map<String, TweetInteraction> allRepliesMap = this.mergeTweetInteractions(map1, map2);
-
-        return this.mergeTweetInteractions(allRepliesMap, map3);
+        return apiSearchHelper.countRepliesReceived(true)
+                              .merge(apiSearchHelper.countRepliesReceived(false),
+                                     TweetInteraction::merge)
+                              .merge(dataArchiveHelper.countRetweetsReceived());
     }
-
-    private Map<String, TweetInteraction> mergeTweetInteractions(Map<String, TweetInteraction> map1,
-                                                                Map<String, TweetInteraction> map2){
-        Map<String, TweetInteraction> result = new HashMap<>(map2);
-        map1.forEach(
-                (key, value) -> result.merge( key, value, (value1, value2) -> new TweetInteraction(
-                        new HashSet<>() {{
-                            addAll(value1.getAnswererIds());
-                            addAll(value2.getAnswererIds());
-                        }},
-                        new HashSet<>() {{
-                            addAll(value1.getRetweeterIds());
-                            addAll(value2.getRetweeterIds());
-                        }},
-                        new HashSet<>() {{
-                            addAll(value1.getLikersIds());
-                            addAll(value2.getLikersIds());
-                        }}))
-        );
-        return result;
-    }
-
-
 
     @SneakyThrows
     public void unfollow(String[] toUnfollow, String[] whiteList){
@@ -150,10 +130,5 @@ public class PersonalAnalyzerBot {
             }
         }
         LOGGER.info(nbUnfollows + " users unfollowed with success !");
-    }
-
-    private Map<String, TweetInteraction> mergeMaps(Map<String, TweetInteraction> map1, Map<String, TweetInteraction> map2){
-        Map<String, TweetInteraction> result = new HashMap<>();
-        return result;
     }
 }

@@ -2,10 +2,20 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.CustomLog;
+import lombok.val;
 import org.apache.commons.lang3.time.DateUtils;
-
-import java.util.*;
 
 
 @CustomLog
@@ -54,95 +64,40 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         LOGGER.info("\n" + tweetWithReplies.size() + " replies given found, " + answeredByUserTweets.size() + " saved");
     }
 
-    // @todo change it and mix with data
-    public void countRepliesReceived(UserInteractions userInteractions, boolean currentWeek) {
-        LOGGER.info("\nCounting replies to user...");
-        Date toDate;
-        Date fromDate;
-        if(currentWeek){
-            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
-            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
-        } else{
-            toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7),Calendar.DAY_OF_MONTH);
-            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH);
-        }
-
-        List<ITweet> tweetWithReplies;
-        String query;
-        if(currentWeek){
-            query = "(to:"+this.getUserName()+" has:mentions)" + "OR (url:redtheone -is:retweet)";
-            tweetWithReplies= this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
-        } else{
-            query = "to:"+this.getUserName()+" has:mentions";
-            tweetWithReplies= this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate);
-        }
-
-        Map<String, List<String>> statusesAndAnswers = new HashMap<>();
-        int savedAnswers = 0;
-
-        for(ITweet tweet : tweetWithReplies){
-            if(this.isUserInList(tweet.getAuthorId())){
-                ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
-                if(this.getUserId().equals(initialTweet.getAuthorId())){
-                    System.out.print(".");
-                    // if the initial tweet id is not on the map, we add it
-                    if(!statusesAndAnswers.containsKey(initialTweet.getId())){
-                        statusesAndAnswers.put(initialTweet.getId(), new ArrayList<>());
-                    }
-                    if(!statusesAndAnswers.get(initialTweet.getId()).contains(tweet.getAuthorId())) {
-                        UserInteractions.UserInteraction userInteraction = userInteractions.get(tweet.getAuthorId());
-                        userInteraction.incrementNbRepliesReceived();
-                        statusesAndAnswers.get(initialTweet.getId()).add(tweet.getAuthorId());
-                        savedAnswers++;
-                    }
-                }
-            }
-
-        }
-        LOGGER.info("\n" + tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
-    }
-
     // new
     public Map<String, TweetInteraction> countRepliesReceived(boolean currentWeek) {
-        LOGGER.info("\nCounting replies to user...");
-        Map<String, TweetInteraction> result = new HashMap<>();
-        Date toDate;
-        Date fromDate;
+        LOGGER.info("Counting replies to user...");
+
+        val tweetWithReplies = tweetsHavingReplies(currentWeek);
+
+        return tweetWithReplies.filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+                               .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
+                               .filter(initialTweet -> this.getUserId().equals(initialTweet.getAuthorId()))
+                               .peek(initialTweet -> LOGGER.info("."))
+                               .groupBy(ITweet::getId)
+                               .map(this::foldTweets);
+    }
+
+    private Tuple2<String, TweetInteraction> foldTweets(String id, Stream<ITweet> tweets) {
+        return Tuple.of(id,
+                        tweets.foldLeft(new TweetInteraction(),
+                                        (interaction,  tweet) -> interaction.addAnswerer(tweet.getAuthorId())));
+    }
+
+    private Stream<ITweet> tweetsHavingReplies(boolean currentWeek) {
         if(currentWeek){
-            toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
-            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR);
-        } else{
-            toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7),Calendar.DAY_OF_MONTH);
-            fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH);
+            val toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
+            return Stream.ofAll(this.getTwitterClient()
+                                    .searchForTweetsWithin7days("(to:"+this.getUserName()+" has:mentions)" + "OR (url:redtheone -is:retweet)",
+                                                                DateUtils.ceiling(DateUtils.addDays(toDate, -7),Calendar.HOUR),
+                                                                toDate));
         }
 
-        List<ITweet> tweetWithReplies;
-        String query;
-        if(currentWeek){
-            query = "(to:"+this.getUserName()+" has:mentions)" + "OR (url:redtheone -is:retweet)";
-            tweetWithReplies= this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
-        } else{
-            query = "to:"+this.getUserName()+" has:mentions";
-            tweetWithReplies= this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate);
-        }
-
-        int savedAnswers = 0;
-
-        for(ITweet tweet : tweetWithReplies){
-            if(this.isUserInList(tweet.getAuthorId())){
-                ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
-                if(this.getUserId().equals(initialTweet.getAuthorId())){
-                    System.out.print(".");
-                    if(!result.containsKey(initialTweet.getId())){
-                        result.put(initialTweet.getId(), new TweetInteraction());
-                    }
-                    result.get(initialTweet.getId()).getAnswererIds().add(tweet.getAuthorId());
-                    savedAnswers++;
-                }
-            }
-        }
-        LOGGER.info("\n" + tweetWithReplies.size() + " replies to user found, " + savedAnswers + " saved");
-        return result;
+        val toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7), Calendar.DAY_OF_MONTH);
+        return Stream.ofAll(this.getTwitterClient()
+                                .searchForTweetsWithin30days("to:" + this.getUserName() + " has:mentions",
+                                                             DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH),
+                                                             toDate));
     }
     // end new
 

@@ -2,7 +2,7 @@ package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UserInteractions.UserInteractionX;
+import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UsersStats.UserStatsDetail;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
@@ -25,7 +25,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
   // @todo mix adding query parameter
   // @todo to the same for given retweets
   // countRepliesFromUserFromUserRecentSearch
-  public void countRecentRepliesGiven(UserInteractions userInteractions, Date mostRecentArchiveTweetDate) {
+  public void countRecentRepliesGiven(UsersStats userInteractions, Date mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting replies from user (API)...");
     long delta = (System.currentTimeMillis() - mostRecentArchiveTweetDate.getTime()) / (1000 * 60 * 60 * 24);
     if (delta < 1) {
@@ -54,7 +54,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         // we only count the answer to a tweet once
         if (!this.getUserId().equals(initialTweet.getAuthorId()) && !answeredByUserTweets.contains(initialTweet.getId())) {
           System.out.print(".");
-          UserInteractionX userInteraction = userInteractions.get(tweet.getAuthorId());
+          UserStatsDetail userInteraction = userInteractions.get(tweet.getAuthorId());
           userInteraction.incrementNbRepliesGiven();
           answeredByUserTweets.add(initialTweet.getId());
         }
@@ -74,7 +74,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     return tweetWithReplies.filter(tweet -> this.isUserInList(tweet.getAuthorId()))
                            .filter(tweet -> this.getUserId().equals(
                                this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
-                           .peek(initialTweet -> LOGGER.info("."))
+                           .peek(initialTweet -> LOGGER.info("analyzing reply : " + initialTweet.getText()))
                            .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
                            .map(this::foldTweets);
   }

@@ -7,24 +7,25 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserInteractions {
+// @todo to remove
+public class UsersStats {
 
-  List<UserInteractionX> values = new ArrayList<>();
+  List<UserStatsDetail> values = new ArrayList<>();
 
-  public UserInteractionX get(String userId) {
-    for (UserInteractionX userInteraction : values) {
+  public UserStatsDetail get(String userId) {
+    for (UserStatsDetail userInteraction : values) {
       if (userInteraction.getUserId().equals(userId)) {
         return userInteraction;
       }
     }
-    UserInteractionX userInteraction = new UserInteractionX(userId);
+    UserStatsDetail userInteraction = new UserStatsDetail(userId);
     this.values.add(userInteraction);
     return userInteraction;
   }
 
   @Getter
   @Setter
-  public static class UserInteractionX {
+  public static class UserStatsDetail {
 
     private String userId;
     private int    nbRepliesGiven     = 0;
@@ -33,7 +34,7 @@ public class UserInteractions {
     private int    nbRetweetsGiven    = 0;
     private int    nbLikesGiven       = 0;
 
-    public UserInteractionX(String userId) {
+    public UserStatsDetail(String userId) {
       this.userId = userId;
     }
 
@@ -62,7 +63,7 @@ public class UserInteractions {
         if (o == null || this.getClass() != o.getClass()) {
             return false;
         }
-      UserInteractionX other = (UserInteractionX) o;
+      UserStatsDetail other = (UserStatsDetail) o;
       return other.getUserId().equals(this.userId);
     }
 

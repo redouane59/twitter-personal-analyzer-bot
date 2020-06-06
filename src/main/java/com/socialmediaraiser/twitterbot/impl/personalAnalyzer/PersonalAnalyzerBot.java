@@ -1,17 +1,23 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 import com.socialmediaraiser.twitter.TwitterClient;
+import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -40,27 +46,22 @@ public class PersonalAnalyzerBot {
 
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
   throws InterruptedException {
-    String           userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    UserInteractions interactions = this.getNbInterractions(); // @todo to change
-    List<IUser>      followings   = this.twitterClient.getFollowingUsers(userId);
-    List<IUser>      followers    = this.twitterClient.getFollowerUsers(userId);
-    Set<IUser> allUsers = new HashSet<>() { // @todo duplicate
-      {
-        addAll(followings);
-        addAll(followers);
-      }
-    };
+    String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
+    Map<String, UserStats>  interactions = this.getNbInterractions(); // @todo to change
+    List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
+    List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
+    Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers); // @todo duplicate
 
     List<User> usersToWrite = new ArrayList<>();
     int        nbUsersToAdd = 50;
     for (IUser iUser : allUsers) {
       if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         User user = new User(iUser);
-        user.setNbRepliesReceived(interactions.get(iUser.getId()).getNbRepliesReceived());
+     /*   user.setNbRepliesReceived(interactions.get(iUser.getId()).getNbRepliesReceived());
         user.setNbRepliesGiven(interactions.get(iUser.getId()).getNbRepliesGiven());
         user.setNbRetweetsReceived(interactions.get(iUser.getId()).getNbRetweetsReceived());
         user.setNbLikesGiven(interactions.get(iUser.getId()).getNbLikesGiven());
-        user.setNbRetweetsGiven(interactions.get(iUser.getId()).getNbRetweetsGiven());
+        user.setNbRetweetsGiven(interactions.get(iUser.getId()).getNbRetweetsGiven()); */
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
           this.ioHelper.addNewFollowerLineSimple(usersToWrite);
@@ -95,19 +96,55 @@ public class PersonalAnalyzerBot {
     }
   }
 
-  private UserInteractions getNbInterractions() {
-    UserInteractions              userInteractions     = new UserInteractions();
-    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
+  private Map<String, UserStats> getNbInterractions() {
+    Stream<Tuple2<String, UserInteraction>> givenInteractions = this.getGivenInteractions().toStream();
+    Map<String, UserStats> result = givenInteractions.peek(ui -> LOGGER.info("analyzing : " + ui._1()))
+                                             .groupBy(Tuple2::_1)
+                                             .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2()));
 
-    Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
+    return null;
+  }
+  private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId, Stream<Tuple2<String, UserInteraction>> userInteractions){
+    return Tuple.of(userId,
+                    userInteractions.foldLeft(new UserStats(),
+                                              (userstat, userInteraction) ->
+                                                  userstat.addRepliesGiven(userInteraction._2().getAnswersIds().size())
+                                                          .addRetweetsGiven(userInteraction._2().getRetweetsIds().size())
+                                                          .addLikesGiven(userInteraction._2().getLikesIds().size())));
+  }
+   /* Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
     receivedInteractions.forEach((s, tweetInteraction) -> LOGGER.info(
         s + "-> RT : " + tweetInteraction.getRetweeterIds().size() + " | A : " + tweetInteraction.getAnswererIds().size()) );
 
+    return this.mapsToUserInteractions(givenInteractions, receivedInteractions); */
 
-    // apiSearchHelper.countRecentRepliesGiven(userInteractions,
+    //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions,
     //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-    return userInteractions;
+  //  return userInteractions;
+
+  private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> userInteractionMap, Map<String,
+      TweetInteraction> tweetInteractionMap){
+      // adding all users
+
+   // adding data
+   /* var result = userInteractionMap
+                           .groupBy(Tuple2::_1)
+                           .map(ui -> this.buildTurpleFromUserInteractions(ui._2())); */
+
+    return null;
   }
+
+
+  private Tuple2<String, UserStats> buildTurple(String userId, Set<TweetInteraction> tweetInteractions){
+    return Tuple.of(userId,
+                    tweetInteractions.foldLeft(new UserStats(),
+                                    (userstat, tweetInteraction) ->
+                                        userstat.addRepliesReceived(tweetInteraction.getAnswererIds().length())
+                                                .addRetweetsReceived(tweetInteraction.getRetweeterIds().length())));
+
+  }
+
+
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
     Map<String, TweetInteraction> map1 = dataArchiveHelper.countRetweetsReceived();

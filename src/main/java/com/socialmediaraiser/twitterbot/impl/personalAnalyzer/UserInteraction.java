@@ -16,13 +16,18 @@ import lombok.val;
 public class UserInteraction {
 
   @With
+  private String userId;
+  @With
   private Set<String> answersIds  = new HashSet<>();
   @With
   private Set<String> retweetsIds = new HashSet<>();
   @With
   private Set<String> likesIds    = new HashSet<>();
 
-  // Using VAVR collections everywhere would be much less noisy
+  public UserInteraction addUserId(String userId) {
+    return this.withUserId(userId);
+  }
+
   public UserInteraction addAnswer(String answerId) {
     val withNewId = new HashSet<>(answersIds);
     withNewId.add(answerId);

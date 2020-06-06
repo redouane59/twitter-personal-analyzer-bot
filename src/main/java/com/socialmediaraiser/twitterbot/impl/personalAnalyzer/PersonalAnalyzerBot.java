@@ -115,7 +115,7 @@ public class PersonalAnalyzerBot {
                                               .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
                                               .groupBy(Tuple2::_1)
                                               .map(ui -> buildTurpleFromTweetInteraction(ui._1(), ui._2())));
-    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge);
+    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
 

@@ -7,6 +7,7 @@ import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
@@ -94,54 +95,48 @@ public class PersonalAnalyzerBot {
   }
 
   private Map<String, UserStats> getNbInteractions() {
-    Stream<Tuple2<String, UserInteraction>> givenInteractions = this.getGivenInteractions().toStream();
-    var result = givenInteractions
-        .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
-        .groupBy(Tuple2::_1)
-        .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2()));
-    return result; // @todo KO : is not Map<String, UserStats> but Seq<Object> instead !
+    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
+    Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
+    return this.mapsToUserInteractions(givenInteractions,receivedInteractions);
   }
+
+  //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
+
+  private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
+      TweetInteraction> receivedInteractions){
+
+    Map<String, UserStats> userStatsFromGiven =
+        HashMap.ofEntries(givenInteractions.toStream()
+                                           .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
+                                           .groupBy(Tuple2::_1)
+                                           .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
+    Map<String, UserStats> usersStatsFromReceived=
+        HashMap.ofEntries(receivedInteractions.toStream()
+                                              .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
+                                              .groupBy(Tuple2::_1)
+                                              .map(ui -> buildTurpleFromTweetInteraction(ui._1(), ui._2())));
+    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge);
+  }
+
+
+  private Tuple2<String, UserStats> buildTurpleFromTweetInteraction(String userId,
+                                                                    Stream<Tuple2<String, TweetInteraction>> tweetInteractions){
+    return Tuple.of(userId,
+                    tweetInteractions.foldLeft(new UserStats(),
+                                               (userstat, tweetInteraction) ->
+                                                   userstat.addRepliesReceived(tweetInteraction._2().getAnswererIds().length())
+                                                           .addRetweetsReceived(tweetInteraction._2().getRetweeterIds().length())));
+  }
+
   private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
                                                                     Stream<Tuple2<String, UserInteraction>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->
                                                   userStats.addRepliesGiven(userInteraction._2().getAnswersIds().size())
-                                                          .addRetweetsGiven(userInteraction._2().getRetweetsIds().size())
-                                                          .addLikesGiven(userInteraction._2().getLikesIds().size())));
+                                                           .addRetweetsGiven(userInteraction._2().getRetweetsIds().size())
+                                                           .addLikesGiven(userInteraction._2().getLikesIds().size())));
   }
-   /* Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
-    receivedInteractions.forEach((s, tweetInteraction) -> LOGGER.info(
-        s + "-> RT : " + tweetInteraction.getRetweeterIds().size() + " | A : " + tweetInteraction.getAnswererIds().size()) );
-
-    return this.mapsToUserInteractions(givenInteractions, receivedInteractions); */
-
-  //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions,
-  //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-  //  return userInteractions;
-
-  private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> userInteractionMap, Map<String,
-      TweetInteraction> tweetInteractionMap){
-    // adding all users
-
-    // adding data
-   /* var result = userInteractionMap
-                           .groupBy(Tuple2::_1)
-                           .map(ui -> this.buildTurpleFromUserInteractions(ui._2())); */
-
-    return null;
-  }
-
-
-  private Tuple2<String, UserStats> buildTurple(String userId, Set<TweetInteraction> tweetInteractions){
-    return Tuple.of(userId,
-                    tweetInteractions.foldLeft(new UserStats(),
-                                               (userstat, tweetInteraction) ->
-                                                   userstat.addRepliesReceived(tweetInteraction.getAnswererIds().length())
-                                                           .addRetweetsReceived(tweetInteraction.getRetweeterIds().length())));
-
-  }
-
 
 
   private Map<String, TweetInteraction> getReceivedInteractions() {

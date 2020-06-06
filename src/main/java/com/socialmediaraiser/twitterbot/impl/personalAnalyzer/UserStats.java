@@ -34,7 +34,6 @@ public class UserStats {
     return this.withNbRepliesGiven(this.nbRetweetsReceived + newRetweets);
   }
 
-
   public UserStats addRepliesGiven(int newReplies) {
     return this.withNbRepliesGiven(this.nbRepliesGiven + newReplies);
   }
@@ -47,7 +46,14 @@ public class UserStats {
     return this.withNbRepliesGiven(this.nbLikesGiven + newLikes);
   }
 
-
+  public UserStats merge(UserStats other) {
+    return this
+        .withNbRepliesReceived(this.getNbRepliesReceived()+other.getNbRepliesReceived())
+        .withNbRetweetsReceived(this.getNbRetweetsReceived()+other.getNbRetweetsReceived())
+        .withNbRepliesGiven(this.getNbRepliesGiven()+other.getNbRepliesGiven())
+        .withNbRetweetsGiven(this.getNbRetweetsGiven()+other.getNbRepliesGiven())
+        .withNbLikesGiven(this.getNbLikesGiven()+other.getNbLikesGiven());
+  }
 
 
 }

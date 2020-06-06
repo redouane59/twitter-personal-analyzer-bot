@@ -1,7 +1,7 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 
-import java.util.HashSet;
-import java.util.Set;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,61 +16,58 @@ import lombok.val;
 public class UserInteraction {
 
   @With
-  private String userId;
+  private String      userId;
   @With
-  private Set<String> answersIds  = new HashSet<>();
+  private Set<String> answersIds  = HashSet.empty();
   @With
-  private Set<String> retweetsIds = new HashSet<>();
+  private Set<String> retweetsIds = HashSet.empty();
   @With
-  private Set<String> likesIds    = new HashSet<>();
+  private Set<String> likesIds    = HashSet.empty();
 
   public UserInteraction addUserId(String userId) {
     return this.withUserId(userId);
   }
 
   public UserInteraction addAnswer(String answerId) {
-    val withNewId = new HashSet<>(answersIds);
+    HashSet withNewId = HashSet.of(answersIds);
     withNewId.add(answerId);
     return this.withAnswersIds(withNewId);
   }
 
   public UserInteraction addRetweet(String retweetId) {
-    val withNewId = new HashSet<>(retweetsIds);
+    HashSet withNewId = HashSet.of(retweetsIds);
     withNewId.add(retweetId);
     return this.withRetweetsIds(withNewId);
   }
 
   public UserInteraction addLike(String likeId) {
-    val withNewId = new HashSet<>(likesIds);
+    HashSet withNewId = HashSet.of(likesIds);
     withNewId.add(likeId);
     return this.withLikesIds(withNewId);
   }
 
   // Using VAVR collections everywhere would be much less noisy
-  public UserInteraction merge(UserInteraction that) {
-    return this.mergeAnswers(that)
-               .mergeRetweets(that)
-               .mergeLikes(that);
+  public UserInteraction merge(UserInteraction other) {
+    return this.mergeAnswers(other)
+               .mergeRetweets(other)
+               .mergeLikes(other);
   }
 
   private UserInteraction mergeAnswers(UserInteraction other) {
-    Set<String> mergedAnswerers = io.vavr.collection.HashSet.ofAll(this.getAnswersIds())
-                                                    .addAll(other.getAnswersIds())
-                                                    .toJavaSet();
+    Set<String> mergedAnswerers = HashSet.ofAll(this.getAnswersIds())
+                                                    .addAll(other.getAnswersIds());
     return this.withAnswersIds(mergedAnswerers);
   }
 
   private UserInteraction mergeRetweets(UserInteraction other) {
-    Set<String> mergedRetweeters = io.vavr.collection.HashSet.ofAll(this.getRetweetsIds())
-                                                     .addAll(other.getRetweetsIds())
-                                                     .toJavaSet();
+    Set<String> mergedRetweeters = HashSet.ofAll(this.getRetweetsIds())
+                                                     .addAll(other.getRetweetsIds());
     return this.withRetweetsIds(mergedRetweeters);
   }
 
   private UserInteraction mergeLikes(UserInteraction other) {
-    Set<String> mergedLikers = io.vavr.collection.HashSet.ofAll(this.getLikesIds())
-                                                 .addAll(other.getLikesIds())
-                                                 .toJavaSet();
+    Set<String> mergedLikers = HashSet.ofAll(this.getLikesIds())
+                                                 .addAll(other.getLikesIds());
     return this.withLikesIds(mergedLikers);
   }
 }

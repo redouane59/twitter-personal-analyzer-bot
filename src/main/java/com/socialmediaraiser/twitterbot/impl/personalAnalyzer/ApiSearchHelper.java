@@ -117,7 +117,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     return likedTweets
         .filter(tweet -> tweet.getInReplyToStatusId() == null)
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
-        .peek(tweet -> LOGGER.info("analyzing tweet : " + tweet.getText())) // @todo display userName?
+        .peek(tweet -> LOGGER.info("analyzing tweet : " + tweet.getText()))
         .groupBy(ITweet::getAuthorId)
         .map(this::getTurpleLike);
   }

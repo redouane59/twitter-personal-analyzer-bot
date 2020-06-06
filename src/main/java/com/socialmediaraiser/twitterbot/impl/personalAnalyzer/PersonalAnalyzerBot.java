@@ -117,12 +117,9 @@ public class PersonalAnalyzerBot {
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
-    Map map2 = dataArchiveHelper.countRepliesGiven();
-    Map map1 = apiSearchHelper.countGivenLikesOnStatuses();
-    return map2;
-    //   return dataArchiveHelper.countRetweetsGiven()
-    //                           .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
-    //                           .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);
+    return dataArchiveHelper.countRetweetsGiven()
+                            .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
+                            .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);
   }
 
   @SneakyThrows

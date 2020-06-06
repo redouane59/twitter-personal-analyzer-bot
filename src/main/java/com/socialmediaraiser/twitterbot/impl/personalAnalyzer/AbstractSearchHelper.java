@@ -54,4 +54,10 @@ public abstract class AbstractSearchHelper {
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addAnswer(tweet.getId())));
   }
+
+  public Tuple2<String, UserInteraction> getTurpleRetweet(String userId, Stream<ITweet> tweets) {
+    return Tuple.of(userId,
+                    tweets.foldLeft(new UserInteraction(),
+                                    (interaction, tweet) -> interaction.addRetweet(tweet.getId())));
+  }
 }

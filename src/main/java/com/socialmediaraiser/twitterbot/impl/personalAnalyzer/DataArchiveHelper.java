@@ -35,7 +35,6 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     }
   }
 
-  // @todo KO only one result
   public Map<String, UserInteraction> countRepliesGiven() {
     LOGGER.info("\ncounting replies from user (archive)...");
     Map<String, UserInteraction> result = Stream.ofAll(tweets)
@@ -48,26 +47,6 @@ public class DataArchiveHelper extends AbstractSearchHelper {
                                                 .groupBy(ITweet::getAuthorId)
                                                 .map(this::getTurpleAnswer);
     return result;
-
-   /* Map<String, UserInteraction> result = HashMap.empty();
-    int         repliesGiven         = 0;
-    for (TweetDTOv1 tweet : tweets) { // @todo check for retweets + exclude own answers
-      // checking the reply I gave to other users
-      String inReplyUserId = tweet.getInReplyToUserId();
-      if (inReplyUserId != null && this.isUserInList(tweet.getInReplyToUserId())) {
-        repliesGiven++;
-        ITweet initialTweet = this.getTwitterClient().getInitialTweet(tweet, true);
-        if (!this.getUserId().equals(initialTweet.getAuthorId())) {
-          System.out.print(".");
-          if(!result.containsKey(inReplyUserId)){
-            result = result.put(inReplyUserId, new UserInteraction());
-          }
-          result.get(inReplyUserId).get().addRetweet(initialTweet.getId());
-        }
-      }
-    }
-    LOGGER.info(repliesGiven + " replies given found, " + result.size() + " replies given saved");
-    return result;*/
   }
 
   /**
@@ -98,27 +77,17 @@ public class DataArchiveHelper extends AbstractSearchHelper {
   // @todo use Stream
   public Map<String, UserInteraction> countRetweetsGiven() {
     LOGGER.info("\ncounting retweets given (archive)...");
-  //  Stream<ITweet> givenRetweets = Stream.ofAll(this.filterTweetsByRetweet(true));
-    Map<String, UserInteraction> result = HashMap.empty();
-    List<ITweet> retweets = this.filterTweetsByRetweet(true);
-    int              rtCount  = 0;
-    for (ITweet tweet : retweets) {
-      ITweet fullTweet        = this.getTwitterClient().getTweet(tweet.getId());
-      String retweetedTweetId = fullTweet.getInReplyToStatusId(TweetType.RETWEETED);
-      if (retweetedTweetId != null) {
-        ITweet retweetedTweet = this.getTwitterClient().getTweet(retweetedTweetId); // @todo check null
-        String userId         = retweetedTweet.getAuthorId(); // because info missing in data archive
-        if (this.isUserInList(userId)) {
-          if(!result.containsKey(userId) || result.get(userId).isEmpty()){
-            result = result.put(userId, new UserInteraction());
-          }
-          result.get(userId).get().addRetweet(retweetedTweetId);
-          System.out.println(".");
-          rtCount++;
-        }
-      }
-    }
-    LOGGER.info(rtCount + " retweets given found");
+    Stream<ITweet> givenRetweets = Stream.ofAll(this.filterTweetsByRetweet(true));
+    Map<String, UserInteraction> result = givenRetweets
+        .map(tweet -> this.getTwitterClient().getTweet(tweet.getId()))
+        .filter(tweet -> tweet.getInReplyToStatusId(TweetType.RETWEETED)!=null)
+        .peek(tweet -> LOGGER.info("analyzing RT : " + tweet.getText()))
+        .map(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED))) // @todo ko
+        .filter(tweet -> tweet.getId()!=null)
+        .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+        .groupBy(ITweet::getAuthorId)
+        .map(this::getTurpleRetweet);
+
     return result;
   }
 

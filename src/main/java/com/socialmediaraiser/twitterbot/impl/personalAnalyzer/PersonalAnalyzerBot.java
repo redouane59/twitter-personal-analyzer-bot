@@ -1,6 +1,5 @@
 package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
 import com.socialmediaraiser.twitter.TwitterClient;
-import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.AbstractIOHelper;
@@ -8,10 +7,8 @@ import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
-import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import java.util.ArrayList;
@@ -47,7 +44,7 @@ public class PersonalAnalyzerBot {
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
   throws InterruptedException {
     String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    Map<String, UserStats>  interactions = this.getNbInterractions(); // @todo to change
+    Map<String, UserStats>  interactions = this.getNbInteractions(); // @todo to change
     List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
     List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
     Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers); // @todo duplicate
@@ -96,19 +93,20 @@ public class PersonalAnalyzerBot {
     }
   }
 
-  private Map<String, UserStats> getNbInterractions() {
+  private Map<String, UserStats> getNbInteractions() {
     Stream<Tuple2<String, UserInteraction>> givenInteractions = this.getGivenInteractions().toStream();
-    Map<String, UserStats> result = givenInteractions.peek(ui -> LOGGER.info("analyzing : " + ui._1()))
-                                             .groupBy(Tuple2::_1)
-                                             .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2()));
-
-    return null;
+    var result = givenInteractions
+        .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
+        .groupBy(Tuple2::_1)
+        .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2()));
+    return result; // @todo KO : is not Map<String, UserStats> but Seq<Object> instead !
   }
-  private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId, Stream<Tuple2<String, UserInteraction>> userInteractions){
+  private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
+                                                                    Stream<Tuple2<String, UserInteraction>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
-                                              (userstat, userInteraction) ->
-                                                  userstat.addRepliesGiven(userInteraction._2().getAnswersIds().size())
+                                              (userStats, userInteraction) ->
+                                                  userStats.addRepliesGiven(userInteraction._2().getAnswersIds().size())
                                                           .addRetweetsGiven(userInteraction._2().getRetweetsIds().size())
                                                           .addLikesGiven(userInteraction._2().getLikesIds().size())));
   }
@@ -118,15 +116,15 @@ public class PersonalAnalyzerBot {
 
     return this.mapsToUserInteractions(givenInteractions, receivedInteractions); */
 
-    //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions,
-    //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
+  //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions,
+  //                                         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
   //  return userInteractions;
 
   private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> userInteractionMap, Map<String,
       TweetInteraction> tweetInteractionMap){
-      // adding all users
+    // adding all users
 
-   // adding data
+    // adding data
    /* var result = userInteractionMap
                            .groupBy(Tuple2::_1)
                            .map(ui -> this.buildTurpleFromUserInteractions(ui._2())); */
@@ -138,9 +136,9 @@ public class PersonalAnalyzerBot {
   private Tuple2<String, UserStats> buildTurple(String userId, Set<TweetInteraction> tweetInteractions){
     return Tuple.of(userId,
                     tweetInteractions.foldLeft(new UserStats(),
-                                    (userstat, tweetInteraction) ->
-                                        userstat.addRepliesReceived(tweetInteraction.getAnswererIds().length())
-                                                .addRetweetsReceived(tweetInteraction.getRetweeterIds().length())));
+                                               (userstat, tweetInteraction) ->
+                                                   userstat.addRepliesReceived(tweetInteraction.getAnswererIds().length())
+                                                           .addRetweetsReceived(tweetInteraction.getRetweeterIds().length())));
 
   }
 

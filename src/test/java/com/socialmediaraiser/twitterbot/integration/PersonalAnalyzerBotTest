@@ -7,12 +7,21 @@ import com.socialmediaraiser.twitterbot.impl.DataArchiveHelper;
 import com.socialmediaraiser.twitterbot.impl.UserInteraction;
 import io.vavr.collection.Map;
 import java.util.Date;
+import lombok.CustomLog;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+@CustomLog
 public class PersonalAnalyzerBotTest {
   private Date iniDate;
   private String            userName;
   private DataArchiveHelper dataArchiveHelper;
+
+
+  @BeforeAll
+  static void init() {
+    LOGGER.info("init");
+  }
 
   @Test
   public void testGetGivenReplies(){

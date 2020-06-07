@@ -1,6 +1,6 @@
 package com.socialmediaraiser.twitterbot;
 
-import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.PersonalAnalyzerBot;
+import com.socialmediaraiser.twitterbot.impl.PersonalAnalyzerBot;
 import java.io.IOException;
 import lombok.CustomLog;
 

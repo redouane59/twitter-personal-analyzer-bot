@@ -1,8 +1,8 @@
-package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
+package com.socialmediaraiser.twitterbot.impl;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitterbot.impl.personalAnalyzer.UsersStats.UserStatsDetail;
+import com.socialmediaraiser.twitterbot.impl.UsersStats.UserStatsDetail;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;

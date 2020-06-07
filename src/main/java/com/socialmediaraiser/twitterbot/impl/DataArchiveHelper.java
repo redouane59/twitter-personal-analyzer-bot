@@ -1,4 +1,4 @@
-package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
+package com.socialmediaraiser.twitterbot.impl;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
 import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv1;

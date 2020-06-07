@@ -1,4 +1,4 @@
-package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
+package com.socialmediaraiser.twitterbot.impl;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
-import lombok.val;
 
 @Getter
 @Builder

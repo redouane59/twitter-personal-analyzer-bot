@@ -1,13 +1,10 @@
-package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
+package com.socialmediaraiser.twitterbot.impl;
 
-import java.util.HashSet;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
-import lombok.val;
 
 @Getter
 @Builder

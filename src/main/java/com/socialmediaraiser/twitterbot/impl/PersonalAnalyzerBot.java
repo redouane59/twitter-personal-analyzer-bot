@@ -1,10 +1,8 @@
-package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
+package com.socialmediaraiser.twitterbot.impl;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitterbot.AbstractIOHelper;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
-import com.socialmediaraiser.twitterbot.impl.User;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -29,7 +27,7 @@ import lombok.SneakyThrows;
 public class PersonalAnalyzerBot {
 
   private       String            userName;
-  private       AbstractIOHelper  ioHelper;
+  private       GoogleSheetHelper  ioHelper;
   private       TwitterClient     twitterClient = new TwitterClient();
   private final Date              iniDate       = ConverterHelper.dayBeforeNow(30);
   private       DataArchiveHelper dataArchiveHelper;
@@ -37,7 +35,7 @@ public class PersonalAnalyzerBot {
 
   public PersonalAnalyzerBot(String userName, String archiveFileName) {
     this.userName          = userName;
-    this.ioHelper          = new GoogleSheetHelper(userName);
+    this.ioHelper          = new GoogleSheetHelper();
     this.dataArchiveHelper = new DataArchiveHelper(userName, archiveFileName, iniDate);
     this.apiSearchHelper   = new ApiSearchHelper(userName);
   }

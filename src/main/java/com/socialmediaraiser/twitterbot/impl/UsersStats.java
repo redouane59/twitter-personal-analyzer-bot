@@ -1,4 +1,4 @@
-package com.socialmediaraiser.twitterbot.impl.personalAnalyzer;
+package com.socialmediaraiser.twitterbot.impl;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -25,19 +25,19 @@ public class TweetInteraction {
   // Using VAVR collections everywhere would be much less noisy
   public TweetInteraction addAnswerer(String answerer) {
     Set<String> withNewId = HashSet.ofAll(answererIds);
-    withNewId.add(answerer);
+    withNewId = withNewId.add(answerer);
     return this.withAnswererIds(withNewId);
   }
 
   public TweetInteraction addRetweeted(String retweeter) {
     Set<String> withNewId = HashSet.ofAll(retweeterIds);
-    withNewId.add(retweeter);
+    withNewId = withNewId.add(retweeter);
     return this.withRetweeterIds(withNewId);
   }
 
   public TweetInteraction addLiked(String liked) {
     Set<String> withNewId = HashSet.ofAll(likersIds);
-    withNewId.add(liked);
+    withNewId = withNewId.add(liked);
     return this.withLikersIds(withNewId);
   }
 

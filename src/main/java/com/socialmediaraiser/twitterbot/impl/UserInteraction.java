@@ -27,21 +27,22 @@ public class UserInteraction {
     return this.withUserId(userId);
   }
 
+  // @todo not working
   public UserInteraction addAnswer(String answerId) {
-    HashSet withNewId = HashSet.of(answersIds);
-    withNewId.add(answerId);
+    Set<String> withNewId = HashSet.ofAll(answersIds);
+    withNewId = withNewId.add(answerId);
     return this.withAnswersIds(withNewId);
   }
 
   public UserInteraction addRetweet(String retweetId) {
-    HashSet withNewId = HashSet.of(retweetsIds);
-    withNewId.add(retweetId);
+    Set<String> withNewId = HashSet.ofAll(retweetsIds);
+    withNewId = withNewId.add(retweetId);
     return this.withRetweetsIds(withNewId);
   }
 
   public UserInteraction addLike(String likeId) {
-    HashSet withNewId = HashSet.of(likesIds);
-    withNewId.add(likeId);
+    Set<String> withNewId = HashSet.ofAll(likesIds);
+    withNewId = withNewId.add(likeId);
     return this.withLikesIds(withNewId);
   }
 

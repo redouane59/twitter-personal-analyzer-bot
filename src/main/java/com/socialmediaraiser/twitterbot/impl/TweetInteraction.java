@@ -75,7 +75,7 @@ public class TweetInteraction {
    * Get UserStats from TweetInteraction object
    * @return a map with userId as key and UserStats as value
    */
-  public Map<String, UserStats> toUserStatsList(){
+  public Map<String, UserStats> toUserStatsMap(){
     Set<String> allUsers = this.answererIds.addAll(this.retweeterIds).addAll(this.likersIds);
     return HashMap.ofEntries(allUsers.toStream().map(this::buildTurple));
   }

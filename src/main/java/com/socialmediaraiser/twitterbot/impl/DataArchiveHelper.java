@@ -40,7 +40,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
                                                 .filter(tweet -> tweet.getInReplyToUserId()!=null)
                                                 .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
                                                 .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
-                                                .peek(tweet -> LOGGER.info("analyzing reply : " + tweet.getText())) // @todo display userName?
+                                                .peek(tweet -> LOGGER.info("analyzing DATA reply : " + tweet.getText()))
                                                 .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
                                                 .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
                                                 .groupBy(ITweet::getAuthorId)

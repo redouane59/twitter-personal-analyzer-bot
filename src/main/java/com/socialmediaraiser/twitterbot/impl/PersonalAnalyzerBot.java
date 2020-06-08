@@ -53,11 +53,11 @@ public class PersonalAnalyzerBot {
     for (IUser iUser : allUsers) {
       if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         User user = new User(iUser);
-     /*   user.setNbRepliesReceived(interactions.get(iUser.getId()).getNbRepliesReceived());
-        user.setNbRepliesGiven(interactions.get(iUser.getId()).getNbRepliesGiven());
-        user.setNbRetweetsReceived(interactions.get(iUser.getId()).getNbRetweetsReceived());
-        user.setNbLikesGiven(interactions.get(iUser.getId()).getNbLikesGiven());
-        user.setNbRetweetsGiven(interactions.get(iUser.getId()).getNbRetweetsGiven()); */
+        user.setNbRepliesReceived(interactions.get(iUser.getId()).get().getNbRepliesReceived());
+        user.setNbRepliesGiven(interactions.get(iUser.getId()).get().getNbRepliesGiven());
+        user.setNbRetweetsReceived(interactions.get(iUser.getId()).get().getNbRetweetsReceived());
+        user.setNbLikesGiven(interactions.get(iUser.getId()).get().getNbLikesGiven());
+        user.setNbRetweetsGiven(interactions.get(iUser.getId()).get().getNbRetweetsGiven());
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
           this.ioHelper.addNewFollowerLineSimple(usersToWrite);
@@ -102,24 +102,23 @@ public class PersonalAnalyzerBot {
 
   private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
       TweetInteraction> receivedInteractions){
-
+    LOGGER.info("mapsToUserIntereactions...");
     Map<String, UserStats> userStatsFromGiven =
         HashMap.ofEntries(givenInteractions.toStream()
-                                           .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
                                            .groupBy(Tuple2::_1)
                                            .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
     Map<String, UserStats> usersStatsFromReceived=
         HashMap.ofEntries(receivedInteractions.toStream()
-                                              .peek(ui -> LOGGER.info("analyzing : " + ui._1()))
                                               .groupBy(Tuple2::_1)
                                               .map(ui -> buildTurpleFromTweetInteraction(ui._1(), ui._2())));
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
 
-  private Tuple2<String, UserStats> buildTurpleFromTweetInteraction(String userId,
+  private Tuple2<String, UserStats> buildTurpleFromTweetInteraction(String tweetId,
                                                                     Stream<Tuple2<String, TweetInteraction>> tweetInteractions){
-    return Tuple.of(userId,
+    // @todo KO
+    return Tuple.of(tweetId,
                     tweetInteractions.foldLeft(new UserStats(),
                                                (userstat, tweetInteraction) ->
                                                    userstat.addRepliesReceived(tweetInteraction._2().getAnswererIds().length())

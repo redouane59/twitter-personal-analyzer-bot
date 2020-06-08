@@ -74,7 +74,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     return tweetWithReplies.filter(tweet -> this.isUserInList(tweet.getAuthorId()))
                            .filter(tweet -> this.getUserId().equals(
                                this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
-                           .peek(initialTweet -> LOGGER.info("analyzing reply : " + initialTweet.getText()))
+                           .peek(initialTweet -> LOGGER.info("analyzing API reply : " + initialTweet.getText()))
                            .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
                            .map(this::foldTweets);
   }

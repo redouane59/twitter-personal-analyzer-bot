@@ -111,12 +111,12 @@ public class PersonalAnalyzerBot {
         HashMap.ofEntries(receivedInteractions.toStream()
                                               // to get all the sets
                                               .map(Tuple2::_2)
-                                              // to join all the sets in one list
-                                              .map(tweetInteraction -> List.of(tweetInteraction.getAnswererIds(), tweetInteraction.getRetweeterIds(), tweetInteraction.getLikersIds()))
+                                              // to join all the sets in one list of sets
+                                              .flatMap(tweetInteraction -> List.of(tweetInteraction.getAnswererIds(), tweetInteraction.getRetweeterIds(), tweetInteraction.getLikersIds()))
                                               // to have the list values as unique keys
                                               .groupBy(HashSet::ofAll)
                                               // create the needed turple
-                                              .map(el -> buildTurpleFromTweetInteraction(el._1(), /*???*/)));
+                                              .map(el -> buildTurpleFromTweetInteraction(el._1(), el._2())));
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
@@ -132,7 +132,7 @@ public class PersonalAnalyzerBot {
   }
 
   private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
-                                                                    Stream<Tuple2<String, UserInteraction>> userInteractions){
+                                                                    Stream<List<Set<String>>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->

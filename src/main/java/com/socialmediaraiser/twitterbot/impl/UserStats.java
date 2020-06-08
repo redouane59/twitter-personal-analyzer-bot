@@ -59,8 +59,14 @@ public class UserStats {
         .withNbLikesGiven(this.getNbLikesGiven()+other.getNbLikesGiven());
   }
 
+  /**
+   * Update stat info from a TweetInteraction object
+   * @param userId the id of the user
+   * @param tweetInteraction the related tweetInteraction
+   * @return a new UserStats instance
+   */
   public UserStats updateFromTweetInteraction(String userId, TweetInteraction tweetInteraction){
-    UserStats result = this;
+    UserStats result = this; // @todo is it durty or not ? As I currently only manage integers...
     if(tweetInteraction.getAnswererIds().contains(userId)){
       result = result.addRepliesReceived(1);
     }

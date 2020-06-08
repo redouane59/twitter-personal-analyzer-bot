@@ -109,8 +109,14 @@ public class PersonalAnalyzerBot {
                                            .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
     Map<String, UserStats> usersStatsFromReceived=
         HashMap.ofEntries(receivedInteractions.toStream()
-                                              .groupBy(Tuple2::_1)
-                                              .map(ui -> buildTurpleFromTweetInteraction(ui._1(), ui._2())));
+                                              // to get all the sets
+                                              .map(Tuple2::_2)
+                                              // to join all the sets in one list
+                                              .map(tweetInteraction -> List.of(tweetInteraction.getAnswererIds(), tweetInteraction.getRetweeterIds(), tweetInteraction.getLikersIds()))
+                                              // to have the list values as unique keys
+                                              .groupBy(HashSet::ofAll)
+                                              // create the needed turple
+                                              .map(el -> buildTurpleFromTweetInteraction(el._1(), /*???*/)));
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 

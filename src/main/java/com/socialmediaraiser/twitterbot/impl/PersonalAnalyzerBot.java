@@ -107,16 +107,25 @@ public class PersonalAnalyzerBot {
         HashMap.ofEntries(givenInteractions.toStream()
                                            .groupBy(Tuple2::_1)
                                            .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
-    Map<String, UserStats> usersStatsFromReceived=
-        HashMap.ofEntries(receivedInteractions.toStream()
-                                              // to get all the sets
-                                              .map(Tuple2::_2)
-                                              // to join all the sets in one list of sets
-                                              .flatMap(tweetInteraction -> List.of(tweetInteraction.getAnswererIds(), tweetInteraction.getRetweeterIds(), tweetInteraction.getLikersIds()))
-                                              // to have the list values as unique keys
-                                              .groupBy(HashSet::ofAll)
-                                              // create the needed turple
-                                              .map(el -> buildTurpleFromTweetInteraction(el._1(), el._2())));
+    Map<String, UserStats> usersStatsFromReceived = receivedInteractions.toStream()
+                                                                        .map(Tuple2::_2)
+                                                                        .map(tweetInteraction -> HashMap.<String, UserStats>empty()
+                                                                            .merge(tweetInteraction.getAnswererIds()
+                                                                                                   .toMap(answerer -> answerer, answerer -> UserStats.builder()
+                                                                                                                                                     .nbRepliesGiven(1)
+                                                                                                                                                     .build()),
+                                                                                   UserStats::merge)
+                                                                            .merge(tweetInteraction.getLikersIds()
+                                                                                                   .toMap(answerer -> answerer, answerer -> UserStats.builder()
+                                                                                                                                                     .nbLikesGiven(1)
+                                                                                                                                                     .build()),
+                                                                                   UserStats::merge)
+                                                                            .merge(tweetInteraction.getRetweeterIds()
+                                                                                                   .toMap(answerer -> answerer, answerer -> UserStats.builder()
+                                                                                                                                                     .nbRetweetsGiven(1)
+                                                                                                                                                     .build()),
+                                                                                   UserStats::merge))
+                                                                        .collect(HashMap::<String, UserStats>empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
@@ -132,7 +141,7 @@ public class PersonalAnalyzerBot {
   }
 
   private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
-                                                                    Stream<List<Set<String>>> userInteractions){
+                                                                    Stream<Tuple2<String, UserInteraction>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->

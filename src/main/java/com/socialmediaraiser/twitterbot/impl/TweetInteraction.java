@@ -1,8 +1,13 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,19 +55,29 @@ public class TweetInteraction {
 
   private TweetInteraction mergeAnswerers(TweetInteraction other) {
     Set<String> mergedAnswerers = io.vavr.collection.HashSet.ofAll(this.getAnswererIds())
-                                                    .addAll(other.getAnswererIds());
+                                                            .addAll(other.getAnswererIds());
     return this.withAnswererIds(mergedAnswerers);
   }
 
   private TweetInteraction mergeRetweeters(TweetInteraction other) {
     Set<String> mergedRetweeters = io.vavr.collection.HashSet.ofAll(this.getRetweeterIds())
-                                                     .addAll(other.getRetweeterIds());
+                                                             .addAll(other.getRetweeterIds());
     return this.withRetweeterIds(mergedRetweeters);
   }
 
   private TweetInteraction mergeLikers(TweetInteraction other) {
     Set<String> mergedLikers = io.vavr.collection.HashSet.ofAll(this.getLikersIds())
-                                                 .addAll(other.getLikersIds());
+                                                         .addAll(other.getLikersIds());
     return this.withLikersIds(mergedLikers);
   }
+
+  public Map<String, UserStats> toUserStatsList(){
+    Set<String> allUsers = this.answererIds.addAll(this.retweeterIds).addAll(this.likersIds);
+    return HashMap.ofEntries(allUsers.toStream().map(this::buildTurple));
+  }
+
+  private Tuple2<String, UserStats> buildTurple(String userId){
+    return Tuple.of(userId, new UserStats().updateFromTweetInteraction(userId, this));
+  }
+
 }

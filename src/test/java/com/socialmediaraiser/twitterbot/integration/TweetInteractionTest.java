@@ -68,8 +68,8 @@ public class TweetInteractionTest {
 
   @Test
   public void testMapOfTweetInteractionToMapOfUserStats(){
-    Map<String, TweetInteraction> receivedInteractions = HashMap.of("Tweet1",this.getTweetIntereaction());
-    receivedInteractions = receivedInteractions.put("Tweet2", this.getTweetIntereaction());
+    Map<String, TweetInteraction> receivedInteractions = HashMap.of("Tweet1",this.getTweetIntereaction())
+                                                                .put("Tweet2", this.getTweetIntereaction());
     Map<String, UserStats> usersStatsFromReceived = receivedInteractions.toStream()
                                                                         .map(Tuple2::_2)
                                                                         .map(tweetInteraction -> tweetInteraction.toUserStatsMap())

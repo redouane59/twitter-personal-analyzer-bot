@@ -111,6 +111,7 @@ public class PersonalAnalyzerBot {
                                                      .map(Tuple2::_2)
                                                      .map(tweetInteraction -> tweetInteraction.toUserStatsMap())
                                                      .collect(HashMap::<String, UserStats>empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
+    //return null;
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 

@@ -70,13 +70,12 @@ public class ApiSearchHelper extends AbstractSearchHelper {
    */
   public Map<String, TweetInteraction> countRepliesReceived(boolean currentWeek) {
     LOGGER.info("Counting replies received - currentWeek = " + currentWeek + " ...");
-    Stream<ITweet> tweetWithReplies = getReceivedReplies(currentWeek);
-    return tweetWithReplies.filter(tweet -> this.isUserInList(tweet.getAuthorId()))
-                           .filter(tweet -> this.getUserId().equals(
-                               this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
-                           .peek(initialTweet -> LOGGER.info("analyzing API reply : " + initialTweet.getText()))
-                           .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
-                           .map(this::foldTweets);
+    return this.getTweetsWithRepliesStream(currentWeek)
+               .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+               .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
+               .peek(initialTweet -> LOGGER.info("analyzing API reply : " + initialTweet.getText()))
+               .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
+               .map(this::foldTweets);
   }
 
   private Tuple2<String, TweetInteraction> foldTweets(String tweetId, Stream<ITweet> tweets) {
@@ -85,25 +84,21 @@ public class ApiSearchHelper extends AbstractSearchHelper {
                                     (interaction, tweet) -> interaction.addAnswerer(tweet.getAuthorId())));
   }
 
-  /**
-   * Get the replies tweets
-   * @param currentWeek if true, use the labs2 endpoint to only count the last 7 days, otherwise classical search within 30 days until D-7
-   * @return a stream if replies tweets
-   */
-  private Stream<ITweet> getReceivedReplies(boolean currentWeek) {
+  private Stream<ITweet> getTweetsWithRepliesStream(boolean currentWeek){
+    String mentionQuery = "to:" + this.getUserName() + " has:mentions";
     if (currentWeek) {
       Date toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
+      return  Stream.ofAll(this.getTwitterClient()
+                               .searchForTweetsWithin7days("(" + mentionQuery + ")"  + "OR (url:redtheone -is:retweet)",
+                                                           DateUtils.ceiling(DateUtils.addDays(toDate, -7), Calendar.HOUR),
+                                                           toDate));
+    } else{
+      Date toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7), Calendar.DAY_OF_MONTH);
       return Stream.ofAll(this.getTwitterClient()
-                              .searchForTweetsWithin7days("(to:" + this.getUserName() + " has:mentions)" + "OR (url:redtheone -is:retweet)",
-                                                          DateUtils.ceiling(DateUtils.addDays(toDate, -7), Calendar.HOUR),
-                                                          toDate));
+                              .searchForTweetsWithin30days(mentionQuery,
+                                                           DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH),
+                                                           toDate));
     }
-
-    Date toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7), Calendar.DAY_OF_MONTH);
-    return Stream.ofAll(this.getTwitterClient()
-                            .searchForTweetsWithin30days("to:" + this.getUserName() + " has:mentions",
-                                                         DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH),
-                                                         toDate));
   }
 
   /**
@@ -121,6 +116,5 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .groupBy(ITweet::getAuthorId)
         .map(this::getTurpleLike);
   }
-
 
 }

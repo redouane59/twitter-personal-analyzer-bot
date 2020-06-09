@@ -67,7 +67,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
     for (String retweeterId : retweeterIds) {
       if (this.isUserInList(retweeterId)) {
-        result.getRetweeterIds().add(retweeterId);
+        result = result.addRetweeted(retweeterId);
       }
     }
     return result;

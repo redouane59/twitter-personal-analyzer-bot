@@ -43,7 +43,7 @@ public class PersonalAnalyzerBot {
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
   throws InterruptedException {
     String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    Map<String, UserStats>  interactions = this.getNbInteractions(); // @todo to change
+    Map<String, UserStats>  interactions = this.getUserStatsMap();
     List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
     List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
     Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers); // @todo duplicate
@@ -92,40 +92,25 @@ public class PersonalAnalyzerBot {
     }
   }
 
-  private Map<String, UserStats> getNbInteractions() {
+  private Map<String, UserStats> getUserStatsMap() {
     Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
     Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
     return this.mapsToUserInteractions(givenInteractions,receivedInteractions);
   }
 
-  //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-
   private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
       TweetInteraction> receivedInteractions){
     LOGGER.info("mapsToUserIntereactions...");
+
     Map<String, UserStats> userStatsFromGiven =
         HashMap.ofEntries(givenInteractions.toStream()
                                            .groupBy(Tuple2::_1)
                                            .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
+
     Map<String, UserStats> usersStatsFromReceived = receivedInteractions.toStream()
-                                                                        .map(Tuple2::_2)
-                                                                        .map(tweetInteraction -> HashMap.<String, UserStats>empty()
-                                                                            .merge(tweetInteraction.getAnswererIds()
-                                                                                                   .toMap(answerer -> answerer, answerer -> UserStats.builder()
-                                                                                                                                                     .nbRepliesGiven(1)
-                                                                                                                                                     .build()),
-                                                                                   UserStats::merge)
-                                                                            .merge(tweetInteraction.getLikersIds()
-                                                                                                   .toMap(answerer -> answerer, answerer -> UserStats.builder()
-                                                                                                                                                     .nbLikesGiven(1)
-                                                                                                                                                     .build()),
-                                                                                   UserStats::merge)
-                                                                            .merge(tweetInteraction.getRetweeterIds()
-                                                                                                   .toMap(answerer -> answerer, answerer -> UserStats.builder()
-                                                                                                                                                     .nbRetweetsGiven(1)
-                                                                                                                                                     .build()),
-                                                                                   UserStats::merge))
-                                                                        .collect(HashMap::<String, UserStats>empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
+                                                     .map(Tuple2::_2)
+                                                     .map(tweetInteraction -> tweetInteraction.toUserStatsMap())
+                                                     .collect(HashMap::<String, UserStats>empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
@@ -148,6 +133,8 @@ public class PersonalAnalyzerBot {
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
+    //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
+
     return dataArchiveHelper.countRetweetsGiven()
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
                             .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);

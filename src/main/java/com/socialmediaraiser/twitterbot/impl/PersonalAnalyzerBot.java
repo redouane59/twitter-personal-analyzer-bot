@@ -55,11 +55,13 @@ public class PersonalAnalyzerBot {
     for (IUser iUser : allUsers) {
       if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         User user = new User(iUser);
-        user.setNbRepliesReceived(interactions.get(iUser.getId()).get().getNbRepliesReceived());
-        user.setNbRepliesGiven(interactions.get(iUser.getId()).get().getNbRepliesGiven());
-        user.setNbRetweetsReceived(interactions.get(iUser.getId()).get().getNbRetweetsReceived());
-        user.setNbLikesGiven(interactions.get(iUser.getId()).get().getNbLikesGiven());
-        user.setNbRetweetsGiven(interactions.get(iUser.getId()).get().getNbRetweetsGiven());
+        if(interactions.get(iUser.getId()).isDefined()) {
+          user.setNbRepliesReceived(interactions.get(iUser.getId()).get().getNbRepliesReceived());
+          user.setNbRepliesGiven(interactions.get(iUser.getId()).get().getNbRepliesGiven());
+          user.setNbRetweetsReceived(interactions.get(iUser.getId()).get().getNbRetweetsReceived());
+          user.setNbLikesGiven(interactions.get(iUser.getId()).get().getNbLikesGiven());
+          user.setNbRetweetsGiven(interactions.get(iUser.getId()).get().getNbRetweetsGiven());
+        }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
           this.ioHelper.addNewFollowerLineSimple(usersToWrite);
@@ -103,17 +105,16 @@ public class PersonalAnalyzerBot {
   private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
       TweetInteraction> receivedInteractions){
     LOGGER.info("mapsToUserIntereactions...");
-    val userStatsFromGiven = givenInteractions.toStream()
+    Map<String, UserStats> userStatsFromGiven = HashMap.ofEntries(givenInteractions.toStream()
                                               .groupBy(Tuple2::_1)
-                                              .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2()))
-                                              .toMap(Function.identity());
+                                              .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));
 
-    val usersStatsFromReceived = receivedInteractions.map(Tuple2::_2)
+    Map<String, UserStats> usersStatsFromReceived = receivedInteractions.map(Tuple2::_2)
                                                      .map(TweetInteraction::toUserStatsMap)
                                                      .foldLeft(HashMap.<String, UserStats>empty(),
                                                                (firstMap, secondMap) -> firstMap.merge(secondMap,
                                                                                                        UserStats::merge));
-    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
+    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge);
   }
 
   private Tuple2<String, UserStats> buildTupleFromUserInteractions(String userId,

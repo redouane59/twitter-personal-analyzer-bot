@@ -105,7 +105,7 @@ public class PersonalAnalyzerBot {
     Map<String, UserStats> userStatsFromGiven =
         HashMap.ofEntries(givenInteractions.toStream()
                                            .groupBy(Tuple2::_1)
-                                           .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
+                                           .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));
 
     Map<String, UserStats> usersStatsFromReceived = receivedInteractions.toStream()
                                                      .map(Tuple2::_2)
@@ -115,8 +115,8 @@ public class PersonalAnalyzerBot {
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
-  private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
-                                                                    Stream<Tuple2<String, UserInteraction>> userInteractions){
+  private Tuple2<String, UserStats> buildTupleFromUserInteractions(String userId,
+                                                                   Stream<Tuple2<String, UserInteraction>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->

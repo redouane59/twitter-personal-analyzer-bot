@@ -72,8 +72,9 @@ public class TweetInteractionTest {
                                                                 .put("Tweet2", this.getTweetIntereaction());
     Map<String, UserStats> usersStatsFromReceived = receivedInteractions.toStream()
                                                                         .map(Tuple2::_2)
-                                                                        .map(tweetInteraction -> tweetInteraction.toUserStatsMap())
-                                                                        .collect(HashMap::<String, UserStats>empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
+                                                                        .map(TweetInteraction::toUserStatsMap)
+                                                                        .collect(HashMap::empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
+                                                                       // .foldLeft(userStatsMap -> userStatsMap);
     assertTrue(usersStatsFromReceived.size()>0);
     assertEquals(2,usersStatsFromReceived.get("1").get().getNbRepliesReceived());
     assertEquals(2,usersStatsFromReceived.get("2").get().getNbRepliesReceived());

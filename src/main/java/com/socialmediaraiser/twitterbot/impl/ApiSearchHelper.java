@@ -114,7 +114,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing tweet : " + tweet.getText()))
         .groupBy(ITweet::getAuthorId)
-        .map(this::getTurpleLike);
+        .map(this::getTupleLike);
   }
 
 }

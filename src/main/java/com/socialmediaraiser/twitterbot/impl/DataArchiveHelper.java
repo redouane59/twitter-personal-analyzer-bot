@@ -44,7 +44,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
                                                 .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
                                                 .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
                                                 .groupBy(ITweet::getAuthorId)
-                                                .map(this::getTurpleAnswer);
+                                                .map(this::getTupleAnswer);
     return result;
   }
 
@@ -85,7 +85,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         .filter(tweet -> tweet.getId()!=null)
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .groupBy(ITweet::getAuthorId)
-        .map(this::getTurpleRetweet);
+        .map(this::getTupleRetweet);
 
     return result;
   }

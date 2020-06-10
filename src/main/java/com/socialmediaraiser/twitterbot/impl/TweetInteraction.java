@@ -7,7 +7,6 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
-import io.vavr.collection.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -77,10 +76,10 @@ public class TweetInteraction {
    */
   public Map<String, UserStats> toUserStatsMap(){
     Set<String> allUsers = this.answererIds.addAll(this.retweeterIds).addAll(this.likersIds);
-    return HashMap.ofEntries(allUsers.toStream().map(this::buildTurple));
+    return HashMap.ofEntries(allUsers.toStream().map(this::buildTuple));
   }
 
-  private Tuple2<String, UserStats> buildTurple(String userId){
+  private Tuple2<String, UserStats> buildTuple(String userId){
     return Tuple.of(userId, new UserStats().updateFromTweetInteraction(userId, this));
   }
 

@@ -15,10 +15,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.val;
 
 
 @Getter
@@ -43,7 +45,7 @@ public class PersonalAnalyzerBot {
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
   throws InterruptedException {
     String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    Map<String, UserStats>  interactions = this.getNbInteractions(); // @todo to change
+    Map<String, UserStats>  interactions = this.getUserStatsMap();
     List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
     List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
     Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers); // @todo duplicate
@@ -53,11 +55,13 @@ public class PersonalAnalyzerBot {
     for (IUser iUser : allUsers) {
       if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         User user = new User(iUser);
-        user.setNbRepliesReceived(interactions.get(iUser.getId()).get().getNbRepliesReceived());
-        user.setNbRepliesGiven(interactions.get(iUser.getId()).get().getNbRepliesGiven());
-        user.setNbRetweetsReceived(interactions.get(iUser.getId()).get().getNbRetweetsReceived());
-        user.setNbLikesGiven(interactions.get(iUser.getId()).get().getNbLikesGiven());
-        user.setNbRetweetsGiven(interactions.get(iUser.getId()).get().getNbRetweetsGiven());
+        if(interactions.get(iUser.getId()).isDefined()) {
+          user.setNbRepliesReceived(interactions.get(iUser.getId()).get().getNbRepliesReceived());
+          user.setNbRepliesGiven(interactions.get(iUser.getId()).get().getNbRepliesGiven());
+          user.setNbRetweetsReceived(interactions.get(iUser.getId()).get().getNbRetweetsReceived());
+          user.setNbLikesGiven(interactions.get(iUser.getId()).get().getNbLikesGiven());
+          user.setNbRetweetsGiven(interactions.get(iUser.getId()).get().getNbRetweetsGiven());
+        }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
           this.ioHelper.addNewFollowerLineSimple(usersToWrite);
@@ -92,33 +96,29 @@ public class PersonalAnalyzerBot {
     }
   }
 
-  private Map<String, UserStats> getNbInteractions() {
+  private Map<String, UserStats> getUserStatsMap() {
     Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
     Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
     return this.mapsToUserInteractions(givenInteractions,receivedInteractions);
   }
 
-  //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-
   private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
       TweetInteraction> receivedInteractions){
     LOGGER.info("mapsToUserIntereactions...");
-    return HashMap.empty();
+    Map<String, UserStats> userStatsFromGiven = HashMap.ofEntries(givenInteractions.toStream()
+                                              .groupBy(Tuple2::_1)
+                                              .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));
+
+    Map<String, UserStats> usersStatsFromReceived = receivedInteractions.map(Tuple2::_2)
+                                                     .map(TweetInteraction::toUserStatsMap)
+                                                     .foldLeft(HashMap.<String, UserStats>empty(),
+                                                               (firstMap, secondMap) -> firstMap.merge(secondMap,
+                                                                                                       UserStats::merge));
+    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge);
   }
 
-
-  private Tuple2<String, UserStats> buildTurpleFromTweetInteraction(String tweetId,
-                                                                    Stream<Tuple2<String, TweetInteraction>> tweetInteractions){
-    // @todo KO
-    return Tuple.of(tweetId,
-                    tweetInteractions.foldLeft(new UserStats(),
-                                               (userstat, tweetInteraction) ->
-                                                   userstat.addRepliesReceived(tweetInteraction._2().getAnswererIds().length())
-                                                           .addRetweetsReceived(tweetInteraction._2().getRetweeterIds().length())));
-  }
-
-  private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
-                                                                    Stream<Tuple2<String, UserInteraction>> userInteractions){
+  private Tuple2<String, UserStats> buildTupleFromUserInteractions(String userId,
+                                                                   Stream<Tuple2<String, UserInteraction>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->
@@ -136,6 +136,8 @@ public class PersonalAnalyzerBot {
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
+    //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
+
     return dataArchiveHelper.countRetweetsGiven()
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
                             .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);

@@ -15,10 +15,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.val;
 
 
 @Getter
@@ -102,21 +104,22 @@ public class PersonalAnalyzerBot {
       TweetInteraction> receivedInteractions){
     LOGGER.info("mapsToUserIntereactions...");
 
-    Map<String, UserStats> userStatsFromGiven =
-        HashMap.ofEntries(givenInteractions.toStream()
-                                           .groupBy(Tuple2::_1)
-                                           .map(ui -> buildTurpleFromUserInteractions(ui._1(), ui._2())));
+    val userStatsFromGiven = givenInteractions.toStream()
+                                              .groupBy(Tuple2::_1)
+                                              .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2()))
+                                              .toMap(Function.identity());
 
-    Map<String, UserStats> usersStatsFromReceived = receivedInteractions.toStream()
-                                                     .map(Tuple2::_2)
-                                                     .map(tweetInteraction -> tweetInteraction.toUserStatsMap())
-                                                     .collect(HashMap::<String, UserStats>empty, HashMap::merge, (collector, statsPerUser) -> collector.merge(statsPerUser, UserStats::merge));
-    //return null;
+    val usersStatsFromReceived = receivedInteractions.map(Tuple2::_2)
+                                                     .map(TweetInteraction::toUserStatsMap)
+                                                     .foldLeft(HashMap.<String, UserStats>empty(),
+                                                               (firstMap, secondMap) -> firstMap.merge(secondMap,
+                                                                                                       UserStats::merge));
+
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge); // @todo KO
   }
 
-  private Tuple2<String, UserStats> buildTurpleFromUserInteractions(String userId,
-                                                                    Stream<Tuple2<String, UserInteraction>> userInteractions){
+  private Tuple2<String, UserStats> buildTupleFromUserInteractions(String userId,
+                                                                   Stream<Tuple2<String, UserInteraction>> userInteractions){
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->

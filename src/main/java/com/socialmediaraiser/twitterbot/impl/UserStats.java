@@ -13,17 +13,17 @@ import lombok.With;
 public class UserStats {
 
   @With
-  private int    nbRepliesReceived  = 0;
+  private int nbRepliesReceived  = 0;
   @With
-  private int    nbRetweetsReceived = 0;
+  private int nbRetweetsReceived = 0;
   @With
-  private int    nbLikesReceived = 0; // doesn't exist in the current API
+  private int nbLikesReceived    = 0; // doesn't exist in the current API
   @With
-  private int    nbRepliesGiven     = 0;
+  private int nbRepliesGiven     = 0;
   @With
-  private int    nbRetweetsGiven    = 0;
+  private int nbRetweetsGiven    = 0;
   @With
-  private int    nbLikesGiven       = 0;
+  private int nbLikesGiven       = 0;
 
   public UserStats addRepliesReceived(int newReplies) {
     return this.withNbRepliesReceived(this.nbRepliesReceived + newReplies);
@@ -51,32 +51,63 @@ public class UserStats {
 
   public UserStats merge(UserStats other) {
     return this
-        .withNbRepliesReceived(this.getNbRepliesReceived()+other.getNbRepliesReceived())
-        .withNbRetweetsReceived(this.getNbRetweetsReceived()+other.getNbRetweetsReceived())
-        .withNbLikesReceived(this.getNbLikesReceived()+other.getNbLikesReceived())
-        .withNbRepliesGiven(this.getNbRepliesGiven()+other.getNbRepliesGiven())
-        .withNbRetweetsGiven(this.getNbRetweetsGiven()+other.getNbRepliesGiven())
-        .withNbLikesGiven(this.getNbLikesGiven()+other.getNbLikesGiven());
+        .withNbRepliesReceived(this.getNbRepliesReceived() + other.getNbRepliesReceived())
+        .withNbRetweetsReceived(this.getNbRetweetsReceived() + other.getNbRetweetsReceived())
+        .withNbLikesReceived(this.getNbLikesReceived() + other.getNbLikesReceived())
+        .withNbRepliesGiven(this.getNbRepliesGiven() + other.getNbRepliesGiven())
+        .withNbRetweetsGiven(this.getNbRetweetsGiven() + other.getNbRepliesGiven())
+        .withNbLikesGiven(this.getNbLikesGiven() + other.getNbLikesGiven());
+  }
+
+  public static UserStatsBuilder builder(UserStats origin) {
+    return new UserStatsBuilder(origin);
+  }
+
+  public static UserStatsBuilder builder() {
+    return new UserStatsBuilder();
   }
 
   /**
    * Update stat info from a TweetInteraction object
+   *
    * @param userId the id of the user
    * @param tweetInteraction the related tweetInteraction
    * @return a new UserStats instance
    */
-  public UserStats updateFromTweetInteraction(String userId, TweetInteraction tweetInteraction){
-    UserStats result = this; // @todo is it durty or not ? As I currently only manage integers...
-    if(tweetInteraction.getAnswererIds().contains(userId)){
-      result = result.addRepliesReceived(1);
+  public UserStats updateFromTweetInteraction(String userId, TweetInteraction tweetInteraction) {
+
+    return UserStats.builder(this)
+                    .nbRepliesReceived(tweetInteraction.getAnswererIds()
+                                                       .find(userId::equals)
+                                                       .map(user -> this.nbRepliesReceived + 1)
+                                                       .getOrElse(this.nbRepliesReceived))
+                    .nbRetweetsReceived(tweetInteraction.getRetweeterIds()
+                                                        .find(userId::equals)
+                                                        .map(user -> this.nbRetweetsReceived + 1)
+                                                        .getOrElse(this.nbRetweetsReceived))
+                    .nbLikesReceived(tweetInteraction.getLikersIds()
+                                                     .find(userId::equals)
+                                                     .map(user -> this.nbLikesReceived + 1)
+                                                     .getOrElse(this.nbLikesReceived))
+                    .build();
+
+  }
+
+  public static class UserStatsBuilder {
+
+    private UserStatsBuilder() {
+      super();
     }
-    if(tweetInteraction.getRetweeterIds().contains(userId)){
-      result = result.addRetweetsReceived(1);
+
+    private UserStatsBuilder(UserStats origin) {
+      new UserStatsBuilder().nbLikesReceived(origin.getNbLikesReceived())
+                            .nbLikesGiven(origin.getNbLikesGiven())
+                            .nbRetweetsGiven(origin.getNbRetweetsGiven())
+                            .nbRetweetsReceived(origin.getNbRetweetsReceived())
+                            .nbRepliesGiven(origin.getNbRepliesGiven())
+                            .nbRepliesReceived(origin.getNbRepliesReceived());
     }
-    if(tweetInteraction.getLikersIds().contains(userId)){
-      result = result.addLikesReceived(1);
-    }
-    return result;
+
   }
 
 }

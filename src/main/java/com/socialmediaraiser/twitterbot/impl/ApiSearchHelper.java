@@ -1,7 +1,6 @@
 package com.socialmediaraiser.twitterbot.impl;
 
 import com.socialmediaraiser.twitter.dto.tweet.ITweet;
-import com.socialmediaraiser.twitter.dto.tweet.TweetDTOv2;
 import com.socialmediaraiser.twitter.dto.tweet.TweetType;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import io.vavr.Tuple;
@@ -21,14 +20,22 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     super(userName);
   }
 
-  // @todo
-  public Map<String, TweetInteraction> countRecentRetweetsReceived(){
-    // retweets_of:
-    return HashMap.empty();
+  public Map<String, TweetInteraction> countRecentRetweetsReceived(Date mostRecentArchiveTweetDate){
+    LOGGER.info("\nCounting recent retweets received (API)...");
+    String       query = "retweets_of:" + this.getUserName();
+    Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
+    if(dates==null) return HashMap.empty();
+    Stream<ITweet> givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
+    return givenReplies
+        .filter(tweet -> tweet.getInReplyToUserId()==null)
+        .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+        .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
+        .groupBy(ITweet::getAuthorId)
+        .map(this::getTupleRetweetReceived);
   }
 
   public Map<String, UserInteraction> countRecentRepliesGiven(Date mostRecentArchiveTweetDate) {
-    LOGGER.info("\nCounting recent replies from user (API)...");
+    LOGGER.info("\nCounting recent replies given (API)...");
     String       query = "(from:" + this.getUserName() + " has:mentions)";
     Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
     if(dates==null) return HashMap.empty();
@@ -41,7 +48,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
         .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
         .groupBy(ITweet::getAuthorId)
-        .map(this::getTupleAnswer);
+        .map(this::getTupleAnswerGiven);
   }
 
   public Map<String, UserInteraction> countRecentRetweetsGiven(Date mostRecentArchiveTweetDate) {
@@ -55,7 +62,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
         .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId()))
         .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId())
-        .map(this::getTupleAnswer);
+        .map(this::getTupleAnswerGiven);
   }
 
   private Tuple2<Date, Date> getDatesFromMostRecentTweetDate(Date mostRecentArchiveTweetDate){
@@ -127,7 +134,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing tweet : " + tweet.getText()))
         .groupBy(ITweet::getAuthorId)
-        .map(this::getTupleLike);
+        .map(this::getTupleLikeGiven);
   }
 
 }

@@ -126,20 +126,22 @@ public class PersonalAnalyzerBot {
 
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
+    Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
+
     Map<String, TweetInteraction> map1 = dataArchiveHelper.countRetweetsReceived();
     Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(true);
     Map<String, TweetInteraction> map3 = apiSearchHelper.countRepliesReceived(false);
-    return map1.merge(map2,TweetInteraction::merge).merge(map3,TweetInteraction::merge);
+    Map<String, TweetInteraction> map4 = apiSearchHelper.countRecentRetweetsReceived(mostRecentTweetDate);
+    return map1.merge(map2,TweetInteraction::merge).merge(map3,TweetInteraction::merge).merge(map4, TweetInteraction::merge);
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
-    //@todo  apiSearchHelper.countRecentRepliesGiven(userInteractions, dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()); // @todo test 2nd arg
-
+    Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
     return dataArchiveHelper.countRetweetsGiven()
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
                             .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge)
-                            .merge(apiSearchHelper.countRecentRetweetsGiven(
-                                dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()),UserInteraction::merge);
+                            .merge(apiSearchHelper.countRecentRepliesGiven(mostRecentTweetDate),UserInteraction::merge)
+                            .merge(apiSearchHelper.countRecentRetweetsGiven(mostRecentTweetDate),UserInteraction::merge);
   }
 
   @SneakyThrows

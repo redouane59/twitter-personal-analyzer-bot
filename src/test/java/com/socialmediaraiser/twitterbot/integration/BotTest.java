@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
 import com.socialmediaraiser.twitterbot.impl.ApiSearchHelper;
 import com.socialmediaraiser.twitterbot.impl.DataArchiveHelper;
+import com.socialmediaraiser.twitterbot.impl.TweetInteraction;
 import com.socialmediaraiser.twitterbot.impl.UserInteraction;
 import io.vavr.collection.Map;
 import java.util.Date;
@@ -47,6 +48,17 @@ public class BotTest {
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
     apiSearchHelper = new ApiSearchHelper(userName);
     Map<String, UserInteraction> result = apiSearchHelper.countRecentRetweetsGiven(
+        dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt());
+    assertTrue(result.length()>0);
+  }
+
+  @Test
+  public void testCountRecentRetweetsReceived(){
+    userName = "RedTheOne";
+    iniDate = ConverterHelper.dayBeforeNow(30);
+    dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
+    apiSearchHelper = new ApiSearchHelper(userName);
+    Map<String, TweetInteraction> result = apiSearchHelper.countRecentRetweetsReceived(
         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt());
     assertTrue(result.length()>0);
   }

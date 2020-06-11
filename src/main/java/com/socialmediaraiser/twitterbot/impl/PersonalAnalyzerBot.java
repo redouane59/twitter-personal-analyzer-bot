@@ -15,13 +15,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import lombok.CustomLog;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import lombok.val;
-
 
 @Getter
 @Setter
@@ -106,14 +103,14 @@ public class PersonalAnalyzerBot {
       TweetInteraction> receivedInteractions){
     LOGGER.info("mapsToUserIntereactions...");
     Map<String, UserStats> userStatsFromGiven = HashMap.ofEntries(givenInteractions.toStream()
-                                              .groupBy(Tuple2::_1)
-                                              .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));
+                                                                                   .groupBy(Tuple2::_1)
+                                                                                   .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));
 
     Map<String, UserStats> usersStatsFromReceived = receivedInteractions.map(Tuple2::_2)
-                                                     .map(TweetInteraction::toUserStatsMap)
-                                                     .foldLeft(HashMap.<String, UserStats>empty(),
-                                                               (firstMap, secondMap) -> firstMap.merge(secondMap,
-                                                                                                       UserStats::merge));
+                                                                        .map(TweetInteraction::toUserStatsMap)
+                                                                        .foldLeft(HashMap.<String, UserStats>empty(),
+                                                                                  (firstMap, secondMap) -> firstMap.merge(secondMap,
+                                                                                                                          UserStats::merge));
     return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge);
   }
 
@@ -140,7 +137,9 @@ public class PersonalAnalyzerBot {
 
     return dataArchiveHelper.countRetweetsGiven()
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
-                            .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge);
+                            .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge)
+                            .merge(apiSearchHelper.countRecentRetweetsGiven(
+                                dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt()),UserInteraction::merge);
   }
 
   @SneakyThrows

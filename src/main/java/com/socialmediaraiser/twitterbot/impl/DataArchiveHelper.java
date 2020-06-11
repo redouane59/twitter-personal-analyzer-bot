@@ -70,10 +70,13 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         result = result.addRetweeted(retweeterId);
       }
     }
+
+    retweeterIds.stream()
+                .filter(this::isUserInList);
+
     return result;
   }
 
-  // @todo use Stream
   public Map<String, UserInteraction> countRetweetsGiven() {
     LOGGER.info("\ncounting retweets given (archive)...");
     Stream<ITweet> givenRetweets = Stream.ofAll(this.filterTweetsByRetweet(true));

@@ -42,22 +42,22 @@ public class PersonalAnalyzerBot {
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
   throws InterruptedException {
     String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    Map<String, UserStats>  interactions = this.getUserStatsMap();
+    Map<String, UserStats>  userStats = this.getUserStatsMap();
     List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
     List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
-    Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers); // @todo duplicate
+    Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers);
 
     List<User> usersToWrite = new ArrayList<>();
     int        nbUsersToAdd = 50;
     for (IUser iUser : allUsers) {
       if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         User user = new User(iUser);
-        if(interactions.get(iUser.getId()).isDefined()) {
-          user.setNbRepliesReceived(interactions.get(iUser.getId()).get().getNbRepliesReceived());
-          user.setNbRepliesGiven(interactions.get(iUser.getId()).get().getNbRepliesGiven());
-          user.setNbRetweetsReceived(interactions.get(iUser.getId()).get().getNbRetweetsReceived());
-          user.setNbLikesGiven(interactions.get(iUser.getId()).get().getNbLikesGiven());
-          user.setNbRetweetsGiven(interactions.get(iUser.getId()).get().getNbRetweetsGiven());
+        if(userStats.get(iUser.getId()).isDefined()) {
+          user.setNbRepliesReceived(userStats.get(iUser.getId()).get().getNbRepliesReceived());
+          user.setNbRepliesGiven(userStats.get(iUser.getId()).get().getNbRepliesGiven());
+          user.setNbRetweetsReceived(userStats.get(iUser.getId()).get().getNbRetweetsReceived());
+          user.setNbLikesGiven(userStats.get(iUser.getId()).get().getNbLikesGiven());
+          user.setNbRetweetsGiven(userStats.get(iUser.getId()).get().getNbRetweetsGiven());
         }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
@@ -69,7 +69,7 @@ public class PersonalAnalyzerBot {
       }
     }
     this.ioHelper.addNewFollowerLineSimple(usersToWrite);
-    LOGGER.info("finish with success");
+    LOGGER.info("finish with success : " + allUsers + " users added");
   }
 
   private boolean hasToAddUser(IUser user, List<IUser> followings, List<IUser> followers,
@@ -78,7 +78,6 @@ public class PersonalAnalyzerBot {
     if (onyFollowBackUsers && followings.contains(user) && !followers.contains(user)) {
       return false;
     }
-
     // case 1 : show all the people i'm following and all the users following me
     if (!showFollowers && !showFollowings) {
       return true;
@@ -127,12 +126,10 @@ public class PersonalAnalyzerBot {
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
     Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
-
-    Map<String, TweetInteraction> map1 = dataArchiveHelper.countRetweetsReceived();
-    Map<String, TweetInteraction> map2 = apiSearchHelper.countRepliesReceived(true);
-    Map<String, TweetInteraction> map3 = apiSearchHelper.countRepliesReceived(false);
-    Map<String, TweetInteraction> map4 = apiSearchHelper.countRecentRetweetsReceived(mostRecentTweetDate);
-    return map1.merge(map2,TweetInteraction::merge).merge(map3,TweetInteraction::merge).merge(map4, TweetInteraction::merge);
+    return dataArchiveHelper.countRetweetsReceived().
+        merge(apiSearchHelper.countRepliesReceived(true),TweetInteraction::merge)
+                            .merge(apiSearchHelper.countRepliesReceived(false),TweetInteraction::merge)
+                            .merge(apiSearchHelper.countRecentRetweetsReceived(mostRecentTweetDate), TweetInteraction::merge);
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
@@ -146,7 +143,6 @@ public class PersonalAnalyzerBot {
 
   @SneakyThrows
   public void unfollow(String[] toUnfollow, String[] whiteList) {
-
     int nbUnfollows = 0;
     for (String unfollowName : toUnfollow) {
       unfollowName.replace(" ", "");

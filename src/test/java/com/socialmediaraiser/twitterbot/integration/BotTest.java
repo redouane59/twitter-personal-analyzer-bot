@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 public class BotTest {
 
-  private Date   iniDate;
-  private String userName;
+  private Date   iniDate = ConverterHelper.dayBeforeNow(30);
+  private String userName = "RedTheOne";
   private DataArchiveHelper dataArchiveHelper;
   private ApiSearchHelper   apiSearchHelper;
 
@@ -24,8 +24,6 @@ public class BotTest {
 
   @Test
   public void testCountRepliesGiven(){
-    userName = "RedTheOne";
-    iniDate = ConverterHelper.dayBeforeNow(30);
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
     Map<String, UserInteraction> result = dataArchiveHelper.countRepliesGiven();
     assertTrue(result.get("830543389624061952").get().getAnswersIds().length()>0);
@@ -33,8 +31,6 @@ public class BotTest {
 
   @Test
   public void testCountRecentRepliesGiven(){
-    userName = "RedTheOne";
-    iniDate = ConverterHelper.dayBeforeNow(30);
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
     apiSearchHelper = new ApiSearchHelper(userName);
     Map<String, UserInteraction> result = apiSearchHelper.countRecentRepliesGiven(dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt());
@@ -43,8 +39,6 @@ public class BotTest {
 
   @Test
   public void testCountRecentRetweetsGiven(){
-    userName = "RedTheOne";
-    iniDate = ConverterHelper.dayBeforeNow(30);
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
     apiSearchHelper = new ApiSearchHelper(userName);
     Map<String, UserInteraction> result = apiSearchHelper.countRecentRetweetsGiven(
@@ -54,12 +48,17 @@ public class BotTest {
 
   @Test
   public void testCountRecentRetweetsReceived(){
-    userName = "RedTheOne";
-    iniDate = ConverterHelper.dayBeforeNow(30);
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
     apiSearchHelper = new ApiSearchHelper(userName);
     Map<String, TweetInteraction> result = apiSearchHelper.countRecentRetweetsReceived(
         dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt());
+    assertTrue(result.length()>0);
+  }
+
+  @Test
+  public void testCountRetweets(){
+    dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
+    Map<String, TweetInteraction> result = dataArchiveHelper.countRetweetsReceived();
     assertTrue(result.length()>0);
   }
 

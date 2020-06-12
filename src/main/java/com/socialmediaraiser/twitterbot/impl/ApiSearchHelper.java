@@ -123,7 +123,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
   /**
    * Count the number of likes given to initial status (excluding answers)
-   * @return
+   * @return a map with userId as String and UsereInteraction as value
    */
   public Map<String, UserInteraction> countGivenLikesOnStatuses() {
     LOGGER.info("\nCounting given likes excluding answers...");

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import lombok.CustomLog;
 
 @CustomLog
@@ -19,7 +20,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
 
   public DataArchiveHelper(String userName, String archiveFileName, Date initDate) {
     super(userName);
-    File             file      = new File(getClass().getClassLoader().getResource(archiveFileName).getFile());
+    File             file      = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveFileName)).getFile());
     List<TweetDTOv1> allTweets = null;
     try {
       allTweets = this.getTwitterClient().readTwitterDataFile(file);
@@ -36,16 +37,15 @@ public class DataArchiveHelper extends AbstractSearchHelper {
 
   public Map<String, UserInteraction> countRepliesGiven() {
     LOGGER.info("\ncounting replies from user (archive)...");
-    Map<String, UserInteraction> result = Stream.ofAll(tweets)
-                                                .filter(tweet -> tweet.getInReplyToUserId()!=null)
-                                                .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
-                                                .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
-                                                .peek(tweet -> LOGGER.info("analyzing DATA reply : " + tweet.getText()))
-                                                .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
-                                                .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
-                                                .groupBy(ITweet::getAuthorId)
-                                                .map(this::getTupleAnswerGiven);
-    return result;
+    return Stream.ofAll(tweets)
+                 .filter(tweet -> tweet.getInReplyToUserId()!=null)
+                 .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
+                 .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
+                 .peek(tweet -> LOGGER.info("analyzing DATA reply : " + tweet.getText()))
+                 .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
+                 .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
+                 .groupBy(ITweet::getAuthorId)
+                 .map(this::getTupleAnswerGiven);
   }
 
   /**
@@ -60,27 +60,18 @@ public class DataArchiveHelper extends AbstractSearchHelper {
                         this::countRetweetsOfTweet);
   }
 
-  // @todo use Stream
   private TweetInteraction countRetweetsOfTweet(ITweet tweet) {
-    TweetInteraction result       = new TweetInteraction();
     List<String>     retweeterIds = this.getTwitterClient().getRetweetersId(tweet.getId());
     LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
-    for (String retweeterId : retweeterIds) {
-      if (this.isUserInList(retweeterId)) {
-        result = result.addRetweeted(retweeterId);
-      }
-    }
-
-    retweeterIds.stream()
-                .filter(this::isUserInList);
-
-    return result;
+    return Stream.ofAll(retweeterIds)
+                                              .filter(this::isUserInList)
+                                              .foldLeft(new TweetInteraction(), TweetInteraction::addRetweeted);
   }
 
   public Map<String, UserInteraction> countRetweetsGiven() {
     LOGGER.info("\ncounting retweets given (archive)...");
     Stream<ITweet> givenRetweets = Stream.ofAll(this.filterTweetsByRetweet(true));
-    Map<String, UserInteraction> result = givenRetweets
+    return givenRetweets
         .map(tweet -> this.getTwitterClient().getTweet(tweet.getId()))
         .filter(tweet -> tweet.getInReplyToStatusId(TweetType.RETWEETED)!=null)
         .peek(tweet -> LOGGER.info("analyzing RT : " + tweet.getText()))
@@ -89,8 +80,6 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .groupBy(ITweet::getAuthorId)
         .map(this::getTupleRetweetGiven);
-
-    return result;
   }
 
   // @todo add mentions argument

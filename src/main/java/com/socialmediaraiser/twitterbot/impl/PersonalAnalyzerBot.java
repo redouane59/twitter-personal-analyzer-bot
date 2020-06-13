@@ -32,6 +32,10 @@ public class PersonalAnalyzerBot {
   private       DataArchiveHelper dataArchiveHelper;
   private       ApiSearchHelper   apiSearchHelper;
 
+  public PersonalAnalyzerBot(String userName){
+    this.userName = userName;
+  }
+
   public PersonalAnalyzerBot(String userName, String archiveFileName) {
     this.userName          = userName;
     this.ioHelper          = new GoogleSheetHelper();
@@ -39,8 +43,7 @@ public class PersonalAnalyzerBot {
     this.apiSearchHelper   = new ApiSearchHelper(userName);
   }
 
-  public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers)
-  throws InterruptedException {
+  public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers){
     String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
     Map<String, UserStats>  userStats = this.getUserStatsMap();
     List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
@@ -64,7 +67,11 @@ public class PersonalAnalyzerBot {
           this.ioHelper.addNewFollowerLineSimple(usersToWrite);
           usersToWrite = new ArrayList<>();
           LOGGER.info("adding " + nbUsersToAdd + " users ...");
-          TimeUnit.MILLISECONDS.sleep(500);
+          try {
+            TimeUnit.MILLISECONDS.sleep(500);
+          } catch (InterruptedException e) {
+            LOGGER.severe(e.getMessage());
+          }
         }
       }
     }

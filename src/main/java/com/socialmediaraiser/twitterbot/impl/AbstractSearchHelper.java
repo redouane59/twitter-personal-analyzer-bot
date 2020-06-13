@@ -43,21 +43,27 @@ public abstract class AbstractSearchHelper {
     return (this.getAllUsers().contains(retweeter));
   }
 
-  public Tuple2<String, UserInteraction> getTupleLike(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, UserInteraction> getTupleLikeGiven(String userId, Stream<ITweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addLike(tweet.getId())));
   }
 
-  public Tuple2<String, UserInteraction> getTupleAnswer(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, UserInteraction> getTupleAnswerGiven(String userId, Stream<ITweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addAnswer(tweet.getId())));
   }
 
-  public Tuple2<String, UserInteraction> getTupleRetweet(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, UserInteraction> getTupleRetweetGiven(String userId, Stream<ITweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addRetweet(tweet.getId())));
+  }
+
+  public Tuple2<String, TweetInteraction> getTupleRetweetReceived(String userId, Stream<ITweet> tweets) {
+    return Tuple.of(userId,
+                    tweets.foldLeft(new TweetInteraction(),
+                                    (interaction, tweet) -> interaction.addRetweeted(tweet.getId())));
   }
 }

@@ -53,7 +53,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
   public Map<String, UserInteraction> countRecentRetweetsGiven(Date mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
-    String       query  = "from:" + this.getUserName() + " is:retweet"; // @todo to fix
+    String       query  = "from:" + this.getUserName() + " is:retweet";
     Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
     if(dates==null) return HashMap.empty();
     Stream<ITweet> givenRetweets = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));

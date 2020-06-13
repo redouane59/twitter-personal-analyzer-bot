@@ -27,7 +27,6 @@ public class UserInteraction {
     return this.withUserId(userId);
   }
 
-  // @todo not working
   public UserInteraction addAnswer(String answerId) {
     Set<String> withNewId = HashSet.ofAll(answersIds);
     withNewId = withNewId.add(answerId);

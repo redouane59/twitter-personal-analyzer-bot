@@ -75,7 +75,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
         .map(tweet -> this.getTwitterClient().getTweet(tweet.getId()))
         .filter(tweet -> tweet.getInReplyToStatusId(TweetType.RETWEETED)!=null)
         .peek(tweet -> LOGGER.info("analyzing RT : " + tweet.getText()))
-        .map(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED))) // @todo ko
+        .map(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)))
         .filter(tweet -> tweet.getId()!=null)
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .groupBy(ITweet::getAuthorId)

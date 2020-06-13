@@ -69,7 +69,7 @@ public class PersonalAnalyzerBot {
       }
     }
     this.ioHelper.addNewFollowerLineSimple(usersToWrite);
-    LOGGER.info("finish with success : " + allUsers + " users added");
+    LOGGER.info("finish with success : " + allUsers.length() + " users added");
   }
 
   private boolean hasToAddUser(IUser user, List<IUser> followings, List<IUser> followers,

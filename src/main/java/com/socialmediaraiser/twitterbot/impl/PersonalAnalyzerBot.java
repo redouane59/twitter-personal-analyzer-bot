@@ -145,6 +145,7 @@ public class PersonalAnalyzerBot {
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
                             .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge)
                             .merge(apiSearchHelper.countRecentRepliesGiven(mostRecentTweetDate),UserInteraction::merge)
+                            .merge(apiSearchHelper.countRecentQuotesGiven(mostRecentTweetDate), UserInteraction::merge)
                             .merge(apiSearchHelper.countRecentRetweetsGiven(mostRecentTweetDate),UserInteraction::merge);
   }
 

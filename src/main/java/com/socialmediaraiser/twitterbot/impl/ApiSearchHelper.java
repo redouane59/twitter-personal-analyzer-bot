@@ -34,6 +34,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetReceived);
   }
 
+  // @todo quote are not included
   public Map<String, UserInteraction> countRecentRepliesGiven(Date mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting recent replies given (API)...");
     String       query = "(from:" + this.getUserName() + " has:mentions)";
@@ -62,6 +63,20 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
         .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId()))
         .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId())
+        .map(this::getTupleAnswerGiven);
+  }
+
+  public Map<String, UserInteraction> countRecentQuotesGiven(Date mostRecentArchiveTweetDate) {
+    LOGGER.info("\nCounting rercent retweets from user (API)...");
+    String       query  = "from:" + this.getUserName() + " is:quote";
+    Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
+    if(dates==null) return HashMap.empty();
+    Stream<ITweet> givenQuotes = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
+    return givenQuotes
+        .filter(tweet -> tweet.getInReplyToStatusId(TweetType.QUOTED) != null)
+        .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
+        .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId()))
+        .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId())
         .map(this::getTupleAnswerGiven);
   }
 

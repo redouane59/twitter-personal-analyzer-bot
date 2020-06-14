@@ -18,10 +18,10 @@ public class DataArchiveHelper extends AbstractSearchHelper {
 
   private List<ITweet> tweets = new ArrayList<>();
 
-  public DataArchiveHelper(String userName, String archiveFileName, Date initDate) {
+  public DataArchiveHelper(String userName, String archiveFileName, Date fromDate) {
     super(userName);
     File             file      = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveFileName)).getFile());
-    List<TweetDTOv1> allTweets = null;
+    List<TweetDTOv1> allTweets = new ArrayList<>();
     try {
       allTweets = this.getTwitterClient().readTwitterDataFile(file);
     } catch (IOException e) {
@@ -29,7 +29,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     }
     for (TweetDTOv1 tweet : allTweets) {
       Date tweetDate = tweet.getCreatedAt();
-      if (tweetDate != null && tweetDate.compareTo(initDate) > 0) {
+      if (tweetDate != null && tweetDate.compareTo(fromDate) > 0) {
         this.tweets.add(tweet);
       }
     }

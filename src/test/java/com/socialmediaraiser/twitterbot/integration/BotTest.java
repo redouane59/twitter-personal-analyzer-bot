@@ -62,4 +62,19 @@ public class BotTest {
     assertTrue(result.length()>0);
   }
 
+  @Test
+  public void testRecentQuotesGiven(){
+    apiSearchHelper = new ApiSearchHelper(userName);
+    dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
+    Map<String, UserInteraction> result = apiSearchHelper.countRecentQuotesGiven(dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt());
+    assertTrue(result.size()>0);
+  }
+
+  @Test
+  public void testRecentRepliesReced(){
+    apiSearchHelper = new ApiSearchHelper(userName);
+    dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
+    Map<String, TweetInteraction> result = apiSearchHelper.countQuotesReceived(true);
+    assertTrue(result.size()>0);
+  }
 }

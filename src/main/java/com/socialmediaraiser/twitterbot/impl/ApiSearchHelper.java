@@ -34,7 +34,6 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetReceived);
   }
 
-  // @todo quote are not included
   public Map<String, UserInteraction> countRecentRepliesGiven(Date mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting recent replies given (API)...");
     String       query = "(from:" + this.getUserName() + " has:mentions)";
@@ -77,7 +76,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
         .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId()))
         .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId())
-        .map(this::getTupleAnswerGiven);
+        .map(this::getTupleRetweetGiven);
   }
 
   private Tuple2<Date, Date> getDatesFromMostRecentTweetDate(Date mostRecentArchiveTweetDate){
@@ -105,22 +104,32 @@ public class ApiSearchHelper extends AbstractSearchHelper {
    */
   public Map<String, TweetInteraction> countRepliesReceived(boolean currentWeek) {
     LOGGER.info("Counting replies received - currentWeek = " + currentWeek + " ...");
-    return this.getTweetsWithRepliesStream(currentWeek)
+    return this.getTweetsWithRepliesStream(currentWeek, false)
                .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
                .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
                .peek(initialTweet -> LOGGER.info("analyzing API reply : " + initialTweet.getText()))
                .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
-               .map(this::foldTweets);
+               .map(this::getTurpleAnswerReceived);
   }
 
-  private Tuple2<String, TweetInteraction> foldTweets(String tweetId, Stream<ITweet> tweets) {
-    return Tuple.of(tweetId,
-                    tweets.foldLeft(new TweetInteraction(),
-                                    (interaction, tweet) -> interaction.addAnswerer(tweet.getAuthorId())));
+  public Map<String, TweetInteraction> countQuotesReceived(boolean currentWeek) {
+    LOGGER.info("Counting replies received - currentWeek = " + currentWeek + " ...");
+    return this.getTweetsWithRepliesStream(currentWeek, true)
+               .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+               .peek(tweet -> LOGGER.info("analyzing API reply : " + tweet.getText()))
+               .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId()))
+               .groupBy(tweet ->  tweet.getInReplyToStatusId(TweetType.QUOTED))
+               .map(this::getTupleRetweetReceived);
   }
 
-  private Stream<ITweet> getTweetsWithRepliesStream(boolean currentWeek){
-    String mentionQuery = "to:" + this.getUserName() + " has:mentions";
+
+  private Stream<ITweet> getTweetsWithRepliesStream(boolean currentWeek, boolean quotes){
+    String mentionQuery = "to:" + this.getUserName();
+    if(!quotes){
+      mentionQuery += " has:mentions";
+    } else{
+      mentionQuery += " is:quote";
+    }
     if (currentWeek) {
       Date toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
       return  Stream.ofAll(this.getTwitterClient()

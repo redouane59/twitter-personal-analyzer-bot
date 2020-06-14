@@ -136,6 +136,8 @@ public class PersonalAnalyzerBot {
     return dataArchiveHelper.countRetweetsReceived().
         merge(apiSearchHelper.countRepliesReceived(true),TweetInteraction::merge)
                             .merge(apiSearchHelper.countRepliesReceived(false),TweetInteraction::merge)
+                            .merge(apiSearchHelper.countQuotesReceived(true), TweetInteraction::merge)
+                            .merge(apiSearchHelper.countQuotesReceived(false), TweetInteraction::merge)
                             .merge(apiSearchHelper.countRecentRetweetsReceived(mostRecentTweetDate), TweetInteraction::merge);
   }
 

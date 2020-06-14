@@ -33,7 +33,7 @@ public class TweetInteraction {
     return this.withAnswererIds(withNewId);
   }
 
-  public TweetInteraction addRetweeted(String retweeter) {
+  public TweetInteraction addRetweeter(String retweeter) {
     Set<String> withNewId = HashSet.ofAll(retweeterIds);
     withNewId = withNewId.add(retweeter);
     return this.withRetweeterIds(withNewId);

@@ -65,7 +65,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     LOGGER.info("counting " + retweeterIds.size() + " retweeters of tweet " + tweet.getId());
     return Stream.ofAll(retweeterIds)
                                               .filter(this::isUserInList)
-                                              .foldLeft(new TweetInteraction(), TweetInteraction::addRetweeted);
+                                              .foldLeft(new TweetInteraction(), TweetInteraction::addRetweeter);
   }
 
   public Map<String, UserInteraction> countRetweetsGiven() {

@@ -133,8 +133,8 @@ public class PersonalAnalyzerBot {
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
     Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
-    return dataArchiveHelper.countRetweetsReceived().
-        merge(apiSearchHelper.countRepliesReceived(true),TweetInteraction::merge)
+    return dataArchiveHelper.countRetweetsReceived()
+                            .merge(apiSearchHelper.countRepliesReceived(true),TweetInteraction::merge)
                             .merge(apiSearchHelper.countRepliesReceived(false),TweetInteraction::merge)
                             .merge(apiSearchHelper.countQuotesReceived(true), TweetInteraction::merge)
                             .merge(apiSearchHelper.countQuotesReceived(false), TweetInteraction::merge)

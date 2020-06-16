@@ -46,7 +46,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
         .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
-        .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
+        .filter(tweet -> tweet.getAuthorId()!=null)
         .groupBy(ITweet::getAuthorId)
         .map(this::getTupleAnswerGiven);
   }

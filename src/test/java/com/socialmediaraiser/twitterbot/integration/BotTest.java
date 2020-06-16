@@ -30,6 +30,13 @@ public class BotTest {
   }
 
   @Test
+  public void testQuotesGiven(){
+    dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
+    Map<String, UserInteraction> result = dataArchiveHelper.countQuotesGiven();
+    assertTrue(result.length()>0);
+  }
+
+  @Test
   public void testCountRecentRepliesGiven(){
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);
     apiSearchHelper = new ApiSearchHelper(userName);

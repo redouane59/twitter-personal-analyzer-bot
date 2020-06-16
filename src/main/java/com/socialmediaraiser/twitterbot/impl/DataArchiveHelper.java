@@ -43,9 +43,22 @@ public class DataArchiveHelper extends AbstractSearchHelper {
                  .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
                  .peek(tweet -> LOGGER.info("analyzing DATA reply : " + tweet.getText()))
                  .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
-                 .filter(tweet -> tweet.getAuthorId()!=null) // @todo mentions without reply don't work (ex: 1261371673560973312)
+                 .filter(tweet -> tweet.getAuthorId()!=null)
                  .groupBy(ITweet::getAuthorId)
                  .map(this::getTupleAnswerGiven);
+  }
+
+  public Map<String, UserInteraction> countQuotesGiven() {
+    LOGGER.info("\ncounting quotes from user (archive)...");
+    return Stream.ofAll(tweets)
+                 .map(tweet -> this.getTwitterClient().getTweet(tweet.getId()))
+                 .filter(tweet -> tweet.getId()!=null)
+                 .filter(tweet -> tweet.getTweetType() == TweetType.QUOTED)
+                 .filter(tweet -> tweet.getInReplyToStatusId(TweetType.QUOTED)!=null)
+                 .peek(tweet -> LOGGER.info("analyzing DATA quote given : " + tweet.getText()))
+                 .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId()))
+                 .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId())
+                 .map(this::getTupleRetweetGiven);
   }
 
   /**

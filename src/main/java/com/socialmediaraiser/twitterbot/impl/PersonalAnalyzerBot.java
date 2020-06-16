@@ -144,6 +144,7 @@ public class PersonalAnalyzerBot {
   private Map<String, UserInteraction> getGivenInteractions(){
     Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
     return dataArchiveHelper.countRetweetsGiven()
+                            .merge(dataArchiveHelper.countQuotesGiven(), UserInteraction::merge)
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
                             .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge)
                             .merge(apiSearchHelper.countRecentRepliesGiven(mostRecentTweetDate),UserInteraction::merge)

@@ -48,7 +48,6 @@ public class DataArchiveHelper extends AbstractSearchHelper {
                  .map(this::getTupleAnswerGiven);
   }
 
-  //@todo ko
   public Map<String, UserInteraction> countQuotesGiven() {
     LOGGER.info("\ncounting quotes from user (archive)...");
     return Stream.ofAll(tweets)

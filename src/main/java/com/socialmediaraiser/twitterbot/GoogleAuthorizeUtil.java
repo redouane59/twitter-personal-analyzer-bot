@@ -32,8 +32,7 @@ public class GoogleAuthorizeUtil {
     if (googleCredentialsFile == null) {
       LOGGER.severe(() -> "file not found");
     }
-    ObjectMapper mapper = new ObjectMapper();
-    TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    ObjectMapper mapper = TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     HashMap           credentialMap     = mapper.readValue(googleCredentialsFile, HashMap.class);
     GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.convertValue(credentialMap, GoogleCredentials.class);
 

@@ -4,7 +4,7 @@ Analyze your interactions.
 ## Set up
 In `src\main\resources\google-credentials.json`, create the following file :
 
-```$xslt
+```$json
 {
 "type":"service_account",
 "project_id":"xxx",

@@ -21,7 +21,7 @@ In `src\main\resources\google-credentials.json`, create the following file :
 }
 ```
 
-## Run args 
+## Build args 
 ```
 args[0] : userName [String]
 args[1] : unfollowMode (false : analyzeMode) [boolean]

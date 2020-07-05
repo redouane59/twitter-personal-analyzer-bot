@@ -2,7 +2,7 @@
 Analyze your interactions.
 
 ## Set up
-Google Sheets is used to save the analyze result. To be able to use it, in `src\main\resources\google-credentials.json`, create the following file with your Google API account :
+Google Sheets is used to save the analyze result. To be able to use it, in `src\main\resources\google-credentials.json`, create the following file with your Google API account information :
 
 ```$json
 {

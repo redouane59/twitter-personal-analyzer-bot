@@ -1,7 +1,9 @@
 package com.socialmediaraiser.twitterbot.impl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
+import com.socialmediaraiser.twitterbot.GoogleAuthorizeUtil;
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -10,6 +12,7 @@ import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -36,7 +39,7 @@ public class PersonalAnalyzerBot {
     this.userName = userName;
   }
 
-  public PersonalAnalyzerBot(String userName, String archiveFileName) {
+  public PersonalAnalyzerBot(String userName, String archiveFileName) throws IOException {
     this.userName          = userName;
     this.ioHelper          = new GoogleSheetHelper();
     this.dataArchiveHelper = new DataArchiveHelper(userName, archiveFileName, iniDate);
@@ -45,10 +48,10 @@ public class PersonalAnalyzerBot {
 
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers){
     String      userId       = this.twitterClient.getUserFromUserName(userName).getId();
-    Map<String, UserStats>  userStats = this.getUserStatsMap();
     List<IUser> followings   = this.twitterClient.getFollowingUsers(userId);
     List<IUser> followers = this.twitterClient.getFollowerUsers(userId);
     Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers);
+    Map<String, UserStats>  userStats = this.getUserStatsMap();
 
     List<User> usersToWrite = new ArrayList<>();
     int        nbUsersToAdd = 50;
@@ -68,7 +71,7 @@ public class PersonalAnalyzerBot {
           usersToWrite = new ArrayList<>();
           LOGGER.info("adding " + nbUsersToAdd + " users ...");
           try {
-            TimeUnit.MILLISECONDS.sleep(500);
+            TimeUnit.MILLISECONDS.sleep(600);
           } catch (InterruptedException e) {
             LOGGER.severe(e.getMessage());
           }
@@ -160,7 +163,7 @@ public class PersonalAnalyzerBot {
       if (!Arrays.asList(whiteList).contains(unfollowName)) {
         this.getTwitterClient().unfollowByName(unfollowName);
         nbUnfollows++;
-        TimeUnit.MILLISECONDS.sleep(500);
+        TimeUnit.MILLISECONDS.sleep(600);
         System.out.println(unfollowName + " unfollowed");
       }
     }

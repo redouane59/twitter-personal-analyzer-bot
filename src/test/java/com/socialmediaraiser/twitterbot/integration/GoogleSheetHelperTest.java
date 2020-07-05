@@ -2,13 +2,16 @@ package com.socialmediaraiser.twitterbot.integration;
 
 import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
 import com.socialmediaraiser.twitterbot.impl.User;
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class GoogleSheetHelperTest {
 
-  private static String            ownerName         = "RedTheOne";
   private        GoogleSheetHelper googleSheetHelper = new GoogleSheetHelper();
+
+  public GoogleSheetHelperTest() throws IOException {
+  }
 
   @BeforeAll
   static void init() {

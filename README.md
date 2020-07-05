@@ -16,8 +16,8 @@ In `src\main\resources\google-credentials.json`, create the following file :
 "token_uri":"https://oauth2.googleapis.com/token",
 "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
 "client_x509_cert_url":"xxx",
-"tabName":"<yourTabName>",
-"id":"<yourFileId>"
+"sheet_id":"<yourFileId>",
+"tab_name":"<yourTabName>"
 }
 ```
 

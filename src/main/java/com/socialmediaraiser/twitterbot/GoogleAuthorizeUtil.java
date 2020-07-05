@@ -28,7 +28,6 @@ public class GoogleAuthorizeUtil {
   }
 
   public static GoogleCredential authorize() throws IOException {
-    // @todo use a local json instead
     URL googleCredentialsFile = GoogleAuthorizeUtil.class.getClassLoader().getResource("google-credentials.json");
     if (googleCredentialsFile == null) {
       LOGGER.severe(() -> "file not found");
@@ -39,7 +38,6 @@ public class GoogleAuthorizeUtil {
     GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.convertValue(credentialMap, GoogleCredentials.class);
 
     String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(googleCredentials);
-
     InputStream inputStream = new ByteArrayInputStream(jsonInString.getBytes());
 
     return GoogleCredential

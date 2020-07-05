@@ -3,8 +3,12 @@ package com.socialmediaraiser.twitterbot;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.socialmediaraiser.twitter.TwitterClient;
+import com.socialmediaraiser.twitter.signature.TwitterCredentials;
 import com.socialmediaraiser.twitterbot.impl.User;
+import com.socialmediaraiser.twitterbot.properties.GoogleCredentials;
 import java.io.IOException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,23 +21,27 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.CustomLog;
 import lombok.Data;
+import lombok.Getter;
 
 
-@Data
+@Getter
 @CustomLog
 public class GoogleSheetHelper {
 
   private Sheets               sheetsService;
-  private String               followedBackColumn;
   private String               sheetId;
   private String               tabName;
-  private String               resultColumn;
-  private Map<String, Integer> userRows = new HashMap<>();
 
-  // @todo to edit
-  public GoogleSheetHelper() {
-    this.sheetId            = "1rpTWqHvBFaxdHcbnHmry2quQTKhPVJ-dA2n_wep0hrs";
-    this.tabName            = "RedTheOne Followers";
+  public GoogleSheetHelper() throws IOException {
+    URL googleCredentialsUrl = GoogleCredentials.class.getClassLoader().getResource("google-credentials.json");
+    if(googleCredentialsUrl==null){
+      LOGGER.severe("google-credentials.json file not found in src/main/resources");
+      return;
+    }
+    GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.readValue(googleCredentialsUrl, GoogleCredentials.class);
+
+    this.sheetId            = googleCredentials.getSheetId();
+    this.tabName            = googleCredentials.getTabName();
 
     try {
       this.sheetsService = SheetsServiceUtil.getSheetsService();

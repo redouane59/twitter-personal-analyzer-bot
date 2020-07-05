@@ -7,7 +7,7 @@ import lombok.CustomLog;
 @CustomLog
 public class PersonalAnalyzerLauncher {
 
-  public static void main(String[] args){
+  public static void main(String[] args) throws IOException {
     if (args.length < 2) {
       LOGGER.severe(() -> "missing arguments");
     } else {

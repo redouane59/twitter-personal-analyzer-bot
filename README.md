@@ -21,6 +21,17 @@ In `src\main\resources\google-credentials.json`, create the following file :
 }
 ```
 
+## Run args 
+```
+args[0] : userName [String]
+args[1] : unfollowMode (false : analyzeMode) [boolean]
+args[2] : includeFollowers [boolean]
+args[3] : includeFollowings [boolean]
+args[4] : onlyFollowBackFollowers [boolean]
+args[5] : tweetArchivePath [String]
+```
+
+
 ## Resources :
 - [Twitter API](https://developer.twitter.com/en/docs) : used to get users or tweets infos, follow & unfollow users, etc.
 - [Redouane59/twitter-client](https://github.com/redouane59/twitter-client) : Custom JAVA Twitter Client

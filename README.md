@@ -2,7 +2,7 @@
 Analyze your interactions.
 
 ## Set up
-In `src\main\resources\google-credentials.json`, create the following file :
+Google Sheets is used to save the analyze result. To be able to use it, in `src\main\resources\google-credentials.json`, create the following file with your Google API account information :
 
 ```$json
 {
@@ -21,7 +21,7 @@ In `src\main\resources\google-credentials.json`, create the following file :
 }
 ```
 
-## Run args 
+## Build args 
 ```
 args[0] : userName [String]
 args[1] : unfollowMode (false : analyzeMode) [boolean]

@@ -133,7 +133,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     if (currentWeek) {
       Date toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
       return  Stream.ofAll(this.getTwitterClient()
-                               .searchForTweetsWithin7days("(" + mentionQuery + ")"  + "OR (url:redtheone -is:retweet)",
+                               .searchForTweetsWithin7days("(" + mentionQuery + ")"  + "OR (url:"+this.getUserName()+" -is:retweet)",
                                                            DateUtils.ceiling(DateUtils.addDays(toDate, -7), Calendar.HOUR),
                                                            toDate));
     } else{

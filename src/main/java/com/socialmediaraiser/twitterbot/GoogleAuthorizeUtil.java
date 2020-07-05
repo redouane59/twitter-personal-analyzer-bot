@@ -27,7 +27,7 @@ public class GoogleAuthorizeUtil {
   }
 
   public static GoogleCredential authorize() throws IOException {
-
+    // @todo use a local json instead
     URL yamlFile = GoogleAuthorizeUtil.class.getResource("/RedTheOne.yaml");
     if (yamlFile == null) {
       yamlFile = GoogleAuthorizeUtil.class.getResource("/RedTheOne.yaml");
@@ -39,7 +39,6 @@ public class GoogleAuthorizeUtil {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     Map<String, Object> yaml        = mapper.readValue(yamlFile, HashMap.class);
-    Map<String, Object> scoringList = (Map<String, Object>) yaml.get("scoring");
     GoogleCredentials googleCredentials    = TwitterClient.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
 
     String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(googleCredentials);

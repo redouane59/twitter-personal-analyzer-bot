@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.socialmediaraiser.twitter.TwitterClient;
+import com.socialmediaraiser.twitter.signature.TwitterCredentials;
 import com.socialmediaraiser.twitterbot.properties.GoogleCredentials;
 import com.socialmediaraiser.twitterbot.properties.TargetProperties;
 import java.io.ByteArrayInputStream;
@@ -28,18 +29,14 @@ public class GoogleAuthorizeUtil {
 
   public static GoogleCredential authorize() throws IOException {
     // @todo use a local json instead
-    URL yamlFile = GoogleAuthorizeUtil.class.getResource("/RedTheOne.yaml");
-    if (yamlFile == null) {
-      yamlFile = GoogleAuthorizeUtil.class.getResource("/RedTheOne.yaml");
+    URL googleCredentialsFile = GoogleAuthorizeUtil.class.getClassLoader().getResource("google-credentials.json");
+    if (googleCredentialsFile == null) {
+      LOGGER.severe(() -> "file not found");
     }
-    if (yamlFile == null) {
-      LOGGER.severe(() -> "yaml file not found at /RedTheOne.yaml");
-      return null;
-    }
-    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    ObjectMapper mapper = new ObjectMapper();
     TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-    Map<String, Object> yaml        = mapper.readValue(yamlFile, HashMap.class);
-    GoogleCredentials googleCredentials    = TwitterClient.OBJECT_MAPPER.convertValue(yaml.get("google-credentials"), GoogleCredentials.class);
+    HashMap           credentialMap     = mapper.readValue(googleCredentialsFile, HashMap.class);
+    GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.convertValue(credentialMap, GoogleCredentials.class);
 
     String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(googleCredentials);
 

@@ -30,6 +30,7 @@ public class GoogleSheetHelper {
   private String               resultColumn;
   private Map<String, Integer> userRows = new HashMap<>();
 
+  // @todo to edit
   public GoogleSheetHelper() {
     this.sheetId            = "1rpTWqHvBFaxdHcbnHmry2quQTKhPVJ-dA2n_wep0hrs";
     this.tabName            = "RedTheOne Followers";

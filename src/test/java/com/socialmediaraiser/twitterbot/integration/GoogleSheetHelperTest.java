@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 public class GoogleSheetHelperTest {
 
-  private static String            ownerName         = "RedTheOne";
   private        GoogleSheetHelper googleSheetHelper = new GoogleSheetHelper();
 
   @BeforeAll

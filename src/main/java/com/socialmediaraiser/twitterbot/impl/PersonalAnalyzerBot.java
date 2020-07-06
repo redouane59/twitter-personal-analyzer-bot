@@ -1,4 +1,5 @@
 package com.socialmediaraiser.twitterbot.impl;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.user.IUser;
@@ -13,6 +14,7 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -168,5 +170,18 @@ public class PersonalAnalyzerBot {
       }
     }
     LOGGER.info(nbUnfollows + " users unfollowed with success !");
+  }
+
+  public String[] getUsersFromJson(URL fileUrl){
+    if(fileUrl==null){
+      LOGGER.severe("file not found in src/main/resources");
+      return new String[]{};
+    }
+    try {
+      return TwitterClient.OBJECT_MAPPER.readValue(fileUrl, new TypeReference<java.util.Map<String,String[]>>() {}).get("users");
+    } catch (IOException e) {
+      LOGGER.severe(e.getMessage());
+      return new String[]{};
+    }
   }
 }

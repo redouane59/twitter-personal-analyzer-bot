@@ -27,9 +27,12 @@ public class PersonalAnalyzerLauncher {
         PersonalAnalyzerBot bot         = new PersonalAnalyzerBot(userName, tweetArchivePath);
         bot.launch(includeFollowers, includeFollowings, onlyFollowBackFollowers);
       } else {
+        if (args.length < 3) LOGGER.severe(() -> "missing arguments");
+        String toUnfollowPath         = args[2];
+        String whiteListPath          = args[3];
         PersonalAnalyzerBot   bot       = new PersonalAnalyzerBot(userName);
-        URL toUnfollowUrl = PersonalAnalyzerLauncher.class.getClassLoader().getResource("to-unfollow.json");
-        URL whiteListUrl = PersonalAnalyzerLauncher.class.getClassLoader().getResource("white-list.json");
+        URL toUnfollowUrl = PersonalAnalyzerLauncher.class.getClassLoader().getResource(toUnfollowPath);
+        URL whiteListUrl = PersonalAnalyzerLauncher.class.getClassLoader().getResource(whiteListPath);
         bot.unfollow(bot.getUsersFromJson(toUnfollowUrl), bot.getUsersFromJson(whiteListUrl));
       }
     }

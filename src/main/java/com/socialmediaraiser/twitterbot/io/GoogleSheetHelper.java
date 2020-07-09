@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.CustomLog;
 import lombok.Getter;
 
-
 @Getter
 @CustomLog
 public class GoogleSheetHelper implements IOHelper{
@@ -42,7 +41,7 @@ public class GoogleSheetHelper implements IOHelper{
     }
   }
 
-  public void addFollowerLine(List<User> users) {
+  public void addUserLine(List<User> users) {
     List<List<Object>> values = new ArrayList<>();
     for (User user : users) {
       values.add(Arrays.asList(String.valueOf(user.getId()),
@@ -73,7 +72,7 @@ public class GoogleSheetHelper implements IOHelper{
       LOGGER.severe(e.getMessage());
       try {
         TimeUnit.SECONDS.sleep(10);
-        this.addFollowerLine(users);
+        this.addUserLine(users);
       } catch (InterruptedException e2) {
         LOGGER.severe(e2.getMessage());
         Thread.currentThread().interrupt();

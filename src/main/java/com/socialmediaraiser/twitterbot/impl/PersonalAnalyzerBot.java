@@ -73,7 +73,7 @@ public class PersonalAnalyzerBot {
         }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
-          this.ioHelper.addFollowerLine(usersToWrite);
+          this.ioHelper.addUserLine(usersToWrite);
           usersToWrite = new ArrayList<>();
           LOGGER.info("adding " + nbUsersToAdd + " users ...");
           try {
@@ -84,7 +84,7 @@ public class PersonalAnalyzerBot {
         }
       }
     }
-    this.ioHelper.addFollowerLine(usersToWrite);
+    this.ioHelper.addUserLine(usersToWrite);
     LOGGER.info("finish with success : " + allUsers.length() + " users added");
   }
 

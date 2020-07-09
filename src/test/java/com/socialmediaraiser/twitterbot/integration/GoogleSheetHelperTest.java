@@ -37,7 +37,7 @@ public class GoogleSheetHelperTest {
     user2.setId("00001");
     user2.setName("Red2");
     user2.setDescription("2nd description");
-    googleSheetHelper.addFollowerLine(List.of(user1, user2).asJava());
+    googleSheetHelper.addUserLine(List.of(user1, user2).asJava());
   }
 
 }

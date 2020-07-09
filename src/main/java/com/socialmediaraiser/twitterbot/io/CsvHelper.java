@@ -14,7 +14,7 @@ import lombok.extern.java.Log;
 public class CsvHelper implements IOHelper{
 
   @Override
-  public void addFollowerLine(final List<User> users) {
+  public void addUserLine(final List<User> users) {
     FileWriter writer;
     try {
       writer = new FileWriter(System.getProperty("user.home") + File.separatorChar

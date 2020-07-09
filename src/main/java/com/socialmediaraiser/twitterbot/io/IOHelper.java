@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface IOHelper {
 
-  void addFollowerLine(List<User> users);
+  void addUserLine(List<User> users);
 
 }

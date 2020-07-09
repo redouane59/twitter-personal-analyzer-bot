@@ -3,7 +3,6 @@ package com.socialmediaraiser.twitterbot.integration;
 import com.socialmediaraiser.twitterbot.impl.User;
 import com.socialmediaraiser.twitterbot.io.CsvHelper;
 import io.vavr.collection.List;
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +33,7 @@ public class CsvHelperTest {
     user2.setId("00001");
     user2.setName("Red2");
     user2.setDescription("2nd description");
-    csvHelper.addFollowerLine(List.of(user1, user2).asJava());
+    csvHelper.addUserLine(List.of(user1, user2).asJava());
   }
 
 }

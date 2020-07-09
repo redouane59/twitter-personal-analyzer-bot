@@ -1,11 +1,9 @@
 package com.socialmediaraiser.twitterbot.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitterbot.GoogleAuthorizeUtil;
-import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
+import com.socialmediaraiser.twitterbot.io.GoogleSheetHelper;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -69,7 +67,7 @@ public class PersonalAnalyzerBot {
         }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
-          this.ioHelper.addNewFollowerLineSimple(usersToWrite);
+          this.ioHelper.addFollowerLine(usersToWrite);
           usersToWrite = new ArrayList<>();
           LOGGER.info("adding " + nbUsersToAdd + " users ...");
           try {
@@ -80,7 +78,7 @@ public class PersonalAnalyzerBot {
         }
       }
     }
-    this.ioHelper.addNewFollowerLineSimple(usersToWrite);
+    this.ioHelper.addFollowerLine(usersToWrite);
     LOGGER.info("finish with success : " + allUsers.length() + " users added");
   }
 

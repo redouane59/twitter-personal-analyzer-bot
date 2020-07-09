@@ -1,23 +1,17 @@
-package com.socialmediaraiser.twitterbot;
+package com.socialmediaraiser.twitterbot.io;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.socialmediaraiser.twitter.TwitterClient;
-import com.socialmediaraiser.twitter.signature.TwitterCredentials;
 import com.socialmediaraiser.twitterbot.properties.GoogleCredentials;
-import com.socialmediaraiser.twitterbot.properties.TargetProperties;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.CustomLog;
 
 @CustomLog

@@ -40,7 +40,7 @@ public class CsvHelper implements IOHelper{
                      + user.isFollowing() + ";"
                      + "\n");
       }
-
+      LOGGER.info("file generated with success in Documents folder");
       writer.close();
     } catch (IOException e) {
       LOGGER.severe(e.getMessage());

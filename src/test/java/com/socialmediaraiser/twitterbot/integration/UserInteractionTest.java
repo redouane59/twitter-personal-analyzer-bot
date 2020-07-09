@@ -1,7 +1,6 @@
 package com.socialmediaraiser.twitterbot.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.socialmediaraiser.twitterbot.impl.UserInteraction;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;

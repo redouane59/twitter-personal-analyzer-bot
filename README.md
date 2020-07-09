@@ -29,6 +29,7 @@ args[2] : includeFollowers [boolean]
 args[3] : includeFollowings [boolean]
 args[4] : onlyFollowBackFollowers [boolean]
 args[5] : tweetArchivePath [String]
+args[6] : useGoogleSheets (false: generate csv locally) [boolean]
 ```
 
 

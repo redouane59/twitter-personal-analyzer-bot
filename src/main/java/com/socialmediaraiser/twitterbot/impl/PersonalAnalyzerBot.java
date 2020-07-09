@@ -1,11 +1,11 @@
 package com.socialmediaraiser.twitterbot.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.socialmediaraiser.twitter.TwitterClient;
 import com.socialmediaraiser.twitter.dto.user.IUser;
 import com.socialmediaraiser.twitter.helpers.ConverterHelper;
-import com.socialmediaraiser.twitterbot.GoogleAuthorizeUtil;
-import com.socialmediaraiser.twitterbot.GoogleSheetHelper;
+import com.socialmediaraiser.twitterbot.io.CsvHelper;
+import com.socialmediaraiser.twitterbot.io.GoogleSheetHelper;
+import com.socialmediaraiser.twitterbot.io.IOHelper;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -30,9 +30,9 @@ import lombok.SneakyThrows;
 @CustomLog
 public class PersonalAnalyzerBot {
 
-  private       String            userName;
-  private       GoogleSheetHelper  ioHelper;
-  private       TwitterClient     twitterClient = new TwitterClient();
+  private String        userName;
+  private IOHelper      ioHelper;
+  private TwitterClient twitterClient = new TwitterClient();
   private final Date              iniDate       = ConverterHelper.dayBeforeNow(30);
   private       DataArchiveHelper dataArchiveHelper;
   private       ApiSearchHelper   apiSearchHelper;
@@ -41,9 +41,13 @@ public class PersonalAnalyzerBot {
     this.userName = userName;
   }
 
-  public PersonalAnalyzerBot(String userName, String archiveFileName) throws IOException {
+  public PersonalAnalyzerBot(String userName, String archiveFileName, boolean useGoogleSheet) throws IOException {
     this.userName          = userName;
-    this.ioHelper          = new GoogleSheetHelper();
+    if(useGoogleSheet){
+      this.ioHelper          = new GoogleSheetHelper();
+    } else{
+      this.ioHelper = new CsvHelper();
+    }
     this.dataArchiveHelper = new DataArchiveHelper(userName, archiveFileName, iniDate);
     this.apiSearchHelper   = new ApiSearchHelper(userName);
   }
@@ -69,7 +73,7 @@ public class PersonalAnalyzerBot {
         }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
-          this.ioHelper.addNewFollowerLineSimple(usersToWrite);
+          this.ioHelper.addUserLine(usersToWrite);
           usersToWrite = new ArrayList<>();
           LOGGER.info("adding " + nbUsersToAdd + " users ...");
           try {
@@ -80,7 +84,7 @@ public class PersonalAnalyzerBot {
         }
       }
     }
-    this.ioHelper.addNewFollowerLineSimple(usersToWrite);
+    this.ioHelper.addUserLine(usersToWrite);
     LOGGER.info("finish with success : " + allUsers.length() + " users added");
   }
 

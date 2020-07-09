@@ -24,7 +24,8 @@ public class PersonalAnalyzerLauncher {
         boolean includeFollowings       = Boolean.parseBoolean(args[3]);
         boolean onlyFollowBackFollowers = Boolean.parseBoolean(args[4]);
         String tweetArchivePath         = args[5];
-        PersonalAnalyzerBot bot         = new PersonalAnalyzerBot(userName, tweetArchivePath);
+        boolean useGoogleSheets         = Boolean.parseBoolean(args[6]);
+        PersonalAnalyzerBot bot         = new PersonalAnalyzerBot(userName, tweetArchivePath, useGoogleSheets);
         bot.launch(includeFollowers, includeFollowings, onlyFollowBackFollowers);
       } else {
         if (args.length < 3) LOGGER.severe(() -> "missing arguments");

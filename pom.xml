@@ -16,21 +16,9 @@
     <dependencies>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.1.0</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-params</artifactId>
         <version>5.4.2</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.redouane59.twitter</groupId>
-        <artifactId>twitter-client</artifactId>
-        <version>1.0</version>
-        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -72,6 +60,11 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.9</version>
+      </dependency>
+      <dependency>
+        <groupId>org.redouane59.twitter</groupId>
+        <artifactId>twitter-client</artifactId>
+        <version>1.0</version>
       </dependency>
     </dependencies>
   </project>

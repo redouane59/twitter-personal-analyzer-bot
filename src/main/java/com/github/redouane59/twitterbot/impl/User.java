@@ -20,7 +20,8 @@ public class User extends UserDTOv1 {
   private Date dateOfFollow;
   private Date dateOfFollowBack;
   private int  commonFollowers;
-  private double interactionScore;
+  private int nbTweetsWithin7Days;
+  private int medianInteractionScore;
 
   public User(IUser u) {
     super(u.getId(), u.getName(), null, u.getDescription(),

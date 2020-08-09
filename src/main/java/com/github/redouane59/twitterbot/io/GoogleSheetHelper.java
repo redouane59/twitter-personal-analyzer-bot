@@ -49,7 +49,8 @@ public class GoogleSheetHelper implements IOHelper{
                                user.getFollowersCount(),
                                user.getFollowingCount(),
                                user.getTweetCount(),
-                               user.getInteractionScore(),
+                               user.getNbTweetsWithin7Days(),
+                               user.getMedianInteractionScore(), // @todo to change
                                user.getDescription().
                                    replace("\"", " ")
                                    .replace(";", " ")

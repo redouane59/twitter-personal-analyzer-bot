@@ -94,4 +94,20 @@ public class BotTest {
     LOGGER.info(userName + " score = " + result);
     assertTrue(result>0);
   }
+
+  @Test
+  public void testScoreMedian(){
+    apiSearchHelper = new ApiSearchHelper(userName);
+    double result = apiSearchHelper.getMedianInteractionScore(apiSearchHelper.getTwitterClient().getUserFromUserName(userName));
+    LOGGER.info(userName + " median = " + result);
+    assertTrue(result>0);
+  }
+
+  @Test
+  public void testGetNbTweetsWithin7Days(){
+    apiSearchHelper = new ApiSearchHelper(userName);
+    int result = apiSearchHelper.getNbTweetsWithin7Days(apiSearchHelper.getTwitterClient().getUserFromUserName(userName));
+    LOGGER.info(userName + " nb tweets 7 days = " + result);
+    assertTrue(result>0);
+  }
 }

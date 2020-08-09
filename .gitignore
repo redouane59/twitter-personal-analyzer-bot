@@ -6,6 +6,7 @@
 src/main/resources/*
 bot/src/main/resources/*
 bot/src/main/resources/google-credentials.json
+src/resources/twitter-credentials.json
 target/
 */target/**
 */target/*

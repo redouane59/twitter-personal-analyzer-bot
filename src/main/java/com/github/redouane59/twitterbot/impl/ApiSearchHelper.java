@@ -9,9 +9,11 @@ import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.CustomLog;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -168,19 +170,44 @@ public class ApiSearchHelper extends AbstractSearchHelper {
    * @param user the user that should be analyzed
    * @return a score
    */
-  public double getInteractionScore(IUser user){
+  public int getInteractionScore(IUser user){
     String query = "from:" + user.getName() + " -is:reply -is:retweet";
-    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7), Calendar.HOUR);
-    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
+    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(6), Calendar.DAY_OF_MONTH);
+    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.DAY_OF_MONTH);
     List<ITweet> lastUserTweets = this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
     int nbFollowers = user.getFollowersCount();
+    if(lastUserTweets.size()==0 || nbFollowers==0) return 0;
     // RT : 4 pts / Quote : 3 pts / Reply : 2 pts / like : 1 pt
     int points = lastUserTweets.stream()
                           .map(tweet -> 4*tweet.getRetweetCount() + 3*tweet.getQuoteCount() + 2*tweet.getReplyCount() + tweet.getLikeCount())
                                 .mapToInt(Integer::intValue)
                                 .sum();
 
-    return 1000*(double)points/lastUserTweets.size()/nbFollowers;
+    return 10000*points/lastUserTweets.size()/nbFollowers;
+  }
+
+  public int getNbTweetsWithin7Days(IUser user){
+    String query = "from:" + user.getName() + " -is:reply -is:retweet";
+    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(6), Calendar.DAY_OF_MONTH); // @todo to improve
+    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.DAY_OF_MONTH);
+    return this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate).size();
+  }
+
+  public int getMedianInteractionScore(IUser user){
+    String query = "from:" + user.getName() + " -is:reply -is:retweet";
+    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(6), Calendar.DAY_OF_MONTH);
+    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.DAY_OF_MONTH);
+    List<ITweet> lastUserTweets = this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
+    List<Integer> scores = new ArrayList<>();
+    if(lastUserTweets.size()==0) return 0;
+    // RT : 4 pts / Quote : 3 pts / Reply : 2 pts / like : 1 pt
+    scores = lastUserTweets.stream()
+                               .map(tweet -> 4*tweet.getRetweetCount() + 3*tweet.getQuoteCount() + 2*tweet.getReplyCount() + tweet.getLikeCount())
+                               .collect(Collectors.toList());
+    int size = scores.size();
+    double result = scores.stream().sorted()
+        .skip((size-1)/2).limit(2-size%2).mapToInt(x->x).average().orElse(0.0);
+    return (int)result;
   }
 
 }

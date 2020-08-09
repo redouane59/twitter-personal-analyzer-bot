@@ -57,21 +57,23 @@ public class PersonalAnalyzerBot {
     List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
     List<IUser> followers  = this.twitterClient.getFollowerUsers(userId);
     Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers);
-    Map<String, UserStats>  userStats = this.getUserStatsMap();
+  //  Map<String, UserStats>  userStats = this.getUserStatsMap();
 
     List<User> usersToWrite = new ArrayList<>();
     int        nbUsersToAdd = 50;
     for (IUser iUser : allUsers) {
       if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         User user = new User(iUser);
-        if(userStats.get(iUser.getId()).isDefined()) {
-          user.setNbRepliesReceived(userStats.get(iUser.getId()).get().getNbRepliesReceived());
-          user.setNbRepliesGiven(userStats.get(iUser.getId()).get().getNbRepliesGiven());
-          user.setNbRetweetsReceived(userStats.get(iUser.getId()).get().getNbRetweetsReceived());
-          user.setNbLikesGiven(userStats.get(iUser.getId()).get().getNbLikesGiven());
-          user.setNbRetweetsGiven(userStats.get(iUser.getId()).get().getNbRetweetsGiven());
-          user.setInteractionScore(this.apiSearchHelper.getInteractionScore(user));
-        }
+    //    if(userStats.get(iUser.getId()).isDefined()) {
+        //      user.setNbRepliesReceived(userStats.get(iUser.getId()).get().getNbRepliesReceived());
+        //  user.setNbRepliesGiven(userStats.get(iUser.getId()).get().getNbRepliesGiven());
+        //   user.setNbRetweetsReceived(userStats.get(iUser.getId()).get().getNbRetweetsReceived());
+        //  user.setNbLikesGiven(userStats.get(iUser.getId()).get().getNbLikesGiven());
+        //  user.setNbRetweetsGiven(userStats.get(iUser.getId()).get().getNbRetweetsGiven());
+          user.setNbTweetsWithin7Days(this.apiSearchHelper.getNbTweetsWithin7Days(user));
+          user.setMedianInteractionScore(this.apiSearchHelper.getMedianInteractionScore(user));
+
+        //    }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
           this.ioHelper.addUserLine(usersToWrite);

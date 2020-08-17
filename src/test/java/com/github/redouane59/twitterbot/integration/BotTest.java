@@ -8,7 +8,7 @@ import com.github.redouane59.twitterbot.impl.TweetInteraction;
 import com.github.redouane59.twitterbot.impl.UserInteraction;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
 import io.vavr.collection.Map;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.extern.java.Log;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 @Log
 public class BotTest {
 
-  private final Date   iniDate  = ConverterHelper.dayBeforeNow(30);
+  private final LocalDateTime   iniDate  = ConverterHelper.dayBeforeNow(30);
   private final String            userName = "RedTheOne";
   private       DataArchiveHelper dataArchiveHelper;
   private       ApiSearchHelper   apiSearchHelper;

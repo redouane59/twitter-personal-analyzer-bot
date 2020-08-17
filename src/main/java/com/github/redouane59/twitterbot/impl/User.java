@@ -2,7 +2,7 @@ package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.dto.user.IUser;
 import com.github.redouane59.twitter.dto.user.UserDTOv1;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,8 +17,8 @@ public class User extends UserDTOv1 {
   private int  nbRepliesReceived;
   private int  nbLikesGiven;
   private int  nbRetweetsGiven;
-  private Date dateOfFollow;
-  private Date dateOfFollowBack;
+  private LocalDateTime dateOfFollow;
+  private LocalDateTime dateOfFollowBack;
   private int  commonFollowers;
   private int nbTweetsWithin7Days;
   private int medianInteractionScore;
@@ -30,7 +30,7 @@ public class User extends UserDTOv1 {
   }
 
   public void setDateOfFollowNow() {
-    this.dateOfFollow = new Date();
+    this.dateOfFollow = LocalDateTime.now();
   }
 
   public double getFollowersRatio() {

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.CustomLog;
@@ -33,7 +33,7 @@ public class PersonalAnalyzerBot {
   private String        userName;
   private       IOHelper      ioHelper;
   private       TwitterClient twitterClient = new TwitterClient();
-  private final Date          iniDate       = ConverterHelper.dayBeforeNow(30);
+  private final LocalDateTime     iniDate       = ConverterHelper.dayBeforeNow(30);
   private       DataArchiveHelper dataArchiveHelper;
   private       ApiSearchHelper   apiSearchHelper;
 
@@ -144,7 +144,7 @@ public class PersonalAnalyzerBot {
 
 
   private Map<String, TweetInteraction> getReceivedInteractions() {
-    Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
+    LocalDateTime mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
     return dataArchiveHelper.countRetweetsReceived()
                             .merge(apiSearchHelper.countRepliesReceived(true),TweetInteraction::merge)
                             .merge(apiSearchHelper.countRepliesReceived(false),TweetInteraction::merge)
@@ -154,7 +154,7 @@ public class PersonalAnalyzerBot {
   }
 
   private Map<String, UserInteraction> getGivenInteractions(){
-    Date mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
+    LocalDateTime mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
     return dataArchiveHelper.countRetweetsGiven()
                             .merge(dataArchiveHelper.countQuotesGiven(), UserInteraction::merge)
                             .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)

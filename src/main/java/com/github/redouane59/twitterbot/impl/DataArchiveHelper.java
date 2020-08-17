@@ -8,7 +8,7 @@ import io.vavr.collection.Stream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import lombok.CustomLog;
@@ -18,7 +18,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
 
   private List<ITweet> tweets = new ArrayList<>();
 
-  public DataArchiveHelper(String userName, String archiveFileName, Date fromDate) {
+  public DataArchiveHelper(String userName, String archiveFileName, LocalDateTime fromDate) {
     super(userName);
     File             file      = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveFileName)).getFile());
     List<TweetDTOv1> allTweets = new ArrayList<>();
@@ -28,7 +28,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
       LOGGER.severe(e.getMessage());
     }
     for (TweetDTOv1 tweet : allTweets) {
-      Date tweetDate = tweet.getCreatedAt();
+      LocalDateTime tweetDate = tweet.getCreatedAt();
       if (tweetDate != null && tweetDate.compareTo(fromDate) > 0) {
         this.tweets.add(tweet);
       }
@@ -40,9 +40,9 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     return Stream.ofAll(tweets)
                  .filter(tweet -> tweet.getInReplyToUserId()!=null)
                  .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
-                 .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
+                 .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
                  .peek(tweet -> LOGGER.info("analyzing DATA reply : " + tweet.getText()))
-                 .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
+                 .map(tweet -> this.getTwitterClient().getTweet(tweet.getConversationId()))
                  .filter(tweet -> tweet.getAuthorId()!=null)
                  .groupBy(ITweet::getAuthorId)
                  .map(this::getTupleAnswerGiven);

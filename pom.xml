@@ -4,10 +4,20 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.redouane59.twitter</groupId>
+  <groupId>com.github.redouane59.twitter</groupId>
   <artifactId>twitter-bot</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M4</version>
+      </plugin>
+    </plugins>
+  </build>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>12</maven.compiler.target>
@@ -62,9 +72,14 @@
         <version>3.9</version>
       </dependency>
       <dependency>
-        <groupId>org.redouane59.twitter</groupId>
+        <groupId>com.github.Redouane59</groupId>
         <artifactId>twitter-client</artifactId>
-        <version>1.0</version>
+        <version>SNAPSHOT-1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>3.14.2</version>
       </dependency>
     </dependencies>
   </project>

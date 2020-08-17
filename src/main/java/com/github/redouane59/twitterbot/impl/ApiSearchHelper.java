@@ -9,9 +9,11 @@ import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.CustomLog;
@@ -24,10 +26,10 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     super(userName);
   }
 
-  public Map<String, TweetInteraction> countRecentRetweetsReceived(Date mostRecentArchiveTweetDate){
+  public Map<String, TweetInteraction> countRecentRetweetsReceived(LocalDateTime mostRecentArchiveTweetDate){
     LOGGER.info("\nCounting recent retweets received (API)...");
     String       query = "retweets_of:" + this.getUserName();
-    Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
+    Tuple2<LocalDateTime, LocalDateTime> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
     if(dates==null) return HashMap.empty();
     Stream<ITweet> givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
     return givenReplies
@@ -38,27 +40,28 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetReceived);
   }
 
-  public Map<String, UserInteraction> countRecentRepliesGiven(Date mostRecentArchiveTweetDate) {
+  public Map<String, UserInteraction> countRecentRepliesGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting recent replies given (API)...");
     String       query = "(from:" + this.getUserName() + " has:mentions)";
-    Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
+    Tuple2<LocalDateTime, LocalDateTime> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
     if(dates==null) return HashMap.empty();
     Stream<ITweet> givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
     return givenReplies
         .filter(tweet -> tweet.getInReplyToUserId()!=null)
         .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
-        .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
+       // .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
+        .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
-        .map(tweet -> this.getTwitterClient().getInitialTweet(tweet, true))
+        .map(tweet -> this.getTwitterClient().getTweet(tweet.getConversationId()))
         .filter(tweet -> tweet.getAuthorId()!=null)
         .groupBy(ITweet::getAuthorId)
         .map(this::getTupleAnswerGiven);
   }
 
-  public Map<String, UserInteraction> countRecentRetweetsGiven(Date mostRecentArchiveTweetDate) {
+  public Map<String, UserInteraction> countRecentRetweetsGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
     String       query  = "from:" + this.getUserName() + " is:retweet";
-    Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
+    Tuple2<LocalDateTime, LocalDateTime> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
     if(dates==null) return HashMap.empty();
     Stream<ITweet> givenRetweets = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
     return givenRetweets
@@ -69,10 +72,10 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleAnswerGiven);
   }
 
-  public Map<String, UserInteraction> countRecentQuotesGiven(Date mostRecentArchiveTweetDate) {
+  public Map<String, UserInteraction> countRecentQuotesGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
     String       query  = "from:" + this.getUserName() + " is:quote";
-    Tuple2<Date, Date> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
+    Tuple2<LocalDateTime, LocalDateTime> dates = getDatesFromMostRecentTweetDate(mostRecentArchiveTweetDate);
     if(dates==null) return HashMap.empty();
     Stream<ITweet> givenQuotes = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
     return givenQuotes
@@ -83,18 +86,18 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetGiven);
   }
 
-  private Tuple2<Date, Date> getDatesFromMostRecentTweetDate(Date mostRecentArchiveTweetDate){
-    long delta = (System.currentTimeMillis() - mostRecentArchiveTweetDate.getTime()) / (1000 * 60 * 60 * 24);
+  private Tuple2<LocalDateTime, LocalDateTime> getDatesFromMostRecentTweetDate(LocalDateTime mostRecentArchiveTweetDate){
+    long delta = (System.currentTimeMillis() - mostRecentArchiveTweetDate.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()) / (1000 * 60 * 60 * 24);
     if (delta < 1) {
       return null;
     }
-    Date         toDate;
-    Date         fromDate;
+    LocalDateTime         toDate;
+    LocalDateTime         fromDate;
     if (delta > 7) {
-      toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
-      fromDate = DateUtils.ceiling(DateUtils.addDays(toDate, -7), Calendar.HOUR);
+      toDate   = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.HOURS);
+      fromDate = toDate.minusDays(7).truncatedTo(ChronoUnit.HOURS).plusHours(1);
     } else {
-      toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
+      toDate   = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.HOURS);
       fromDate = mostRecentArchiveTweetDate;
     }
 
@@ -110,9 +113,9 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     LOGGER.info("Counting replies received - currentWeek = " + currentWeek + " ...");
     return this.getTweetsWithRepliesStream(currentWeek, false)
                .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
-               .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getInitialTweet(tweet, true).getAuthorId()))
+               .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
                .peek(initialTweet -> LOGGER.info("analyzing API reply : " + initialTweet.getText()))
-               .groupBy(tweet ->  this.getTwitterClient().getInitialTweet(tweet, true).getId())
+               .groupBy(tweet ->  this.getTwitterClient().getTweet(tweet.getConversationId()).getId())
                .map(this::getTurpleAnswerReceived);
   }
 
@@ -135,16 +138,16 @@ public class ApiSearchHelper extends AbstractSearchHelper {
       mentionQuery += " is:quote";
     }
     if (currentWeek) {
-      Date toDate = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.HOUR);
+      LocalDateTime toDate = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.HOURS);
       return  Stream.ofAll(this.getTwitterClient()
                                .searchForTweetsWithin7days("(" + mentionQuery + ")"  + "OR (url:"+this.getUserName()+" -is:retweet)",
-                                                           DateUtils.ceiling(DateUtils.addDays(toDate, -7), Calendar.HOUR),
+                                                           toDate.minusDays(7).truncatedTo(ChronoUnit.HOURS).plusHours(1),
                                                            toDate));
     } else{
-      Date toDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(7), Calendar.DAY_OF_MONTH);
+      LocalDateTime toDate = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
       return Stream.ofAll(this.getTwitterClient()
                               .searchForTweetsWithin30days(mentionQuery,
-                                                           DateUtils.ceiling(DateUtils.addDays(toDate, -23), Calendar.DAY_OF_MONTH),
+                                                           toDate.minusDays(7).truncatedTo(ChronoUnit.HOURS).plusHours(1),
                                                            toDate));
     }
   }
@@ -172,8 +175,8 @@ public class ApiSearchHelper extends AbstractSearchHelper {
    */
   public int getInteractionScore(IUser user){
     String query = "from:" + user.getName() + " -is:reply -is:retweet";
-    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(6), Calendar.DAY_OF_MONTH);
-    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.DAY_OF_MONTH);
+    LocalDateTime fromDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS);
+    LocalDateTime toDate   = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.DAYS);
     List<ITweet> lastUserTweets = this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
     int nbFollowers = user.getFollowersCount();
     if(lastUserTweets.size()==0 || nbFollowers==0) return 0;
@@ -188,15 +191,15 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
   public int getNbTweetsWithin7Days(IUser user){
     String query = "from:" + user.getName() + " -is:reply -is:retweet";
-    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(6), Calendar.DAY_OF_MONTH); // @todo to improve
-    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.DAY_OF_MONTH);
+    LocalDateTime fromDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS); // @todo to improve
+    LocalDateTime toDate   = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.DAYS);
     return this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate).size();
   }
 
   public int getMedianInteractionScore(IUser user){
     String query = "from:" + user.getName() + " -is:reply -is:retweet";
-    Date fromDate = DateUtils.truncate(ConverterHelper.dayBeforeNow(6), Calendar.DAY_OF_MONTH);
-    Date toDate   = DateUtils.truncate(ConverterHelper.minutesBeforeNow(120), Calendar.DAY_OF_MONTH);
+    LocalDateTime fromDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS);
+    LocalDateTime toDate   = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.DAYS);
     List<ITweet> lastUserTweets = this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
     List<Integer> scores = new ArrayList<>();
     if(lastUserTweets.size()==0) return 0;

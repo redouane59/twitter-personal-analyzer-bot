@@ -1,15 +1,14 @@
 package com.github.redouane59.twitterbot.io;
 
-import com.github.redouane59.twitter.dto.user.IUser;
 import com.github.redouane59.twitterbot.impl.User;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
-@Log
+@Slf4j
 public class CsvHelper implements IOHelper{
 
   @Override
@@ -43,7 +42,7 @@ public class CsvHelper implements IOHelper{
       LOGGER.info("file generated with success in Documents folder");
       writer.close();
     } catch (IOException e) {
-      LOGGER.severe(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
   }
 

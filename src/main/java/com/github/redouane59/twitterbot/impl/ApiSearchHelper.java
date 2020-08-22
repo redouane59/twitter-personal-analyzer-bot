@@ -9,17 +9,15 @@ import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.CustomLog;
-import org.apache.commons.lang3.time.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 
-@CustomLog
+@Slf4j
 public class ApiSearchHelper extends AbstractSearchHelper {
 
   public ApiSearchHelper(String userName) {

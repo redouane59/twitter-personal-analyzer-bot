@@ -12,9 +12,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 
-@CustomLog
+@Slf4j
 public class GoogleAuthorizeUtil {
 
   private GoogleAuthorizeUtil() {
@@ -24,7 +24,7 @@ public class GoogleAuthorizeUtil {
   public static GoogleCredential authorize() throws IOException {
     URL googleCredentialsFile = GoogleAuthorizeUtil.class.getClassLoader().getResource("google-credentials.json");
     if (googleCredentialsFile == null) {
-      LOGGER.severe(() -> "file not found");
+      LOGGER.error( "file not found");
     }
     ObjectMapper mapper = TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     HashMap           credentialMap     = mapper.readValue(googleCredentialsFile, HashMap.class);

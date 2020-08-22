@@ -20,14 +20,14 @@ import java.util.Arrays;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
 @Getter
 @Setter
-@CustomLog
+@Slf4j
 public class PersonalAnalyzerBot {
 
   private String        userName;
@@ -82,7 +82,7 @@ public class PersonalAnalyzerBot {
           try {
             TimeUnit.MILLISECONDS.sleep(600);
           } catch (InterruptedException e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.error(e.getMessage());
           }
         }
       }
@@ -181,13 +181,13 @@ public class PersonalAnalyzerBot {
 
   public String[] getUsersFromJson(URL fileUrl){
     if(fileUrl==null){
-      LOGGER.severe("file not found in src/main/resources");
+      LOGGER.error("file not found in src/main/resources");
       return new String[]{};
     }
     try {
       return TwitterClient.OBJECT_MAPPER.readValue(fileUrl, new TypeReference<java.util.Map<String,String[]>>() {}).get("users");
     } catch (IOException e) {
-      LOGGER.severe(e.getMessage());
+      LOGGER.error(e.getMessage());
       return new String[]{};
     }
   }

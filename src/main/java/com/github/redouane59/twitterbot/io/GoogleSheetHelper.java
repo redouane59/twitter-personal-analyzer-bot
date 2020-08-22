@@ -12,11 +12,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 
 @Getter
-@CustomLog
+@Slf4j
 public class GoogleSheetHelper implements IOHelper{
 
   private Sheets               sheetsService;
@@ -26,7 +26,7 @@ public class GoogleSheetHelper implements IOHelper{
   public GoogleSheetHelper() throws IOException {
     URL googleCredentialsUrl = GoogleCredentials.class.getClassLoader().getResource("google-credentials.json");
     if(googleCredentialsUrl==null){
-      LOGGER.severe("google-credentials.json file not found in src/main/resources");
+      LOGGER.error("google-credentials.json file not found in src/main/resources");
       return;
     }
     GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.readValue(googleCredentialsUrl, GoogleCredentials.class);
@@ -37,7 +37,7 @@ public class GoogleSheetHelper implements IOHelper{
     try {
       this.sheetsService = SheetsServiceUtil.getSheetsService();
     } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
   }
 
@@ -71,12 +71,12 @@ public class GoogleSheetHelper implements IOHelper{
       request.setValueInputOption("RAW");
       request.execute();
     } catch (Exception e) {
-      LOGGER.severe(e.getMessage());
+      LOGGER.error(e.getMessage());
       try {
         TimeUnit.SECONDS.sleep(10);
         this.addUserLine(users);
       } catch (InterruptedException e2) {
-        LOGGER.severe(e2.getMessage());
+        LOGGER.error(e2.getMessage());
         Thread.currentThread().interrupt();
       }
     }

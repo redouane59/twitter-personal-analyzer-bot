@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import lombok.CustomLog;
+import lombok.extern.slf4j.Slf4j;
 
-@CustomLog
+@Slf4j
 public class DataArchiveHelper extends AbstractSearchHelper {
 
   private List<ITweet> tweets = new ArrayList<>();
@@ -25,7 +25,7 @@ public class DataArchiveHelper extends AbstractSearchHelper {
     try {
       allTweets = this.getTwitterClient().readTwitterDataFile(file);
     } catch (IOException e) {
-      LOGGER.severe(e.getMessage());
+      LOGGER.error(e.getMessage());
     }
     for (TweetDTOv1 tweet : allTweets) {
       LocalDateTime tweetDate = tweet.getCreatedAt();

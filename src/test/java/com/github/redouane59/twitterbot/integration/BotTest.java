@@ -22,8 +22,6 @@ public class BotTest {
   private       DataArchiveHelper dataArchiveHelper;
   private       ApiSearchHelper   apiSearchHelper;
 
-
-
   @Test
   public void testCountRepliesGiven(){
     dataArchiveHelper = new DataArchiveHelper(userName, userName.toLowerCase() + "-tweet-history.json", iniDate);

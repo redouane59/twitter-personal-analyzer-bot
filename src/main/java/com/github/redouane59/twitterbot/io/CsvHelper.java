@@ -1,6 +1,6 @@
 package com.github.redouane59.twitterbot.io;
 
-import com.github.redouane59.twitterbot.impl.User;
+import com.github.redouane59.twitterbot.impl.CustomerUser;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 public class CsvHelper implements IOHelper{
 
   @Override
-  public void addUserLine(final List<User> users) {
+  public void addUserLine(final List<CustomerUser> users) {
     FileWriter writer;
     try {
       writer = new FileWriter(System.getProperty("user.home") + File.separatorChar
                               + "Documents" + File.separatorChar
                               + "user-analyze"
                               + ".csv");
-      for(User user : users) {
+      for(CustomerUser user : users) {
         // @todo maybe we can have an abstract method returning a List of fields to avoid code duplication
         writer.write(user.getId() + ";"
                      + user.getName() + ";"

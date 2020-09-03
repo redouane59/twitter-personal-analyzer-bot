@@ -1,8 +1,9 @@
 package com.github.redouane59.twitterbot.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.redouane59.twitter.TwitterClient;
-import com.github.redouane59.twitter.dto.user.IUser;
+import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
+import com.github.redouane59.twitter.signature.TwitterCredentials;
 import com.github.redouane59.twitterbot.io.CsvHelper;
 import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
 import com.github.redouane59.twitterbot.io.IOHelper;
@@ -39,6 +40,7 @@ public class PersonalAnalyzerBot {
 
   public PersonalAnalyzerBot(String userName){
     this.userName = userName;
+    TwitterCredentials.builder().build();
   }
 
   public PersonalAnalyzerBot(String userName, String archiveFileName, boolean useGoogleSheet) throws IOException {
@@ -54,26 +56,25 @@ public class PersonalAnalyzerBot {
 
   public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers){
     String      userId     = this.twitterClient.getUserFromUserName(userName).getId();
-    List<IUser> followings = this.twitterClient.getFollowingUsers(userId);
-    List<IUser> followers  = this.twitterClient.getFollowerUsers(userId);
-    Set<IUser>  allUsers  = HashSet.ofAll(followings).addAll(followers);
-  //  Map<String, UserStats>  userStats = this.getUserStatsMap();
+    List<User> followings = this.twitterClient.getFollowingUsers(userId);
+    List<User> followers  = this.twitterClient.getFollowerUsers(userId);
+    Set<User>  allUsers  = HashSet.ofAll(followings).addAll(followers);
+    Map<String, UserStats>  userStats = this.getUserStatsMap();
 
-    List<User> usersToWrite = new ArrayList<>();
-    int        nbUsersToAdd = 50;
-    for (IUser iUser : allUsers) {
-      if (hasToAddUser(iUser, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
-        User user = new User(iUser);
-    //    if(userStats.get(iUser.getId()).isDefined()) {
-        //      user.setNbRepliesReceived(userStats.get(iUser.getId()).get().getNbRepliesReceived());
-        //  user.setNbRepliesGiven(userStats.get(iUser.getId()).get().getNbRepliesGiven());
-        //   user.setNbRetweetsReceived(userStats.get(iUser.getId()).get().getNbRetweetsReceived());
-        //  user.setNbLikesGiven(userStats.get(iUser.getId()).get().getNbLikesGiven());
-        //  user.setNbRetweetsGiven(userStats.get(iUser.getId()).get().getNbRetweetsGiven());
+    List<CustomerUser> usersToWrite = new ArrayList<>();
+    int                nbUsersToAdd = 50;
+    for (User User : allUsers) {
+      if (hasToAddUser(User, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
+        CustomerUser user = new CustomerUser(User);
+        if(userStats.get(User.getId()).isDefined()) {
+          user.setNbRepliesReceived(userStats.get(User.getId()).get().getNbRepliesReceived());
+          user.setNbRepliesGiven(userStats.get(User.getId()).get().getNbRepliesGiven());
+          user.setNbRetweetsReceived(userStats.get(User.getId()).get().getNbRetweetsReceived());
+          user.setNbLikesGiven(userStats.get(User.getId()).get().getNbLikesGiven());
+          user.setNbRetweetsGiven(userStats.get(User.getId()).get().getNbRetweetsGiven());
           user.setNbTweetsWithin7Days(this.apiSearchHelper.getNbTweetsWithin7Days(user));
           user.setMedianInteractionScore(this.apiSearchHelper.getMedianInteractionScore(user));
-
-        //    }
+        }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
           this.ioHelper.addUserLine(usersToWrite);
@@ -91,7 +92,7 @@ public class PersonalAnalyzerBot {
     LOGGER.info("finish with success : " + allUsers.length() + " users added");
   }
 
-  private boolean hasToAddUser(IUser user, List<IUser> followings, List<IUser> followers,
+  private boolean hasToAddUser(User user, List<User> followings, List<User> followers,
                                boolean showFollowings, boolean showFollowers, boolean onyFollowBackUsers) {
     // case 0 : only follow back users
     if (onyFollowBackUsers && followings.contains(user) && !followers.contains(user)) {

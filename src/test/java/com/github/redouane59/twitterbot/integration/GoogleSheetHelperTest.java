@@ -1,7 +1,7 @@
 package com.github.redouane59.twitterbot.integration;
 
 import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
-import com.github.redouane59.twitterbot.impl.User;
+import com.github.redouane59.twitterbot.impl.CustomerUser;
 import io.vavr.collection.List;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +21,7 @@ public class GoogleSheetHelperTest {
 
   @Test
   public void testAddNewLine(){
-    User       user1  = new User();
+    CustomerUser user1 = new CustomerUser();
     user1.setId("12345");
     user1.setName("Red1");
     user1.setDescription("First description");
@@ -33,7 +33,7 @@ public class GoogleSheetHelperTest {
     user1.setNbRepliesGiven(6);
     user1.setNbRetweetsGiven(7);
     user1.setNbLikesGiven(8);
-    User       user2  = new User();
+    CustomerUser user2 = new CustomerUser();
     user2.setId("00001");
     user2.setName("Red2");
     user2.setDescription("2nd description");

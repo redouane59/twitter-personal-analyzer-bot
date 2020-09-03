@@ -73,8 +73,8 @@
       </dependency>
       <dependency>
         <groupId>com.github.redouane59.twitter</groupId>
-        <artifactId>twitter-client</artifactId>
-        <version>1.2</version>
+        <artifactId>twittered</artifactId>
+        <version>1.7</version>
       </dependency>
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>

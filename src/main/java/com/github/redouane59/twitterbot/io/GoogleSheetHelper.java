@@ -1,7 +1,7 @@
 package com.github.redouane59.twitterbot.io;
 
 import com.github.redouane59.twitter.TwitterClient;
-import com.github.redouane59.twitterbot.impl.User;
+import com.github.redouane59.twitterbot.impl.CustomerUser;
 import com.github.redouane59.twitterbot.properties.GoogleCredentials;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
@@ -41,9 +41,9 @@ public class GoogleSheetHelper implements IOHelper{
     }
   }
 
-  public void addUserLine(List<User> users) {
+  public void addUserLine(List<CustomerUser> users) {
     List<List<Object>> values = new ArrayList<>();
-    for (User user : users) {
+    for (CustomerUser user : users) {
       values.add(Arrays.asList(String.valueOf(user.getId()),
                                user.getName(),
                                user.getFollowersCount(),

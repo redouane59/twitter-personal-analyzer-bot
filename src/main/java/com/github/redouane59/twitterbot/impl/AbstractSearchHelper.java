@@ -1,12 +1,16 @@
 package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.TwitterClient;
-import com.github.redouane59.twitter.dto.tweet.ITweet;
-import com.github.redouane59.twitter.dto.user.IUser;
-import com.github.redouane59.twitter.dto.user.UserDTOv1;
+import com.github.redouane59.twitter.dto.tweet.Tweet;
+import com.github.redouane59.twitter.dto.tweet.TweetType;
+import com.github.redouane59.twitter.dto.user.User;
+import com.github.redouane59.twitter.dto.user.UserV1;
+import com.github.redouane59.twitter.signature.TwitterCredentials;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.Stream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,10 +21,20 @@ public abstract class AbstractSearchHelper {
 
   private String        userName;
   private String        userId;
-  private TwitterClient twitterClient = new TwitterClient();
-  private List<IUser>   followings;
-  private List<IUser>   followers;
-  private Set<IUser>    allUsers;
+  private TwitterClient twitterClient;
+
+  {
+    try {
+      twitterClient = new TwitterClient(TwitterClient.OBJECT_MAPPER
+                                                                  .readValue(new File("C:/Users/Perso/Documents/GitHub/twitter-credentials.json"), TwitterCredentials.class));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private List<User>   followings;
+  private List<User>   followers;
+  private Set<User>    allUsers;
 
   public AbstractSearchHelper(String userName) {
     this.userName   = userName;
@@ -39,39 +53,49 @@ public abstract class AbstractSearchHelper {
       if (userId == null) {
           return false;
       }
-    UserDTOv1 retweeter = UserDTOv1.builder().id(userId).build();
+    UserV1 retweeter = UserV1.builder().id(userId).build();
     return (this.getAllUsers().contains(retweeter));
   }
 
-  public Tuple2<String, UserInteraction> getTupleLikeGiven(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, UserInteraction> getTupleLikeGiven(String userId, Stream<Tweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addLike(tweet.getId())));
   }
 
-  public Tuple2<String, UserInteraction> getTupleAnswerGiven(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, UserInteraction> getTupleAnswerGiven(String userId, Stream<Tweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addAnswer(tweet.getId())));
   }
 
-  public Tuple2<String, UserInteraction> getTupleRetweetGiven(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, UserInteraction> getTupleRetweetGiven(String userId, Stream<Tweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
                                     (interaction, tweet) -> interaction.addRetweet(tweet.getId())));
   }
 
-  public Tuple2<String, TweetInteraction> getTupleRetweetReceived(String userId, Stream<ITweet> tweets) {
+  public Tuple2<String, TweetInteraction> getTupleRetweetReceived(String userId, Stream<Tweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new TweetInteraction(),
                                     (interaction, tweet) -> interaction.addRetweeter(tweet.getId())));
   }
 
 
-  public Tuple2<String, TweetInteraction> getTurpleAnswerReceived(String tweetId, Stream<ITweet> tweets) {
+  public Tuple2<String, TweetInteraction> getTurpleAnswerReceived(String tweetId, Stream<Tweet> tweets) {
     return Tuple.of(tweetId,
                     tweets.foldLeft(new TweetInteraction(),
                                     (interaction, tweet) -> interaction.addAnswerer(tweet.getAuthorId())));
+  }
+
+  // @todo KO if quote inside the thread
+  public Tweet getInitialTweet(Tweet tweet){
+    if(tweet.getConversationId()!=null) return this.getTwitterClient().getTweet(tweet.getConversationId());
+    Tweet currentTweet = tweet;
+    while(currentTweet.getInReplyToStatusId()!=null && currentTweet.getTweetType() != TweetType.QUOTED){
+      currentTweet = this.getTwitterClient().getTweet(currentTweet.getInReplyToStatusId());
+    }
+    return currentTweet;
   }
 
 }

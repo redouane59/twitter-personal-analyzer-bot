@@ -1,5 +1,7 @@
 package com.github.redouane59.twitterbot;
 
+import com.github.redouane59.twitter.TwitterClient;
+import com.github.redouane59.twitter.dto.tweet.Tweet;
 import com.github.redouane59.twitterbot.impl.PersonalAnalyzerBot;
 import java.io.IOException;
 import java.net.URL;
@@ -9,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PersonalAnalyzerLauncher {
 
   public static void main(String[] args) throws IOException {
+
     if (args.length < 2) {
       LOGGER.error( "missing arguments");
     } else {

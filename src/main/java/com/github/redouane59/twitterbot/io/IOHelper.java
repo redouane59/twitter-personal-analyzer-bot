@@ -1,10 +1,10 @@
 package com.github.redouane59.twitterbot.io;
 
-import com.github.redouane59.twitterbot.impl.User;
+import com.github.redouane59.twitterbot.impl.CustomerUser;
 import java.util.List;
 
 public interface IOHelper {
 
-  void addUserLine(List<User> users);
+  void addUserLine(List<CustomerUser> users);
 
 }

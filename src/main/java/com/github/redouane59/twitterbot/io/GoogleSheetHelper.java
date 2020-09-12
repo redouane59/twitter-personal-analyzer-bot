@@ -80,6 +80,30 @@ public class GoogleSheetHelper implements IOHelper{
         Thread.currentThread().interrupt();
       }
     }
+  }
 
+  public String vlookup(String userName, int col){
+    List<Object> userData = getUserData(userName);
+    if(userData.size()>=col){
+      return String.valueOf(userData.get(col));
+    }
+    return null;
+  }
+
+  public List<Object> getUserData(String userName){
+    int userNameCol = 1;
+    try {
+      Sheets.Spreadsheets.Values.Get request =
+          sheetsService.spreadsheets().values().get(this.sheetId, this.tabName);
+      ValueRange response = request.execute();
+      for(List<Object> lines : response.getValues()){
+        if(lines.get(userNameCol).equals(userName)){
+          return lines;
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return new ArrayList<>();
   }
 }

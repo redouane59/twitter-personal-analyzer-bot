@@ -149,7 +149,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
       return Stream.ofAll(this.getTwitterClient()
                               .searchForTweetsWithin30days(mentionQuery,
                                                            toDate.minusDays(7).truncatedTo(ChronoUnit.HOURS).plusHours(1),
-                                                           toDate));
+                                                           toDate,"30days"));
     }
   }
 

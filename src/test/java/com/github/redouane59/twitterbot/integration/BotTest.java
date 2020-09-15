@@ -1,14 +1,19 @@
 package com.github.redouane59.twitterbot.integration;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.redouane59.twitter.dto.tweet.Tweet;
+import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitterbot.impl.ApiSearchHelper;
 import com.github.redouane59.twitterbot.impl.DataArchiveHelper;
 import com.github.redouane59.twitterbot.impl.TweetInteraction;
 import com.github.redouane59.twitterbot.impl.UserInteraction;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
+import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.extern.java.Log;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -107,5 +112,17 @@ public class BotTest {
     int result = apiSearchHelper.getNbTweetsWithin7Days(apiSearchHelper.getTwitterClient().getUserFromUserName(userName));
     LOGGER.info(userName + " nb tweets 7 days = " + result);
     assertTrue(result>0);
+  }
+
+  @Test
+  public void testCountRepliesGivenFromTimeline(){
+    apiSearchHelper = new ApiSearchHelper(userName);
+    Map<String, UserInteraction> result = apiSearchHelper.countRepliesGivenFromTimeline(ConverterHelper.dayBeforeNow(2));
+    assertTrue(result.size()>1);
+    for(Tuple2<String, UserInteraction> s : result){
+      assertNotNull(s._1());
+      assertNotNull(s._2());
+      break;
+    }
   }
 }

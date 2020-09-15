@@ -34,24 +34,28 @@ public class AutoRankingAnswerLauncher {
 
   }
 
-  public static String getText(String userName){
+  public static String getText(String userName) {
     List<Object> userData = googleSheetHelper.getUserData(userName);
-    int           ranking  = Integer.parseInt(String.valueOf(userData.get(15)));
     StringBuilder response = new StringBuilder();
-    if(ranking == 1){
-      response = new StringBuilder("Yasin tu es le king \uD83E\uDD47 (même si tu vesqui les five)");
-    } else if(ranking>0&&ranking<=5){
-      response = new StringBuilder("Tu fais partie de l'élite ! Tu es " + ranking + "e !! \uD83D\uDE0E");
-    } else if (ranking>5 && ranking<=15){
-      response = new StringBuilder("Au top," + ranking + "e ! \uD83D\uDCAA\uD83C\uDFFD");
-    } else if (ranking>15 && ranking<=50){
-      response = new StringBuilder("Pas mal, tu es " + ranking + "e \uD83D\uDE09");
-    } else if (ranking>50 && ranking<=100){
-      response = new StringBuilder("Peut faire mieux, " + ranking + "e \uD83D\uDE44");
-    } else if (ranking>100){
-      response = new StringBuilder("Oulala vaut mieux même pas que je te dise... (" + ranking + "e) \uD83E\uDD10");
-    } else if (ranking==-1){
+    if (userData.size() == 0) {
       response = new StringBuilder("T'es qui ??? \uD83E\uDDD0");
+    } else {
+      int           ranking  = Integer.parseInt(String.valueOf(userData.get(15)));
+      if (ranking == 1) {
+        response = new StringBuilder("Yasin tu es le king \uD83E\uDD47 (même si tu vesqui les five)");
+      } else if (ranking > 0 && ranking <= 5) {
+        response = new StringBuilder("Tu fais partie de l'élite ! Tu es " + ranking + "e !! \uD83D\uDE0E");
+      } else if (ranking > 5 && ranking <= 15) {
+        response = new StringBuilder("Au top," + ranking + "e ! \uD83D\uDCAA\uD83C\uDFFD");
+      } else if (ranking > 15 && ranking <= 50) {
+        response = new StringBuilder("Pas mal, tu es " + ranking + "e \uD83D\uDE09");
+      } else if (ranking > 50 && ranking <= 100) {
+        response = new StringBuilder("Peut faire mieux, " + ranking + "e \uD83D\uDE44");
+      } else if (ranking > 100) {
+        response = new StringBuilder("Oulala vaut mieux même pas que je te dise... (" + ranking + "e) \uD83E\uDD10");
+      } else if (ranking == -1) {
+        response = new StringBuilder("T'es qui ??? \uD83E\uDDD0");
+      }
     }
     try {
       double profileStars     = Double.parseDouble(String.valueOf(userData.get(16)).replace(",","."));

@@ -1,6 +1,7 @@
 package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.dto.tweet.Tweet;
+import com.github.redouane59.twitter.dto.tweet.TweetSearchResponse;
 import com.github.redouane59.twitter.dto.tweet.TweetType;
 import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -47,15 +49,14 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     return givenReplies
         .filter(tweet -> tweet.getInReplyToUserId()!=null)
         .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
-       // .filter(tweet -> !this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
         .filter(tweet -> !this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
-      //  .map(tweet -> this.getTwitterClient().getTweet(tweet.getConversationId()))
         .map(tweet -> this.getInitialTweet(tweet))
         .filter(tweet -> tweet.getAuthorId()!=null)
         .groupBy(Tweet::getAuthorId)
         .map(this::getTupleAnswerGiven);
   }
+
 
   public Map<String, UserInteraction> countRecentRetweetsGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
@@ -112,10 +113,10 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     LOGGER.info("Counting replies received - currentWeek = " + currentWeek + " ...");
     return this.getTweetsWithRepliesStream(currentWeek, false)
                .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
-         //      .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
+               //      .filter(tweet -> this.getUserId().equals(this.getTwitterClient().getTweet(tweet.getConversationId()).getAuthorId()))
                .filter(tweet -> this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
                .peek(initialTweet -> LOGGER.info("analyzing API reply : " + initialTweet.getText()))
-         //      .groupBy(tweet ->  this.getTwitterClient().getTweet(tweet.getConversationId()).getId())
+               //      .groupBy(tweet ->  this.getTwitterClient().getTweet(tweet.getConversationId()).getId())
                .groupBy(tweet ->  this.getInitialTweet(tweet).getId())
                .map(this::getTurpleAnswerReceived);
   }
@@ -183,9 +184,9 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     if(lastUserTweets.size()==0 || nbFollowers==0) return 0;
     // RT : 4 pts / Quote : 3 pts / Reply : 2 pts / like : 1 pt
     int points = lastUserTweets.stream()
-                          .map(tweet -> 4*tweet.getRetweetCount() + 3*tweet.getQuoteCount() + 2*tweet.getReplyCount() + tweet.getLikeCount())
-                                .mapToInt(Integer::intValue)
-                                .sum();
+                               .map(tweet -> 4*tweet.getRetweetCount() + 3*tweet.getQuoteCount() + 2*tweet.getReplyCount() + tweet.getLikeCount())
+                               .mapToInt(Integer::intValue)
+                               .sum();
 
     return 10000*points/lastUserTweets.size()/nbFollowers;
   }
@@ -206,12 +207,35 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     if(lastUserTweets.size()==0) return 0;
     // RT : 4 pts / Quote : 3 pts / Reply : 2 pts / like : 1 pt
     scores = lastUserTweets.stream()
-                               .map(tweet -> 4*tweet.getRetweetCount() + 3*tweet.getQuoteCount() + 2*tweet.getReplyCount() + tweet.getLikeCount())
-                               .collect(Collectors.toList());
+                           .map(tweet -> 4*tweet.getRetweetCount() + 3*tweet.getQuoteCount() + 2*tweet.getReplyCount() + tweet.getLikeCount())
+                           .collect(Collectors.toList());
     int size = scores.size();
     double result = scores.stream().sorted()
-        .skip((size-1)/2).limit(2-size%2).mapToInt(x->x).average().orElse(0.0);
+                          .skip((size-1)/2).limit(2-size%2).mapToInt(x->x).average().orElse(0.0);
     return (int)result;
+  }
+
+  // From timelines
+
+  public Map<String, UserInteraction> countRepliesGivenFromTimeline(LocalDateTime limitDate) {
+
+    String              query       = "from:"+this.getUserName();
+    TweetSearchResponse tweetSearchResponse      = this.getTwitterClient().searchForTweetsWithin7days(query, 100, null);
+    List<Tweet> result = new ArrayList<>(tweetSearchResponse.getTweets());
+    Tweet               oldestTweet = result.get(result.size()-1);
+    while(oldestTweet.getCreatedAt().isAfter(limitDate) && tweetSearchResponse.getNextToken()!=null){
+      tweetSearchResponse = this.getTwitterClient().searchForTweetsWithin7days(query, 100, tweetSearchResponse.getNextToken());
+      result.addAll(tweetSearchResponse.getTweets());
+      oldestTweet = result.get(result.size()-1);
+    }
+
+    Stream<Tweet> givenReplies = Stream.ofAll(result);
+    return givenReplies
+        .filter(tweet -> tweet.getInReplyToStatusId()!=null)
+        .filter(tweet -> tweet.getCreatedAt().isAfter(limitDate))
+        .map(tweet -> this.getTwitterClient().getTweet(tweet.getConversationId()))
+        .groupBy(Tweet::getAuthorId)
+        .map(this::getTupleAnswerGiven);
   }
 
 }

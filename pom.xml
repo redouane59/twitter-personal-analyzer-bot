@@ -67,11 +67,6 @@
         <version>0.10.2</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.9</version>
-      </dependency>
-      <dependency>
         <groupId>com.github.redouane59.twitter</groupId>
         <artifactId>twittered</artifactId>
         <version>1.10</version>

@@ -1,5 +1,6 @@
 package com.github.redouane59.twitterbot.integration;
 
+import com.github.redouane59.twitterbot.impl.UserStats;
 import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
 import com.github.redouane59.twitterbot.impl.CustomerUser;
 import io.vavr.collection.List;
@@ -28,11 +29,12 @@ public class GoogleSheetHelperTest {
     user1.setFollowersCount(1);
     user1.setFollowingCount(2);
     user1.setTweetCount(3);
-    user1.setNbRepliesReceived(4);
-    user1.setNbRetweetsReceived(5);
-    user1.setNbRepliesGiven(6);
-    user1.setNbRetweetsGiven(7);
-    user1.setNbLikesGiven(8);
+    UserStats userStats = UserStats.builder()
+    .nbRepliesReceived(4)
+    .nbRetweetsReceived(5)
+    .nbRepliesGiven(6)
+    .nbRetweetsGiven(7)
+    .nbLikesGiven(8).build();
     CustomerUser user2 = new CustomerUser();
     user2.setId("00001");
     user2.setName("Red2");

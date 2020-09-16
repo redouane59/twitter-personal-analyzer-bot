@@ -26,15 +26,16 @@ public abstract class AbstractSearchHelper {
   {
     try {
       twitterClient = new TwitterClient(TwitterClient.OBJECT_MAPPER
-                                                                  .readValue(new File("C:/Users/Perso/Documents/GitHub/twitter-credentials.json"), TwitterCredentials.class));
+                                            .readValue(new File("C:/Users/Perso/Documents/GitHub/twitter-credentials.json"),
+                                                       TwitterCredentials.class));
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  private List<User>   followings;
-  private List<User>   followers;
-  private Set<User>    allUsers;
+  private List<User> followings;
+  private List<User> followers;
+  private Set<User>  allUsers;
 
   public AbstractSearchHelper(String userName) {
     this.userName   = userName;
@@ -50,9 +51,9 @@ public abstract class AbstractSearchHelper {
   }
 
   public boolean isUserInList(String userId) {
-      if (userId == null) {
-          return false;
-      }
+    if (userId == null) {
+      return false;
+    }
     UserV1 retweeter = UserV1.builder().id(userId).build();
     return (this.getAllUsers().contains(retweeter));
   }
@@ -78,7 +79,7 @@ public abstract class AbstractSearchHelper {
   public Tuple2<String, TweetInteraction> getTupleRetweetReceived(String userId, Stream<Tweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new TweetInteraction(),
-                                    (interaction, tweet) -> interaction.addRetweeter(tweet.getId())));
+                                    (interaction, tweet) -> interaction.addRetweeter(tweet.getAuthorId())));
   }
 
 
@@ -89,10 +90,12 @@ public abstract class AbstractSearchHelper {
   }
 
   // @todo KO if quote inside the thread
-  public Tweet getInitialTweet(Tweet tweet){
-    if(tweet.getConversationId()!=null) return this.getTwitterClient().getTweet(tweet.getConversationId());
+  public Tweet getInitialTweet(Tweet tweet) {
+    if (tweet.getConversationId() != null) {
+      return this.getTwitterClient().getTweet(tweet.getConversationId());
+    }
     Tweet currentTweet = tweet;
-    while(currentTweet.getInReplyToStatusId()!=null && currentTweet.getTweetType() != TweetType.QUOTED){
+    while (currentTweet.getInReplyToStatusId() != null && currentTweet.getTweetType() != TweetType.QUOTED) {
       currentTweet = this.getTwitterClient().getTweet(currentTweet.getInReplyToStatusId());
     }
     return currentTweet;

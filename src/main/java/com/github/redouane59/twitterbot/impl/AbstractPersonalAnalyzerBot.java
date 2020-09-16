@@ -14,6 +14,8 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,52 +26,83 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractPersonalAnalyzerBot {
 
-  private String        userName;
-  private String userId;
-  private List<User> followings;
-  private List<User> followers;
-  private Set<User>  allUsers;
-  private       IOHelper      ioHelper;
-  private       TwitterClient twitterClient;
-  private       ApiSearchHelper   apiSearchHelper;
+  private String          userName;
+  private String          userId;
+  private List<User>      followings;
+  private List<User>      followers;
+  private Set<User>       allUsers;
+  private IOHelper        ioHelper;
+  private TwitterClient   twitterClient;
+  private ApiSearchHelper apiSearchHelper;
+  private boolean         includeFollowers;
+  private boolean         includeFollowings;
+  private boolean         onyFollowBackFollowers;
 
 
-  public AbstractPersonalAnalyzerBot(String userName, TwitterCredentials twitterCredentials){
-    this.twitterClient = new TwitterClient(twitterCredentials);
-    this.userName   = userName;
-    this.userId     = this.twitterClient.getUserFromUserName(userName).getId();
-    this.followings = this.twitterClient.getFollowingUsers(userId);
-    this.followers  = this.twitterClient.getFollowerUsers(userId);
-    this. allUsers  = HashSet.ofAll(followings).addAll(followers);
+  public AbstractPersonalAnalyzerBot(String userName, TwitterCredentials twitterCredentials) {
+    this.twitterClient   = new TwitterClient(twitterCredentials);
+    this.userName        = userName;
+    this.userId          = this.twitterClient.getUserFromUserName(userName).getId();
+    this.followings      = this.twitterClient.getFollowingUsers(userId);
+    this.followers       = this.twitterClient.getFollowerUsers(userId);
+    this.allUsers        = HashSet.ofAll(followings).addAll(followers);
+    this.apiSearchHelper = new ApiSearchHelper(userName);
   }
 
-  public AbstractPersonalAnalyzerBot(String userName, TwitterCredentials twitterCredentials, String archiveFileName, boolean useGoogleSheet) throws IOException {
+  public AbstractPersonalAnalyzerBot(String userName, TwitterCredentials twitterCredentials, String archiveFileName, boolean useGoogleSheet)
+  throws IOException {
     this(userName, twitterCredentials);
-    if(useGoogleSheet){
-      this.ioHelper          = new GoogleSheetHelper();
-    } else{
+    if (useGoogleSheet) {
+      this.ioHelper = new GoogleSheetHelper();
+    } else {
       this.ioHelper = new CsvHelper();
     }
-    this.apiSearchHelper   = new ApiSearchHelper(userName);
+    this.apiSearchHelper = new ApiSearchHelper(userName);
   }
 
-  public abstract void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers);
+  public abstract List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers);
 
-  public void launch(){
-    this.launch(true, true, true);
+  public List<RankedUser> launch() {
+    this.setIncludeFollowers(true);
+    this.setIncludeFollowings(true);
+    this.setOnyFollowBackFollowers(true);
+    return this.launch(true, true, true);
+  }
+
+  public List<RankedUser> mapUserStatsToUserRanking(Map<String, UserStats> userStats) {
+    List<RankedUser> rankedUsers = new ArrayList<>();
+    for (User rawUser : this.getAllUsers()) {
+      if (this.hasToAddUser(rawUser, this.getFollowings(), this.getFollowers(), includeFollowings, includeFollowers, onyFollowBackFollowers)) {
+        if (userStats.get(rawUser.getId()).isDefined()) {
+          UserStats  userStat = userStats.get(rawUser.getId()).get();
+          RankedUser user     = new RankedUser(rawUser, userStat);
+          user.getUserStats().setNbRecentTweets(this.getApiSearchHelper().getNbTweetsWithin7Days(user));
+          user.getUserStats()
+              .setMedianInteractionScore(1000 * this.getApiSearchHelper().getMedianInteractionScore(user) / user.getFollowersCount());
+          user.setUserStats(userStat);
+          rankedUsers.add(user);
+        }
+      }
+    }
+    Collections.sort(rankedUsers);
+
+    for (RankedUser ru : rankedUsers) {
+      System.out.println(ru);
+    }
+    return rankedUsers;
   }
 
   public Map<String, UserStats> getUserStatsMap() {
-    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
+    Map<String, UserInteraction>  givenInteractions    = this.getGivenInteractions();
     Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
-    return this.mapsToUserInteractions(givenInteractions,receivedInteractions);
+    return this.mapsToUserInteractions(givenInteractions, receivedInteractions);
   }
 
-  public Map<String, UserInteraction> getGivenInteractions(){
+  public Map<String, UserInteraction> getGivenInteractions() {
     return this.countRetweetsGiven()
                .merge(this.countQuotesGiven(), UserInteraction::merge)
                .merge(this.countRepliesGiven(), UserInteraction::merge)
-               .merge(this.countGivenLikes(),UserInteraction::merge);
+               .merge(this.countGivenLikes(), UserInteraction::merge);
   }
 
   protected abstract Map<String, UserInteraction> countGivenLikes();
@@ -80,7 +113,7 @@ public abstract class AbstractPersonalAnalyzerBot {
 
   protected abstract Map<String, UserInteraction> countRetweetsGiven();
 
-  public Map<String, TweetInteraction> getReceivedInteractions(){
+  public Map<String, TweetInteraction> getReceivedInteractions() {
     return this.countRetweetsReceived()
                .merge(this.countQuotesReceived(), TweetInteraction::merge)
                .merge(this.countRepliesReceived(), TweetInteraction::merge)
@@ -96,7 +129,7 @@ public abstract class AbstractPersonalAnalyzerBot {
   protected abstract Map<String, TweetInteraction> countRetweetsReceived();
 
   public Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
-      TweetInteraction> receivedInteractions){
+      TweetInteraction> receivedInteractions) {
     LOGGER.info("mapsToUserIntereactions...");
     Map<String, UserStats> userStatsFromGiven = HashMap.ofEntries(givenInteractions.toStream()
                                                                                    .groupBy(Tuple2::_1)
@@ -111,9 +144,8 @@ public abstract class AbstractPersonalAnalyzerBot {
   }
 
 
-
   private Tuple2<String, UserStats> buildTupleFromUserInteractions(String userId,
-                                                                   Stream<Tuple2<String, UserInteraction>> userInteractions){
+                                                                   Stream<Tuple2<String, UserInteraction>> userInteractions) {
     return Tuple.of(userId,
                     userInteractions.foldLeft(new UserStats(),
                                               (userStats, userInteraction) ->

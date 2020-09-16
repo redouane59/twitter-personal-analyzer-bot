@@ -31,11 +31,11 @@ public class CsvHelper implements IOHelper{
                            .replaceAll(";"," ")
                            .replaceAll("\n","") + ";"
                      + Optional.ofNullable(user.getLocation()).orElse("") + ";"
-                     + user.getNbRepliesReceived() + ";"
-                     + user.getNbRetweetsReceived() + ";"
-                     + user.getNbRepliesGiven() + ";"
-                     + user.getNbRetweetsGiven() + ";"
-                     + user.getNbLikesGiven() + ";"
+                     + user.getUserStats().getNbRepliesReceived() + ";"
+                     + user.getUserStats().getNbRetweetsReceived() + ";"
+                     + user.getUserStats().getNbRepliesGiven() + ";"
+                     + user.getUserStats().getNbRetweetsGiven() + ";"
+                     + user.getUserStats().getNbLikesGiven() + ";"
                      + user.isFollowing() + ";"
                      + "\n");
       }

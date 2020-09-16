@@ -1,25 +1,14 @@
 package com.github.redouane59.twitterbot.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.redouane59.twitter.TwitterClient;
-import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
-import io.vavr.collection.Stream;
-import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
@@ -27,55 +16,61 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SevenDaysPersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
 
-  private final LocalDateTime     iniDate       = ConverterHelper.dayBeforeNow(7);
+  private final LocalDateTime initDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS);
 
 
   public SevenDaysPersonalAnalyzerBot(final String userName, TwitterCredentials twitterCredentials) {
     super(userName, twitterCredentials);
   }
 
-  public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers){
-    Map<String, UserStats>  userStats = this.getUserStatsMap();
+  public List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers) {
+    Map<String, UserStats> userStats = this.getUserStatsMap();
+    return this.mapUserStatsToUserRanking(userStats);
   }
 
   @Override
   protected Map<String, UserInteraction> countGivenLikes() {
-    return null;
+    // @todo impossible ot to have 7 days likes
+    return this.getApiSearchHelper().countGivenLikesOnStatuses();
   }
 
   @Override
   protected Map<String, UserInteraction> countRepliesGiven() {
-    return null;
+    return this.getApiSearchHelper().countRecentRepliesGiven(initDate);
   }
 
   @Override
   protected Map<String, UserInteraction> countQuotesGiven() {
-    return null;
+    return this.getApiSearchHelper().countRecentQuotesGiven(initDate);
   }
 
+  //@todo quotes not working ?
   @Override
   protected Map<String, UserInteraction> countRetweetsGiven() {
-    return null;
+    return this.getApiSearchHelper().countRecentRetweetsGiven(initDate);
   }
 
   @Override
   protected Map<String, TweetInteraction> countLikesReceived() {
-    return null;
+    LOGGER.error("not implemented");
+    return HashMap.empty();
   }
 
   @Override
   protected Map<String, TweetInteraction> countRepliesReceived() {
-    return null;
+    Map<String, TweetInteraction> result = getApiSearchHelper().countRepliesReceived(true);
+    return result;
   }
 
   @Override
   protected Map<String, TweetInteraction> countQuotesReceived() {
-    return null;
+    return this.getApiSearchHelper().countQuotesReceived(true);
   }
 
   @Override
   protected Map<String, TweetInteraction> countRetweetsReceived() {
-    return null;
+    Map<String, TweetInteraction> result = this.getApiSearchHelper().countRecentRetweetsReceived(initDate);
+    return result;
   }
 
 }

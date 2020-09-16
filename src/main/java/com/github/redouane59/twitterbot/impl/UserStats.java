@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.With;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +26,10 @@ public class UserStats {
   private int nbRetweetsGiven    = 0;
   @With
   private int nbLikesGiven       = 0;
+  @With
+  private int nbRecentTweets       = 0;
+  @With
+  private int medianInteractionScore       = 0;
 
   public UserStats addRepliesReceived(int newReplies) {
     return this.withNbRepliesReceived(this.nbRepliesReceived + newReplies);
@@ -56,7 +62,9 @@ public class UserStats {
         .withNbLikesReceived(this.getNbLikesReceived() + other.getNbLikesReceived())
         .withNbRepliesGiven(this.getNbRepliesGiven() + other.getNbRepliesGiven())
         .withNbRetweetsGiven(this.getNbRetweetsGiven() + other.getNbRepliesGiven())
-        .withNbLikesGiven(this.getNbLikesGiven() + other.getNbLikesGiven());
+        .withNbLikesGiven(this.getNbLikesGiven() + other.getNbLikesGiven())
+        .withNbRecentTweets(this.getNbRecentTweets()+ other.getNbRecentTweets());
+      //  .withMedianInteractionScore(this.getMedianInteractionScore()+other.getMedianInteractionScore());
   }
 
   public static UserStatsBuilder builder(UserStats origin) {

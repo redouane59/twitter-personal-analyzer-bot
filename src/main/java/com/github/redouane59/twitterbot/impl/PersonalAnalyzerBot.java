@@ -1,83 +1,54 @@
 package com.github.redouane59.twitterbot.impl;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
-import com.github.redouane59.twitterbot.io.CsvHelper;
-import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
-import com.github.redouane59.twitterbot.io.IOHelper;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
-import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
-import io.vavr.collection.Set;
-import io.vavr.collection.Stream;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Setter
 @Slf4j
-public class PersonalAnalyzerBot {
+public class PersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
 
-  private String        userName;
-  private       IOHelper      ioHelper;
-  private       TwitterClient twitterClient = new TwitterClient();
-  private final LocalDateTime     iniDate       = ConverterHelper.dayBeforeNow(30);
+  private final LocalDateTime     iniDate = ConverterHelper.dayBeforeNow(30);
   private       DataArchiveHelper dataArchiveHelper;
-  private       ApiSearchHelper   apiSearchHelper;
+  LocalDateTime mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
 
-  public PersonalAnalyzerBot(String userName){
-    this.userName = userName;
-    TwitterCredentials.builder().build();
+  public PersonalAnalyzerBot(final String userName, TwitterCredentials twitterCredentials) {
+    super(userName, twitterCredentials);
   }
 
-  public PersonalAnalyzerBot(String userName, String archiveFileName, boolean useGoogleSheet) throws IOException {
-    this.userName          = userName;
-    if(useGoogleSheet){
-      this.ioHelper          = new GoogleSheetHelper();
-    } else{
-      this.ioHelper = new CsvHelper();
-    }
-    this.dataArchiveHelper = new DataArchiveHelper(userName, archiveFileName, iniDate);
-    this.apiSearchHelper   = new ApiSearchHelper(userName);
-  }
-
-  public void launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers){
-    String      userId     = this.twitterClient.getUserFromUserName(userName).getId();
-    List<User> followings = this.twitterClient.getFollowingUsers(userId);
-    List<User> followers  = this.twitterClient.getFollowerUsers(userId);
-    Set<User>  allUsers  = HashSet.ofAll(followings).addAll(followers);
-    Map<String, UserStats>  userStats = this.getUserStatsMap();
+  // @todo to remove
+  public List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers) {
+    Map<String, UserStats> userStats = this.getUserStatsMap();
 
     List<CustomerUser> usersToWrite = new ArrayList<>();
     int                nbUsersToAdd = 50;
-    for (User User : allUsers) {
-      if (hasToAddUser(User, followings, followers, includeFollowings, includeFollowers, onyFollowBackFollowers)) {
+    for (User User : this.getAllUsers()) {
+      if (this.hasToAddUser(User, this.getFollowings(), this.getFollowers(), includeFollowings, includeFollowers, onyFollowBackFollowers)) {
         CustomerUser user = new CustomerUser(User);
-        if(userStats.get(User.getId()).isDefined()) {
-          user.setNbRepliesReceived(userStats.get(User.getId()).get().getNbRepliesReceived());
-          user.setNbRepliesGiven(userStats.get(User.getId()).get().getNbRepliesGiven());
-          user.setNbRetweetsReceived(userStats.get(User.getId()).get().getNbRetweetsReceived());
-          user.setNbLikesGiven(userStats.get(User.getId()).get().getNbLikesGiven());
-          user.setNbRetweetsGiven(userStats.get(User.getId()).get().getNbRetweetsGiven());
-          user.setNbTweetsWithin7Days(this.apiSearchHelper.getNbTweetsWithin7Days(user));
-          user.setMedianInteractionScore(this.apiSearchHelper.getMedianInteractionScore(user));
+        if (userStats.get(User.getId()).isDefined()) {
+          user.setUserStats(userStats.get(User.getId()).get());
+          user.getUserStats().setNbRecentTweets(this.getApiSearchHelper().getNbTweetsWithin7Days(user));
+          user.getUserStats().setMedianInteractionScore(1000 * this.getApiSearchHelper().getMedianInteractionScore(user) / user.getFollowersCount());
         }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {
-          this.ioHelper.addUserLine(usersToWrite);
+          this.getIoHelper().addUserLine(usersToWrite);
           usersToWrite = new ArrayList<>();
           LOGGER.info("adding " + nbUsersToAdd + " users ...");
           try {
@@ -88,81 +59,58 @@ public class PersonalAnalyzerBot {
         }
       }
     }
-    this.ioHelper.addUserLine(usersToWrite);
-    LOGGER.info("finish with success : " + allUsers.length() + " users added");
+    this.getIoHelper().addUserLine(usersToWrite);
+    LOGGER.info("finish with success : " + this.getAllUsers().length() + " users added");
+    // @todo
+
+    return new ArrayList<>();
   }
 
-  private boolean hasToAddUser(User user, List<User> followings, List<User> followers,
-                               boolean showFollowings, boolean showFollowers, boolean onyFollowBackUsers) {
-    // case 0 : only follow back users
-    if (onyFollowBackUsers && followings.contains(user) && !followers.contains(user)) {
-      return false;
-    }
-    // case 1 : show all the people i'm following and all the users following me
-    if (!showFollowers && !showFollowings) {
-      return true;
-    }
-    // case 2 : show all the people I'm following who are following me back
-    else if (showFollowers && showFollowings && onyFollowBackUsers) {
-      return (followings.contains(user) && followers.contains(user));
-    }
-    // case 3 : show all the people i'm following or all the people who are following me
-    else {
-      return ((followings.contains(user) && showFollowings) || followers.contains(user) && showFollowers);
-    }
+  @Override
+  protected Map<String, UserInteraction> countLikesGiven() {
+    return this.getApiSearchHelper().countGivenLikesOnStatuses();
   }
 
-  private Map<String, UserStats> getUserStatsMap() {
-    Map<String, UserInteraction> givenInteractions = this.getGivenInteractions();
-    Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
-    return this.mapsToUserInteractions(givenInteractions,receivedInteractions);
+  @Override
+  protected Map<String, UserInteraction> countRepliesGiven() {
+    return this.getDataArchiveHelper().countRepliesGiven()
+               .merge(this.getApiSearchHelper().countRecentRepliesGiven(mostRecentTweetDate), UserInteraction::merge);
   }
 
-  private Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
-      TweetInteraction> receivedInteractions){
-    LOGGER.info("mapsToUserIntereactions...");
-    Map<String, UserStats> userStatsFromGiven = HashMap.ofEntries(givenInteractions.toStream()
-                                                                                   .groupBy(Tuple2::_1)
-                                                                                   .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));
-
-    Map<String, UserStats> usersStatsFromReceived = receivedInteractions.map(Tuple2::_2)
-                                                                        .map(TweetInteraction::toUserStatsMap)
-                                                                        .foldLeft(HashMap.<String, UserStats>empty(),
-                                                                                  (firstMap, secondMap) -> firstMap.merge(secondMap,
-                                                                                                                          UserStats::merge));
-    return userStatsFromGiven.merge(usersStatsFromReceived, UserStats::merge);
+  @Override
+  protected Map<String, UserInteraction> countQuotesGiven() {
+    return this.getDataArchiveHelper().countQuotesGiven()
+               .merge(this.getApiSearchHelper().countRecentQuotesGiven(mostRecentTweetDate), UserInteraction::merge);
   }
 
-  private Tuple2<String, UserStats> buildTupleFromUserInteractions(String userId,
-                                                                   Stream<Tuple2<String, UserInteraction>> userInteractions){
-    return Tuple.of(userId,
-                    userInteractions.foldLeft(new UserStats(),
-                                              (userStats, userInteraction) ->
-                                                  userStats.addRepliesGiven(userInteraction._2().getAnswersIds().size())
-                                                           .addRetweetsGiven(userInteraction._2().getRetweetsIds().size())
-                                                           .addLikesGiven(userInteraction._2().getLikesIds().size())));
+  @Override
+  protected Map<String, UserInteraction> countRetweetsGiven() {
+    return this.getDataArchiveHelper().countRetweetsGiven()
+               .merge(this.getApiSearchHelper().countRecentRetweetsGiven(mostRecentTweetDate), UserInteraction::merge);
   }
 
-
-  private Map<String, TweetInteraction> getReceivedInteractions() {
-    LocalDateTime mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
-    return dataArchiveHelper.countRetweetsReceived()
-                            .merge(apiSearchHelper.countRepliesReceived(true),TweetInteraction::merge)
-                            .merge(apiSearchHelper.countRepliesReceived(false),TweetInteraction::merge)
-                            .merge(apiSearchHelper.countQuotesReceived(true), TweetInteraction::merge)
-                            .merge(apiSearchHelper.countQuotesReceived(false), TweetInteraction::merge)
-                            .merge(apiSearchHelper.countRecentRetweetsReceived(mostRecentTweetDate), TweetInteraction::merge);
+  @Override
+  protected Map<String, TweetInteraction> countLikesReceived() {
+    LOGGER.error("not implemented");
+    return HashMap.empty();
   }
 
-  private Map<String, UserInteraction> getGivenInteractions(){
-    LocalDateTime mostRecentTweetDate = dataArchiveHelper.filterTweetsByRetweet(false).get(0).getCreatedAt();
-    return dataArchiveHelper.countRetweetsGiven()
-                            .merge(dataArchiveHelper.countQuotesGiven(), UserInteraction::merge)
-                            .merge(dataArchiveHelper.countRepliesGiven(), UserInteraction::merge)
-                            .merge(apiSearchHelper.countGivenLikesOnStatuses(),UserInteraction::merge)
-                            .merge(apiSearchHelper.countRecentRepliesGiven(mostRecentTweetDate),UserInteraction::merge)
-                            .merge(apiSearchHelper.countRecentQuotesGiven(mostRecentTweetDate), UserInteraction::merge)
-                            .merge(apiSearchHelper.countRecentRetweetsGiven(mostRecentTweetDate),UserInteraction::merge);
+  @Override
+  protected Map<String, TweetInteraction> countRepliesReceived() {
+    return getApiSearchHelper().countRepliesReceived(true)
+                               .merge(getApiSearchHelper().countRepliesReceived(false), TweetInteraction::merge);
+  }
+
+  @Override
+  protected Map<String, TweetInteraction> countQuotesReceived() {
+    return this.getApiSearchHelper().countQuotesReceived(true)
+               .merge(this.getApiSearchHelper().countQuotesReceived(false), TweetInteraction::merge);
+  }
+
+  @Override
+  protected Map<String, TweetInteraction> countRetweetsReceived() {
+    return this.getDataArchiveHelper().countRetweetsReceived()
+               .merge(this.getApiSearchHelper().countRecentRetweetsReceived(mostRecentTweetDate), TweetInteraction::merge);
   }
 
   @SneakyThrows
@@ -180,13 +128,14 @@ public class PersonalAnalyzerBot {
     LOGGER.info(nbUnfollows + " users unfollowed with success !");
   }
 
-  public String[] getUsersFromJson(URL fileUrl){
-    if(fileUrl==null){
+  public String[] getUsersFromJson(URL fileUrl) {
+    if (fileUrl == null) {
       LOGGER.error("file not found in src/main/resources");
       return new String[]{};
     }
     try {
-      return TwitterClient.OBJECT_MAPPER.readValue(fileUrl, new TypeReference<java.util.Map<String,String[]>>() {}).get("users");
+      return TwitterClient.OBJECT_MAPPER.readValue(fileUrl, new TypeReference<java.util.Map<String, String[]>>() {
+      }).get("users");
     } catch (IOException e) {
       LOGGER.error(e.getMessage());
       return new String[]{};

@@ -12,16 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CustomerUser extends UserV1 {
 
-  private int  nbRetweetsReceived;
-  private int  nbRepliesGiven;
-  private int  nbRepliesReceived;
-  private int  nbLikesGiven;
-  private int  nbRetweetsGiven;
+  private UserStats     userStats;
   private LocalDateTime dateOfFollow;
   private LocalDateTime dateOfFollowBack;
-  private int  commonFollowers;
-  private int nbTweetsWithin7Days;
-  private int medianInteractionScore;
+  private int           commonFollowers;
 
   public CustomerUser(User u) {
     super(u.getId(), u.getName(), null, u.getDescription(),

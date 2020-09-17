@@ -12,27 +12,27 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Slf4j
-public class GoogleSheetHelper implements IOHelper{
+public class GoogleSheetHelper implements IOHelper {
 
-  private Sheets               sheetsService;
-  private String               sheetId;
-  private String               tabName;
+  private Sheets sheetsService;
+  private String sheetId;
+  private String tabName;
 
   public GoogleSheetHelper() throws IOException {
     URL googleCredentialsUrl = GoogleCredentials.class.getClassLoader().getResource("google-credentials.json");
-    if(googleCredentialsUrl==null){
+    if (googleCredentialsUrl == null) {
       LOGGER.error("google-credentials.json file not found in src/main/resources");
       return;
     }
     GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.readValue(googleCredentialsUrl, GoogleCredentials.class);
 
-    this.sheetId            = googleCredentials.getSheetId();
-    this.tabName            = googleCredentials.getTabName();
+    this.sheetId = googleCredentials.getSheetId();
+    this.tabName = googleCredentials.getTabName();
 
     try {
       this.sheetsService = SheetsServiceUtil.getSheetsService();
@@ -49,18 +49,18 @@ public class GoogleSheetHelper implements IOHelper{
                                user.getFollowersCount(),
                                user.getFollowingCount(),
                                user.getTweetCount(),
-                               user.getNbTweetsWithin7Days(),
-                               user.getMedianInteractionScore(), // @todo to change
+                               user.getUserStats().getNbRecentTweets(),
+                               user.getUserStats().getMedianInteractionScore(), // @todo to change
                                user.getDescription().
                                    replace("\"", " ")
                                    .replace(";", " ")
                                    .replace("\n", " "),
                                Optional.ofNullable(user.getLocation()).orElse(""),
-                               user.getNbRepliesReceived(),
-                               user.getNbRetweetsReceived(),
-                               user.getNbRepliesGiven(),
-                               user.getNbRetweetsGiven(),
-                               user.getNbLikesGiven(),
+                               user.getUserStats().getNbRepliesReceived(),
+                               user.getUserStats().getNbRetweetsReceived(),
+                               user.getUserStats().getNbRepliesGiven(),
+                               user.getUserStats().getNbRetweetsGiven(),
+                               user.getUserStats().getNbLikesGiven(),
                                user.isFollowing()));
     }
     ValueRange body = new ValueRange()
@@ -82,22 +82,22 @@ public class GoogleSheetHelper implements IOHelper{
     }
   }
 
-  public String vlookup(String userName, int col){
+  public String vlookup(String userName, int col) {
     List<Object> userData = getUserData(userName);
-    if(userData.size()>=col){
+    if (userData.size() >= col) {
       return String.valueOf(userData.get(col));
     }
     return null;
   }
 
-  public List<Object> getUserData(String userName){
+  public List<Object> getUserData(String userName) {
     int userNameCol = 1;
     try {
       Sheets.Spreadsheets.Values.Get request =
           sheetsService.spreadsheets().values().get(this.sheetId, this.tabName);
       ValueRange response = request.execute();
-      for(List<Object> lines : response.getValues()){
-        if(lines.get(userNameCol).equals(userName)){
+      for (List<Object> lines : response.getValues()) {
+        if (lines.get(userNameCol).equals(userName)) {
           return lines;
         }
       }

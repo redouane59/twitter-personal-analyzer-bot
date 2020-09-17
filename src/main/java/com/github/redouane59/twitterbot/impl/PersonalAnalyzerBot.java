@@ -32,6 +32,7 @@ public class PersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
     super(userName, twitterCredentials);
   }
 
+  // @todo to remove
   public List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers) {
     Map<String, UserStats> userStats = this.getUserStatsMap();
 
@@ -66,7 +67,7 @@ public class PersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
   }
 
   @Override
-  protected Map<String, UserInteraction> countGivenLikes() {
+  protected Map<String, UserInteraction> countLikesGiven() {
     return this.getApiSearchHelper().countGivenLikesOnStatuses();
   }
 
@@ -111,7 +112,6 @@ public class PersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
     return this.getDataArchiveHelper().countRetweetsReceived()
                .merge(this.getApiSearchHelper().countRecentRetweetsReceived(mostRecentTweetDate), TweetInteraction::merge);
   }
-
 
   @SneakyThrows
   public void unfollow(String[] toUnfollow, String[] whiteList) {

@@ -60,15 +60,30 @@ public abstract class AbstractPersonalAnalyzerBot {
     this.apiSearchHelper = new ApiSearchHelper(userName);
   }
 
-  public abstract List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers);
+  /**
+   * Run the main method in order to get the final user ranking
+   */
+  public List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers) {
+    this.includeFollowings      = includeFollowers;
+    this.includeFollowings      = includeFollowings;
+    this.onyFollowBackFollowers = onyFollowBackFollowers;
+    Map<String, UserStats> userStats = this.getUserStatsMap();
+    return this.mapUserStatsToUserRanking(userStats);
+  }
 
+  /**
+   * Run the main method in order to get the final user ranking
+   */
   public List<RankedUser> launch() {
-    this.setIncludeFollowers(true);
+    this.setIncludeFollowers(false);
     this.setIncludeFollowings(true);
     this.setOnyFollowBackFollowers(true);
     return this.launch(true, true, true);
   }
 
+  /*
+   * Transform a map of String,UserStats to a List of RankedUser
+   */
   public List<RankedUser> mapUserStatsToUserRanking(Map<String, UserStats> userStats) {
     List<RankedUser> rankedUsers = new ArrayList<>();
     for (User rawUser : this.getAllUsers()) {
@@ -86,26 +101,29 @@ public abstract class AbstractPersonalAnalyzerBot {
     }
     Collections.sort(rankedUsers);
 
-    for (RankedUser ru : rankedUsers) {
-      System.out.println(ru);
-    }
     return rankedUsers;
   }
 
+  /**
+   * Generate a map of String (userId) and UserStats watching given and received interactions
+   */
   public Map<String, UserStats> getUserStatsMap() {
     Map<String, UserInteraction>  givenInteractions    = this.getGivenInteractions();
     Map<String, TweetInteraction> receivedInteractions = this.getReceivedInteractions();
     return this.mapsToUserInteractions(givenInteractions, receivedInteractions);
   }
 
+  /**
+   * Generate a map of String (userId) and UserInteraction watching replies, quotes, retweets and likes given
+   */
   public Map<String, UserInteraction> getGivenInteractions() {
     return this.countRetweetsGiven()
                .merge(this.countQuotesGiven(), UserInteraction::merge)
                .merge(this.countRepliesGiven(), UserInteraction::merge)
-               .merge(this.countGivenLikes(), UserInteraction::merge);
+               .merge(this.countLikesGiven(), UserInteraction::merge);
   }
 
-  protected abstract Map<String, UserInteraction> countGivenLikes();
+  protected abstract Map<String, UserInteraction> countLikesGiven();
 
   protected abstract Map<String, UserInteraction> countRepliesGiven();
 
@@ -113,6 +131,9 @@ public abstract class AbstractPersonalAnalyzerBot {
 
   protected abstract Map<String, UserInteraction> countRetweetsGiven();
 
+  /**
+   * Generate a map of String (tweetId) and TweetInteraction watching replies, quotes, retweets and likes received
+   */
   public Map<String, TweetInteraction> getReceivedInteractions() {
     return this.countRetweetsReceived()
                .merge(this.countQuotesReceived(), TweetInteraction::merge)
@@ -128,9 +149,12 @@ public abstract class AbstractPersonalAnalyzerBot {
 
   protected abstract Map<String, TweetInteraction> countRetweetsReceived();
 
+  /**
+   * Generate a Map of String (userId) and Userstats merging given and receive Interactions maps
+   */
   public Map<String, UserStats> mapsToUserInteractions(Map<String, UserInteraction> givenInteractions, Map<String,
       TweetInteraction> receivedInteractions) {
-    LOGGER.info("mapsToUserIntereactions...");
+    LOGGER.info("merging given and received interactions...");
     Map<String, UserStats> userStatsFromGiven = HashMap.ofEntries(givenInteractions.toStream()
                                                                                    .groupBy(Tuple2::_1)
                                                                                    .map(ui -> buildTupleFromUserInteractions(ui._1(), ui._2())));

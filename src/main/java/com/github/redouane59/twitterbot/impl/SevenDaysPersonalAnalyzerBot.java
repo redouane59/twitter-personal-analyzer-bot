@@ -6,7 +6,6 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -18,18 +17,12 @@ public class SevenDaysPersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
 
   private final LocalDateTime initDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS);
 
-
   public SevenDaysPersonalAnalyzerBot(final String userName, TwitterCredentials twitterCredentials) {
     super(userName, twitterCredentials);
   }
 
-  public List<RankedUser> launch(boolean includeFollowers, boolean includeFollowings, boolean onyFollowBackFollowers) {
-    Map<String, UserStats> userStats = this.getUserStatsMap();
-    return this.mapUserStatsToUserRanking(userStats);
-  }
-
   @Override
-  protected Map<String, UserInteraction> countGivenLikes() {
+  protected Map<String, UserInteraction> countLikesGiven() {
     // @todo impossible ot to have 7 days likes
     return this.getApiSearchHelper().countGivenLikesOnStatuses();
   }

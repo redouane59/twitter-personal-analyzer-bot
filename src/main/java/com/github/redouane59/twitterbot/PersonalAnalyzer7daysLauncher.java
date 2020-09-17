@@ -20,9 +20,13 @@ public class PersonalAnalyzer7daysLauncher {
     if (args.length < 1) {
       LOGGER.error("missing arguments");
     } else {
-      String                       userName = args[0];
+      String                       userName = "atmon3r";//args[0];
       SevenDaysPersonalAnalyzerBot bot      = new SevenDaysPersonalAnalyzerBot(userName, twitterCredentials);
-      List<RankedUser>             result   = bot.launch();
+      List<RankedUser>             result   = bot.launch().subList(0, 10);
+
+      for (RankedUser ru : result) {
+        System.out.println(ru);
+      }
     }
   }
 

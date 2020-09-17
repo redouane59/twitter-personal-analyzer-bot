@@ -44,18 +44,23 @@ public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
     return Math.min(this.getUserStats().getNbRetweetsReceived(), 5);
   }
 
-  public double getRepliesGivenGrade() {
-    return Math.min(this.getUserStats().getNbRepliesGiven(), 5);
+  public double getLikesReceivedGrade() {
+    return Math.min(this.getUserStats().getNbLikesReceived() / (double) 2, 5);
   }
 
-  public double getLikesGivenGrade() {
-    return Math.min(this.getUserStats().getNbLikesGiven() / (double) 2, 5);
+  public double getRepliesGivenGrade() {
+    return Math.min(this.getUserStats().getNbRepliesGiven(), 5);
   }
 
   public double getRetweetsGivenGrade() {
     return Math.min(this.getUserStats().getNbRetweetsGiven(), 5);
   }
 
+  public double getLikesGivenGrade() {
+    return Math.min(this.getUserStats().getNbLikesGiven() / (double) 2, 5);
+  }
+
+  // 1/3 for profile and 2/3 for interactions
   public double getGrade() {
     return this.getProfileGrade() + 2 * this.getInteractionGrade();
   }
@@ -68,8 +73,9 @@ public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
     return (this.getRepliesGivenGrade() + this.getLikesGivenGrade() + getRetweetsGivenGrade()) / (double) 3;
   }
 
+  // should be divided by 3 once the likes received can be counted
   public double getReceivedInteractionsGrade() {
-    return (this.getRepliesReceivedGrade() + this.getRetweetsReceivedGrade()) / (double) 2;
+    return (this.getRepliesReceivedGrade() + this.getRetweetsReceivedGrade() + this.getLikesReceivedGrade()) / (double) 2;
   }
 
   public double getProfileGrade() {
@@ -82,8 +88,8 @@ public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
            + "@"
            + this.getName()
            + " : "
-           + df.format(this.getGrade())
-           + "/10\n"
+           + df.format(1.35 * this.getGrade())
+           + "/20\n"
            + "- Profile grade : "
            + df.format(this.getProfileGrade())
            + "\n"
@@ -115,9 +121,11 @@ public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
            + " ("
            + df.format(this.getRetweetsReceivedGrade())
            + "/5)\n"
-           + "     Likes received : "
+           + "     Likes received (KO) : "
            + this.getUserStats().getNbLikesReceived()
-           + " (0/5)\n"
+           + " ("
+           + df.format(this.getLikesReceivedGrade())
+           + "/5)\n"
            + "     Replies given : "
            + this.getUserStats().getNbRepliesGiven()
            + " ("

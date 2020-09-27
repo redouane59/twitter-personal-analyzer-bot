@@ -13,11 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Setter
 @Slf4j
-public class SevenDaysPersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
+public class PersonalAnalyzerBot7days extends AbstractPersonalAnalyzerBot {
 
   private final LocalDateTime initDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS);
 
-  public SevenDaysPersonalAnalyzerBot(final String userName, TwitterCredentials twitterCredentials) {
+  public PersonalAnalyzerBot7days(final String userName, TwitterCredentials twitterCredentials) {
     super(userName, twitterCredentials);
   }
 

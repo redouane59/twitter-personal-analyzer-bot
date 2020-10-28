@@ -1,4 +1,4 @@
-# twitter-personal-analyzer-bot
+# twitter-personal-analyzer-bot (dev in progress...)
 Analyze your interactions.
 
 ## Set up

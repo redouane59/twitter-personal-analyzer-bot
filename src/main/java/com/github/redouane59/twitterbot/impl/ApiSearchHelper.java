@@ -88,25 +88,26 @@ public class ApiSearchHelper extends AbstractSearchHelper {
 
   public Map<String, UserInteraction> countRepliesGiven(boolean currentWeek) {
     LOGGER.info("\nCounting recent replies given (API)...");
-    String query = "from:" + this.getUserName() + " has:mentions -is:retweet";
 
-    Stream<Tweet> givenReplies;
+    List<Tweet> givenReplies;
     if (currentWeek) {
-      givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query));
+      String query = "from:" + this.getUserName() + " has:mentions -is:retweet";
+      givenReplies = this.getTwitterClient().searchForTweetsWithin7days(query);
     } else {
+      String        query    = "from:" + this.getUserName() + " has:mentions";
       LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
       LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
-      givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
+      givenReplies = this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME);
     }
-    return givenReplies
-        .filter(tweet -> tweet.getInReplyToUserId() != null)
-        .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
-        .filter(tweet -> !this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
-        .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
-        .map(tweet -> this.getInitialTweet(tweet))
-        .filter(tweet -> tweet.getAuthorId() != null)
-        .groupBy(Tweet::getAuthorId)
-        .map(this::getTupleAnswerGiven);
+    return Stream.ofAll(givenReplies)
+                 .filter(tweet -> tweet.getInReplyToUserId() != null)
+                 .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
+                 .filter(tweet -> !this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
+                 .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
+                 .map(tweet -> this.getInitialTweet(tweet))
+                 .filter(tweet -> tweet.getAuthorId() != null)
+                 .groupBy(Tweet::getAuthorId)
+                 .map(this::getTupleAnswerGiven);
   }
 
 

@@ -67,48 +67,48 @@ public class PersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
   }
 
   @Override
-  protected Map<String, UserInteraction> countLikesGiven() {
+  public Map<String, UserInteraction> countLikesGiven() {
     return this.getApiSearchHelper().countGivenLikesOnStatuses();
   }
 
   @Override
-  protected Map<String, UserInteraction> countRepliesGiven() {
+  public Map<String, UserInteraction> countRepliesGiven() {
     return this.getDataArchiveHelper().countRepliesGiven()
                .merge(this.getApiSearchHelper().countRecentRepliesGiven(mostRecentTweetDate), UserInteraction::merge);
   }
 
   @Override
-  protected Map<String, UserInteraction> countQuotesGiven() {
+  public Map<String, UserInteraction> countQuotesGiven() {
     return this.getDataArchiveHelper().countQuotesGiven()
                .merge(this.getApiSearchHelper().countRecentQuotesGiven(mostRecentTweetDate), UserInteraction::merge);
   }
 
   @Override
-  protected Map<String, UserInteraction> countRetweetsGiven() {
+  public Map<String, UserInteraction> countRetweetsGiven() {
     return this.getDataArchiveHelper().countRetweetsGiven()
                .merge(this.getApiSearchHelper().countRecentRetweetsGiven(mostRecentTweetDate), UserInteraction::merge);
   }
 
   @Override
-  protected Map<String, TweetInteraction> countLikesReceived() {
+  public Map<String, TweetInteraction> countLikesReceived() {
     LOGGER.error("not implemented");
     return HashMap.empty();
   }
 
   @Override
-  protected Map<String, TweetInteraction> countRepliesReceived() {
+  public Map<String, TweetInteraction> countRepliesReceived() {
     return getApiSearchHelper().countRepliesReceived(true)
                                .merge(getApiSearchHelper().countRepliesReceived(false), TweetInteraction::merge);
   }
 
   @Override
-  protected Map<String, TweetInteraction> countQuotesReceived() {
+  public Map<String, TweetInteraction> countQuotesReceived() {
     return this.getApiSearchHelper().countQuotesReceived(true)
                .merge(this.getApiSearchHelper().countQuotesReceived(false), TweetInteraction::merge);
   }
 
   @Override
-  protected Map<String, TweetInteraction> countRetweetsReceived() {
+  public Map<String, TweetInteraction> countRetweetsReceived() {
     return this.getDataArchiveHelper().countRetweetsReceived()
                .merge(this.getApiSearchHelper().countRecentRetweetsReceived(mostRecentTweetDate), TweetInteraction::merge);
   }

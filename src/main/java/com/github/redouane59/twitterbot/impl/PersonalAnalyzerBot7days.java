@@ -22,46 +22,46 @@ public class PersonalAnalyzerBot7days extends AbstractPersonalAnalyzerBot {
   }
 
   @Override
-  protected Map<String, UserInteraction> countLikesGiven() {
+  public Map<String, UserInteraction> countLikesGiven() {
     // @todo impossible ot to have 7 days likes
     return this.getApiSearchHelper().countGivenLikesOnStatuses();
   }
 
   @Override
-  protected Map<String, UserInteraction> countRepliesGiven() {
+  public Map<String, UserInteraction> countRepliesGiven() {
     return this.getApiSearchHelper().countRecentRepliesGiven(initDate);
   }
 
   @Override
-  protected Map<String, UserInteraction> countQuotesGiven() {
+  public Map<String, UserInteraction> countQuotesGiven() {
     return this.getApiSearchHelper().countRecentQuotesGiven(initDate);
   }
 
   //@todo quotes not working ?
   @Override
-  protected Map<String, UserInteraction> countRetweetsGiven() {
+  public Map<String, UserInteraction> countRetweetsGiven() {
     return this.getApiSearchHelper().countRecentRetweetsGiven(initDate);
   }
 
   @Override
-  protected Map<String, TweetInteraction> countLikesReceived() {
+  public Map<String, TweetInteraction> countLikesReceived() {
     LOGGER.error("not implemented");
     return HashMap.empty();
   }
 
   @Override
-  protected Map<String, TweetInteraction> countRepliesReceived() {
+  public Map<String, TweetInteraction> countRepliesReceived() {
     Map<String, TweetInteraction> result = getApiSearchHelper().countRepliesReceived(true);
     return result;
   }
 
   @Override
-  protected Map<String, TweetInteraction> countQuotesReceived() {
+  public Map<String, TweetInteraction> countQuotesReceived() {
     return this.getApiSearchHelper().countQuotesReceived(true);
   }
 
   @Override
-  protected Map<String, TweetInteraction> countRetweetsReceived() {
+  public Map<String, TweetInteraction> countRetweetsReceived() {
     Map<String, TweetInteraction> result = this.getApiSearchHelper().countRecentRetweetsReceived(initDate);
     return result;
   }

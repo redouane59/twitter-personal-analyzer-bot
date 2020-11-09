@@ -37,7 +37,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     }
     Stream<Tweet> givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
     return givenReplies
-        .filter(tweet -> tweet.getInReplyToUserId() == null)
+        .filter(tweet -> this.getInReplyToUserId(tweet) == null)
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
         .groupBy(tweet -> tweet.getInReplyToStatusId())
@@ -56,10 +56,10 @@ public class ApiSearchHelper extends AbstractSearchHelper {
       retweetsReceived = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
     }
     return retweetsReceived
-        .filter(tweet -> tweet.getInReplyToUserId() == null)
+        .filter(tweet -> this.getInReplyToUserId(tweet) == null)
         .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
-        .groupBy(tweet -> tweet.getInReplyToStatusId())
+        .groupBy(tweet -> this.getInReplyToStatusId(tweet))
         .map(this::getTupleRetweetReceived);
   }
 
@@ -76,8 +76,8 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     }
     Stream<Tweet> givenReplies = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
     return givenReplies
-        .filter(tweet -> tweet.getInReplyToUserId() != null)
-        .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
+        .filter(tweet -> this.getInReplyToUserId(tweet) != null)
+        .filter(tweet -> this.isUserInList(this.getInReplyToUserId(tweet)))
         .filter(tweet -> !this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
         .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
         .map(tweet -> this.getInitialTweet(tweet))
@@ -100,8 +100,8 @@ public class ApiSearchHelper extends AbstractSearchHelper {
       givenReplies = this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME);
     }
     return Stream.ofAll(givenReplies)
-                 .filter(tweet -> tweet.getInReplyToUserId() != null)
-                 .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
+                 .filter(tweet -> this.getInReplyToUserId(tweet) != null)
+                 .filter(tweet -> this.isUserInList(this.getInReplyToUserId(tweet)))
                  .filter(tweet -> !this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
                  .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
                  .map(tweet -> this.getInitialTweet(tweet))
@@ -128,23 +128,49 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetGiven);
   }
 
+  // @todo not working for 30 days
   public Map<String, UserInteraction> countRecentRetweetsGiven(boolean currentWeek) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
-    String        query = "from:" + this.getUserName() + " is:retweet";
+    String        query = "from:" + this.getUserName();
     Stream<Tweet> givenRetweets;
     if (currentWeek) {
+      query += " is:retweet";
       givenRetweets = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query));
     } else {
+      query += " RT";
       LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
       LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
       givenRetweets = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
     }
     return givenRetweets
-        .filter(tweet -> tweet.getInReplyToStatusId(TweetType.RETWEETED) != null)
+        //.filter(tweet -> tweet.getInReplyToStatusId(TweetType.RETWEETED) != null)
+        .filter(tweet -> this.getInReplyToStatusId(tweet) != null)
         .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
-        .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId()))
-        .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId())
+        .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(this.getInReplyToStatusId(tweet)).getAuthorId()))
+        .groupBy(tweet -> this.getTwitterClient().getTweet(this.getInReplyToStatusId(tweet)).getAuthorId())
         .map(this::getTupleRetweetGiven);
+  }
+
+  // to manage the case when the data is missing in search endpoint response
+  private String getInReplyToStatusId(Tweet tweet) {
+    String replyId = tweet.getInReplyToStatusId(TweetType.RETWEETED);
+    if (replyId != null) {
+      return replyId;
+    } else {
+      Tweet fullTweet = this.getTwitterClient().getTweet(tweet.getId());
+      return fullTweet.getInReplyToStatusId(TweetType.RETWEETED);
+    }
+  }
+
+  // to manage the case when the data is missing in search endpoint response
+  private String getInReplyToUserId(Tweet tweet) {
+    String replyId = tweet.getInReplyToUserId();
+    if (replyId != null) {
+      return replyId;
+    } else {
+      Tweet fullTweet = this.getTwitterClient().getTweet(tweet.getId());
+      return fullTweet.getInReplyToUserId();
+    }
   }
 
   @Deprecated

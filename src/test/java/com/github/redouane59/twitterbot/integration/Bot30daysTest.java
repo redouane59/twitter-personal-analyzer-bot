@@ -6,6 +6,7 @@ import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
 import com.github.redouane59.twitterbot.impl.PersonalAnalyzerBot30days;
+import com.github.redouane59.twitterbot.impl.TweetInteraction;
 import com.github.redouane59.twitterbot.impl.UserInteraction;
 import io.vavr.collection.Map;
 import java.io.File;
@@ -34,8 +35,26 @@ public class Bot30daysTest {
   }
 
   @Test
-  public void test1() {
-    Map<String, UserInteraction> result = bot.countRepliesGiven();
-    assertTrue(result.size() > 0);
+  public void testCountRetweetsGivenMonth() {
+    Map<String, UserInteraction> monthlyTweets = bot.getApiSearchHelper().countRecentRetweetsGiven(false);
+    assertTrue(monthlyTweets.size() > 0);
+  }
+
+  @Test
+  public void testCountRetweetsReceivedMonth() {
+    Map<String, TweetInteraction> monthlyTweets = bot.getApiSearchHelper().countRecentRetweetsReceived(false);
+    assertTrue(monthlyTweets.size() > 0);
+  }
+
+  @Test
+  public void testCountRepliesGivenMonth() {
+    Map<String, UserInteraction> monthlyTweets = bot.getApiSearchHelper().countRepliesGiven(false);
+    assertTrue(monthlyTweets.size() > 0);
+  }
+
+  @Test
+  public void testCountRepliesReceivedMonth() {
+    Map<String, TweetInteraction> monthlyTweets = bot.getApiSearchHelper().countRepliesReceived(false);
+    assertTrue(monthlyTweets.size() > 0);
   }
 }

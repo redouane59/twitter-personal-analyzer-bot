@@ -1,6 +1,7 @@
 package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.dto.tweet.Tweet;
+import com.github.redouane59.twitter.dto.tweet.TweetSearchResponse;
 import com.github.redouane59.twitter.dto.tweet.TweetType;
 import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.helpers.ConverterHelper;
@@ -20,10 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApiSearchHelper extends AbstractSearchHelper {
 
+  public static final String ENV_NAME = "30days";
+
   public ApiSearchHelper(String userName) {
     super(userName);
   }
 
+  @Deprecated
   public Map<String, TweetInteraction> countRecentRetweetsReceived(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting recent retweets received (API)...");
     String                               query = "retweets_of:" + this.getUserName();
@@ -40,6 +44,29 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetReceived);
   }
 
+  public Map<String, TweetInteraction> countRecentRetweetsReceived(boolean currentWeek) {
+    LOGGER.info("\nCounting recent retweets received (API)...");
+    String        query = "retweets_of:" + this.getUserName();
+    Stream<Tweet> retweetsReceived;
+    if (currentWeek) {
+      retweetsReceived = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query));
+    } else {
+      LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
+      LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
+      retweetsReceived = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
+    }
+    return retweetsReceived
+        .filter(tweet -> tweet.getInReplyToUserId() == null)
+        .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+        .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
+        .groupBy(tweet -> tweet.getInReplyToStatusId())
+        .map(this::getTupleRetweetReceived);
+  }
+
+  /**
+   * Use countRepliesGiven instead
+   */
+  @Deprecated
   public Map<String, UserInteraction> countRecentRepliesGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting recent replies given (API)...");
     String                               query = "from:" + this.getUserName() + " has:mentions -is:retweet";
@@ -59,7 +86,32 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleAnswerGiven);
   }
 
+  public Map<String, UserInteraction> countRepliesGiven(boolean currentWeek) {
+    LOGGER.info("\nCounting recent replies given (API)...");
 
+    List<Tweet> givenReplies;
+    if (currentWeek) {
+      String query = "from:" + this.getUserName() + " has:mentions -is:retweet";
+      givenReplies = this.getTwitterClient().searchForTweetsWithin7days(query);
+    } else {
+      String        query    = "from:" + this.getUserName() + " has:mentions";
+      LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
+      LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
+      givenReplies = this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME);
+    }
+    return Stream.ofAll(givenReplies)
+                 .filter(tweet -> tweet.getInReplyToUserId() != null)
+                 .filter(tweet -> this.isUserInList(tweet.getInReplyToUserId()))
+                 .filter(tweet -> !this.getUserId().equals(this.getInitialTweet(tweet).getAuthorId()))
+                 .peek(tweet -> LOGGER.info("analyzing API recent reply : " + tweet.getText()))
+                 .map(tweet -> this.getInitialTweet(tweet))
+                 .filter(tweet -> tweet.getAuthorId() != null)
+                 .groupBy(Tweet::getAuthorId)
+                 .map(this::getTupleAnswerGiven);
+  }
+
+
+  @Deprecated
   public Map<String, UserInteraction> countRecentRetweetsGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
     String                               query = "from:" + this.getUserName() + " is:retweet";
@@ -76,6 +128,26 @@ public class ApiSearchHelper extends AbstractSearchHelper {
         .map(this::getTupleRetweetGiven);
   }
 
+  public Map<String, UserInteraction> countRecentRetweetsGiven(boolean currentWeek) {
+    LOGGER.info("\nCounting rercent retweets from user (API)...");
+    String        query = "from:" + this.getUserName() + " is:retweet";
+    Stream<Tweet> givenRetweets;
+    if (currentWeek) {
+      givenRetweets = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query));
+    } else {
+      LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
+      LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
+      givenRetweets = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
+    }
+    return givenRetweets
+        .filter(tweet -> tweet.getInReplyToStatusId(TweetType.RETWEETED) != null)
+        .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
+        .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId()))
+        .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.RETWEETED)).getAuthorId())
+        .map(this::getTupleRetweetGiven);
+  }
+
+  @Deprecated
   public Map<String, UserInteraction> countRecentQuotesGiven(LocalDateTime mostRecentArchiveTweetDate) {
     LOGGER.info("\nCounting rercent retweets from user (API)...");
     String                               query = "from:" + this.getUserName() + " is:quote";
@@ -84,6 +156,26 @@ public class ApiSearchHelper extends AbstractSearchHelper {
       return HashMap.empty();
     }
     Stream<Tweet> givenQuotes = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query, dates._1(), dates._2()));
+    return givenQuotes
+        .filter(tweet -> tweet.getInReplyToStatusId(TweetType.QUOTED) != null)
+        .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
+        .filter(tweet -> this.isUserInList(this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId()))
+        .groupBy(tweet -> this.getTwitterClient().getTweet(tweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId())
+        .map(this::getTupleRetweetGiven);
+  }
+
+  public Map<String, UserInteraction> countQuotesGiven(boolean currentWeek) {
+    LOGGER.info("\nCounting rercent retweets from user (API)...");
+    String query = "from:" + this.getUserName() + " is:quote";
+
+    Stream<Tweet> givenQuotes;
+    if (currentWeek) {
+      givenQuotes = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query));
+    } else {
+      LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
+      LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
+      givenQuotes = Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
+    }
     return givenQuotes
         .filter(tweet -> tweet.getInReplyToStatusId(TweetType.QUOTED) != null)
         .peek(tweet -> LOGGER.info("analyzing API recent retweet : " + tweet.getText()))
@@ -148,18 +240,13 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     } else {
       mentionQuery += " is:quote";
     }
+    String query = "(" + mentionQuery + ")" + "OR (url:" + this.getUserName() + " -is:retweet)";
     if (currentWeek) {
-      LocalDateTime toDate = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.HOURS);
-      return Stream.ofAll(this.getTwitterClient()
-                              .searchForTweetsWithin7days("(" + mentionQuery + ")" + "OR (url:" + this.getUserName() + " -is:retweet)",
-                                                          toDate.minusDays(7).truncatedTo(ChronoUnit.HOURS).plusHours(1),
-                                                          toDate));
+      return Stream.ofAll(this.getTwitterClient().searchForTweetsWithin7days(query));
     } else {
-      LocalDateTime toDate = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
-      return Stream.ofAll(this.getTwitterClient()
-                              .searchForTweetsWithin30days(mentionQuery,
-                                                           toDate.minusDays(7).truncatedTo(ChronoUnit.HOURS).plusHours(1),
-                                                           toDate, "30days"));
+      LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
+      LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
+      return Stream.ofAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
     }
   }
 
@@ -169,7 +256,7 @@ public class ApiSearchHelper extends AbstractSearchHelper {
    * @return a map with userId as String and UsereInteraction as value
    */
   public Map<String, UserInteraction> countGivenLikesOnStatuses() {
-    LOGGER.info("\nCounting given likes excluding answers...");
+    LOGGER.info("\nCounting given likes on statuses...");
 
     Stream<Tweet> likedTweets = Stream.ofAll(this.getTwitterClient().getFavorites(this.getUserId(), 5000));
     return likedTweets
@@ -231,6 +318,29 @@ public class ApiSearchHelper extends AbstractSearchHelper {
     double result = scores.stream().sorted()
                           .skip((size - 1) / 2).limit(2 - size % 2).mapToInt(x -> x).average().orElse(0.0);
     return (int) result;
+  }
+
+  // From timelines
+
+  public Map<String, UserInteraction> countRepliesGivenFromTimeline(LocalDateTime limitDate) {
+
+    String              query               = "from:" + this.getUserName();
+    TweetSearchResponse tweetSearchResponse = this.getTwitterClient().searchForTweetsWithin7days(query, 100, null);
+    List<Tweet>         result              = new ArrayList<>(tweetSearchResponse.getTweets());
+    Tweet               oldestTweet         = result.get(result.size() - 1);
+    while (oldestTweet.getCreatedAt().isAfter(limitDate) && tweetSearchResponse.getNextToken() != null) {
+      tweetSearchResponse = this.getTwitterClient().searchForTweetsWithin7days(query, 100, tweetSearchResponse.getNextToken());
+      result.addAll(tweetSearchResponse.getTweets());
+      oldestTweet = result.get(result.size() - 1);
+    }
+
+    Stream<Tweet> givenReplies = Stream.ofAll(result);
+    return givenReplies
+        .filter(tweet -> tweet.getInReplyToStatusId() != null)
+        .filter(tweet -> tweet.getCreatedAt().isAfter(limitDate))
+        .map(tweet -> this.getTwitterClient().getTweet(tweet.getConversationId()))
+        .groupBy(Tweet::getAuthorId)
+        .map(this::getTupleAnswerGiven);
   }
 
 }

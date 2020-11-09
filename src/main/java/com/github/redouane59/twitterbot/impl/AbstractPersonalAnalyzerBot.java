@@ -123,13 +123,13 @@ public abstract class AbstractPersonalAnalyzerBot {
                .merge(this.countLikesGiven(), UserInteraction::merge);
   }
 
-  protected abstract Map<String, UserInteraction> countLikesGiven();
+  public abstract Map<String, UserInteraction> countLikesGiven();
 
-  protected abstract Map<String, UserInteraction> countRepliesGiven();
+  public abstract Map<String, UserInteraction> countRepliesGiven();
 
-  protected abstract Map<String, UserInteraction> countQuotesGiven();
+  public abstract Map<String, UserInteraction> countQuotesGiven();
 
-  protected abstract Map<String, UserInteraction> countRetweetsGiven();
+  public abstract Map<String, UserInteraction> countRetweetsGiven();
 
   /**
    * Generate a map of String (tweetId) and TweetInteraction watching replies, quotes, retweets and likes received
@@ -141,13 +141,13 @@ public abstract class AbstractPersonalAnalyzerBot {
                .merge(this.countLikesReceived(), TweetInteraction::merge);
   }
 
-  protected abstract Map<String, TweetInteraction> countLikesReceived();
+  public abstract Map<String, TweetInteraction> countLikesReceived();
 
-  protected abstract Map<String, TweetInteraction> countRepliesReceived();
+  public abstract Map<String, TweetInteraction> countRepliesReceived();
 
-  protected abstract Map<String, TweetInteraction> countQuotesReceived();
+  public abstract Map<String, TweetInteraction> countQuotesReceived();
 
-  protected abstract Map<String, TweetInteraction> countRetweetsReceived();
+  public abstract Map<String, TweetInteraction> countRetweetsReceived();
 
   /**
    * Generate a Map of String (userId) and Userstats merging given and receive Interactions maps

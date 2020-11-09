@@ -2,8 +2,8 @@ package com.github.redouane59.twitterbot;
 
 import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
+import com.github.redouane59.twitterbot.impl.PersonalAnalyzerBot7days;
 import com.github.redouane59.twitterbot.impl.RankedUser;
-import com.github.redouane59.twitterbot.impl.SevenDaysPersonalAnalyzerBot;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -20,9 +20,9 @@ public class PersonalAnalyzer7daysLauncher {
     if (args.length < 1) {
       LOGGER.error("missing arguments");
     } else {
-      String                       userName = "atmon3r";//args[0];
-      SevenDaysPersonalAnalyzerBot bot      = new SevenDaysPersonalAnalyzerBot(userName, twitterCredentials);
-      List<RankedUser>             result   = bot.launch().subList(0, 10);
+      String                   userName = "MrLdM";//args[0];
+      PersonalAnalyzerBot7days bot      = new PersonalAnalyzerBot7days(userName, twitterCredentials);
+      List<RankedUser>         result   = bot.launch().subList(0, 10);
 
       for (RankedUser ru : result) {
         System.out.println(ru);

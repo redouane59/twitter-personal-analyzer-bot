@@ -3,16 +3,12 @@ package com.github.redouane59.twitterbot;
 import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitter.dto.others.RequestToken;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
-import com.github.redouane59.twitterbot.impl.PersonalAnalyzerBot;
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.rmi.server.ExportException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,9 +20,9 @@ public class TestAuthenticationLauncher {
         .readValue(new File("C:/Users/Perso/Documents/GitHub/twitter-credentials.json"), TwitterCredentials.class);
     TwitterClient twitterClient = new TwitterClient(credentials);
 
-    RequestToken requestToken = twitterClient.getOauth1Token("oob");
-    RequestToken accessToken = null;
-    String authorizationUrl = "https://twitter.com/oauth/authenticate?oauth_token="+requestToken.getOauthToken();
+    RequestToken requestToken     = twitterClient.getOauth1Token("oob");
+    RequestToken accessToken      = null;
+    String       authorizationUrl = "https://twitter.com/oauth/authenticate?oauth_token=" + requestToken.getOauthToken();
 
     BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     while (null == accessToken) {
@@ -53,7 +49,8 @@ public class TestAuthenticationLauncher {
     }
     credentials.setAccessToken(accessToken.getOauthToken());
     credentials.setAccessTokenSecret(accessToken.getOauthTokenSecret());
-
+    System.out.println("access token : " + accessToken.getOauthToken());
+    System.out.println("secret token : " + accessToken.getOauthTokenSecret());
     twitterClient.postTweet("test #TwitterAPI");
   }
 

@@ -71,12 +71,12 @@ public class GoogleSheetHelper implements IOHelper {
       request.setValueInputOption("RAW");
       request.execute();
     } catch (Exception e) {
-      LOGGER.error(e.getMessage());
+      LOGGER.error(e.getMessage(), e);
       try {
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(50);
         this.addUserLine(users);
       } catch (InterruptedException e2) {
-        LOGGER.error(e2.getMessage());
+        LOGGER.error(e2.getMessage(), e);
         Thread.currentThread().interrupt();
       }
     }

@@ -92,8 +92,8 @@ public class BotTest {
   @Test
   public void testInteractionRate() {
     apiSearchHelper = new ApiSearchHelper(userName);
-    double result = apiSearchHelper.getInteractionScore(apiSearchHelper.getTwitterClient().getUserFromUserName(userName));
-    LOGGER.info(userName + " score = " + result);
+    double result = apiSearchHelper.getMedianInteractionScore(apiSearchHelper.getTwitterClient().getUserFromUserName("Billydrakkk"));
+    LOGGER.info("Billydrakkk" + " score = " + result);
     assertTrue(result > 0);
   }
 

@@ -1,8 +1,10 @@
 package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.signature.TwitterCredentials;
+import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
+import java.io.IOException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,11 @@ public class PersonalAnalyzerBot30days extends AbstractPersonalAnalyzerBot {
 
   public PersonalAnalyzerBot30days(final String userName, TwitterCredentials twitterCredentials) {
     super(userName, twitterCredentials);
+    try {
+      this.setIoHelper(new GoogleSheetHelper());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -29,6 +36,7 @@ public class PersonalAnalyzerBot30days extends AbstractPersonalAnalyzerBot {
     return currentWeekTweets.merge(monthlyTweets, UserInteraction::merge);
   }
 
+  // 30days KO
   @Override
   public Map<String, UserInteraction> countQuotesGiven() {
     Map<String, UserInteraction> currentWeekTweets = this.getApiSearchHelper().countQuotesGiven(true);
@@ -56,10 +64,12 @@ public class PersonalAnalyzerBot30days extends AbstractPersonalAnalyzerBot {
     return currentWeekTweets.merge(monthlyTweets, TweetInteraction::merge);
   }
 
+  // 30days KO
   @Override
   public Map<String, TweetInteraction> countQuotesReceived() {
     Map<String, TweetInteraction> currentWeekTweets = getApiSearchHelper().countQuotesReceived(true);
     Map<String, TweetInteraction> monthlyTweets     = getApiSearchHelper().countQuotesReceived(false);
+
     return currentWeekTweets.merge(monthlyTweets, TweetInteraction::merge);
   }
 

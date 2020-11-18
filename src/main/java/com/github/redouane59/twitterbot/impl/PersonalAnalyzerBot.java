@@ -44,7 +44,8 @@ public class PersonalAnalyzerBot extends AbstractPersonalAnalyzerBot {
         if (userStats.get(User.getId()).isDefined()) {
           user.setUserStats(userStats.get(User.getId()).get());
           user.getUserStats().setNbRecentTweets(this.getApiSearchHelper().getNbTweetsWithin7Days(user));
-          user.getUserStats().setMedianInteractionScore(1000 * this.getApiSearchHelper().getMedianInteractionScore(user) / user.getFollowersCount());
+          user.getUserStats()
+              .setMedianInteractionScore(1000 * this.getApiSearchHelper().getMedianInteractionScore(user)/* / user.getFollowersCount()*/);
         }
         usersToWrite.add(user);
         if (usersToWrite.size() == nbUsersToAdd) {

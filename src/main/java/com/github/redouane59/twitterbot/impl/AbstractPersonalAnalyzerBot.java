@@ -34,9 +34,9 @@ public abstract class AbstractPersonalAnalyzerBot {
   private IOHelper        ioHelper;
   private TwitterClient   twitterClient;
   private ApiSearchHelper apiSearchHelper;
-  private boolean         includeFollowers;
-  private boolean         includeFollowings;
-  private boolean         onyFollowBackFollowers;
+  private boolean         includeFollowers       = true;
+  private boolean         includeFollowings      = true;
+  private boolean         onyFollowBackFollowers = true;
 
 
   public AbstractPersonalAnalyzerBot(String userName, TwitterCredentials twitterCredentials) {
@@ -68,6 +68,21 @@ public abstract class AbstractPersonalAnalyzerBot {
     this.includeFollowings      = includeFollowings;
     this.onyFollowBackFollowers = onyFollowBackFollowers;
     Map<String, UserStats> userStats = this.getUserStatsMap();
+    if (includeFollowers) {
+      for (User follower : followers) {
+        if (!userStats.containsKey(follower.getId())) {
+          userStats = userStats.put(follower.getId(), new UserStats());
+        }
+      }
+    }
+    if (includeFollowings) {
+      for (User following : followings) {
+        if (!userStats.containsKey(following.getId())) {
+          userStats = userStats.put(following.getId(), new UserStats());
+        }
+      }
+    }
+
     return this.mapUserStatsToUserRanking(userStats);
   }
 
@@ -75,9 +90,6 @@ public abstract class AbstractPersonalAnalyzerBot {
    * Run the main method in order to get the final user ranking
    */
   public List<RankedUser> launch() {
-    this.setIncludeFollowers(false);
-    this.setIncludeFollowings(true);
-    this.setOnyFollowBackFollowers(true);
     return this.launch(true, true, true);
   }
 
@@ -92,8 +104,13 @@ public abstract class AbstractPersonalAnalyzerBot {
           UserStats  userStat = userStats.get(rawUser.getId()).get();
           RankedUser user     = new RankedUser(rawUser, userStat);
           user.getUserStats().setNbRecentTweets(this.getApiSearchHelper().getNbTweetsWithin7Days(user));
-          user.getUserStats()
-              .setMedianInteractionScore(1000 * this.getApiSearchHelper().getMedianInteractionScore(user) / user.getFollowersCount());
+          if (user.getFollowersCount() > 0) {
+            user.getUserStats()
+                .setMedianInteractionScore(this.getApiSearchHelper().getMedianInteractionScore(user) /*/ user.getFollowersCount()*/);
+          }
+          if (this.followings.contains(rawUser)) {
+            user.setFollowing(true);
+          }
           user.setUserStats(userStat);
           rankedUsers.add(user);
         }
@@ -190,7 +207,7 @@ public abstract class AbstractPersonalAnalyzerBot {
     }
     // case 2 : show all the people I'm following who are following me back
     else if (showFollowers && showFollowings && onyFollowBackUsers) {
-      return (followings.contains(user) && followers.contains(user));
+      return (/*followings.contains(user) &&*/ followers.contains(user));
     }
     // case 3 : show all the people i'm following or all the people who are following me
     else {

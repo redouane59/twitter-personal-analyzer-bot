@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
@@ -23,7 +24,8 @@ public class GoogleSheetHelper implements IOHelper {
   private String sheetId;
   private String tabName;
 
-  public GoogleSheetHelper() throws IOException {
+  @SneakyThrows
+  public GoogleSheetHelper() {
     URL googleCredentialsUrl = GoogleCredentials.class.getClassLoader().getResource("google-credentials.json");
     if (googleCredentialsUrl == null) {
       LOGGER.error("google-credentials.json file not found in src/main/resources");

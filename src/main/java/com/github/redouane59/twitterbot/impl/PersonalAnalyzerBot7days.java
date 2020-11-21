@@ -5,7 +5,6 @@ import com.github.redouane59.twitter.signature.TwitterCredentials;
 import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import lombok.Getter;
@@ -21,11 +20,7 @@ public class PersonalAnalyzerBot7days extends AbstractPersonalAnalyzerBot {
 
   public PersonalAnalyzerBot7days(final String userName, TwitterCredentials twitterCredentials) {
     super(userName, twitterCredentials);
-    try {
-      this.setIoHelper(new GoogleSheetHelper());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    this.setIoHelper(new GoogleSheetHelper());
   }
 
   @Override

@@ -3,7 +3,9 @@ package com.github.redouane59.twitterbot.impl;
 import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitter.dto.tweet.Tweet;
 import com.github.redouane59.twitter.dto.tweet.TweetType;
+import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import java.util.List;
@@ -27,23 +29,27 @@ public class PersonalAnalyzerBotV2 {
 
     for (Tweet sentTweet : sentTweets) {
       String conversationId = sentTweet.getConversationId();
+      String authorId;
       switch (sentTweet.getTweetType()) {
         case QUOTED:
-          String authorId = twitterClient.getTweet(sentTweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId();
+          authorId = twitterClient.getTweet(sentTweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId();
           userInteractions =
               userInteractions.put(authorId,
                                    userInteractions.getOrElse(authorId, new UserInteraction()).addQuoted(conversationId));
           break;
         case RETWEETED:
+          String retweetedTweetId = sentTweet.getInReplyToStatusId(TweetType.RETWEETED);
+          authorId = twitterClient.getTweet(retweetedTweetId).getAuthorId();
           userInteractions =
-              userInteractions.put(sentTweet.getInReplyToStatusId(TweetType.RETWEETED),
-                                   userInteractions.getOrElse(sentTweet.getInReplyToStatusId(TweetType.RETWEETED), new UserInteraction())
+              userInteractions.put(authorId,
+                                   userInteractions.getOrElse(authorId, new UserInteraction())
                                                    .addRetweeted(conversationId));
           break;
         case REPLIED_TO:
+          authorId = sentTweet.getInReplyToUserId();
           userInteractions =
-              userInteractions.put(sentTweet.getInReplyToUserId(),
-                                   userInteractions.getOrElse(sentTweet.getInReplyToUserId(), new UserInteraction()).addAnswered(conversationId));
+              userInteractions.put(authorId,
+                                   userInteractions.getOrElse(authorId, new UserInteraction()).addAnswered(conversationId));
           break;
         case DEFAULT:
           // ...
@@ -81,5 +87,24 @@ public class PersonalAnalyzerBotV2 {
     return null;
   }
 
+  private void printResult(Map<String, UserInteraction> userInteractions) {
+    System.out.println("UserName;Ansd;Qtd;Rtd;Ans;Qts;Rts");
+    for (Tuple2<String, UserInteraction> tp : userInteractions) {
+      User user = twitterClient.getUserFromUserId(tp._1());
+      if (user == null || user.getName() == null) {
+        System.out.println("error user " + tp._1() + " not found");
+      } else {
+        System.out.println(user.getName()
+                           + ";" + tp._2().getAnsweredIds().size()
+                           + ";" + tp._2().getQuotedIds().size()
+                           + ";" + tp._2().getRetweetedIds().size()
+                           + ";" + tp._2().getAnswersIds().size()
+                           + ";" + tp._2().getQuotesIds().size()
+                           + ";" + tp._2().getRetweetsIds().size()
+        );
+      }
+
+    }
+  }
 
 }

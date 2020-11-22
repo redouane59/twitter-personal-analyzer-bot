@@ -14,8 +14,6 @@ import lombok.With;
 @AllArgsConstructor
 public class UserInteraction {
 
-  //  @With
-//  private String      userId;
   @With
   private Set<String> answersIds   = HashSet.empty();
   @With
@@ -85,6 +83,7 @@ public class UserInteraction {
     return this.withQuotedIds(withNewId);
   }
 
+  /*
   // Using VAVR collections everywhere would be much less noisy
   public UserInteraction merge(UserInteraction other) {
     return this.mergeAnswers(other)
@@ -143,5 +142,5 @@ public class UserInteraction {
     Set<String> mergedLiked = HashSet.ofAll(this.getLikedIds())
                                      .addAll(other.getLikedIds());
     return this.withLikedIds(mergedLiked);
-  }
+  } */
 }

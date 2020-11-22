@@ -134,10 +134,11 @@ public abstract class AbstractPersonalAnalyzerBot {
    * Generate a map of String (userId) and UserInteraction watching replies, quotes, retweets and likes given
    */
   public Map<String, UserInteraction> getGivenInteractions() {
-    return this.countRetweetsGiven()
-               .merge(this.countQuotesGiven(), UserInteraction::merge)
+    LOGGER.error("KO refacto in progress... /!\\");
+    return this.countRetweetsGiven();
+              /* .merge(this.countQuotesGiven(), UserInteraction::merge)
                .merge(this.countRepliesGiven(), UserInteraction::merge)
-               .merge(this.countLikesGiven(), UserInteraction::merge);
+               .merge(this.countLikesGiven(), UserInteraction::merge); */
   }
 
   public abstract Map<String, UserInteraction> countLikesGiven();

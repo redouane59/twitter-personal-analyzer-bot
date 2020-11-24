@@ -2,10 +2,9 @@ package com.github.redouane59.twitterbot.io;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.redouane59.twitterbot.properties.GoogleCredentials;
+import com.github.redouane59.twitter.TwitterClient;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.github.redouane59.twitter.TwitterClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,14 +23,14 @@ public class GoogleAuthorizeUtil {
   public static GoogleCredential authorize() throws IOException {
     URL googleCredentialsFile = GoogleAuthorizeUtil.class.getClassLoader().getResource("google-credentials.json");
     if (googleCredentialsFile == null) {
-      LOGGER.error( "file not found");
+      LOGGER.error("file not found");
     }
-    ObjectMapper mapper = TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    ObjectMapper      mapper            = TwitterClient.OBJECT_MAPPER.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     HashMap           credentialMap     = mapper.readValue(googleCredentialsFile, HashMap.class);
     GoogleCredentials googleCredentials = TwitterClient.OBJECT_MAPPER.convertValue(credentialMap, GoogleCredentials.class);
 
-    String jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(googleCredentials);
-    InputStream inputStream = new ByteArrayInputStream(jsonInString.getBytes());
+    String      jsonInString = TwitterClient.OBJECT_MAPPER.writeValueAsString(googleCredentials);
+    InputStream inputStream  = new ByteArrayInputStream(jsonInString.getBytes());
 
     return GoogleCredential
         .fromStream(inputStream)

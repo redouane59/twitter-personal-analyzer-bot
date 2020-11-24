@@ -2,67 +2,68 @@ package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.dto.user.User;
 import java.text.DecimalFormat;
-import lombok.Value;
+import lombok.Getter;
+import lombok.Setter;
 
-@Value
-public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
+@Setter
+@Getter
+public class RankedUser extends InteractiveUser implements Comparable<RankedUser> {
 
-  DecimalFormat df = new DecimalFormat("#0.0");
+  private DecimalFormat df = new DecimalFormat("#0.0");
 
-  public RankedUser(User u, UserStats userStats) {
-    super(u);
-    this.setUserStats(userStats);
-  }
-
-  public RankedUser(UserStats userStats) {
-    this.setUserStats(userStats);
+  public RankedUser(User user, UserInteraction userInteraction) {
+    super(user);
+    this.setUserInteraction(userInteraction);
   }
 
   public double getFollowerRatioGrade() {
-    return this.getFollowersRatio() > 5 ? 5 : this.getFollowersRatio();
+    return this.getFollowersRatio() > RankingConfiguration.FOLLOWERS_RATIO_MAX
+           ? 5 : this.getFollowersRatio() * 5 / RankingConfiguration.FOLLOWERS_RATIO_MAX;
   }
 
   public double getNbTweetsGrade() {
-    if (this.getUserStats().getNbRecentTweets() >= 21 || this.getUserStats().getNbRecentTweets() <= 70) {
+    if (this.getUserInteraction().getNbRecentTweets() >= RankingConfiguration.NB_RECENT_TWEETS_MIN
+        || this.getUserInteraction().getNbRecentTweets() <= RankingConfiguration.NB_RECENT_TWEETS_MAX) {
       return 5;
-    } else if (this.getUserStats().getNbRecentTweets() < 21) {
-      return 5 * this.getUserStats().getNbRecentTweets() / (double) 21;
+    } else if (this.getUserInteraction().getNbRecentTweets() < RankingConfiguration.NB_RECENT_TWEETS_MIN) {
+      return 5 * this.getUserInteraction().getNbRecentTweets() / (double) RankingConfiguration.NB_RECENT_TWEETS_MIN;
     } else {
-      return 5 * 70 / (double) this.getUserStats().getNbRecentTweets();
+      return 5 * RankingConfiguration.NB_RECENT_TWEETS_MAX / (double) this.getUserInteraction().getNbRecentTweets();
     }
   }
 
   public double getInteractionRatioGrade() {
-    return Math.min(5 * this.getUserStats().getMedianInteractionScore() / (double) 20, 5);
+    return Math.min(5 * this.getUserInteraction().getMedianInteractionScore() / (double) 20, 5);
   }
 
   public double getRepliesReceivedGrade() {
-    return Math.min(this.getUserStats().getNbRepliesReceived(), 5);
+    return Math.min(this.getUserInteraction().getAnswersIds().size(), 5);
   }
 
   public double getRetweetsReceivedGrade() {
-    return Math.min(this.getUserStats().getNbRetweetsReceived(), 5);
+    return Math.min(this.getUserInteraction().getRetweetsIds().size(), 5);
   }
 
   public double getLikesReceivedGrade() {
-    return Math.min(this.getUserStats().getNbLikesReceived() / (double) 2, 5);
+    return Math.min(this.getUserInteraction().getLikesIds().size() / (double) 2, 5);
   }
 
   public double getRepliesGivenGrade() {
-    return Math.min(this.getUserStats().getNbRepliesGiven(), 5);
+    return Math.min(this.getUserInteraction().getAnsweredIds().size(), 5);
   }
 
   public double getRetweetsGivenGrade() {
-    return Math.min(this.getUserStats().getNbRetweetsGiven(), 5);
+    return Math.min(this.getUserInteraction().getRetweetedIds().size(), 5);
   }
 
   public double getLikesGivenGrade() {
-    return Math.min(this.getUserStats().getNbLikesGiven() / (double) 2, 5);
+    return Math.min(this.getUserInteraction().getLikedIds().size() / (double) 2, 5);
   }
 
   // 1/3 for profile and 2/3 for interactions
   public double getGrade() {
-    return this.getProfileGrade() + 2 * this.getInteractionGrade();
+    return this.getProfileGrade() * RankingConfiguration.PROFILE_COEFF
+           + this.getInteractionGrade() * RankingConfiguration.INTERACTION_COEFF;
   }
 
   public double getInteractionGrade() {
@@ -99,12 +100,12 @@ public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
            + df.format(this.getFollowerRatioGrade())
            + "/5)\n"
            + "     recent tweets : "
-           + this.getUserStats().getNbRecentTweets()
+           + this.getUserInteraction().getNbRecentTweets()
            + " ("
            + df.format(this.getNbTweetsGrade())
            + "/5)\n"
            + "     interactions median : "
-           + this.getUserStats().getMedianInteractionScore()
+           + this.getUserInteraction().getMedianInteractionScore()
            + " ("
            + df.format(this.getInteractionRatioGrade())
            + "/5)\n"
@@ -112,32 +113,32 @@ public class RankedUser extends CustomerUser implements Comparable<RankedUser> {
            + df.format(this.getInteractionGrade())
            + "\n"
            + "     Replies received : "
-           + this.getUserStats().getNbRepliesReceived()
+           + this.getUserInteraction().getAnswersIds().size()
            + " ("
            + df.format(this.getRepliesReceivedGrade())
            + "/5)\n"
            + "     Retweets received : "
-           + this.getUserStats().getNbRetweetsReceived()
+           + this.getUserInteraction().getRetweetsIds().size()
            + " ("
            + df.format(this.getRetweetsReceivedGrade())
            + "/5)\n"
            + "     Likes received (KO) : "
-           + this.getUserStats().getNbLikesReceived()
+           + this.getUserInteraction().getLikesIds().size()
            + " ("
            + df.format(this.getLikesReceivedGrade())
            + "/5)\n"
            + "     Replies given : "
-           + this.getUserStats().getNbRepliesGiven()
+           + this.getUserInteraction().getAnsweredIds().size()
            + " ("
            + df.format(this.getRepliesGivenGrade())
            + "/5)\n"
            + "     Retweets given : "
-           + this.getUserStats().getNbRetweetsGiven()
+           + this.getUserInteraction().getRetweetedIds().size()
            + " ("
            + df.format(this.getRetweetsGivenGrade())
            + "/5)\n"
            + "     Likes given : "
-           + this.getUserStats().getNbLikesGiven()
+           + this.getUserInteraction().getLikedIds().size()
            + " ("
            + df.format(this.getLikesGivenGrade())
            + "/5)\n"

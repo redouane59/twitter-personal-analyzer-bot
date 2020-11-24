@@ -30,6 +30,10 @@ public class UserInteraction {
   private Set<String> quotedIds    = HashSet.empty();
   @With
   private Set<String> likedIds     = HashSet.empty();
+  @With
+  private int         nbRecentTweets;
+  @With
+  private int         medianInteractionScore; // @todo dirty
 
  /* public UserInteraction addUserId(String userId) {
     return this.withUserId(userId);

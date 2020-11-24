@@ -1,12 +1,8 @@
 package com.github.redouane59.twitterbot.integration;
 
-import com.github.redouane59.twitterbot.impl.CustomerUser;
-import com.github.redouane59.twitterbot.impl.UserStats;
 import com.github.redouane59.twitterbot.io.GoogleSheetHelper;
-import io.vavr.collection.List;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public class GoogleSheetHelperTest {
 
@@ -19,6 +15,7 @@ public class GoogleSheetHelperTest {
   static void init() {
   }
 
+  /*
 
   @Test
   public void testAddNewLine() {
@@ -44,5 +41,7 @@ public class GoogleSheetHelperTest {
     user2.setUserStats(userStats);
     googleSheetHelper.addUserLine(List.of(user1, user2).asJava());
   }
+
+   */
 
 }

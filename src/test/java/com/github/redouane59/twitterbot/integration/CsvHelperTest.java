@@ -1,10 +1,7 @@
 package com.github.redouane59.twitterbot.integration;
 
 import com.github.redouane59.twitterbot.io.CsvHelper;
-import com.github.redouane59.twitterbot.impl.CustomerUser;
-import io.vavr.collection.List;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public class CsvHelperTest {
 
@@ -13,7 +10,7 @@ public class CsvHelperTest {
   @BeforeAll
   static void init() {
   }
-
+  /*
 
   @Test
   public void testAddNewLine(){
@@ -36,4 +33,6 @@ public class CsvHelperTest {
     csvHelper.addUserLine(List.of(user1, user2).asJava());
   }
 
+
+   */
 }

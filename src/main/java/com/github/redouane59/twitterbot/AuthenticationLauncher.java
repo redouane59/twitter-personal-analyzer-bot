@@ -12,7 +12,7 @@ import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TestAuthenticationLauncher {
+public class AuthenticationLauncher {
 
   public static void main(String[] args) throws IOException {
 

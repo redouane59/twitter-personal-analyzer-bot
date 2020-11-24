@@ -1,11 +1,6 @@
 package com.github.redouane59.twitterbot.integration;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.github.redouane59.twitterbot.impl.RankedUser;
-import com.github.redouane59.twitterbot.impl.UserStats;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public class RankedUserTest {
 
@@ -14,6 +9,7 @@ public class RankedUserTest {
   @BeforeAll
   static void init() {
   }
+  /*
 
   private RankedUser getUser1() {
     UserStats userStats = UserStats.builder().nbRepliesReceived(1)
@@ -104,5 +100,7 @@ public class RankedUserTest {
     assertTrue(Math.abs(rankedUser.getGrade() - 6.1) < errorMargin);
   }
 
+
+   */
 
 }

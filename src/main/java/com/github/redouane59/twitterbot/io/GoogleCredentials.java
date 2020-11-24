@@ -1,6 +1,5 @@
-package com.github.redouane59.twitterbot.properties;
+package com.github.redouane59.twitterbot.io;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

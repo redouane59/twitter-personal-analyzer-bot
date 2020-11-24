@@ -1,8 +1,7 @@
 package com.github.redouane59.twitterbot.io;
 
 import com.github.redouane59.twitter.TwitterClient;
-import com.github.redouane59.twitterbot.impl.CustomerUser;
-import com.github.redouane59.twitterbot.properties.GoogleCredentials;
+import com.github.redouane59.twitterbot.impl.RankedUser;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
@@ -43,27 +42,35 @@ public class GoogleSheetHelper implements IOHelper {
     }
   }
 
-  public void addUserLine(List<CustomerUser> users) {
+  public void addUserLine(List<RankedUser> users) {
     List<List<Object>> values = new ArrayList<>();
-    for (CustomerUser user : users) {
+    for (RankedUser user : users) {
       values.add(Arrays.asList(String.valueOf(user.getId()),
                                user.getName(),
                                user.getFollowersCount(),
                                user.getFollowingCount(),
                                user.getTweetCount(),
-                               user.getUserStats().getNbRecentTweets(),
-                               user.getUserStats().getMedianInteractionScore(), // @todo to change
+                               user.getUserInteraction().getNbRecentTweets(),
+                               user.getUserInteraction().getMedianInteractionScore(), // @todo to change
                                user.getDescription().
                                    replace("\"", " ")
                                    .replace(";", " ")
                                    .replace("\n", " "),
                                Optional.ofNullable(user.getLocation()).orElse(""),
-                               user.getUserStats().getNbRepliesReceived(),
-                               user.getUserStats().getNbRetweetsReceived(),
-                               user.getUserStats().getNbRepliesGiven(),
-                               user.getUserStats().getNbRetweetsGiven(),
-                               user.getUserStats().getNbLikesGiven(),
-                               user.isFollowing()));
+                               user.getUserInteraction().getAnswersIds().size(),
+                               user.getUserInteraction().getRetweetsIds().size(),
+                               user.getUserInteraction().getAnsweredIds().size(),
+                               user.getUserInteraction().getRetweetedIds().size(),
+                               user.getUserInteraction().getLikedIds().size(),
+                               user.isFollowing(),
+                               user.getRepliesReceivedGrade(),
+                               user.getRetweetsReceivedGrade(),
+                               //user.getLikesReceivedGrade(),
+                               user.getRepliesGivenGrade(),
+                               user.getRetweetsGivenGrade(),
+                               user.getLikesGivenGrade()
+
+      ));
     }
     ValueRange body = new ValueRange()
         .setValues(values);
@@ -80,6 +87,23 @@ public class GoogleSheetHelper implements IOHelper {
       } catch (InterruptedException e2) {
         LOGGER.error(e2.getMessage(), e);
         Thread.currentThread().interrupt();
+      }
+    }
+  }
+
+  public void writeAllUsers(List<RankedUser> allUsers, int nbUsersToAddPerCall) {
+    List<RankedUser> usersToWrite = new ArrayList<>();
+    for (RankedUser ru : allUsers) {
+      usersToWrite.add(ru);
+      if (usersToWrite.size() == nbUsersToAddPerCall) {
+        this.addUserLine(usersToWrite);
+        usersToWrite = new ArrayList<>();
+        LOGGER.info("adding " + nbUsersToAddPerCall + " users ...");
+        try {
+          TimeUnit.MILLISECONDS.sleep(600);
+        } catch (InterruptedException e) {
+          LOGGER.error(e.getMessage());
+        }
       }
     }
   }

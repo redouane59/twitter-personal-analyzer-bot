@@ -49,6 +49,7 @@ public class GoogleSheetHelper implements IOHelper {
                                user.getName(),
                                user.getFollowersCount(),
                                user.getFollowingCount(),
+                               user.getFollowersRatio(),
                                user.getTweetCount(),
                                user.getUserInteraction().getNbRecentTweets(),
                                user.getUserInteraction().getMedianInteractionScore(), // @todo to change
@@ -57,18 +58,24 @@ public class GoogleSheetHelper implements IOHelper {
                                    .replace(";", " ")
                                    .replace("\n", " "),
                                Optional.ofNullable(user.getLocation()).orElse(""),
+                               user.isFollowing(),
                                user.getUserInteraction().getAnswersIds().size(),
                                user.getUserInteraction().getRetweetsIds().size(),
                                user.getUserInteraction().getAnsweredIds().size(),
                                user.getUserInteraction().getRetweetedIds().size(),
                                user.getUserInteraction().getLikedIds().size(),
-                               user.isFollowing(),
+                               user.getFollowerRatioGrade(),
+                               user.getNbTweetsGrade(),
+                               user.getInteractionRatioGrade(),
                                user.getRepliesReceivedGrade(),
                                user.getRetweetsReceivedGrade(),
                                //user.getLikesReceivedGrade(),
                                user.getRepliesGivenGrade(),
                                user.getRetweetsGivenGrade(),
-                               user.getLikesGivenGrade()
+                               user.getLikesGivenGrade(),
+                               user.getProfileGrade(),
+                               user.getInteractionGrade(),
+                               user.getGrade()
 
       ));
     }

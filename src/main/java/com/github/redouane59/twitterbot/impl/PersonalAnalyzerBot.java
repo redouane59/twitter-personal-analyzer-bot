@@ -9,6 +9,7 @@ import com.github.redouane59.twitter.signature.TwitterCredentials;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -28,7 +29,10 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
    * @return a map of userId, UserInteraction
    */
   public Map<String, UserInteraction> getUsersInteractions() {
+    LOGGER.debug("--- getUsersInteractions ---");
     Map<String, UserInteraction> userInteractions = HashMap.empty();
+    // counting likes given
+    userInteractions = this.countLiked(userInteractions);
     // retrieve all the user sent tweets through API
     List<Tweet> sentTweets = this.getTwitterClient().searchForTweetsWithin7days("from:" + this.getUserName());
     for (Tweet sentTweet : sentTweets) {
@@ -46,12 +50,14 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     return userInteractions;
   }
 
+
   /**
    * Counts a quotes, a retweets or answer given from a sent tweet
    */
   private Map<String, UserInteraction> countSentInteractions(Tweet sentTweet,
                                                              String conversationId,
                                                              final Map<String, UserInteraction> oldUserInteractions) {
+    LOGGER.debug("analyzing tweet : " + sentTweet.getText().replace("\n", ""));
     Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(oldUserInteractions);
     String                       authorId;
     switch (sentTweet.getTweetType()) {
@@ -89,6 +95,7 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
   private Map<String, UserInteraction> countRetweeters(Tweet sentTweet,
                                                        String conversationId,
                                                        final Map<String, UserInteraction> oldUserInteractions) {
+    LOGGER.debug("analyzing retweets of : " + sentTweet.getText().replace("\n", ""));
     Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(oldUserInteractions);
     if (sentTweet.getRetweetCount() > 0) {
       List<String> retweeters = this.getTwitterClient().getRetweetersId(sentTweet.getId());
@@ -106,6 +113,7 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
   private Map<String, UserInteraction> countQuoters(Tweet sentTweet,
                                                     String conversationId,
                                                     final Map<String, UserInteraction> oldUserInteractions) {
+    LOGGER.debug("analyzing quotes of : " + sentTweet.getText().replace("\n", ""));
     Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(oldUserInteractions);
     String                       sentTweetUrl        = "https://twitter.com/" + this.getUserName() + "/status/" + sentTweet.getId();
     List<Tweet>                  quotedTweets        = this.getTwitterClient().searchForTweetsWithin7days("url:\"" + sentTweetUrl + "\"");
@@ -124,6 +132,7 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(oldUserInteractions);
     List<Tweet>                  receivedTweets      = this.getTwitterClient().searchForTweetsWithin7days("to:" + this.getUserName());
     for (Tweet receivedTweet : receivedTweets) {
+      LOGGER.debug("analyzing answer : " + receivedTweet.getText().replace("\n", ""));
       newUserInteractions =
           newUserInteractions.put(receivedTweet.getAuthorId(),
                                   newUserInteractions.getOrElse(receivedTweet.getAuthorId(), new UserInteraction()).addAnswer(receivedTweet.getId()));
@@ -131,32 +140,17 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     return newUserInteractions;
   }
 
-  /**
-   * Get a score based on the average interaction ratio on the last 7 days tweets (max: 100 tweets)
-   *
-   * @param user the user that should be analyzed
-   * @return a score
-   */
-  public int getInteractionScore(User user) {
-    String        query          = "from:" + user.getName() + " -is:reply -is:retweet";
-    LocalDateTime fromDate       = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS);
-    LocalDateTime toDate         = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.DAYS);
-    List<Tweet>   lastUserTweets = this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate);
-    int           nbFollowers    = user.getFollowersCount();
-    if (lastUserTweets.size() == 0 || nbFollowers == 0) {
-      return 0;
-    }
-    // RT : 4 pts / Quote : 3 pts / Reply : 2 pts / like : 1 pt
-    int points = lastUserTweets.stream()
-                               .map(tweet -> 4 * tweet.getRetweetCount()
-                                             + 3 * tweet.getQuoteCount()
-                                             + 2 * tweet.getReplyCount()
-                                             + tweet.getLikeCount())
-                               .mapToInt(Integer::intValue)
-                               .sum();
-
-    return 10000 * points / lastUserTweets.size() / nbFollowers;
+  private Map<String, UserInteraction> countLiked(final Map<String, UserInteraction> oldUserInteractions) {
+    Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(oldUserInteractions);
+    Stream<Tweet>                likedTweets         = Stream.ofAll(this.getTwitterClient().getFavorites(this.getUserId(), 5000));
+    return newUserInteractions.merge(likedTweets
+                                         .filter(tweet -> tweet.getInReplyToStatusId() == null)
+                                         // .filter(tweet -> this.isUserInList(tweet.getAuthorId()))
+                                         .peek(tweet -> LOGGER.info("analyzing tweet : " + tweet.getText().replace("\n", "")))
+                                         .groupBy(Tweet::getAuthorId)
+                                         .map(this::getTupleLikeGiven));
   }
+
 
   public int getNbTweetsWithin7Days(User user) {
     String        query    = "from:" + user.getName() + " -is:reply -is:retweet";
@@ -208,11 +202,14 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
   }
 
   public List<RankedUser> getRankedUsers(final Map<String, UserInteraction> userInteractions) {
+    LOGGER.debug("\n--- getRankedUsers ---");
     List<RankedUser> result = new ArrayList<>();
+    // @Todo generate missing rankedUsers
     for (Tuple2<String, UserInteraction> tp : userInteractions) {
       if (tp._1() != null) {
         User user = this.getTwitterClient().getUserFromUserId(tp._1());
         if (user != null && ((UserV2) user).getData() != null) {
+          LOGGER.debug("adding " + user.getName());
           UserInteraction userInteraction = tp._2()
                                               .withNbRecentTweets(this.getNbTweetsWithin7Days(user))
                                               .withMedianInteractionScore(this.getMedianInteractionScore(user));

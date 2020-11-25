@@ -18,7 +18,7 @@ public class InteractiveUser extends UserV1 {
     this.setName(u.getName());
     this.setDescription(u.getDescription());
     this.setFollowersCount(u.getFollowersCount());
-    this.setFollowersCount(u.getFollowingCount());
+    this.setFollowingCount(u.getFollowingCount());
     this.setTweetCount(u.getTweetCount());
     this.setLocation(u.getLocation());
     this.setFollowing(u.isFollowing());

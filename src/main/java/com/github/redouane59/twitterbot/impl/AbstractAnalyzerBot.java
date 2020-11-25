@@ -1,10 +1,13 @@
 package com.github.redouane59.twitterbot.impl;
 
 import com.github.redouane59.twitter.TwitterClient;
+import com.github.redouane59.twitter.dto.tweet.Tweet;
 import com.github.redouane59.twitter.dto.user.User;
 import com.github.redouane59.twitter.signature.TwitterCredentials;
+import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +17,7 @@ import lombok.Getter;
 public class AbstractAnalyzerBot {
 
   private String        userName;
+  private String        userId;
   private TwitterClient twitterClient;
   private List<User>    followings;
   private List<User>    followers;
@@ -22,10 +26,10 @@ public class AbstractAnalyzerBot {
   public AbstractAnalyzerBot(String userName, TwitterCredentials twitterCredentials) {
     this.userName      = userName;
     this.twitterClient = new TwitterClient(twitterCredentials);
-    String userId = this.twitterClient.getUserFromUserName(userName).getId();
-    this.followings = this.twitterClient.getFollowingUsers(userId);
-    this.followers  = this.twitterClient.getFollowerUsers(userId);
-    this.allUsers   = new HashSet<>() {
+    this.userId        = this.twitterClient.getUserFromUserName(userName).getId();
+    this.followings    = this.twitterClient.getFollowingUsers(userId);
+    this.followers     = this.twitterClient.getFollowerUsers(userId);
+    this.allUsers      = new HashSet<>() {
       {
         addAll(followings);
         addAll(followers);
@@ -51,6 +55,12 @@ public class AbstractAnalyzerBot {
       }
 
     }
+  }
+
+  public Tuple2<String, UserInteraction> getTupleLikeGiven(String userId, Stream<Tweet> tweets) {
+    return Tuple.of(userId,
+                    tweets.foldLeft(new UserInteraction(),
+                                    (interaction, tweet) -> interaction.addLike(tweet.getId())));
   }
 
 }

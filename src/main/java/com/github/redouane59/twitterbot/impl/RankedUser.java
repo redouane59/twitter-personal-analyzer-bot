@@ -17,8 +17,7 @@ public class RankedUser extends InteractiveUser implements Comparable<RankedUser
   }
 
   public double getFollowerRatioGrade() {
-    return this.getFollowersRatio() > RankingConfiguration.FOLLOWERS_RATIO_MAX
-           ? 5 : this.getFollowersRatio() * 5 / RankingConfiguration.FOLLOWERS_RATIO_MAX;
+    return 3.2 * Math.atan(Math.pow(this.getFollowersRatio(), 3) / 10);
   }
 
   public double getNbTweetsGrade() {
@@ -33,7 +32,8 @@ public class RankedUser extends InteractiveUser implements Comparable<RankedUser
   }
 
   public double getInteractionRatioGrade() {
-    return Math.min(5 * this.getUserInteraction().getMedianInteractionScore() / (double) 20, 5);
+    Double relativeValue = (double) this.getUserInteraction().getMedianInteractionScore() / (double) this.getFollowersCount();
+    return Math.min(1000 * relativeValue, 5);
   }
 
   public double getRepliesReceivedGrade() {

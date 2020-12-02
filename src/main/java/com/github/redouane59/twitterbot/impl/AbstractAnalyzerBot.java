@@ -60,7 +60,7 @@ public class AbstractAnalyzerBot {
   public Tuple2<String, UserInteraction> getTupleLikeGiven(String userId, Stream<Tweet> tweets) {
     return Tuple.of(userId,
                     tweets.foldLeft(new UserInteraction(),
-                                    (interaction, tweet) -> interaction.addLike(tweet.getId())));
+                                    (interaction, tweet) -> interaction.addLiked(tweet.getId())));
   }
 
 }

@@ -25,6 +25,6 @@ public class InteractiveUser extends UserV1 {
   }
 
   public double getFollowersRatio() {
-    return (double) this.getFollowersCount() / (double) this.getFollowingCount();
+    return (double) this.getFollowersCount() / (double) (this.getFollowingCount() + 1);
   }
 }

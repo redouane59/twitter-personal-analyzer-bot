@@ -21,6 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
 
+  private final LocalDateTime fromDate = ConverterHelper.dayBeforeNow(30).truncatedTo(ChronoUnit.DAYS).plusHours(1);
+  private final LocalDateTime toDate   = ConverterHelper.dayBeforeNow(7).truncatedTo(ChronoUnit.DAYS);
+  public final  String        ENV_NAME = "30days";
+
   public PersonalAnalyzerBot(String userName, TwitterCredentials twitterCredentials) {
     super(userName, twitterCredentials);
   }
@@ -34,7 +38,10 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     // counting likes given
     userInteractions = this.countLiked(userInteractions);
     // retrieve all the user sent tweets through API
-    List<Tweet> sentTweets = this.getTwitterClient().searchForTweetsWithin7days("from:" + this.getUserName());
+    String      query      = "from:" + this.getUserName();
+    List<Tweet> sentTweets = this.getTwitterClient().searchForTweetsWithin7days(query);
+    sentTweets.addAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
+    LOGGER.debug("\nAnalyzing " + sentTweets.size() + " sent tweets...");
     for (Tweet sentTweet : sentTweets) {
       String conversationId = sentTweet.getConversationId();
       // counting quotes, retweets, and answers given
@@ -62,18 +69,23 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     String                       authorId;
     switch (sentTweet.getTweetType()) {
       case QUOTED:
-        authorId = this.getTwitterClient().getTweet(sentTweet.getInReplyToStatusId(TweetType.QUOTED)).getAuthorId();
-        newUserInteractions =
-            newUserInteractions.put(authorId,
-                                    newUserInteractions.getOrElse(authorId, new UserInteraction()).addQuoted(conversationId));
+        String tweetId = sentTweet.getInReplyToStatusId(TweetType.QUOTED);
+        if (tweetId != null) {
+          authorId            = this.getTwitterClient().getTweet(tweetId).getAuthorId();
+          newUserInteractions =
+              newUserInteractions.put(authorId,
+                                      newUserInteractions.getOrElse(authorId, new UserInteraction()).addQuoted(conversationId));
+        }
         break;
       case RETWEETED:
         String retweetedTweetId = sentTweet.getInReplyToStatusId(TweetType.RETWEETED);
-        authorId = this.getTwitterClient().getTweet(retweetedTweetId).getAuthorId();
-        newUserInteractions =
-            newUserInteractions.put(authorId,
-                                    newUserInteractions.getOrElse(authorId, new UserInteraction())
-                                                       .addRetweeted(conversationId));
+        if (retweetedTweetId != null) {
+          authorId            = this.getTwitterClient().getTweet(retweetedTweetId).getAuthorId();
+          newUserInteractions =
+              newUserInteractions.put(authorId,
+                                      newUserInteractions.getOrElse(authorId, new UserInteraction())
+                                                         .addRetweeted(conversationId));
+        }
         break;
       case REPLIED_TO:
         authorId = sentTweet.getInReplyToUserId();
@@ -130,7 +142,10 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
    */
   private Map<String, UserInteraction> countAnswerers(final Map<String, UserInteraction> oldUserInteractions) {
     Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(oldUserInteractions);
-    List<Tweet>                  receivedTweets      = this.getTwitterClient().searchForTweetsWithin7days("to:" + this.getUserName());
+    String                       query               = "to:" + this.getUserName();
+    List<Tweet>                  receivedTweets      = this.getTwitterClient().searchForTweetsWithin7days(query);
+    receivedTweets.addAll(this.getTwitterClient().searchForTweetsWithin30days(query, fromDate, toDate, ENV_NAME));
+    LOGGER.debug("\nAnalyzing " + receivedTweets.size() + " received tweets...");
     for (Tweet receivedTweet : receivedTweets) {
       LOGGER.debug("analyzing answer : " + receivedTweet.getText().replace("\n", ""));
       newUserInteractions =
@@ -151,12 +166,9 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
                                          .map(this::getTupleLikeGiven));
   }
 
-
   public int getNbTweetsWithin7Days(User user) {
-    String        query    = "from:" + user.getName() + " -is:reply -is:retweet";
-    LocalDateTime fromDate = ConverterHelper.dayBeforeNow(6).truncatedTo(ChronoUnit.DAYS); // @todo to improve
-    LocalDateTime toDate   = ConverterHelper.minutesBeforeNow(120).truncatedTo(ChronoUnit.DAYS);
-    return this.getTwitterClient().searchForTweetsWithin7days(query, fromDate, toDate).size();
+    String query = "from:" + user.getName() + " -is:reply -is:retweet";
+    return this.getTwitterClient().searchForTweetsWithin7days(query).size();
   }
 
   public int getMedianInteractionScore(User user) {
@@ -181,10 +193,9 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     return (int) result;
   }
 
-  public boolean hasToAddUser(User user, List<User> followings, List<User> followers,
-                              boolean showFollowings, boolean showFollowers, boolean onyFollowBackUsers) {
+  public boolean hasToAddUser(User user, boolean showFollowings, boolean showFollowers, boolean onyFollowBackUsers) {
     // case 0 : only follow back users
-    if (onyFollowBackUsers && followings.contains(user) && !followers.contains(user)) {
+    if (onyFollowBackUsers && this.getFollowings().contains(user) && !this.getFollowers().contains(user)) {
       return false;
     }
     // case 1 : show all the people i'm following and all the users following me
@@ -193,30 +204,43 @@ public class PersonalAnalyzerBot extends AbstractAnalyzerBot {
     }
     // case 2 : show all the people I'm following who are following me back
     else if (showFollowers && showFollowings && onyFollowBackUsers) {
-      return (/*followings.contains(user) &&*/ followers.contains(user));
+      return (/*followings.contains(user) &&*/ this.getFollowers().contains(user));
     }
     // case 3 : show all the people i'm following or all the people who are following me
     else {
-      return ((followings.contains(user) && showFollowings) || followers.contains(user) && showFollowers);
+      return ((this.getFollowings().contains(user) && showFollowings) || this.getFollowers().contains(user) && showFollowers);
     }
   }
 
   public List<RankedUser> getRankedUsers(final Map<String, UserInteraction> userInteractions) {
     LOGGER.debug("\n--- getRankedUsers ---");
-    List<RankedUser> result = new ArrayList<>();
+    Map<String, UserInteraction> newUserInteractions = HashMap.ofEntries(userInteractions);
+    List<RankedUser>             result              = new ArrayList<>();
     // @Todo generate missing rankedUsers
-    for (Tuple2<String, UserInteraction> tp : userInteractions) {
+    // adding users without interactions
+    for (User u : this.getAllUsers()) {
+      if (!newUserInteractions.containsKey(u.getId())) {
+        newUserInteractions = newUserInteractions.put(u.getId(), new UserInteraction());
+      }
+    }
+    for (Tuple2<String, UserInteraction> tp : newUserInteractions) {
       if (tp._1() != null) {
-        User user = this.getTwitterClient().getUserFromUserId(tp._1());
-        if (user != null && ((UserV2) user).getData() != null) {
-          LOGGER.debug("adding " + user.getName());
-          UserInteraction userInteraction = tp._2()
-                                              .withNbRecentTweets(this.getNbTweetsWithin7Days(user))
-                                              .withMedianInteractionScore(this.getMedianInteractionScore(user));
-          RankedUser rankedUser = new RankedUser(user, userInteraction);
-          result.add(rankedUser);
-        } else {
-          LOGGER.error("User not found : id = " + tp._1());
+        try {
+          User user = this.getTwitterClient().getUserFromUserId(tp._1());
+          if (user != null && ((UserV2) user).getData() != null) {
+            if (this.hasToAddUser(user, true, true, true)) {
+              LOGGER.debug("adding " + user.getName());
+              UserInteraction userInteraction = tp._2()
+                                                  .withNbRecentTweets(this.getNbTweetsWithin7Days(user))
+                                                  .withMedianInteractionScore(this.getMedianInteractionScore(user));
+              RankedUser rankedUser = new RankedUser(user, userInteraction);
+              result.add(rankedUser);
+            }
+          } else {
+            LOGGER.error("User not found : id = " + tp._1());
+          }
+        } catch (Exception e) {
+          LOGGER.error(e.getMessage());
         }
       } else {
         LOGGER.error("id is null");

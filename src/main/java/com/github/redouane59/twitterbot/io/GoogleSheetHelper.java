@@ -4,7 +4,6 @@ import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitterbot.impl.RankedUser;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,28 +114,5 @@ public class GoogleSheetHelper implements IOHelper {
     }
   }
 
-  public String vlookup(String userName, int col) {
-    List<Object> userData = getUserData(userName);
-    if (userData.size() >= col) {
-      return String.valueOf(userData.get(col));
-    }
-    return null;
-  }
-
-  public List<Object> getUserData(String userName) {
-    int userNameCol = 1;
-    try {
-      Sheets.Spreadsheets.Values.Get request =
-          sheetsService.spreadsheets().values().get(this.sheetId, this.tabName);
-      ValueRange response = request.execute();
-      for (List<Object> lines : response.getValues()) {
-        if (lines.get(userNameCol).equals(userName)) {
-          return lines;
-        }
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return new ArrayList<>();
-  }
+  
 }

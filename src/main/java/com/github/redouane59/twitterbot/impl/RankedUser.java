@@ -32,7 +32,9 @@ public class RankedUser extends InteractiveUser implements Comparable<RankedUser
   }
 
   public double getInteractionRatioGrade() {
-    Double relativeValue = (double) this.getUserInteraction().getMedianInteractionScore() / (double) this.getFollowersCount();
+    Double
+        relativeValue =
+        (double) this.getUserInteraction().getMedianInteractionScore() / (double) (this.getFollowersCount() + 1); // +1 if no followers
     return Math.min(1000 * relativeValue, 5);
   }
 
